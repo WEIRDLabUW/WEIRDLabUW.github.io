@@ -1,1 +1,364 @@
-Under construction
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="description"
+        content="GOM models long-term dynamics in a policy and reward agnostic manner that transfers to various downstream tasks.">
+    <meta name="keywords" content="Reinforcement Learning, Robotics">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Transferable Reinforcement Learning via Generalized Occupancy Models</title>
+
+    <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro" rel="stylesheet">
+
+    <link rel="stylesheet" href="./static/css/bulma.min.css">
+    <link rel="stylesheet" href="./static/css/bulma-carousel.min.css">
+    <link rel="stylesheet" href="./static/css/bulma-slider.min.css">
+    <link rel="stylesheet" href="./static/css/fontawesome.all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+    <link rel="stylesheet" href="./static/css/index.css">
+    <link rel="icon" href="./static/images/favicon.svg">
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script defer src="./static/js/fontawesome.all.min.js"></script>
+    <script src="./static/js/bulma-carousel.min.js"></script>
+    <script src="./static/js/bulma-slider.min.js"></script>
+    <script src="./static/js/index.js"></script>
+</head>
+
+<body>
+
+
+    <section class="hero">
+        <div class="hero-body">
+            <div class="container is-max-desktop">
+                <div class="columns is-centered">
+                    <div class="column has-text-centered">
+                        <h1 class="title is-1 publication-title">Transferable Reinforcement Learning via Generalized
+                            Occupancy Models</h1>
+                        <div class="is-size-5 publication-authors">
+                            <span class="author-block">
+                                <a href="https://homes.cs.washington.edu/~zchuning/">Chuning Zhu</a><sup>1</sup>,</span>
+                            <span class="author-block">
+                                <a href="https://elliotxinqiwang.github.io/">Xinqi Wang</a><sup>1</sup>,</span>
+                            <span class="author-block">
+                                <a href="https://thanandnow.github.io/">Tyler Han</a><sup>1</sup>,</span>
+                            <span class="author-block">
+                                <a href="https://simonshaoleidu.com/">Simon Shaolei Du</a><sup>1</sup>,
+                            </span>
+                            <span class="author-block">
+                                <a href="https://homes.cs.washington.edu/~abhgupta/">Abhishek Gupta</a><sup>1</sup>,
+                            </span>
+                        </div>
+
+                        <div class="is-size-5 publication-authors">
+                            <span class="author-block"><sup>1</sup>University of Washington</span>
+                        </div>
+
+                        <div class="column has-text-centered">
+                            <div class="publication-links">
+                                <!-- PDF Link. -->
+                                <span class="link-block">
+                                    <a href="https://arxiv.org/abs/2309.00082"
+                                        class="external-link button is-normal is-rounded is-dark">
+                                        <span class="icon">
+                                            <i class="fas fa-file-pdf"></i>
+                                        </span>
+                                        <span>Paper</span>
+                                    </a>
+                                </span>
+                                <!-- Video Link. -->
+                                <!-- <span class="link-block">
+                <a href="https://youtu.be/DQGVD6KaVf8"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="fab fa-youtube"></i>
+                  </span>
+                  <span>Video</span>
+                </a>
+              </span> -->
+                                <!-- Code Link. -->
+                                <span class="link-block">
+                                    <a href="https://github.com/WEIRDLabUW/gom"
+                                        class="external-link button is-normal is-rounded is-dark">
+                                        <span class="icon">
+                                            <i class="fab fa-github"></i>
+                                        </span>
+                                        <span>Code</span>
+                                    </a>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Paper video. -->
+                <!-- <div class="columns is-centered has-text-centered">
+        <div class="column is-four-fifths">
+          <div class="publication-video">
+            
+            <iframe src="https://www.youtube.com/embed/DQGVD6KaVf8?rel=0&amp;showinfo=0"
+                    frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+          </div>
+        </div>
+      </div> -->
+                <!--/ Paper video. -->
+                <div class="content has-text-centered">
+                    <img src="./static/images/algo.png" class="inline-figure-four-thirds" alt="Objective." />
+                </div>
+                <div class="columns is-centered has-text-centered">
+                    <div class="column is-four-fifths">
+                        <div class="content has-text-justified">
+                            Given an unlabeled offline dataset, we learn a generalized occupancy model that models both
+                            ``what outcomes can happen?" and ``how to achieve a particular outcome?" This is used for quick
+                            adaptation to new downstream tasks without re-planning or test-time policy optimization.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- <section class="hero teaser">
+  <div class="container is-max-desktop">
+    <div class="hero-body">
+      <video id="teaser" autoplay muted loop playsinline height="100%">
+        <source src="./static/videos/repo_turtlebot.mp4" type="video/mp4">
+      </video>
+      <h2 class="subtitle has-text-centered">
+        <span class="dnerf">RePo learns minimally task-relevant representations that is resilient to spurious variations.
+      </h2>
+    </div>
+  </div>
+</section> -->
+
+    <div class="hr"></div>
+
+    <section class="section">
+        <div class="container is-max-desktop">
+            <!-- Abstract. -->
+            <div class="columns is-centered has-text-centered">
+                <div class="column is-four-fifths">
+                    <h2 class="title is-3">Abstract</h2>
+                    <div class="content has-text-justified">
+                        Intelligent agents must be generalists - showing the ability to quickly adapt and generalize to
+                        varying tasks. Within the framework of reinforcement learning (RL), model-based RL algorithms learn a
+                        task-agnostic dynamics model of the world, in principle allowing them to generalize to arbitrary rewards. However,
+                        one-step models naturally suffer from compounding errors, making them ineffective for problems with long
+                        horizons and large state spaces. In this work, we propose a novel class of models - generalized occupancy models
+                        (GOMs) - that retain the generality of model-based RL while avoiding compounding error. The key idea behind
+                        GOMs is to model the distribution of all possible long-term outcomes from a given state under the coverage of a
+                        stationary dataset, along with a policy that realizes a particular outcome from the given state. These models can
+                        then quickly be used to select the optimal action for arbitrary new tasks, without having to redo policy
+                        optimization. By directly modeling long-term outcomes, GOMs avoid compounding error while retaining generality 
+                        across arbitrary reward functions. We provide a practical instantiation of GOMs using diffusion models and show 
+                        its efficacy as a new class of transferable models, both theoretically and empirically across a variety of simulated 
+                        robotics problems.
+                        <!--/ Abstract. -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="hr"></div>
+
+    <section class="section">
+        <div class="container is-max-desktop">
+            <h2 class="title is-3 has-text-centered"> Method Overview </h2>
+
+            <div class="columns is-centered">
+                <div class="column is-full has-text-justified">
+                    <div class="content has-text-justified">
+                        <p>
+                            GOMs models the dynamics of the world by learning a distribution of all possible long-term outcomes 
+                            under dataset coverage and dynamics constraints, along with a policy that realizes a particular outcome.
+                            The outcomes are represented as the discounted sum of vector-valued cumulants. By assuming that reward 
+                            is a linear function of the cumulants, we can rapidly transfer to new tasks by performing
+                            linear regression and use the regression weights to select the optimal action.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="columns is-centered">
+                <div class="column is-half has-text-justified">
+                    <h3 class="title is-5">Learning Generalized Occupancy Models</h3>
+                    <div class="content has-text-centered">
+                        <img src="./static/images/cumulant.png" class="inline-figure" style="width:80%"
+                            alt="Learning GOMs." />
+                    </div>
+                    <div class="content has-text-centered">
+                        <img src="./static/images/obj.png" class="inline-figure"
+                            alt="Learning objectives." />
+                    </div>
+                    <div class="content has-text-justified">
+                        <p>
+                            We train the outcome model using a vectorized variant of distributional bellman backup,
+                            and the readout policy using standard maximum likelihood estimation. We parameterize both
+                            the outcome model and readout policy using diffusion models and optimize the objectives by
+                            score matching.
+                        </p>
+                    </div>
+                </div>
+                <div class="column is-half has-text-justified">
+                    <h3 class="title is-5">Planning and adaptation via GOMs</h3>
+                    <div class="content has-text-centered">
+                        <img src="./static/images/planning.png" class="inline-figure" style="width: 80%"
+                            alt="Planning with GOMs." />
+                    </div>
+                    <div class="content has-text-justified">
+                        <p>
+                            Given a small number of (cumulant, reward) pairs, we can perform a linear regression to estimate the
+                            linear coefficients corresponding to the reward function. The same linear coefficients can be used
+                            to estimate the value function of an outcome. Planning thus becomes a constrained optimization problem, 
+                            where we find an outcome that maximizes the value while being feasible under the dynamics and dataset coverage. 
+                            This can be carried out through random sampling or guided diffusion using the linear coefficients as 
+                            the guidance vector. The optimal outcome is then fed as input to the readout policy to produce an action.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="hr"></div>
+
+
+    <section class="section">
+        <div class="container is-max-desktop">
+            <div class="columns is-centered">
+                <div class="column is-full-width has-text-justified">
+                    <h2 class="title is-3 has-text-centered"> Experiments </h2>
+
+                    <h3 class="title is-4">Multitask Transfer</h3>
+                    <div class="content has-text-justified">
+                        <p>
+                            We evaluate GOMs' ability to transfer to challenging downstream tasks on the D4RL benchmark.
+                            GOMs show superior transfer performance to the hardest task compared to model-based RL, successor 
+                            features, and mispecified goal-conditioned baselines, while being competitive with an oracle using 
+                            previldged information.
+                        </p>
+                    </div>
+                    <div class="content has-text-centered">
+                        <img src="./static/images/table_1.png" class="inline-figure" style="width:76%"
+                            alt="D4RL experiments." />
+                        <video id="exp-d4rl" autoplay muted loop playsinline height="100%" width="75%">
+                            <source src="./static/videos/d4rl.mp4" type="video/mp4">
+                        </video>
+                    </div>
+                    <div class="content has-text-justified">
+                        <p> By modeling long-term outcomes instead of immediate next step prediction, GOMs avoids
+                            compounding error that is present in model-based RL. To demonstrate, we plot the normalized
+                            returns for reaching various goals in antmaze. Each tile corresponds to the task of 
+                            navigating the robot to reach that particular tile. The color of the tile indicates the 
+                            normalized return. GOMs successfully transfer across a majority of tasks, while model-based 
+                            RL struggles on longer-horizon tasks.
+                        </p>
+                    <div class="content has-text-centered">
+                        <img src="./static/images/transfer.png" class="inline-figure" style="width:50%"
+                            alt="D4RL transfer experiments." />
+                        <video id="exp-antmaze-transfer" autoplay muted loop playsinline height="100%" style="width:75%">
+                            <source src="./static/videos/antmaze_transfer.mp4" type="video/mp4">
+                        </video>
+                    </div>
+
+                    <h3 class="title is-4">Transferring to Arbitrary Rewards</h3>
+                    <div class="content has-text-justified">
+                        <p>
+                            We show that GOMs can adapt to aribitrary rewards beyond goal-reaching in an antmaze
+                            preference environment, where the agent has to take a pariticular path to reach the goal
+                            according to human preference (specified as reward functions). GOMs and model-based RL 
+                            are able to complete the task according to the human preference, whereas goal-conditioned 
+                            RL baselines do not conform to perferences.
+                        </p>
+                    </div>
+                    <div class="content has-text-centered">
+                        <img src="./static/images/table_2.png" class="inline-figure-four-thirds" style="width:50%"
+                            alt="Preference antmaze experiments." />
+                        <video id="exp-preference" autoplay muted loop playsinline height="100%" width="50%">
+                            <source src="./static/videos/preference.mp4" type="video/mp4">
+                        </video>
+                    </div>
+
+                    <div class="content has-text-justified">
+                        <p>
+                            We further demonstrate the transfer capability by training an agent to 
+                            track various trajectories as indicated by the colored cells. All these runs share the
+                            same outcome model and policy, only differing in the reward regression weights.
+                        </p>
+                    </div>
+                    <div class="content has-text-centered">
+                        <video id="exp-drawing" autoplay muted loop playsinline height="100%" style="width:65%">
+                            <source src="./static/videos/drawing.mp4" type="video/mp4">
+                        </video>
+                    </div>
+
+                    <h3 class="title is-4">Trajectory Stitching</h3>
+                    <div class="content has-text-justified">
+                        <p>
+                            Since GOMs are trained with distributional Bellman backup, they are able to 
+                            recover optimal trajectories by combining suboptimal trajectories, so-called "trajectory stitching".
+                            We validate GOMs' stitching capability on the roboverse benchmark, where each task consists of 
+                            completing two subtasks, but the dataset only contains separate trajectories for each subtask. GOMs
+                            can complete the task by combining the subtrajectories, whereas monte-carlo-based baselines cannot.
+                        </p>
+                    </div>
+                    <div class="content has-text-centered">
+                        <img src="./static/images/table_3.png" class="inline-figure-four-thirds" style="width: 50%"
+                            alt="Roboverse experiments." />
+                        <video id="exp-maniskill" autoplay muted loop playsinline height="100%" width="65%">
+                            <source src="./static/videos/roboverse.mp4" type="video/mp4">
+                        </video>
+                    </div>
+
+                    <h3 class="title is-4">Visualization of Value Distribution</h3>
+                    <div class="content has-text-justified">
+                        <p>
+                            The guided diffusion samplig technique can be viewed as sampling from a distribution of outcomes conditioned
+                            on a trajectory-level optimality variable. We visualize the value functions by sampling from the 
+                            unconditioned and conditioned distributions, and note that guided diffusion results in more optimal outcomes.
+                        </p>
+                    </div>
+                    <div class="content has-text-centered">
+                        <img src="./static/videos/antmaze_dist.gif" class="inline-figure" style="width: 50%"
+                            alt="Antmaze value distributions." />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="hr"></div>
+
+
+    <section class="section" id="BibTeX">
+        <div class="container is-max-desktop content">
+            <h2 class="title has-text-centered"> BibTeX </h2>
+            <pre><code>@article{zhu2024gom,
+        author    = {Zhu, Chuning and Wang, Xinqi and Han, Tyler and Du, Simon Shaolei and Gupta, Abhishek},
+        title     = {Transferable Reinforcement Learning via Generalized Occupancy Models},
+        booktitle = {ArXiv Preprint},
+        year      = {2024},
+      }</code></pre>
+        </div>
+    </section>
+
+
+    <footer class="footer">
+        <div class="container">
+            <div class="columns is-centered">
+                <div class="column is-8">
+                    <div class="content has-text-centered">
+                        <p>
+                            Website template from <a href="https://nerfies.github.io/">Nerfies</a>.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+</body>
+
+</html>

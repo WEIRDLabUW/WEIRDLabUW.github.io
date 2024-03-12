@@ -103,8 +103,13 @@
         </div>
       </div> -->
                 <!--/ Paper video. -->
+                <!-- <div class="content has-text-centered">
+                    <img src="./static/images/algo.gif" class="inline-figure-four-thirds" alt="Algorith overview." />
+                </div> -->
                 <div class="content has-text-centered">
-                    <img src="./static/images/algo.png" class="inline-figure-four-thirds" alt="Objective." />
+                    <video id="exp-d4rl" autoplay muted playsinline height="100%" width="75%">
+                        <source src="./static/videos/algo.mp4" type="video/mp4">
+                    </video>
                 </div>
                 <div class="columns is-centered has-text-centered">
                     <div class="column is-four-fifths">
@@ -211,11 +216,11 @@
                     <div class="content has-text-justified">
                         <p>
                             Given a small number of (cumulant, reward) pairs, we can perform a linear regression to estimate the
-                            linear coefficients corresponding to the reward function. The same linear coefficients can be used
-                            to estimate the value function of an outcome. Planning thus becomes a constrained optimization problem, 
-                            where we find an outcome that maximizes the value while being feasible under the dynamics and dataset coverage. 
-                            This can be carried out through random sampling or guided diffusion using the linear coefficients as 
-                            the guidance vector. The optimal outcome is then fed as input to the readout policy to produce an action.
+                            linear coefficients for the reward function. The same linear coefficients can be used to estimate 
+                            the value function of an outcome. Planning is equivalent to finding the outcome that maximizes 
+                            the value while feasible under the dynamics and dataset coverage. This can be achieved through 
+                            random shooting or guided diffusion. The optimal outcome is then fed into the readout policy 
+                            to produce an action.
                         </p>
                     </div>
                 </div>
@@ -250,11 +255,10 @@
                     </div>
                     <div class="content has-text-justified">
                         <p> By modeling long-term outcomes instead of immediate next step prediction, GOMs avoids
-                            compounding error that is present in model-based RL. To demonstrate, we plot the normalized
-                            returns for reaching various goals in antmaze. Each tile corresponds to the task of 
-                            navigating the robot to reach that particular tile. The color of the tile indicates the 
-                            normalized return. GOMs successfully transfer across a majority of tasks, while model-based 
-                            RL struggles on longer-horizon tasks.
+                            compounding error present in model-based RL. To demonstrate, we plot the normalized
+                            returns for reaching various goals in antmaze, where each tile corresponds to the task of 
+                            navigating the robot to reach that particular tile. GOMs successfully transfer across a 
+                            majority of tasks, whereas model-based RL struggles on longer-horizon tasks.
                         </p>
                     <div class="content has-text-centered">
                         <img src="./static/images/transfer.png" class="inline-figure" style="width:50%"
@@ -284,7 +288,7 @@
 
                     <div class="content has-text-justified">
                         <p>
-                            We further demonstrate the transfer capability by training an agent to 
+                            We further demonstrate GOMs' transfer capability by training an agent to 
                             track various trajectories as indicated by the colored cells. All these runs share the
                             same outcome model and policy, only differing in the reward regression weights.
                         </p>
@@ -298,11 +302,11 @@
                     <h3 class="title is-4">Trajectory Stitching</h3>
                     <div class="content has-text-justified">
                         <p>
-                            Since GOMs are trained with distributional Bellman backup, they are able to 
-                            recover optimal trajectories by combining suboptimal trajectories, so-called "trajectory stitching".
-                            We validate GOMs' stitching capability on the roboverse benchmark, where each task consists of 
-                            completing two subtasks, but the dataset only contains separate trajectories for each subtask. GOMs
-                            can complete the task by combining the subtrajectories, whereas monte-carlo-based baselines cannot.
+                            Since GOMs are trained with distributional Bellman backup, they are able to achieve "trajectory stitching,"
+                            i.e. recovering optimal trajectories by combining suboptimal trajectories. We validate GOMs' stitching 
+                            capability on the roboverse benchmark, where each task consists of completing two subtasks, but the dataset 
+                            only contains separate trajectories for each subtask. GOMs can complete the task by combining the 
+                            subtrajectories, whereas monte-carlo-based baselines cannot.
                         </p>
                     </div>
                     <div class="content has-text-centered">
@@ -316,14 +320,15 @@
                     <h3 class="title is-4">Visualization of Value Distribution</h3>
                     <div class="content has-text-justified">
                         <p>
-                            The guided diffusion samplig technique can be viewed as sampling from a distribution of outcomes conditioned
-                            on a trajectory-level optimality variable. We visualize the value functions by sampling from the 
-                            unconditioned and conditioned distributions, and note that guided diffusion results in more optimal outcomes.
+                            The guided diffusion samplig technique can be viewed as sampling from an outcome distribution conditioned
+                            on a trajectory-level optimality variable. We visualize the values of outcomes sampled from the unconditional 
+                            and conditional distributions, and note that guided diffusion results in more optimal outcomes.
                         </p>
                     </div>
                     <div class="content has-text-centered">
-                        <img src="./static/videos/antmaze_dist.gif" class="inline-figure" style="width: 50%"
-                            alt="Antmaze value distributions." />
+                        <video id="exp-maniskill" autoplay muted loop playsinline height="100%" width="50%">
+                            <source src="./static/videos/antmaze_dist.mp4" type="video/mp4">
+                        </video>
                     </div>
                 </div>
             </div>

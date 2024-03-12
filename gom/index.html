@@ -171,11 +171,12 @@
                 <div class="column is-full has-text-justified">
                     <div class="content has-text-justified">
                         <p>
-                            Given an unlabeled offline dataset of transitions, GOMs models the dynamics by learning a distribution 
-                            of all possible long-term outcomes under dataset coverage and dynamics constraints, along with a policy
-                            that realizes each particular outcome. The outcomes are represented as the discounted sum of vector-valued 
-                            cumulants. By assuming that reward is a linear function of the cumulant, we can rapidly transfer to new 
-                            tasks by performing linear regression and use the regression weights to choose the optimal action.
+                            GOM is an unsupervised RL method that models the distribution of all possible long-term outcomes
+                            in an offline dataset under dynamics consistency, where the outcomes are discounted sums of state-dependent
+                            cumulants. The outcome model is paired with a readout policy trained to generate actions that realize a 
+                            particular outcome at a state. Assuming that the rewards can be linearly expressed by the cumulants, transferring 
+                            to downstream tasks boils down to performing linear regression to identify the coefficients and using them to
+                            select the optimal realizable outcome.
                         </p>
                     </div>
                 </div>
@@ -336,11 +337,11 @@
         <div class="container is-max-desktop content">
             <h2 class="title has-text-centered"> BibTeX </h2>
             <pre><code>@article{zhu2024gom,
-        author    = {Zhu, Chuning and Wang, Xinqi and Han, Tyler and Du, Simon Shaolei and Gupta, Abhishek},
-        title     = {Transferable Reinforcement Learning via Generalized Occupancy Models},
-        booktitle = {ArXiv Preprint},
-        year      = {2024},
-      }</code></pre>
+    author    = {Zhu, Chuning and Wang, Xinqi and Han, Tyler and Du, Simon Shaolei and Gupta, Abhishek},
+    title     = {Transferable Reinforcement Learning via Generalized Occupancy Models},
+    booktitle = {ArXiv Preprint},
+    year      = {2024},
+}</code></pre>
         </div>
     </section>
 

@@ -171,11 +171,11 @@
                 <div class="column is-full has-text-justified">
                     <div class="content has-text-justified">
                         <p>
-                            GOMs models the dynamics of the world by learning a distribution of all possible long-term outcomes 
-                            under dataset coverage and dynamics constraints, along with a policy that realizes a particular outcome.
-                            The outcomes are represented as the discounted sum of vector-valued cumulants. By assuming that reward 
-                            is a linear function of the cumulants, we can rapidly transfer to new tasks by performing
-                            linear regression and use the regression weights to select the optimal action.
+                            Given an unlabeled offline dataset of transitions, GOMs models the dynamics by learning a distribution 
+                            of all possible long-term outcomes under dataset coverage and dynamics constraints, along with a policy
+                            that realizes each particular outcome. The outcomes are represented as the discounted sum of vector-valued 
+                            cumulants. By assuming that reward is a linear function of the cumulant, we can rapidly transfer to new 
+                            tasks by performing linear regression and use the regression weights to choose the optimal action.
                         </p>
                     </div>
                 </div>

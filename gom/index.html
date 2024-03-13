@@ -181,16 +181,15 @@
                     </div>
                     <div class="content has-text-justified">
                         <p>
-                            GOM is an unsupervised RL method that learns 
+                            GOMs learn:
                             <ul>
-                                <li>A distribution of all possible outcomes in the dataset, where the outcomes are represented by
-                                    discounted sums of state-dependent cumulants along trajectories.
+                                <li> Distribution of all possible outcomes, represented by discounted sums of state-dependent cumulants along trajectories.
                                 </li>
-                                <li>A readout policy that produces an action to realize a particular outcome. </li>
+                                <li> A readout policy that produces an action to realize a particular outcome. </li>
                             </ul>
                             Modeling the discounted sum of cumulants makes GOMs <strong>reward-agnostic</strong>, while 
-                            modeling the distribution of all possible outcomes makes them <strong>policy-agnostic</strong>. These
-                            properties allow GOMs to retain the generality of model-based RL while avoiding compounding error.
+                            modeling the distribution of all possible outcomes makes them <strong>policy-agnostic</strong>. These allow
+                            GOMs to retain the generality of model-based RL while avoiding compounding error.
                         </p>
                     </div>
                 </div>
@@ -202,10 +201,9 @@
                     </div>
                     <div class="content has-text-justified">
                         <p>
-                            Assuming that the reward is a linear function of the cumulant, then the value can be linearly expressed 
-                            by the summed cumulants using the same linear coefficients. Transferring to downstream tasks reduces to
-                             performing linear regression and using the coefficients to select the optimal realizable outcome
-                            under dynamics and dataset coverage. The optimal outcome is then fed into the readout policy to produce an action.
+                            Assuming a linear dependence of rewards on cumulants, transferring to downstream tasks reduces to performing 
+                            linear regression and solving a simple optimization problem for the optimal possible outcome. This is fed 
+                            into the readout policy to produce an action.
                         </p>
                     </div>
                 </div>

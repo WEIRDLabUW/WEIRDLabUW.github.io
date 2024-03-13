@@ -170,57 +170,42 @@
 
     <section class="section">
         <div class="container is-max-desktop">
-            <h2 class="title is-3 has-text-centered"> Method Overview </h2>
-
-            <div class="columns is-centered">
-                <div class="column is-full has-text-justified">
-                    <div class="content has-text-justified">
-                        <p>
-                            GOM is an unsupervised RL method that models the distribution of all possible long-term outcomes
-                            in an offline dataset under dynamics consistency, where the outcomes are discounted sums of state-dependent
-                            cumulants. The outcome model is paired with a readout policy trained to generate actions that realize a 
-                            particular outcome at a state. Assuming that the rewards can be linearly expressed by the cumulants, transferring 
-                            to downstream tasks boils down to performing linear regression to identify the coefficients and using them to
-                            select the optimal realizable outcome.
-                        </p>
-                    </div>
-                </div>
-            </div>
+            <h2 class="title is-3 has-text-centered"> Method </h2>
 
             <div class="columns is-centered">
                 <div class="column is-half has-text-justified">
                     <h3 class="title is-5">Learning Generalized Occupancy Models</h3>
-                    <div class="content has-text-centered">
-                        <img src="./static/images/cumulant.png" class="inline-figure" style="width:80%"
+                    <div class="content has-text-justified">
+                        <img src="./static/images/cumulant.png" class="inline-figure" style="width:100%"
                             alt="Learning GOMs." />
-                    </div>
-                    <div class="content has-text-centered">
-                        <img src="./static/images/obj.png" class="inline-figure"
-                            alt="Learning objectives." />
                     </div>
                     <div class="content has-text-justified">
                         <p>
-                            We train the outcome model using a vectorized variant of distributional bellman backup,
-                            and the readout policy using standard maximum likelihood estimation. We parameterize both
-                            the outcome model and readout policy using diffusion models and optimize the objectives by
-                            score matching.
+                            GOM is an unsupervised RL method that learns 
+                            <ul>
+                                <li>A distribution of all possible outcomes in the dataset, where the outcomes are represented by
+                                    discounted sums of state-dependent cumulants along trajectories.
+                                </li>
+                                <li>A readout policy that produces an action to realize a particular outcome. </li>
+                            </ul>
+                            Modeling the discounted sum of cumulants makes GOMs <strong>reward-agnostic</strong>, while 
+                            modeling the distribution of all possible outcomes makes them <strong>policy-agnostic</strong>. These
+                            properties allow GOMs to retain the generality of model-based RL while avoiding compounding error.
                         </p>
                     </div>
                 </div>
                 <div class="column is-half has-text-justified">
-                    <h3 class="title is-5">Planning and adaptation via GOMs</h3>
+                    <h3 class="title is-5">Adaptation and planning via GOMs</h3>
                     <div class="content has-text-centered">
-                        <img src="./static/images/planning.png" class="inline-figure" style="width: 80%"
-                            alt="Planning with GOMs." />
+                        <img src="./static/images/planning.png" class="inline-figure" style="width:100%"
+                            alt="Learning GOMs." />
                     </div>
                     <div class="content has-text-justified">
                         <p>
-                            Given a small number of (cumulant, reward) pairs, we can perform a linear regression to estimate the
-                            linear coefficients for the reward function. The same linear coefficients can be used to estimate 
-                            the value function of an outcome. Planning is equivalent to finding the outcome that maximizes 
-                            the value while feasible under the dynamics and dataset coverage. This can be achieved through 
-                            random shooting or guided diffusion. The optimal outcome is then fed into the readout policy 
-                            to produce an action.
+                            Assuming that the reward is a linear function of the cumulant, then the value can be linearly expressed 
+                            by the summed cumulants using the same linear coefficients. Transferring to downstream tasks reduces to
+                             performing linear regression and using the coefficients to select the optimal realizable outcome
+                            under dynamics and dataset coverage. The optimal outcome is then fed into the readout policy to produce an action.
                         </p>
                     </div>
                 </div>
@@ -241,7 +226,7 @@
                     <div class="content has-text-justified">
                         <p>
                             We evaluate GOMs' ability to transfer to challenging downstream tasks on the D4RL benchmark.
-                            GOMs show superior transfer performance to the hardest task compared to model-based RL, successor 
+                            GOMs show superior performance transferring to the hardest tasks compared to model-based RL, successor 
                             features, and mispecified goal-conditioned baselines, while being competitive with an oracle using 
                             previldged information.
                         </p>
@@ -254,8 +239,7 @@
                         </video>
                     </div>
                     <div class="content has-text-justified">
-                        <p> By modeling long-term outcomes instead of immediate next step prediction, GOMs avoids
-                            compounding error present in model-based RL. To demonstrate, we plot the normalized
+                        <p> To demonstrate GOM's broad transferability, we plot the normalized
                             returns for reaching various goals in antmaze, where each tile corresponds to the task of 
                             navigating the robot to reach that particular tile. GOMs successfully transfer across a 
                             majority of tasks, whereas model-based RL struggles on longer-horizon tasks.
@@ -288,8 +272,8 @@
 
                     <div class="content has-text-justified">
                         <p>
-                            We further demonstrate GOMs' transfer capability by training an agent to 
-                            track various trajectories as indicated by the colored cells. All these runs share the
+                            We further demonstrate GOMs' arbitrary transfer capability by training an agent to 
+                            track various trajectories as denoted by the colored cells. All these runs share the
                             same outcome model and policy, only differing in the reward regression weights.
                         </p>
                     </div>
@@ -302,10 +286,10 @@
                     <h3 class="title is-4">Trajectory Stitching</h3>
                     <div class="content has-text-justified">
                         <p>
-                            Since GOMs are trained with distributional Bellman backup, they are able to achieve "trajectory stitching,"
+                            Since GOMs are trained with distributional Bellman backup, they are able to perform "trajectory stitching,"
                             i.e. recovering optimal trajectories by combining suboptimal trajectories. We validate GOMs' stitching 
-                            capability on the roboverse benchmark, where each task consists of completing two subtasks, but the dataset 
-                            only contains separate trajectories for each subtask. GOMs can complete the task by combining the 
+                            capability on the roboverse benchmark, where each task consists of two subtasks, but the dataset 
+                            only contains trajectories for each individual subtask. GOMs can complete the tasks by stitching
                             subtrajectories, whereas monte-carlo-based baselines cannot.
                         </p>
                     </div>
@@ -314,20 +298,6 @@
                             alt="Roboverse experiments." />
                         <video id="exp-maniskill" autoplay muted loop playsinline height="100%" width="65%">
                             <source src="./static/videos/roboverse.mp4" type="video/mp4">
-                        </video>
-                    </div>
-
-                    <h3 class="title is-4">Visualization of Value Distribution</h3>
-                    <div class="content has-text-justified">
-                        <p>
-                            The guided diffusion samplig technique can be viewed as sampling from an outcome distribution conditioned
-                            on a trajectory-level optimality variable. We visualize the values of outcomes sampled from the unconditional 
-                            and conditional distributions, and note that guided diffusion results in more optimal outcomes.
-                        </p>
-                    </div>
-                    <div class="content has-text-centered">
-                        <video id="exp-maniskill" autoplay muted loop playsinline height="100%" width="50%">
-                            <source src="./static/videos/antmaze_dist.mp4" type="video/mp4">
                         </video>
                     </div>
                 </div>

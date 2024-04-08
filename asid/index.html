@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="description" content="Modality-invariant Visual Odometry for Embodied Vision">
+  <meta name="keywords" content="Visual Odometry, VO-Transformer, Embodiment">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Modality-invariant Visual Odometry for Embodied Vision</title>
+
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-P5JX6G1Y2L"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    gtag('js', new Date());
+
+    gtag('config', 'G-P5JX6G1Y2L');
+  </script>
+
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro" rel="stylesheet">
+
+  <link rel="stylesheet" href="./static/css/bulma.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-carousel.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-slider.min.css">
+  <link rel="stylesheet" href="./static/css/fontawesome.all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  <link rel="stylesheet" href="./static/css/index.css">
+  <link rel="icon" href="./static/images/favicon.ico">
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script defer src="./static/js/fontawesome.all.min.js"></script>
+  <script src="./static/js/bulma-carousel.min.js"></script>
+  <script src="./static/js/bulma-slider.min.js"></script>
+  <script src="./static/js/index.js"></script>
+
+  <!-- TEX -->
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});
+  </script>
+  <script type="text/javascript"
+    src="http://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+    </script>
+</head>
+
+<body>
+
+  <section class="hero">
+    <div class="hero-body">
+      <div class="container is-max-desktop">
+        <div class="columns is-centered">
+          <div class="column has-text-centered">
+            <img style="vertical-align: middle; width: 250px; height: auto;" src="./static/images/asid_logo.png"
+              alt="Navigation setup where GPS+Compass is missing and (visual) sensor availability varies." />
+              <h1 class="title is-1 publication-title">Active Exploration for System Identification in Robotic
+                Manipulation</h1>
+            <div class="is-size-5 publication-authors">
+              <span class="author-block">
+                <a href="https://memmelma.github.io">Marius Memmel</a><sup>1</sup>,</span>
+              <span class="author-block">
+                <a href="https://homes.cs.washington.edu/~ajwagen/index.html">Andrew Wagenmaker</a><sup>1</sup>,</span>
+              <span class="author-block">
+                <a href="https://homes.cs.washington.edu/~zchuning/">Chuning Zhu</a><sup>1</sup>,</span>
+              <span class="author-block">
+                <a href="https://patrickyin.me/">Patrick Yin</a><sup>1</sup>,</span>
+              <span class="author-block">
+                <a href="https://homes.cs.washington.edu/~fox/">Dieter Fox</a><sup>1</sup>,</span>
+              <span class="author-block">
+                <a href="https://abhishekunique.github.io/">Abhishek Gupta</a><sup>1</sup>,</span>
+            </div>
+
+            <div class="is-size-5 publication-authors">
+              <span class="author-block"><sup>1</sup>University of Washington</span>
+            </div>
+
+            <div class="is-size-5 has-text-weight-semibold mt-3 publication-title">
+              <span class="author-block">ICLR 2023 (oral)</span>
+            </div>
+
+            <div class="column has-text-centered">
+              <div class="publication-links">
+                <!-- PDF Link. -->
+                <span class="link-block">
+                  <a href="https://arxiv.org/pdf/2011.12948" class="external-link button is-normal is-rounded is-dark">
+                    <span class="icon">
+                      <i class="fas fa-file-pdf"></i>
+                    </span>
+                    <span>Paper</span>
+                  </a>
+                </span>
+                <span class="link-block">
+                  <a href="https://arxiv.org/abs/2305.00348" class="external-link button is-normal is-rounded is-dark">
+                    <span class="icon">
+                      <i class="ai ai-arxiv"></i>
+                    </span>
+                    <span>arXiv</span>
+                  </a>
+                </span>
+                <!-- Video Link. -->
+                <span class="link-block">
+                  <a href="TBD" class="external-link button is-normal is-rounded is-dark">
+                    <span class="icon">
+                      <i class="fab fa-youtube"></i>
+                    </span>
+                    <span>Video</span>
+                  </a>
+                </span>
+                <!-- Code Link. -->
+                <span class="link-block">
+                  <a href="https://github.com/memmelma/VO-Transformer"
+                    class="external-link button is-normal is-rounded is-dark">
+                    <span class="icon">
+                      <i class="fab fa-github"></i>
+                    </span>
+                    <span>Code</span>
+                  </a>
+                </span>
+                <!-- Poster download link. -->
+                <!-- <span class="link-block">
+                  <a href="static/assets/CVPR2023_VOT_poster.pdf" target="_blank"
+                    class="external-link button is-normal is-rounded is-dark">
+                    <span class="icon">
+                      <i class="far fa-sticky-note"></i>
+                    </span>
+                    <span>Poster</span>
+                  </a>
+                </span> -->
+                <!-- Slides download link. -->
+                <!-- <span class="link-block">
+                  <a href="static/assets/CVPR2023_VOT_slides.pdf" target="_blank"
+                    class="external-link button is-normal is-rounded is-dark">
+                    <span class="icon">
+                      <i class="fas fa-file-powerpoint"></i>
+                    </span>
+                    <span>Slides</span>
+                  </a>
+                </span> -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="hero teaser">
+    <div class="container is-centered is-max-desktop">
+      <div class="hero-body">
+        <video id="teaser" autoplay muted loop playsinline>
+          <source src="./static/videos/results_video.mp4" type="video/mp4">
+        </video>
+        <h2 class="subtitle has-text-centered">
+          ASID is a generic pipeline for Sim2Real transfer that solves dynamic tasks zero-shot!
+          <!-- <br>
+          (1) train an exploration policy in simulation to reveal physics parameters <br>
+          (2) explore the real world to collect informative data of unknown parameters and refine the simulation <br>
+          (3) train a policy on the updated simulator to accomplish the goal tasks <br>
+          (4) zero-shot transfer to the real world -->
+        </h2>
+      </div>
+  </section>
+
+  <section class="section">
+    <div class="container is-max-desktop">
+      <!-- Abstract. -->
+      <div class="columns is-centered has-text-centered">
+        <div class="column is-four-fifths">
+          <div class="content">
+            <h2 class="title is-3">Abstract</h2>
+            <div class="content has-text-justified">
+              <p>
+                Model-free control strategies such as reinforcement learning have shown the ability to learn control
+                strategies without requiring an accurate model or simulator of the world. While this is appealing due to
+                the lack of modeling requirements, such methods can be sample inefficient, making them impractical in
+                many
+                real-world domains. On the other hand, model-based control techniques leveraging accurate simulators can
+                circumvent these challenges and use a large amount of cheap simulation data to learn controllers that
+                can
+                effectively transfer to the real world. The challenge with such model-based techniques is the
+                requirement
+                for an extremely accurate simulation, requiring both the specification of appropriate simulation assets
+                and physical parameters. This requires considerable human effort to design for every environment being
+                considered. In this work, we propose a learning system that can leverage a small amount of real-world
+                data
+                to autonomously refine a simulation model and then plan an accurate control strategy that can be
+                deployed
+                in the real world. Our approach critically relies on utilizing an initial (possibly inaccurate)
+                simulator
+                to design effective exploration policies that, when deployed in the real world, collect high-quality
+                data.
+                We demonstrate the efficacy of this paradigm in identifying articulation, mass, and other physical
+                parameters in several challenging robotic manipulation tasks, and illustrate that only a small amount of
+                real-world data can allow for effective sim-to-real transfer.
+              </p>
+              <video id="teaser" autoplay muted playsinline loop>
+                <source src="./static/videos/figure_1_animated_rod.mov" type="video/mp4">
+              </video>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!--/ Abstract. -->
+
+      <!-- Paper video. -->
+      <!-- <div class="columns is-centered has-text-centered">
+        <div class="column is-four-fifths">
+          <h2 class="title is-3">Video</h2>
+          <div class="publication-video">
+            <iframe width="560" height="315" src="https://www.youtube.com/embed/kZCmdHhLkP4"
+              title="YouTube video player" frameborder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              allowfullscreen></iframe>
+          </div>
+        </div>
+      </div> -->
+      <!--/ Paper video. -->
+    </div>
+  </section>
+
+  <!-- Pipeline Overview -->
+  <section class="section">
+    <div class="container is-max-desktop">
+
+      <div class="columns is-centered is-mobile is-vcentered">
+        <div class="column is-full-width">
+          <h2 class="title is-3">Pipeline Overview</h2>
+        </div>
+      </div>
+      <br>
+      <div class="container is-max-desktop">
+
+        <div class="columns is-centered is-mobile is-vcentered">
+          <div class="column is-full-width">
+
+            <img src="./static/images/method_figure.png" class="money-figure"
+              alt="Navigation setup where GPS+Compass is missing and (visual) sensor availability varies." />
+            <p>
+              <b>Overview of ASID:</b> (1) Train an exploration policy $\pi_{exp}$ that maximizes the Fisher
+              information,
+              leveraging the vast amount of cheap simulation data. (2) Roll out $\pi_{exp}$ in real to collect
+              informative data that
+              can be used to (3) run system identification to identify physics parameters and reconstruct, e.g.,
+              geometric,
+              collision, and kinematic properties. (4) Train a task-specific policy $\pi_{task}$ in the updated
+              simulator and (5) zeroshot transfer $\pi_{task}$ to the real world
+            </p>
+          </div>
+        </div>
+      </div>
+      <div class="columns is-centered is-mobile is-vcentered">
+
+      </div>
+    </div>
+    </div>
+    </div>
+  </section>
+  <!--/ Pipeline Overview -->
+
+  <!-- Real-World Experiments -->
+  <section class="section">
+    <div class="container is-max-desktop">
+
+      <div class="columns is-centered is-mobile is-vcentered">
+        <div class="column is-full-width">
+          <h2 class="title is-3">Real-World Experiments</h2>
+        </div>
+      </div>
+      <br>
+      <div class="container is-max-desktop">
+
+        <div class="columns is-centered is-mobile is-vcentered">
+          <div class="column is-half">
+            <div class="content">
+              <h2 class="title is-4">Rod Balancing</h2>
+              <video id="replay-video" controls muted playsinline loop>
+                <source src="./static/videos/rod_video_small.mp4" type="video/mp4">
+              </video>
+              <p>
+                Balancing, or dynamic stacking of objects critically depends on an accurate estimate of the inertia
+                parameters. In this task, the agent can interact with a rod to identify its physical parameters, in this
+                case varying the <b>center of mass</b> along the rod. To successfully balance the rod on the tower
+                requires accurate estimation of the system parameters.
+              </p>
+            </div>
+          </div>
+
+          <div class="column is-half">
+            <div class="content">
+              <h2 class="title is-4">Shuffleboard</h2>
+              <video id="replay-video" controls muted playsinline loop>
+                <source src="./static/videos/puck_video.mp4" type="video/mp4">
+              </video>
+              <p>
+                In shuffleboard, the goal is to shoot a puck to a target area. We closely follow the original
+                game and pour wax (sand) on the board. This modification makes
+                the task especially difficult as the <b>surface friction</b> on the board changes slightly after each
+                shot since
+                the puck displaces the wax. The goal is to strike the puck to one of the target regions.
+
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    </div>
+  </section>
+  <!--/ Real-World Experiments -->
+
+  <!-- Baseline Comparisons -->
+  <section class="section">
+    <div class="container is-max-desktop">
+
+      <div class="columns is-centered is-mobile is-vcentered">
+        <div class="column is-full-width">
+          <h2 class="title is-3">Baseline Comparisons</h2>
+        </div>
+      </div>
+      <br>
+      <div class="container is-max-desktop">
+
+        <div class="columns is-centered is-mobile is-vcentered">
+          <div class="column is-full-width">
+            <div class="content">
+              <h2 class="title is-4">Rod Balancing</h2>
+              <video id="replay-video" controls muted playsinline loop>
+                <source src="./static/videos/compare_rod.mov" type="video/mp4">
+              </video>
+              <p>
+                ASID correctly identifies the rod's center of mass and successfully balances it on the tower. The
+                baseline
+                trained with domain-randomization, i.e., over a distribution of intertia parameters, fails
+                catastrophically as it converges to picking up and placing the rod at a
+                random location. These results show that identifying the correct paramters is crucial to solve dynamic tasks.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="columns is-centered is-mobile is-vcentered">
+        <div class="column is-full-width">
+          <div class="content">
+            <h2 class="title is-4">Shuffleboard</h2>
+            <video id="replay-video" controls muted playsinline loop>
+              <source src="./static/videos/compare_puck.mov" type="video/mp4">
+            </video>
+            <p>
+              Due to the changing surface friction caused by previous shot attempts, the domain randomization baseline
+              struggles to shoot
+              the puck to the desired zone. With its dedicated exploration phase, ASID
+              can accurately adapt the simulation to the current conditions and lands the puck in the desired
+              zone. A correct parameter estimate is crucial to accurately solve the task.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    </div>
+    </div>
+    </div>
+  </section>
+  <!--/ Baseline Comparisons -->
+
+  <!-- Baseline Comparisons -->
+  <section class="section">
+    <div class="container is-max-desktop">
+
+      <div class="columns is-centered is-mobile is-vcentered">
+        <div class="column is-full-width">
+          <h2 class="title is-3">Push It to the Limit</h2>
+        </div>
+      </div>
+      <br>
+      <div class="container is-max-desktop">
+
+        <div class="columns is-centered is-mobile is-vcentered">
+          <div class="column is-full-width">
+            <div class="content">
+              <h2 class="title is-4">Double Stacking</h2>
+              <video id="replay-video" controls muted playsinline loop>
+                <source src="./static/videos/double stack 2x.mp4" type="video/mp4">
+              </video>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="columns is-centered is-mobile is-vcentered">
+        <div class="column is-full-width">
+          <div class="content">
+            <h2 class="title is-4">Me vs Machine</h2>
+            <video id="replay-video" controls muted playsinline loop>
+              <source src="./static/videos/man_vs_machine.mp4" type="video/mp4">
+            </video>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    </div>
+    </div>
+    </div>
+  </section>
+  <!--/ Baseline Comparisons -->
+
+  <section class="section" id="BibTeX">
+    <div class="container is-max-desktop content">
+      <h2 class="title">BibTeX</h2>
+      <pre><code>@inproceedings{memmel2024asid,
+        title={ASID: Active Exploration for System Identification in Robotic Manipulation},
+        author={Memmel, Marius and Wagenmaker, Andrew and Zhu, Chuning and Fox, Dieter and Gupta, Abhishek},
+        booktitle={The Twelfth International Conference on Learning Representations},
+        year={2024}
+      }
+</code></pre>
+    </div>
+  </section>
+
+
+  <footer class="footer">
+    <div class="container">
+      <div class="columns is-centered">
+        <div class="column is-8">
+          <div class="content">
+            <p>
+              This website is based on the <a href="https://github.com/nerfies/nerfies.github.io"
+                target="_blank">Nerfies website template</a>,
+              which is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"
+                target="_blank">Creative
+                Commons Attribution-ShareAlike 4.0 International License</a>.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+</body>
+
+</html>

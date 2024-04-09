@@ -37,12 +37,7 @@
   <script src="./static/js/index.js"></script>
 
   <!-- TEX -->
-  <script type="text/x-mathjax-config">
-    MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});
-  </script>
-  <script type="text/javascript"
-    src="http://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
-    </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.0/es5/tex-mml-chtml.js" integrity="sha384-..." crossorigin="anonymous"></script>
 </head>
 
 <body>
@@ -237,14 +232,14 @@
             <img src="./static/images/method_figure.png" class="money-figure"
               alt="Pipeline Overview" />
             <p>
-              <b>Overview of ASID:</b> (1) Train an exploration policy $\pi_{exp}$ that maximizes the Fisher
+              <b>Overview of ASID:</b> (1) Train an exploration policy \(\pi_{exp}\) that maximizes the Fisher
               information,
-              leveraging the vast amount of cheap simulation data. (2) Roll out $\pi_{exp}$ in real to collect
+              leveraging the vast amount of cheap simulation data. (2) Roll out \(\pi_{exp}\) in real to collect
               informative data that
               can be used to (3) run system identification to identify physics parameters and reconstruct, e.g.,
               geometric,
-              collision, and kinematic properties. (4) Train a task-specific policy $\pi_{task}$ in the updated
-              simulator and (5) zeroshot transfer $\pi_{task}$ to the real world
+              collision, and kinematic properties. (4) Train a task-specific policy \(\pi_{task}\) in the updated
+              simulator and (5) zeroshot transfer \(\pi_{task}\) to the real world
             </p>
           </div>
         </div>

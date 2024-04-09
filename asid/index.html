@@ -72,14 +72,14 @@
             </div>
 
             <div class="is-size-5 has-text-weight-semibold mt-3 publication-title">
-              <span class="author-block">ICLR 2023 (oral)</span>
+              <span class="author-block">ICLR 2024 (oral)</span>
             </div>
 
             <div class="column has-text-centered">
               <div class="publication-links">
                 <!-- PDF Link. -->
                 <span class="link-block">
-                  <a href="https://arxiv.org/pdf/2011.12948" class="external-link button is-normal is-rounded is-dark">
+                  <a href="https://openreview.net/pdf?id=jNR6s6OSBT" class="external-link button is-normal is-rounded is-dark">
                     <span class="icon">
                       <i class="fas fa-file-pdf"></i>
                     </span>
@@ -96,21 +96,21 @@
                 </span>
                 <!-- Video Link. -->
                 <span class="link-block">
-                  <a href="TBD" class="external-link button is-normal is-rounded is-dark">
+                  <a href="" class="external-link button is-normal is-rounded is-dark">
                     <span class="icon">
                       <i class="fab fa-youtube"></i>
                     </span>
-                    <span>Video</span>
+                    <span>Video (coming soon)</span>
                   </a>
                 </span>
                 <!-- Code Link. -->
                 <span class="link-block">
-                  <a href="https://github.com/memmelma/VO-Transformer"
+                  <a href=""
                     class="external-link button is-normal is-rounded is-dark">
                     <span class="icon">
                       <i class="fab fa-github"></i>
                     </span>
-                    <span>Code</span>
+                    <span>Code (coming soon)</span>
                   </a>
                 </span>
                 <!-- Poster download link. -->
@@ -239,7 +239,7 @@
               can be used to (3) run system identification to identify physics parameters and reconstruct, e.g.,
               geometric,
               collision, and kinematic properties. (4) Train a task-specific policy \(\pi_{task}\) in the updated
-              simulator and (5) zeroshot transfer \(\pi_{task}\) to the real world
+              simulator and (5) zero-shot transfer \(\pi_{task}\) to the real world
             </p>
           </div>
         </div>
@@ -277,7 +277,7 @@
                 Balancing, or dynamic stacking of objects critically depends on an accurate estimate of the inertia
                 parameters. In this task, the agent can interact with a rod to identify its physical parameters, in this
                 case varying the <b>center of mass</b> along the rod. To successfully balance the rod on the tower
-                requires accurate estimation of the system parameters.
+                requires an accurate estimation of the system parameters.
               </p>
             </div>
           </div>
@@ -364,9 +364,11 @@
               \cdot \nabla_{\theta} \log p_{\theta}(\tau; \pi_{exp})^\top \right ]\)</p>
             <br>
             The Fisher information matrix,
-            therefore, captures the sensitivity of the distribution to the parameter \(\theta\). Since the distribution induced by trajectories \(\tau\) is different for different exploration
+            therefore, captures the sensitivity of the distribution to the parameter \(\theta\). Since the distribution
+            induced by trajectories \(\tau\) is different for different exploration
             policies, we can find distributions with higher Fisher information by changing the exploration policy.
-            To find an exploration policy that gives us the most informative trajectories about the true parameter \(\theta^*\), we can
+            To find an exploration policy that gives us the most informative trajectories about the true parameter
+            \(\theta^*\), we can
             formulate the optimization problem as:
             <br>
             <br>
@@ -377,8 +379,10 @@
             \(\mathrm{tr}(\mathrm{I}(\theta^*,
             \pi)^{-1})\) "small", suggesting
             that the induced trajectories are very sensitive to the unknown parameters and are good candidates for
-            system identification. Because the true parameters \(\theta^*\) are unknown, we solve this optimization problem
-            in simulation by randomizing over the parameters and roll out the resulting exploration policy in the real
+            system identification. Because the true parameters \(\theta^*\) are unknown, we solve this optimization
+            problem
+            in simulation by randomizing over the parameters and rolling out the resulting exploration policy in the
+            real
             world to collect a trajectory.
             </p>
           </div>
@@ -415,7 +419,7 @@
               We train the exploration policy \(\pi_{exp}\) in simulation (left) and roll it out in the real world
               (right) to collect trajectories for system identification. Observe that the exploration policy does not
               transfer perfectly but still collects informative data about the rod's center of mass. Note that even
-              though the video shows multiple real-world rollouts, in practice we only collect a single one.
+              though the video shows multiple real-world rollouts, we only collect a single one in practice.
             </p>
           </div>
         </div>
@@ -449,9 +453,10 @@
               <p>
                 ASID correctly identifies the rod's center of mass and successfully balances it on the tower. The
                 baseline
-                trained with domain-randomization, i.e., over a distribution of intertia parameters, fails
+                trained with domain randomization, i.e., over a distribution of inertia parameters, fails
                 catastrophically as it converges to picking up and placing the rod at a
-                random location. These results show that identifying the correct paramters is crucial to solve dynamic
+                random location. These results show that identifying the correct parameters is crucial to solving
+                dynamic
                 tasks.
               </p>
             </div>
@@ -470,7 +475,7 @@
               Due to the changing surface friction caused by previous shot attempts, the domain randomization baseline
               struggles to shoot
               the puck to the desired zone. With its dedicated exploration phase, ASID
-              can accurately adapt the simulation to the current conditions and lands the puck in the desired
+              can accurately adapt the simulation to the current conditions and land the puck in the desired
               zone. A correct parameter estimate is crucial to accurately solve the task.
             </p>
           </div>

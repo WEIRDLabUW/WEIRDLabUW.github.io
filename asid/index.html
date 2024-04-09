@@ -325,6 +325,7 @@
               <video id="replay-video" controls autoplay playsinline loop>
                 <source src="./static/videos/fisher_intuition.mp4" type="video/mp4">
               </video>
+              <h4 class="title is-8">Simulation</h4>
             </div>
           </div>
         </div>
@@ -335,11 +336,11 @@
               trajectories that are strongly affected by these parameters. In the case of the rod balancing task, the
               center of mass affects how the rod rotates when pushed by the robot during the exploration
               stage. As shown above, the same actions can lead to drastically different rod poses after interaction.
-              Trajectories that are
-              uninformative are trajectories where the rod is not forced to rotate around its center of mass or doesn't
+              Trajectories are
+              uninformative if the rod is not forced to rotate around its center of mass or doesn't
               move at all. We indicate the center of mass by a blue marker <span
-                style="color: #0000ff; font-size: 20px;">●</span>
-              on top of rod in both sim and real (not visible to the policy).
+                style="color: #0000ff; font-size: 15px;">●</span>
+              on top of the rod in both sim and real (not visible to the policy).
             </p>
           </div>
         </div>
@@ -358,14 +359,15 @@
               Recall that for a distribution over trajectories \(p_\theta\), the Fisher information is defined as:
               <br>
               <br>
-            <p style="text-align: center;">\(\mathrm{I}(\theta) := \mathrm{E}_{\tau \sim p_{\theta}} \left [
-              \nabla_{\theta} \log p_{\theta}(\tau)
-              \cdot \nabla_{\theta} \log p_{\theta}(\tau)^\top \right ]\)</p>
+            <p style="text-align: center;">\(\mathrm{I}(\theta,\pi_{exp}) := \mathrm{E}_{\tau \sim p_{\theta}} \left [
+              \nabla_{\theta} \log p_{\theta}(\tau; \pi_{exp})
+              \cdot \nabla_{\theta} \log p_{\theta}(\tau; \pi_{exp})^\top \right ]\)</p>
             <br>
             The Fisher information matrix,
-            therefore, captures the sensitivity of the distribution to the parameter \(\theta\).
-            To find an exploration policy \(\pi_{exp}\) that gives us the most informative trajectories, we can
-            formulate the optimization problem:
+            therefore, captures the sensitivity of the distribution to the parameter \(\theta\). Since the distribution induced by trajectories \(\tau\) is different for different exploration
+            policies, we can find distributions with higher Fisher information by changing the exploration policy.
+            To find an exploration policy that gives us the most informative trajectories about the true parameter \(\theta^*\), we can
+            formulate the optimization problem as:
             <br>
             <br>
             <p style="text-align: center;">\(\mathrm{argmin}_{\pi_{exp}}\quad\mathrm{tr}(\mathrm{I}(\theta^*,
@@ -375,7 +377,9 @@
             \(\mathrm{tr}(\mathrm{I}(\theta^*,
             \pi)^{-1})\) "small", suggesting
             that the induced trajectories are very sensitive to the unknown parameters and are good candidates for
-            system identification.
+            system identification. Because the true parameters \(\theta^*\) are unknown, we solve this optimization problem
+            in simulation by randomizing over the parameters and roll out the resulting exploration policy in the real
+            world to collect a trajectory.
             </p>
           </div>
         </div>
@@ -410,7 +414,8 @@
             <p>
               We train the exploration policy \(\pi_{exp}\) in simulation (left) and roll it out in the real world
               (right) to collect trajectories for system identification. Observe that the exploration policy does not
-              transfer perfectly but still collects informative data about the rod's center of mass.
+              transfer perfectly but still collects informative data about the rod's center of mass. Note that even
+              though the video shows multiple real-world rollouts, in practice we only collect a single one.
             </p>
           </div>
         </div>

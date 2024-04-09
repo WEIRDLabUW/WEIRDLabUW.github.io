@@ -253,6 +253,58 @@
   </section>
   <!--/ Pipeline Overview -->
 
+
+  <!-- Real-World Experiments -->
+  <section class="section">
+    <div class="container is-max-desktop">
+
+      <div class="columns is-centered is-mobile is-vcentered">
+        <div class="column is-full-width">
+          <h2 class="title is-3">Real-World Experiments</h2>
+        </div>
+      </div>
+      <br>
+      <div class="container is-max-desktop">
+
+        <div class="columns is-centered is-mobile is-vcentered">
+          <div class="column is-half">
+            <div class="content">
+              <h2 class="title is-4">Rod Balancing</h2>
+              <video id="replay-video" controls muted playsinline loop>
+                <source src="./static/videos/rod_video_small.mp4" type="video/mp4">
+              </video>
+              <p>
+                Balancing, or dynamic stacking of objects critically depends on an accurate estimate of the inertia
+                parameters. In this task, the agent can interact with a rod to identify its physical parameters, in this
+                case varying the <b>center of mass</b> along the rod. To successfully balance the rod on the tower
+                requires accurate estimation of the system parameters.
+              </p>
+            </div>
+          </div>
+
+          <div class="column is-half">
+            <div class="content">
+              <h2 class="title is-4">Shuffleboard</h2>
+              <video id="replay-video" controls muted playsinline loop>
+                <source src="./static/videos/puck_video.mp4" type="video/mp4">
+              </video>
+              <p>
+                In shuffleboard, the goal is to shoot a puck to a target area. We closely follow the original
+                game and pour wax (sand) on the board. This modification makes
+                the task especially difficult as the <b>surface friction</b> on the board changes slightly after each
+                shot since
+                the puck displaces the wax. The goal is to strike the puck to one of the target regions.
+
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    </div>
+  </section>
+  <!--/ Real-World Experiments -->
+
   <!-- Fisher Information Exploration -->
   <section class="section">
     <div class="container is-max-desktop">
@@ -369,57 +421,6 @@
     </div>
   </section>
   <!--/ Fisher Information Exploration -->
-
-  <!-- Real-World Experiments -->
-  <section class="section">
-    <div class="container is-max-desktop">
-
-      <div class="columns is-centered is-mobile is-vcentered">
-        <div class="column is-full-width">
-          <h2 class="title is-3">Real-World Experiments</h2>
-        </div>
-      </div>
-      <br>
-      <div class="container is-max-desktop">
-
-        <div class="columns is-centered is-mobile is-vcentered">
-          <div class="column is-half">
-            <div class="content">
-              <h2 class="title is-4">Rod Balancing</h2>
-              <video id="replay-video" controls muted playsinline loop>
-                <source src="./static/videos/rod_video_small.mp4" type="video/mp4">
-              </video>
-              <p>
-                Balancing, or dynamic stacking of objects critically depends on an accurate estimate of the inertia
-                parameters. In this task, the agent can interact with a rod to identify its physical parameters, in this
-                case varying the <b>center of mass</b> along the rod. To successfully balance the rod on the tower
-                requires accurate estimation of the system parameters.
-              </p>
-            </div>
-          </div>
-
-          <div class="column is-half">
-            <div class="content">
-              <h2 class="title is-4">Shuffleboard</h2>
-              <video id="replay-video" controls muted playsinline loop>
-                <source src="./static/videos/puck_video.mp4" type="video/mp4">
-              </video>
-              <p>
-                In shuffleboard, the goal is to shoot a puck to a target area. We closely follow the original
-                game and pour wax (sand) on the board. This modification makes
-                the task especially difficult as the <b>surface friction</b> on the board changes slightly after each
-                shot since
-                the puck displaces the wax. The goal is to strike the puck to one of the target regions.
-
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    </div>
-  </section>
-  <!--/ Real-World Experiments -->
 
   <!-- Baseline Comparisons -->
   <section class="section">

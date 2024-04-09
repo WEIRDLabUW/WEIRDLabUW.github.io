@@ -37,7 +37,8 @@
   <script src="./static/js/index.js"></script>
 
   <!-- TEX -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.0/es5/tex-mml-chtml.js" integrity="sha384-..." crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.0/es5/tex-mml-chtml.js" integrity="sha384-..."
+    crossorigin="anonymous"></script>
 </head>
 
 <body>
@@ -49,8 +50,8 @@
           <div class="column has-text-centered">
             <img style="vertical-align: middle; width: 250px; height: auto;" src="./static/images/asid_logo.png"
               alt="80s style ASID logo" />
-              <h1 class="title is-1 publication-title">Active Exploration for System Identification in Robotic
-                Manipulation</h1>
+            <h1 class="title is-1 publication-title">Active Exploration for System Identification in Robotic
+              Manipulation</h1>
             <div class="is-size-5 publication-authors">
               <span class="author-block">
                 <a href="https://memmelma.github.io">Marius Memmel</a><sup>1</sup>,</span>
@@ -229,8 +230,7 @@
         <div class="columns is-centered is-mobile is-vcentered">
           <div class="column is-full-width">
 
-            <img src="./static/images/method_figure.png" class="money-figure"
-              alt="Pipeline Overview" />
+            <img src="./static/images/method_figure.png" class="money-figure" alt="Pipeline Overview" />
             <p>
               <b>Overview of ASID:</b> (1) Train an exploration policy \(\pi_{exp}\) that maximizes the Fisher
               information,
@@ -252,6 +252,123 @@
     </div>
   </section>
   <!--/ Pipeline Overview -->
+
+  <!-- Fisher Information Exploration -->
+  <section class="section">
+    <div class="container is-max-desktop">
+
+      <div class="columns is-centered is-mobile is-vcentered">
+        <div class="column is-full-width">
+          <h2 class="title is-3">Fisher Information Exploration</h2>
+        </div>
+      </div>
+      <br>
+      <!-- Intuition -->
+      <div class="container is-max-desktop">
+        <h2 class="title is-4">Intuition</h2>
+
+        <div class="columns is-centered is-mobile is-vcentered">
+          <div class="column is-full-width">
+            <div class="content has-text-centered">
+              <video id="replay-video" controls autoplay playsinline loop>
+                <source src="./static/videos/fisher_intuition.mp4" type="video/mp4">
+              </video>
+            </div>
+          </div>
+        </div>
+        <div class="columns is-centered is-mobile is-vcentered">
+          <div class="column is-full-width">
+            <p>
+              To identify the underlying physics parameters that govern the dynamics of the system, we need to collect
+              trajectories that are strongly affected by these parameters. In the case of the rod balancing task, the
+              center of mass affects how the rod rotates when pushed by the robot during the exploration
+              stage. As shown above, the same actions can lead to drastically different rod poses after interaction.
+              Trajectories that are
+              uninformative are trajectories where the rod is not forced to rotate around its center of mass or doesn't
+              move at all. We indicate the center of mass by a blue marker <span
+                style="color: #0000ff; font-size: 20px;">●</span>
+              on top of rod in both sim and real (not visible to the policy).
+            </p>
+          </div>
+        </div>
+      </div>
+      <!-- Intuition -->
+      <br>
+      <!-- Fisher Information Maximization -->
+      <div class="container is-max-desktop">
+        <h2 class="title is-4">Fisher Information Maximization</h2>
+
+        <div class="columns is-centered is-mobile is-vcentered">
+          <div class="column is-full-width">
+            <p>
+              The <a href="https://en.wikipedia.org/wiki/Fisher_information#Matrix_form">Fisher information matrix</a>
+              plays a key role in the choice of our exploration policy, \(\pi_{exp}\).
+              Recall that for a distribution over trajectories \(p_\theta\), the Fisher information is defined as:
+              <br>
+              <br>
+            <p style="text-align: center;">\(\mathrm{I}(\theta) := \mathrm{E}_{\tau \sim p_{\theta}} \left [
+              \nabla_{\theta} \log p_{\theta}(\tau)
+              \cdot \nabla_{\theta} \log p_{\theta}(\tau)^\top \right ]\)</p>
+            <br>
+            The Fisher information matrix,
+            therefore, captures the sensitivity of the distribution to the parameter \(\theta\).
+            To find an exploration policy \(\pi_{exp}\) that gives us the most informative trajectories, we can
+            formulate the optimization problem:
+            <br>
+            <br>
+            <p style="text-align: center;">\(\mathrm{argmin}_{\pi_{exp}}\quad\mathrm{tr}(\mathrm{I}(\theta^*,
+              \pi_{exp})^{-1})\)</p>
+            <br>
+            Intuitively, a policy that makes the Fisher information "large" will make
+            \(\mathrm{tr}(\mathrm{I}(\theta^*,
+            \pi)^{-1})\) "small", suggesting
+            that the induced trajectories are very sensitive to the unknown parameters and are good candidates for
+            system identification.
+            </p>
+          </div>
+        </div>
+      </div>
+      <!-- Fisher Information Maximization -->
+      <br>
+      <!-- Exploration -->
+      <div class="container is-max-desktop">
+        <h2 class="title is-4">Exploration Behavior</h2>
+
+        <div class="columns is-centered is-mobile is-vcentered">
+          <div class="column is-half">
+            <div class="content has-text-centered">
+              <video id="replay-video" controls muted playsinline loop>
+                <source src="./static/videos/fisher_exploration_sim.mp4" type="video/mp4">
+              </video>
+              <h4 class="title is-8">Simulation</h4>
+            </div>
+          </div>
+
+          <div class="column is-half">
+            <div class="content has-text-centered">
+              <video id="replay-video" controls muted playsinline loop>
+                <source src="./static/videos/fisher_exploration_real.mp4" type="video/mp4">
+              </video>
+              <h4 class="title is-8">Real World</h4>
+            </div>
+          </div>
+        </div>
+        <div class="columns is-centered is-mobile is-vcentered">
+          <div class="column is-full-width">
+            <p>
+              We train the exploration policy \(\pi_{exp}\) in simulation (left) and roll it out in the real world
+              (right) to collect trajectories for system identification. Observe that the exploration policy does not
+              transfer perfectly but still collects informative data about the rod's center of mass.
+            </p>
+          </div>
+        </div>
+      </div>
+      <!-- Exploration -->
+    </div>
+    </div>
+    </div>
+  </section>
+  <!--/ Fisher Information Exploration -->
 
   <!-- Real-World Experiments -->
   <section class="section">
@@ -328,7 +445,8 @@
                 baseline
                 trained with domain-randomization, i.e., over a distribution of intertia parameters, fails
                 catastrophically as it converges to picking up and placing the rod at a
-                random location. These results show that identifying the correct paramters is crucial to solve dynamic tasks.
+                random location. These results show that identifying the correct paramters is crucial to solve dynamic
+                tasks.
               </p>
             </div>
           </div>
@@ -367,14 +485,16 @@
 
       <div class="columns is-centered is-mobile is-vcentered">
         <div class="column is-full-width">
-          <h2 class="title is-3">Push It to the Limit</h2>
+          <h2 class="title is-3"><a href="https://www.youtube.com/watch?v=Olgn9sXNdl0"
+              style="color: inherit; text-decoration: none;">Push It To The Limit</a>
+          </h2>
         </div>
       </div>
       <br>
       <div class="container is-max-desktop">
 
         <div class="columns is-centered is-mobile is-vcentered">
-          <div class="column is-full-width">
+          <div class="column is-four-fifths">
             <div class="content">
               <h2 class="title is-4">Double Stacking</h2>
               <video id="replay-video" controls muted playsinline loop>
@@ -386,9 +506,9 @@
       </div>
 
       <div class="columns is-centered is-mobile is-vcentered">
-        <div class="column is-full-width">
+        <div class="column is-four-fifths">
           <div class="content">
-            <h2 class="title is-4">Me vs Machine</h2>
+            <h2 class="title is-4">Me against the Machine</h2>
             <video id="replay-video" controls muted playsinline loop>
               <source src="./static/videos/man_vs_machine.mp4" type="video/mp4">
             </video>

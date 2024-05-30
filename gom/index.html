@@ -146,29 +146,27 @@
                 <div class="column is-four-fifths">
                     <h2 class="title is-3">Abstract</h2>
                     <div class="content has-text-justified">
-                        Intelligent agents must be generalists - showing the ability to quickly adapt and generalize to
-                        varying tasks. Within the framework of reinforcement learning (RL), model-based RL algorithms learn a
-                        task-agnostic dynamics model of the world, in principle allowing them to generalize to arbitrary rewards. However,
-                        one-step models naturally suffer from compounding errors, making them ineffective for problems with long
-                        horizons and large state spaces. In this work, we propose a novel class of models - generalized occupancy models
-                        (GOMs) - that retain the generality of model-based RL while avoiding compounding error. The key idea behind
-                        GOMs is to model the distribution of all possible long-term outcomes from a given state under the coverage of a
-                        stationary dataset, along with a policy that realizes a particular outcome from the given state. These models can
-                        then quickly be used to select the optimal action for arbitrary new tasks, without having to redo policy
-                        optimization. By directly modeling long-term outcomes, GOMs avoid compounding error while retaining generality 
-                        across arbitrary reward functions. We provide a practical instantiation of GOMs using diffusion models and show 
-                        its efficacy as a new class of transferable models, both theoretically and empirically across a variety of simulated 
-                        robotics problems.
-                        <!--/ Abstract. -->
+                        Intelligent agents must be generalists, capable of quickly adapting to various tasks. In reinforcement learning (RL), 
+                        model-based RL learns a dynamics model of the world, in principle enabling transfer to arbitrary reward functions 
+                        through planning. However, autoregressive model rollouts suffer from compounding error, making model-based RL 
+                        ineffective for long-horizon problems. Successor features offer an alternative by modeling a policy's long-term state 
+                        occupancy, reducing policy evaluation under new tasks to linear reward regression. Yet, policy improvement with successor 
+                        features can be challenging. This work proposes a novel class of models, i.e., generalized occupancy models (GOMs), that 
+                        learn a distribution of successor features from a stationary dataset, along with a policy that acts to realize different 
+                        successor features. These models can quickly select the optimal action for arbitrary new tasks. By directly modeling 
+                        long-term outcomes in the dataset, GOMs avoid compounding error while enabling rapid transfer across reward functions. 
+                        We present a practical instantiation of GOMs using diffusion models and show their efficacy as a new class of transferable 
+                        models, both theoretically and empirically across various simulated robotics problems.
                     </div>
                 </div>
             </div>
+            <!--/ Abstract. -->
         </div>
     </section>
 
     <div class="hr"></div>
 
-    <section class="section">
+    <!-- <section class="section">
         <div class="container is-max-desktop">
             <h2 class="title is-3 has-text-centered"> Method </h2>
 
@@ -183,13 +181,13 @@
                         <p>
                             GOMs learn:
                             <ul>
-                                <li> Distribution of all possible outcomes, represented by discounted sums of state-dependent cumulants along trajectories.
+                                <li> Distribution of all possible outcomes, represented by discounted sums of state features along trajectories (successor features).
                                 </li>
-                                <li> A readout policy that produces an action to realize a particular outcome. </li>
+                                <li> A readout policy that generates an action to realize a particular outcome. </li>
                             </ul>
-                            Modeling the discounted sum of cumulants makes GOMs <strong>reward-agnostic</strong>, while 
-                            modeling the distribution of all possible outcomes makes them <strong>policy-agnostic</strong>. These allow
-                            GOMs to retain the generality of model-based RL while avoiding compounding error.
+                            Modeling outcomes as successor features enables the quick evaluation of outcomes under arbitrary rewards, while 
+                            modeling the distribution of all possible outcomes enables the extraction of optimal policies. Hence, GOMs retain 
+                            the generality of model-based RL while avoiding compounding error.
                         </p>
                     </div>
                 </div>
@@ -202,8 +200,49 @@
                     <div class="content has-text-justified">
                         <p>
                             Assuming a linear dependence of rewards on cumulants, transferring to downstream tasks reduces to performing 
-                            linear regression and solving a simple optimization problem for the optimal possible outcome. This is fed 
-                            into the readout policy to produce an action.
+                            linear regression and solving a simple optimization problem for the optimal possible outcome. This is passed 
+                            into the readout policy to generate an action.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section> -->
+
+    <section class="section">
+        <div class="container is-max-desktop">
+            <h2 class="title is-3 has-text-centered"> Method </h2>
+
+            <div class="columns is-centered">
+                <div class="column is-full-width has-text-justified">
+                    <h3 class="title is-5">Learning Generalized Occupancy Models</h3>
+                    <div class="content has-text-justified">
+                        <img src="./static/images/cumulant.png" class="inline-figure" style="width:50%"
+                            alt="Learning GOMs." />
+                    </div>
+                    <div class="content has-text-justified">
+                        <p>
+                            Generalized occupancy models consist of:
+                            <ul>
+                                <li> A distribution of all possible outcomes in the dataset, represented by discounted sums of state features along trajectories (successor features).
+                                </li>
+                                <li> A readout policy that generates an action to realize a particular outcome. </li>
+                            </ul>
+                            Modeling outcomes as successor features enables the quick evaluation of outcomes under arbitrary rewards, while 
+                            modeling the distribution of all possible outcomes enables the extraction of optimal policies. Hence, GOMs retain 
+                            the generality of model-based RL while avoiding compounding error.
+                        </p>
+                    </div>
+                    <h3 class="title is-5">Adaptation and planning via GOMs</h3>
+                    <div class="content has-text-centered">
+                        <img src="./static/images/planning.png" class="inline-figure" style="width:60%"
+                            alt="Learning GOMs." />
+                    </div>
+                    <div class="content has-text-justified">
+                        <p>
+                            Assuming a linear dependence of rewards on cumulants, transferring to downstream tasks reduces to performing 
+                            linear regression and solving a simple optimization problem for the optimal possible outcome. This is passed 
+                            into the readout policy to generate an action.
                         </p>
                     </div>
                 </div>
@@ -225,8 +264,7 @@
                         <p>
                             We evaluate GOMs' ability to transfer to challenging downstream tasks on the D4RL benchmark.
                             GOMs show superior performance transferring to the hardest tasks compared to model-based RL, successor 
-                            features, and mispecified goal-conditioned baselines, while being competitive with an oracle using 
-                            previldged information.
+                            features, and goal-conditioned baselines with misspecified goal distributions.
                         </p>
                     </div>
                     <div class="content has-text-centered">
@@ -237,7 +275,7 @@
                         </video>
                     </div>
                     <div class="content has-text-justified">
-                        <p> To demonstrate GOM's broad transferability, we plot the normalized
+                        <p> To demonstrate GOMs' broad transferability, we plot the normalized
                             returns for reaching various goals in antmaze, where each tile corresponds to the task of 
                             navigating the robot to reach that particular tile. GOMs successfully transfer across a 
                             majority of tasks, whereas model-based RL struggles on longer-horizon tasks.
@@ -288,7 +326,7 @@
                             i.e. recovering optimal trajectories by combining suboptimal trajectories. We validate GOMs' stitching 
                             capability on the roboverse benchmark, where each task consists of two subtasks, but the dataset 
                             only contains trajectories for each individual subtask. GOMs can complete the tasks by stitching
-                            subtrajectories, whereas monte-carlo-based baselines cannot.
+                            subtrajectories, whereas Monte-Carlo style baselines cannot.
                         </p>
                     </div>
                     <div class="content has-text-centered">

@@ -1,14 +1,14 @@
-# Visual Odometry Transformers (VOT)
+# ASID
 
-This is the repository that contains source code for the [Visual Odometry Transformers website](https://vo-transformers.github.io).
+This is the repository that contains source code for the [ASID: Active Exploration for System Identification in Robotic Manipulation](https://weirdlabuw.github.io/asid/).
 
 If you VOT useful for your work please cite:
 ```
-@article{memmel2023vot,
-  author    = {Memmel, Marius and Bachmann, Roman and Zamir, Amir},
-  title     = {Modality-invariant Visual Odometry for Embodied Vision},
-  journal   = {CVPR},
-  year      = {2023},
+@inproceedings{memmel2024asid,
+  title={ASID: Active Exploration for System Identification in Robotic Manipulation},
+  author={Memmel, Marius and Wagenmaker, Andrew and Zhu, Chuning and Fox, Dieter and Gupta, Abhishek},
+  booktitle={The Twelfth International Conference on Learning Representations},
+  year={2024}
 }
 ```
 

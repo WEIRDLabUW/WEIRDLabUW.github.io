@@ -2,7 +2,7 @@
 
 This is the repository that contains source code for the [ASID: Active Exploration for System Identification in Robotic Manipulation](https://weirdlabuw.github.io/asid/).
 
-If you VOT useful for your work please cite:
+If you find ASID useful for your work please cite:
 ```
 @inproceedings{memmel2024asid,
   title={ASID: Active Exploration for System Identification in Robotic Manipulation},
@@ -10,6 +10,7 @@ If you VOT useful for your work please cite:
   booktitle={The Twelfth International Conference on Learning Representations},
   year={2024}
 }
+
 ```
 
 # Website License

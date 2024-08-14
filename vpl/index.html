@@ -1,506 +1,529 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-  <meta charset="utf-8">
-  <meta name="description"
-        content="Personalizing Reinforcement Learning from Human
-        Feedback with Variational Preference Learning">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Personalizing Reinforcement Learning from Human Feedback with Variational Preference Learning</title>
+    <meta charset="utf-8">
+    <meta name="description"
+    content="Personalizing Reinforcement Learning from Human
+    Feedback with Variational Preference Learning">
+    <meta name="keywords" content="Reinforcement Learning, Preference Learning, RLHF">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Personalizing Reinforcement Learning from Human Feedback with Variational Preference Learning</title>
 
-  <!-- Global site tag (gtag.js) - Google Analytics -->
-  <!-- <script async src="https://www.googletagmanager.com/gtag/js?id=G-PYVRSFMDRL"></script> -->
-  <script>
-    window.dataLayer = window.dataLayer || [];
+    <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro" rel="stylesheet">
 
-    function gtag() {
-      dataLayer.push(arguments);
-    }
+    <link rel="stylesheet" href="./static/css/bulma.min.css">
+    <link rel="stylesheet" href="./static/css/bulma-carousel.min.css">
+    <link rel="stylesheet" href="./static/css/bulma-slider.min.css">
+    <link rel="stylesheet" href="./static/css/fontawesome.all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+    <link rel="stylesheet" href="./static/css/index.css">
+    <link rel="icon" href="./static/images/favicon.svg">
 
-    gtag('js', new Date());
-
-    gtag('config', 'G-PYVRSFMDRL');
-  </script>
-
-  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro"
-        rel="stylesheet">
-
-  <link rel="stylesheet" href="./static/css/bulma.min.css">
-  <link rel="stylesheet" href="./static/css/bulma-carousel.min.css">
-  <link rel="stylesheet" href="./static/css/bulma-slider.min.css">
-  <link rel="stylesheet" href="./static/css/fontawesome.all.min.css">
-  <link rel="stylesheet"
-        href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
-  <link rel="stylesheet" href="./static/css/index.css">
-  <link rel="icon" href="./static/images/favicon.svg">
-
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-  <script defer src="./static/js/fontawesome.all.min.js"></script>
-  <script src="./static/js/bulma-carousel.min.js"></script>
-  <script src="./static/js/bulma-slider.min.js"></script>
-  <script src="./static/js/index.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script defer src="./static/js/fontawesome.all.min.js"></script>
+    <script src="./static/js/bulma-carousel.min.js"></script>
+    <script src="./static/js/bulma-slider.min.js"></script>
+    <script src="./static/js/index.js"></script>
 </head>
+
 <body>
 
-<!-- <nav class="navbar" role="navigation" aria-label="main navigation">
-  <div class="navbar-brand">
-    <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false">
-      <span aria-hidden="true"></span>
-      <span aria-hidden="true"></span>
-      <span aria-hidden="true"></span>
-    </a>
-  </div>
-  <div class="navbar-menu"> -->
-    <!-- <div class="navbar-start" style="flex-grow: 1; justify-content: center;">
-      <a class="navbar-item" href="https://keunhong.com">
-      <span class="icon">
-          <i class="fas fa-home"></i>
-      </span>
-      </a> -->
 
-      <!-- <div class="navbar-item has-dropdown is-hoverable">
-        <a class="navbar-link">
-          More Research
-        </a>
-        <div class="navbar-dropdown">
-          <a class="navbar-item" href="https://hypernerf.github.io">
-            HyperNeRF
-          </a>
-          <a class="navbar-item" href="https://nerfies.github.io">
-            Nerfies
-          </a>
-          <a class="navbar-item" href="https://latentfusion.github.io">
-            LatentFusion
-          </a>
-          <a class="navbar-item" href="https://photoshape.github.io">
-            PhotoShape
-          </a>
-        </div>
-      </div> -->
-    <!-- </div>
+    <section class="hero">
+        <div class="hero-body">
+            <div class="container is-max-desktop">
+                <div class="columns is-centered">
+                    <div class="column has-text-centered">
+                        <h1 class="title is-3 publication-title">Personalizing Reinforcement Learning from Human Feedback with Variational Preference Learning</h1>
+                            <div class="is-size-5 publication-authors">
+                                <span class="author-block">
+                                  <a href="https://sriya.sh">Sriyash Poddar*</a>,</span>
+                                <span class="author-block">
+                                  <a href="https://www.wanyanming.com/">Yanming Wan*</a>,</span>
+                                <span class="author-block">
+                                  <a href="https://ivison.id.au/">Hamish Ivision</a>,
+                                </span>
+                                <span class="author-block">
+                                  <a href="https://homes.cs.washington.edu/~abhgupta/">Abhishek Gupta^</a>,
+                                </span>
+                                <span class="author-block">
+                                  <a href="https://natashajaques.ai">Natasha Jaques^</a>
+                                </span>
+                              </div>
 
-  </div>
-</nav> -->
+                        <div class="is-size-5 publication-authors">
+                            <span class="author-block"><sup>1</sup>University of Washington</span>
+                        </div>
 
-
-<section class="hero">
-  <div class="hero-body">
-    <div class="container is-max-desktop">
-      <div class="columns is-centered">
-        <div class="column has-text-centered">
-          <h1 class="title is-3 publication-title">Personalizing Reinforcement Learning from Human Feedback with Variational Preference Learning</h1>
-          <div class="is-size-5 publication-authors">
-            <span class="author-block">
-              <a href="https://keunhong.com">Sriyash Poddar*</a>,</span>
-            <span class="author-block">
-              <a href="https://utkarshsinha.com">Yanming Wan*</a>,</span>
-            <span class="author-block">
-              <a href="https://jonbarron.info">Hamish Ivision</a>,
-            </span>
-            <span class="author-block">
-              <a href="http://sofienbouaziz.com">Abhishek Gupta*</a>,
-            </span>
-            <span class="author-block">
-              <a href="https://www.danbgoldman.com">Natasha Jaques*</a>
-            </span>
-          </div>
-
-          <div class="is-size-5 publication-authors">
-            <span class="author-block">University of Washington</span>
-          </div>
-
-          <div class="column has-text-centered">
-            <div class="publication-links">
-              <!-- PDF Link. -->
-              <span class="link-block">
-                <a href="#"
-                   class="external-link button is-normal is-rounded is-dark">
-                  <span class="icon">
-                      <i class="fas fa-file-pdf"></i>
-                  </span>
-                  <span>Paper</span>
-                </a>
-              </span>
-              <!-- <span class="link-block">
-                <a href="https://arxiv.org/abs/2011.12948"
-                   class="external-link button is-normal is-rounded is-dark">
-                  <span class="icon">
-                      <i class="ai ai-arxiv"></i>
-                  </span>
-                  <span>arXiv</span>
-                </a>
-              </span> -->
-              <!-- Video Link. -->
-              <span class="link-block">
-                <a href="#"
+                        <div class="column has-text-centered">
+                            <div class="publication-links">
+                                <!-- PDF Link. -->
+                                <span class="link-block">
+                                    <a href="#"
+                                        class="external-link button is-normal is-rounded is-dark">
+                                        <span class="icon">
+                                            <i class="fas fa-file-pdf"></i>
+                                        </span>
+                                        <span>Paper</span>
+                                    </a>
+                                </span>
+                                <!-- Video Link. -->
+                                <!-- <span class="link-block">
+                <a href="https://youtu.be/DQGVD6KaVf8"
                    class="external-link button is-normal is-rounded is-dark">
                   <span class="icon">
                       <i class="fab fa-youtube"></i>
                   </span>
                   <span>Video</span>
                 </a>
-              </span>
-              <!-- Code Link. -->
-              <span class="link-block">
-                <a href="#"
-                   class="external-link button is-normal is-rounded is-dark">
-                  <span class="icon">
-                      <i class="fab fa-github"></i>
-                  </span>
-                  <span>Code</span>
-                  </a>
-              </span>
-              <!-- Dataset Link. -->
-              <!-- <span class="link-block">
-                <a href="https://github.com/google/nerfies/releases/tag/0.1"
-                   class="external-link button is-normal is-rounded is-dark">
-                  <span class="icon">
-                      <i class="far fa-images"></i>
-                  </span>
-                  <span>Data</span>
-                  </a> -->
-            </div>
+              </span> -->
+                                <!-- Code Link. -->
+                                <span class="link-block">
+                                    <a href="#"
+                                        class="external-link button is-normal is-rounded is-dark">
+                                        <span class="icon">
+                                            <i class="fab fa-github"></i>
+                                        </span>
+                                        <span>Code</span>
+                                    </a>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
+                <!-- Paper video. -->
+                <!-- <div class="columns is-centered has-text-centered">
+        <div class="column is-four-fifths">
+          <div class="publication-video">
+            
+            <iframe src="https://www.youtube.com/embed/DQGVD6KaVf8?rel=0&amp;showinfo=0"
+                    frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
           </div>
         </div>
-      </div>
-    </div>
-  </div>
-</section>
+      </div> -->
+                <!--/ Paper video. -->
+                <!-- <div class="content has-text-centered">
+                    <img src="./static/images/algo.gif" class="inline-figure-four-thirds" alt="Algorith overview." />
+                </div> -->
+                <div class="content has-text-centered">
+                    <img src="./static/videos/vpl.gif" alt="Teaser image" class="teaser-image">
+                </div>
+                <div class="columns is-centered has-text-centered">
+                    <div class="column is-four-fifths">
+                        <div class="content has-text-justified">
+                            Given a diverse user population with varying preferences, we learn a personalized reward 
+                            model that captures "what different users want" and "how to tailor responses to individual 
+                            users." This is used for quick adaptation to specific user preferences without retraining
+                            the entire model or ignoring underrepresented groups.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 
-<section class="hero teaser">
+    <!-- <section class="hero teaser">
   <div class="container is-max-desktop">
     <div class="hero-body">
-      <!-- Insert image here -->
-       <img src="./static/images/mainfig.jpeg" alt="Teaser image" class="teaser-image">
-      <!-- <video id="teaser" autoplay muted loop playsinline height="100%">
-        <source src="./static/videos/teaser.mp4"
-                type="video/mp4">
-      </video> -->
+      <video id="teaser" autoplay muted loop playsinline height="100%">
+        <source src="./static/videos/repo_turtlebot.mp4" type="video/mp4">
+      </video>
       <h2 class="subtitle has-text-centered">
-        <span class="dnerf">VPL</span> uses few users samples to personalize reinforcement learning agents.
+        <span class="dnerf">RePo learns minimally task-relevant representations that is resilient to spurious variations.
       </h2>
-    </div>
-  </div>
-</section>
-
-
-<!-- <section class="hero is-light is-small">
-  <div class="hero-body">
-    <div class="container">
-      <div id="results-carousel" class="carousel results-carousel">
-        <div class="item item-steve">
-          <video poster="" id="steve" autoplay controls muted loop playsinline height="100%">
-            <source src="./static/videos/steve.mp4"
-                    type="video/mp4">
-          </video>
-        </div>
-        <div class="item item-chair-tp">
-          <video poster="" id="chair-tp" autoplay controls muted loop playsinline height="100%">
-            <source src="./static/videos/chair-tp.mp4"
-                    type="video/mp4">
-          </video>
-        </div>
-        <div class="item item-shiba">
-          <video poster="" id="shiba" autoplay controls muted loop playsinline height="100%">
-            <source src="./static/videos/shiba.mp4"
-                    type="video/mp4">
-          </video>
-        </div>
-        <div class="item item-fullbody">
-          <video poster="" id="fullbody" autoplay controls muted loop playsinline height="100%">
-            <source src="./static/videos/fullbody.mp4"
-                    type="video/mp4">
-          </video>
-        </div>
-        <div class="item item-blueshirt">
-          <video poster="" id="blueshirt" autoplay controls muted loop playsinline height="100%">
-            <source src="./static/videos/blueshirt.mp4"
-                    type="video/mp4">
-          </video>
-        </div>
-        <div class="item item-mask">
-          <video poster="" id="mask" autoplay controls muted loop playsinline height="100%">
-            <source src="./static/videos/mask.mp4"
-                    type="video/mp4">
-          </video>
-        </div>
-        <div class="item item-coffee">
-          <video poster="" id="coffee" autoplay controls muted loop playsinline height="100%">
-            <source src="./static/videos/coffee.mp4"
-                    type="video/mp4">
-          </video>
-        </div>
-        <div class="item item-toby">
-          <video poster="" id="toby" autoplay controls muted loop playsinline height="100%">
-            <source src="./static/videos/toby2.mp4"
-                    type="video/mp4">
-          </video>
-        </div>
-      </div>
     </div>
   </div>
 </section> -->
 
+    <div class="hr"></div>
 
-<section class="section">
-  <div class="container is-max-desktop">
-    <!-- Abstract. -->
-    <div class="columns is-centered has-text-centered">
-      <div class="column is-four-fifths">
-        <h2 class="title is-3">Abstract</h2>
-        <div class="content has-text-justified">
-          <p>
-          Reinforcement Learning from Human Feedback (RLHF) is a powerful paradigm
-          for aligning foundation models to human values and preferences. However, cur-
-          rent RLHF techniques cannot account for the naturally occurring differences in
-          individual human preferences across a diverse population. When these differences
-          arise, traditional RLHF frameworks simply average over them, leading to inac-
-          curate rewards and poor performance for individual subgroups. To address the
-          need for pluralistic alignment, we develop a class of multimodal RLHF methods.
-          </p>
-          <p>
-          Our proposed techniques are based on a latent variable formulation - inferring a
-          novel user-specific latent and learning reward models and policies conditioned on
-          this latent without additional user-specific data. While conceptually simple, we
-          show that in practice, this reward modeling requires careful algorithmic consid-
-          erations around model architecture and reward scaling. To empirically validate
-          our proposed technique, we first show that it can provide a way to combat under-
-          specification in simulated control problems, inferring and optimizing user-specific
-          reward functions. Next, we conduct experiments on pluralistic language datasets
-          representing diverse user preferences and demonstrate improved reward function
-          accuracy. We additionally show the benefits of this probabilistic framework in
-          terms of measuring uncertainty, and actively learning user preferences. This work
-          enables learning from diverse populations of users with divergent preferences,
-          an important challenge that naturally occurs in problems from robot learning to
-          foundation model alignment.
-        </p>
+    <section class="section">
+        <div class="container is-max-desktop">
+            <!-- Abstract. -->
+            <div class="columns is-centered has-text-centered">
+                <div class="column is-four-fifths">
+                    <h2 class="title is-3">Abstract</h2>
+                    <div class="content has-text-justified">
+                        <p>
+                            Reinforcement Learning from Human Feedback (RLHF) is a powerful paradigm
+                            for aligning foundation models to human values and preferences. However, curent 
+                            RLHF techniques cannot account for the naturally occurring differences in
+                            individual human preferences across a diverse population. When these differences
+                            arise, traditional RLHF frameworks simply average over them, leading to inaccurate
+                            rewards and poor performance for individual subgroups. To address the
+                            need for pluralistic alignment, we develop a class of multimodal RLHF methods.
+                            </p>
+                            <p>
+                            Our proposed techniques are based on a latent variable formulation - inferring a
+                            novel user-specific latent and learning reward models and policies conditioned on
+                            this latent without additional user-specific data. While conceptually simple, we
+                            show that in practice, this reward modeling requires careful algorithmic consid-
+                            erations around model architecture and reward scaling. To empirically validate
+                            our proposed technique, we first show that it can provide a way to combat under-
+                            specification in simulated control problems, inferring and optimizing user-specific
+                            reward functions. Next, we conduct experiments on pluralistic language datasets
+                            representing diverse user preferences and demonstrate improved reward function
+                            accuracy. We additionally show the benefits of this probabilistic framework in
+                            terms of measuring uncertainty, and actively learning user preferences. This work
+                            enables learning from diverse populations of users with divergent preferences,
+                            an important challenge that naturally occurs in problems from robot learning to
+                            foundation model alignment.
+                          </p>
+                    </div>
+                </div>
+            </div>
+            <!--/ Abstract. -->
         </div>
-      </div>
-    </div>
-    <!--/ Abstract. -->
+    </section>
 
-    <!-- Paper video. -->
-    <div class="columns is-centered has-text-centered">
-      <div class="column is-four-fifths">
-        <h2 class="title is-3">Video</h2>
-        <div class="publication-video">
-          <iframe src="https://www.youtube.com/embed/1bJ0jJ1u1ZQ"
-                  frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+    <div class="hr"></div>
+
+    <!-- <section class="section">
+        <div class="container is-max-desktop">
+            <h2 class="title is-3 has-text-centered"> Method </h2>
+
+            <div class="columns is-centered">
+                <div class="column is-half has-text-justified">
+                    <h3 class="title is-5">Learning Generalized Occupancy Models</h3>
+                    <div class="content has-text-justified">
+                        <img src="./static/images/cumulant.png" class="inline-figure" style="width:100%"
+                            alt="Learning GOMs." />
+                    </div>
+                    <div class="content has-text-justified">
+                        <p>
+                            GOMs learn:
+                            <ul>
+                                <li> Distribution of all possible outcomes, represented by discounted sums of state features along trajectories (successor features).
+                                </li>
+                                <li> A readout policy that generates an action to realize a particular outcome. </li>
+                            </ul>
+                            Modeling outcomes as successor features enables the quick evaluation of outcomes under arbitrary rewards, while 
+                            modeling the distribution of all possible outcomes enables the extraction of optimal policies. Hence, GOMs retain 
+                            the generality of model-based RL while avoiding compounding error.
+                        </p>
+                    </div>
+                </div>
+                <div class="column is-half has-text-justified">
+                    <h3 class="title is-5">Adaptation and planning via GOMs</h3>
+                    <div class="content has-text-centered">
+                        <img src="./static/images/planning.png" class="inline-figure" style="width:100%"
+                            alt="Learning GOMs." />
+                    </div>
+                    <div class="content has-text-justified">
+                        <p>
+                            Assuming a linear dependence of rewards on cumulants, transferring to downstream tasks reduces to performing 
+                            linear regression and solving a simple optimization problem for the optimal possible outcome. This is passed 
+                            into the readout policy to generate an action.
+                        </p>
+                    </div>
+                </div>
+            </div>
         </div>
-      </div>
-    </div>
-    <!--/ Paper video. -->
-  </div>
-</section>
+    </section> -->
+
+    <section class="section">
+        <div class="container is-max-desktop">
+            <h2 class="title is-3 has-text-centered"> Method </h2>
+
+            <div class="columns is-centered">
+                <div class="column is-full-width has-text-justified">
+                    <h3 class="title is-4">Incorporating Latent Context into Preference-Based Learning</h3>
+                    <div class="content has-text-justified">
+                        <p>
+                            The standard Bradley-Terry model assumes that all annotators share a single reward function, which is not practical with a diverse
+                            range of annotators. To model pluralistic preferences, we frame multi-modal reward learning
+                            as a latent variable problem, where the latent variable represents the hidden context affecting the
+                            underlying reward function. Following this, we express the preference likelihoods can be expressed with a latent-conditional BTL model:
+                        </p>
+                        <img src="./static/images/pl.png" class="inline-figure" style="width:65%"
+                            alt="Preference Learning" />
+                    </div>
+
+                    <div class="content has-text-justified">
+                        <p>
+                            We present an evidence lower bound (ELBO) for the variational preference learning (VPL) objective. The ELBO is: 
+                        </p>
+                        <img src="./static/images/vpl.png" class="inline-figure" style="width:100%"
+                            alt="Preference Learning" />
+                    </div>
+
+                    <div class="content has-text-justified">
+                        <p>
+                            Intuitively this objective encodes a set of user-provided annotations <math display="inline" class="tml-display" style="display:block math;">
+                                <mrow>
+                                  <mo form="prefix" stretchy="false">{</mo>
+                                  <mo form="prefix" stretchy="false">(</mo>
+                                  <msubsup>
+                                    <mi>s</mi>
+                                    <mi>A</mi>
+                                    <mi>i</mi>
+                                  </msubsup>
+                                  <mo separator="true">,</mo>
+                                  <msubsup>
+                                    <mi>s</mi>
+                                    <mi>B</mi>
+                                    <mi>i</mi>
+                                  </msubsup>
+                                  <mo separator="true">,</mo>
+                                  <msup>
+                                    <mi>y</mi>
+                                    <mi>i</mi>
+                                  </msup>
+                                  <mo form="postfix" stretchy="false">)</mo>
+                                  <msubsup>
+                                    <mo form="postfix" stretchy="false">}</mo>
+                                    <mrow>
+                                      <mi>i</mi>
+                                      <mo>=</mo>
+                                      <mn>1</mn>
+                                    </mrow>
+                                    <mi>N</mi>
+                                  </msubsup>
+                                </mrow>
+                              </math>
+                               into a 
+                            latent distribution using the encoder <math display="inline" class="tml-display" style="display:block math;">
+                                <msub>
+                                  <mi>q</mi>
+                                  <mi>ψ</mi>
+                                </msub>
+                              </math>, and then learns a latent-conditional reward function <math display="inline" class="tml-display" style="display:block math;">
+                                <mrow>
+                                  <mi>r</mi>
+                                  <mo form="prefix" stretchy="false">(</mo>
+                                  <mi>s</mi>
+                                  <mo separator="true">,</mo>
+                                  <mi>z</mi>
+                                  <mo form="postfix" stretchy="false">)</mo>
+                                </mrow>
+                              </math> 
+                            that best explains the annotated preference data.
+                        </p>
+                    </div>
+                    <div class="content has-text-justified">
+                        <p>
+                            We show that VPL can learn a multi-modal reward function, while the baseline BTL model averages the different modes from the diverse users.
+                        </p>
+                        <img src="./static/images/vpl_reward.png" class="inline-figure-four-thirds" style="width:35%"
+                            alt="Reward Learning experiments" />
+                    </div>
 
 
-<section class="section">
-  <div class="container is-max-desktop">
-
-    <div class="columns is-centered">
-
-      <!-- BTL -->
-      <div class="column">
-        <div class="content">
-          <h2 class="title is-3"> BTL</h2>
-          <p>
-            ADD IMAGE and video to show why standard BTL is bad
-          </p>
-          <video id="dollyzoom" autoplay controls muted loop playsinline height="100%">
-            <source src=""
-                    type="video/mp4">
-          </video>
+                    <h3 class="title is-5">Personalised Latent Conditioned Policies</h3>
+                    <div class="content has-text-centered">
+                        <img src="./static/images/vpl_pi.png" class="inline-figure" style="width:60%"
+                            alt="Policy Learning." />
+                    </div>
+                    <div class="content has-text-justified">
+                        <p>
+                            We learn a policy conditioned on the latent variable <math display="inline" class="tml-display" style="display:block math;">
+                                <mi>z</mi>
+                              </math> that generates actions to maximize the expected reward under the inferred reward function. 
+                            This allows us to personalize the policy to the user's preferences without requiring additional user-specific data.
+                        </p>
+                    </div>
+                </div>
+            </div>
         </div>
-      </div>
-      <!--/ BTL -->
+    </section>
 
-      <!-- VPL -->
-      <div class="column">
-        <h2 class="title is-3">VPL</h2>
-        <div class="columns is-centered">
-          <div class="column content">
-            <p>
-             VPL video + image showing why is it good
-             </p>
-            <video id="matting-video" controls playsinline height="100%">
-              <source src="./"
-                      type="video/mp4">
-            </video>
-          </div>
+    <div class="hr"></div>
 
+
+    <section class="section">
+        <div class="container is-max-desktop">
+            <div class="columns is-centered">
+                <div class="column is-full-width has-text-justified">
+                    <h2 class="title is-3 has-text-centered"> Simulated Control Experiments </h2>
+
+                    <!-- <h3 class="title is-5">Simulated Control Experiments</h3> -->
+                    <div class="content has-text-justified">
+                        <p>
+                            We evaluate VPL's ability to adapt to user preferences in multiple simulated control tasks.
+                            We show that VPL is able to infer the user's preference and steer downstream behavior accordingly.
+                        </p>
+                    </div>
+                    <div class="content has-text-centered">
+                        <img src="./static/images/envs.png" class="inline-figure" style="width:75%"
+                            alt="multi-modal environments." />
+                            <img src="./static/images/control_exps.png" class="inline-figure" style="width:75%"
+                            alt="vpl control results." />
+                        <!-- <video id="exp-d4rl" autoplay muted loop playsinline height="100%" width="75%">
+                            <source src="./static/videos/d4rl.mp4" type="video/mp4">
+                        </video> -->
+                    </div>
+
+                    <h3 class="title is-5">Active Learning</h3>
+                    <div class="content has-text-justified">
+                        <p>
+                            Using the probabilistic nature of VPL, we demonstrate the ability to actively query user preferences. This active query
+                            selection procedure can be expressed as the following optimization problem, maximizing the mutual
+                            information between the labels and the latent distribution:
+                            <img src="./static/images/active_eq.png" class="inline-figure" style="width:50%"
+                            alt="active learning objective." />
+                        </p>
+                    </div>
+                    <div class="content has-text-justified">
+                        <p>
+                            We show that active learning can significantly reduce the number of queries required to learn the user's preferences.
+                        </p>
+                        <img src="./static/images/active_results.png" class="inline-figure-four-thirds" style="width:35%"
+                            alt="Active Learning experiments" />
+                    </div>
+
+                    <h3 class="title is-5">Scaling VPL to large number of users</h3>
+                    <div class="content has-text-justified">
+                        <p>
+                            In the Habitat environment, with ~ 100 users, we show that VPL scales and is able to infer and adapt diverse to user preferences.
+                            <img src="./static/images/scale_users.png" class="inline-figure" style="width:35%"
+                            alt="scaled user results." />
+                        </p>
+                    </div>
+                </div>
+            </div>
         </div>
-      </div>
-    </div>
-    <!--/ VPL -->
-    
-    <!-- Results -->
-    <div class="columns is-centered">
-      <div class="column is-full-width">
-        <h2 class="title is-3">Simulated Control Experiments</h2>
+    </section>
 
-        <!-- Control Experiments -->
-        <!-- <h3 class="title is-4"></h3> -->
+    <div class="hr"></div>
 
-        <div class="content has-text-justified">
-          <p>
-            Add plot and environment videos here, comparing to baselines vs ours
-          </p>
+    <section class="section">
+        <div class="container is-max-desktop">
+            <div class="columns is-centered">
+                <div class="column is-full-width has-text-justified">
+                    <h2 class="title is-3 has-text-centered"> VPL for Large Language Models </h2>
+
+                    <h3 class="title is-5">Model Architecture</h3>
+                    <div class="content has-text-justified">
+                        <p>
+                            We scale VPL for pluralistic alignment of LLM-based reward models. We compare the reward modelling performance of our method against the baselines
+                            on GPT-2 and Llama2-7b across a sythetic dataset of diverse user preferences ("Pets") and the widely available UltraFeedback dataset with four distinct user groups.
+                            Please refer to the paper for more details on the dataset. 
+                        </p>
+                    </div>
+                    <div class="content has-text-justified">
+                        <img src="./static/images/llm_arch.png" class="inline-figure" style="width:75%"
+                            alt="llm architecture." />
+                            <br/><br/>
+                            <p>
+                                In the following Table, we see that VPL is able to learn a more accurate reward model across all the datasets,
+                                capturing the multi-modality in the language preference data. This indicates that VPL can infer the
+                                latent representation of the user’s preferences z from a few annotated samples, and successfully adapt
+                                the reward model. In contrast, the baselines—including the BTL model typically used in widely
+                                deployed RLHF models—are unable to fit the datasets because they are unable to account for
+                                divergent preferences.
+                            </p>
+                            <img src="./static/images/vpl_table.png" class="inline-figure" style="width:75%"
+                            alt="vpl control results." />
+                        <!-- <video id="exp-d4rl" autoplay muted loop playsinline height="100%" width="75%">
+                            <source src="./static/videos/d4rl.mp4" type="video/mp4">
+                        </video> -->
+                    </div>
+
+
+                    <div class="content has-text-justified">
+                        <p>
+                            In this plot, we visualize the T-SNE features of the latent distribution z produced by 
+                            the encoder <math display="inline" class="tml-display" style="display:block math;">
+                                <msub>
+                                  <mi>q</mi>
+                                  <mi>ψ</mi>
+                                </msub>
+                              </math> on a set of annotated prompts and responses <math display="inline" class="tml-display" style="display:block math;">
+                                <mrow>
+                                  <mo form="prefix" stretchy="false">{</mo>
+                                  <msubsup>
+                                    <mi>s</mi>
+                                    <mi>A</mi>
+                                    <mi>i</mi>
+                                  </msubsup>
+                                  <mo separator="true">,</mo>
+                                  <msubsup>
+                                    <mi>s</mi>
+                                    <mi>B</mi>
+                                    <mi>i</mi>
+                                  </msubsup>
+                                  <mo separator="true">,</mo>
+                                  <msup>
+                                    <mi>y</mi>
+                                    <mi>i</mi>
+                                  </msup>
+                                  <msubsup>
+                                    <mo form="postfix" stretchy="false">}</mo>
+                                    <mrow>
+                                      <mi>i</mi>
+                                      <mo>=</mo>
+                                      <mn>1</mn>
+                                    </mrow>
+                                    <mi>N</mi>
+                                  </msubsup>
+                                </mrow>
+                              </math> from the two users in the dataset. 
+                            We see that the encoder clusters the users in the latent space, allowing the decoder to personalize the reward models according 
+                            to multiple objectives preferred by the diverse users belonging to a cluster.
+                        </p>
+                        <img src="./static/images/latent.png" class="inline-figure" style="width:75%"
+                            alt="llm latent space." />
+                            <!-- <img src="./static/images/vpl_table.png" class="inline-figure" style="width:75%"
+                            alt="vpl control results." /> -->
+                        <!-- <video id="exp-d4rl" autoplay muted loop playsinline height="100%" width="75%">
+                            <source src="./static/videos/d4rl.mp4" type="video/mp4">
+                        </video> -->
+                    </div>
+
+                    <!-- <h3 class="title is-5">Active Learning</h3>
+                    <div class="content has-text-justified">
+                        <p>
+                            Using the probabilistic nature of VPL, we demonstrate the ability to actively query user preferences. This active query
+                            selection procedure can be expressed as the following optimization problem, maximizing the mutual
+                            information between the labels and the latent distribution:
+                            <img src="./static/images/active_eq.png" class="inline-figure" style="width:50%"
+                            alt="active learning objective." />
+                        </p>
+                    </div>
+                    <div class="content has-text-centered">
+                        <p>
+                            We show that active learning can significantly reduce the number of queries required to learn the user's preferences.
+                        </p>
+                        <img src="./static/images/active_results.png" class="inline-figure-four-thirds" style="width:50%"
+                            alt="Active Learning experiments" />
+                    </div> -->
+                </div>
+            </div>
         </div>
-      
-      </div>
-    </div>
-    <!--/ Results -->
+    </section>
+
+    <div class="hr"></div>
 
 
-    <!-- VPL LLM. -->
-    <div class="columns is-centered">
-      <div class="column is-full-width">
-        <h2 class="title is-3">VPL for Large Language Models</h2>
-        <!-- Re-rendering. -->
-        <!-- <h3 class="title is-4">Re-rendering the input video</h3> -->
-        <div class="content has-text-justified">
-          <p>
-            Using <span class="dnerf">VPL</span> for LLMs. TODO: More explanation here.
-          </p>
-        </div>
-        <div class="content has-text-centered">
-          <!-- <video id="replay-video"
-                 controls
-                 muted
-                 preload
-                 playsinline
-                 width="75%">
-            <source src="./static/videos/replay.mp4"
-                    type="video/mp4">
-          </video> -->
-          <img src="./static/images/vpl_llm.jpg" alt="LLM image" width="70%" class="teaser-image">
-          <!-- <embed src="./static/images/vpl_llm.pdf" type="application/pdf" width="100%" height="100px" /> -->
-        </div>
-        <!--/ Re-rendering. -->
-        
-        <!-- LLM Results -->
-        <!-- <h3 class="title is-4">Reward Learning for LLMs</h3> -->
-        <div class="content has-text-justified">
-          <p>
-            Results: TODO add explanation here.
-          </p>
-        </div>
-        <div class="content has-text-centered">
-          <img src="./static/images/llm_results.png" alt="LLM reward image" width="70%" class="teaser-image">
-        </div>
-        <!--/ LLM Results -->
-      </div>
-    </div>
-    <!--/ VPL LLM. -->
-
-     <!-- Active Learning -->
-     <div class="columns is-centered">
-      <div class="column is-full-width">
-        <h2 class="title is-3">Active Learning</h2>
-        <!-- Re-rendering. -->
-        <!-- <h3 class="title is-4">Re-rendering the input video</h3> -->
-        <div class="content has-text-justified">
-          <p>
-            Using <span class="dnerf">VPL</span> for LLMs. TODO: More explanation here.
-          </p>
-        </div>
-        <div class="content has-text-centered">
-          <!-- <video id="replay-video"
-                 controls
-                 muted
-                 preload
-                 playsinline
-                 width="75%">
-            <source src="./static/videos/replay.mp4"
-                    type="video/mp4">
-          </video> -->
-          Add active learning gif here.
-          <img src="./static/images/active_learning.jpg" alt="LLM image" width="70%" class="teaser-image">
-          <!-- <embed src="./static/images/vpl_llm.pdf" type="application/pdf" width="100%" height="100px" /> -->
-        </div>
-        <!--/ Re-rendering. -->
-
-      </div>
-    </div>
-    <!--/ Active Learning -->
-
-
-    <!-- Concurrent Work. -->
-    <div class="columns is-centered">
-      <div class="column is-full-width">
-        <h2 class="title is-3">Related Links</h2>
-
-        <div class="content has-text-justified">
-          <p>
-            There's a lot of excellent work that was introduced around the same time as ours. Add references
-          </p>
-          <!-- <p>
-            <a href="https://arxiv.org/abs/2104.09125">Progressive Encoding for Neural Optimization</a> introduces an idea similar to our windowed position encoding for coarse-to-fine optimization.
-          </p>
-          <p>
-            <a href="https://www.albertpumarola.com/research/D-NeRF/index.html">D-NeRF</a> and <a href="https://gvv.mpi-inf.mpg.de/projects/nonrigid_nerf/">NR-NeRF</a>
-            both use deformation fields to model non-rigid scenes.
-          </p>
-          <p>
-            Some works model videos with a NeRF by directly modulating the density, such as <a href="https://video-nerf.github.io/">Video-NeRF</a>, <a href="https://www.cs.cornell.edu/~zl548/NSFF/">NSFF</a>, and <a href="https://neural-3d-video.github.io/">DyNeRF</a>
-          </p>
-          <p>
-            There are probably many more by the time you are reading this. Check out <a href="https://dellaert.github.io/NeRF/">Frank Dellart's survey on recent NeRF papers</a>, and <a href="https://github.com/yenchenlin/awesome-NeRF">Yen-Chen Lin's curated list of NeRF papers</a>.
-          </p> -->
-        </div>
-      </div>
-    </div>
-    <!--/ Concurrent Work. -->
-
-  </div>
-</section>
-
-
-<section class="section" id="BibTeX">
-  <div class="container is-max-desktop content">
-    <h2 class="title">BibTeX</h2>
-    <pre><code>@article{park2021nerfies,
-  author    = {Poddar, Sriyash and Wan, Yanming and Ivision, Hamish and Gupta, Abhishek and Jaques, Natasha},
-  title     = {Personalizing Reinforcement Learning from Human Feedback with Variational Preference Learning},
-  journal   = {arxiv},
-  year      = {2024},
+    <section class="section" id="BibTeX">
+        <div class="container is-max-desktop content">
+            <h2 class="title has-text-centered"> BibTeX </h2>
+            <pre><code>@article{poddar2024vpl,
+    author    = {Poddar, Sriyash and Wan, Yanming and Ivision, Hamish and Gupta, Abhishek and Jaques, Natasha},
+    title     = {Personalizing Reinforcement Learning from Human Feedback with Variational Preference Learning},
+    booktitle = {ArXiv Preprint},
+    year      = {2024},
 }</code></pre>
-  </div>
-</section>
-
-
-<footer class="footer">
-  <div class="container">
-    <div class="content has-text-centered">
-      <a class="icon-link"
-         href="#">
-        <i class="fas fa-file-pdf"></i>
-      </a>
-      <a class="icon-link" href="https://github.com/sriyash421" class="external-link" disabled>
-        <i class="fab fa-github"></i>
-      </a>
-    </div>
-    <div class="columns is-centered">
-      <div class="column is-8">
-        <div class="content">
-          <p>
-            <!-- This website is licensed under a <a rel="license"
-                                                href="http://creativecommons.org/licenses/by-sa/4.0/">Creative
-            Commons Attribution-ShareAlike 4.0 International License</a>. -->
-            The website has been taken from <a href="https://github.com/nerfies/nerfies.github.io"> Nerfies </a>.
-          </p>
-          <!-- <p>
-            This means you are free to borrow the  of this website,
-            we just ask that you link back to this page in the footer.
-            Please remember to remove the analytics code included in the header of the website which
-            you do not want on your website.
-          </p> -->
         </div>
-      </div>
-    </div>
-  </div>
-</footer>
+    </section>
+
+
+    <footer class="footer">
+        <div class="container">
+            <div class="columns is-centered">
+                <div class="column is-8">
+                    <div class="content has-text-centered">
+                        <p>
+                            Website template from <a href="https://nerfies.github.io/">Nerfies</a>.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
 
 </body>
+
 </html>

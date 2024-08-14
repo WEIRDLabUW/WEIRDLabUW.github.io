@@ -53,7 +53,7 @@
                               </div>
 
                         <div class="is-size-5 publication-authors">
-                            <span class="author-block"><sup>1</sup>University of Washington</span>
+                            <span class="author-block">University of Washington</span>
                         </div>
 
                         <div class="column has-text-centered">
@@ -114,7 +114,7 @@
                     <div class="column is-four-fifths">
                         <div class="content has-text-justified">
                             Given a diverse user population with varying preferences, we learn a personalized reward 
-                            model that captures "what different users want" and "how to tailor responses to individual 
+                            model that captures both "what different users want" and "how to tailor responses to individual 
                             users." This is used for quick adaptation to specific user preferences without retraining
                             the entire model or ignoring underrepresented groups.
                         </div>
@@ -159,10 +159,10 @@
                             Our proposed techniques are based on a latent variable formulation - inferring a
                             novel user-specific latent and learning reward models and policies conditioned on
                             this latent without additional user-specific data. While conceptually simple, we
-                            show that in practice, this reward modeling requires careful algorithmic consid-
-                            erations around model architecture and reward scaling. To empirically validate
-                            our proposed technique, we first show that it can provide a way to combat under-
-                            specification in simulated control problems, inferring and optimizing user-specific
+                            show that in practice, this reward modeling requires careful algorithmic considerations
+                            around model architecture and reward scaling. To empirically validate
+                            our proposed technique, we first show that it can provide a way to combat under-specification
+                             in simulated control problems, inferring and optimizing user-specific
                             reward functions. Next, we conduct experiments on pluralistic language datasets
                             representing diverse user preferences and demonstrate improved reward function
                             accuracy. We additionally show the benefits of this probabilistic framework in
@@ -251,7 +251,7 @@
 
                     <div class="content has-text-justified">
                         <p>
-                            Intuitively this objective encodes a set of user-provided annotations <math display="inline" class="tml-display" style="display:block math;">
+                            Intuitively this objective encodes a set of user-provided annotations <math>
                                 <mrow>
                                   <mo form="prefix" stretchy="false">{</mo>
                                   <mo form="prefix" stretchy="false">(</mo>
@@ -284,12 +284,12 @@
                                 </mrow>
                               </math>
                                into a 
-                            latent distribution using the encoder <math display="inline" class="tml-display" style="display:block math;">
+                            latent distribution using the encoder <math>
                                 <msub>
                                   <mi>q</mi>
                                   <mi>ψ</mi>
                                 </msub>
-                              </math>, and then learns a latent-conditional reward function <math display="inline" class="tml-display" style="display:block math;">
+                              </math>, and then learns a latent-conditional reward function <math>
                                 <mrow>
                                   <mi>r</mi>
                                   <mo form="prefix" stretchy="false">(</mo>
@@ -306,7 +306,7 @@
                         <p>
                             We show that VPL can learn a multi-modal reward function, while the baseline BTL model averages the different modes from the diverse users.
                         </p>
-                        <img src="./static/images/vpl_reward.png" class="inline-figure-four-thirds" style="width:35%"
+                        <img src="./static/images/vpl_reward.png" class="inline-figure-four-thirds" style="width:50%"
                             alt="Reward Learning experiments" />
                     </div>
 
@@ -318,7 +318,7 @@
                     </div>
                     <div class="content has-text-justified">
                         <p>
-                            We learn a policy conditioned on the latent variable <math display="inline" class="tml-display" style="display:block math;">
+                            We learn a policy conditioned on the latent variable <math display="inline" class="tml-display" style="display:inline math;">
                                 <mi>z</mi>
                               </math> that generates actions to maximize the expected reward under the inferred reward function. 
                             This allows us to personalize the policy to the user's preferences without requiring additional user-specific data.
@@ -346,9 +346,9 @@
                         </p>
                     </div>
                     <div class="content has-text-centered">
-                        <img src="./static/images/envs.png" class="inline-figure" style="width:75%"
+                        <img src="./static/images/envs.png" class="inline-figure" style="width:95%"
                             alt="multi-modal environments." />
-                            <img src="./static/images/control_exps.png" class="inline-figure" style="width:75%"
+                            <img src="./static/images/control_exps.png" class="inline-figure" style="width:95%"
                             alt="vpl control results." />
                         <!-- <video id="exp-d4rl" autoplay muted loop playsinline height="100%" width="75%">
                             <source src="./static/videos/d4rl.mp4" type="video/mp4">
@@ -369,7 +369,7 @@
                         <p>
                             We show that active learning can significantly reduce the number of queries required to learn the user's preferences.
                         </p>
-                        <img src="./static/images/active_results.png" class="inline-figure-four-thirds" style="width:35%"
+                        <img src="./static/images/active_results.png" class="inline-figure-four-thirds" style="width:50%"
                             alt="Active Learning experiments" />
                     </div>
 
@@ -377,7 +377,7 @@
                     <div class="content has-text-justified">
                         <p>
                             In the Habitat environment, with ~ 100 users, we show that VPL scales and is able to infer and adapt diverse to user preferences.
-                            <img src="./static/images/scale_users.png" class="inline-figure" style="width:35%"
+                            <img src="./static/images/scale_users.png" class="inline-figure" style="width:50%"
                             alt="scaled user results." />
                         </p>
                     </div>
@@ -414,7 +414,7 @@
                                 deployed RLHF models—are unable to fit the datasets because they are unable to account for
                                 divergent preferences.
                             </p>
-                            <img src="./static/images/vpl_table.png" class="inline-figure" style="width:75%"
+                            <img src="./static/images/vpl_table.png" class="inline-figure" style="width:90%"
                             alt="vpl control results." />
                         <!-- <video id="exp-d4rl" autoplay muted loop playsinline height="100%" width="75%">
                             <source src="./static/videos/d4rl.mp4" type="video/mp4">
@@ -425,12 +425,12 @@
                     <div class="content has-text-justified">
                         <p>
                             In this plot, we visualize the T-SNE features of the latent distribution z produced by 
-                            the encoder <math display="inline" class="tml-display" style="display:block math;">
+                            the encoder <math display="inline" class="tml-display" style="display:inline math;">
                                 <msub>
                                   <mi>q</mi>
                                   <mi>ψ</mi>
                                 </msub>
-                              </math> on a set of annotated prompts and responses <math display="inline" class="tml-display" style="display:block math;">
+                              </math> on a set of annotated prompts and responses <math display="inline" class="tml-display" style="display:inline math;">
                                 <mrow>
                                   <mo form="prefix" stretchy="false">{</mo>
                                   <msubsup>
@@ -493,7 +493,31 @@
             </div>
         </div>
     </section>
+    
+    <div class="hr"></div>
 
+    <section class="section">
+        <div class="container is-max-desktop">
+            <div class="columns is-centered">
+                <div class="column is-full-width has-text-justified">
+                    <!-- <h2 class="title is-3 has-text-centered"> Simulated Control Experiments </h2> -->
+
+                    <h3 class="title is-5">Conclusion</h3>
+                    <div class="content has-text-justified">
+                        <p>
+                            Overall, we present a novel method for personalizing reinforcement learning from human feedback with variational preference learning.
+                            We demonstrate that our method can learn a multi-modal reward function that captures the diverse preferences of a user population.
+                            We show that our method can adapt to user preferences in simulated control tasks and scale to large language models.
+                            We believe that our work makes a step towards enabling learning from diverse populations of users with divergent preferences.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    
+    
     <div class="hr"></div>
 
 

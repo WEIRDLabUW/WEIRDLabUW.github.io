@@ -288,7 +288,7 @@
               <br>
               <br>
               <p>
-                DTW computes a <b>cost matrix</b> that compares the distance between each pair of points in the two sequences. We use vision foundation models, <i>e.g.</i>, DINOv2, to encode the image observations and compute their distance with the L2 norm. The optimal matching is represented by the <b>shortest path</b> through the matrix. Dynamic programming finds this path, minimizing the total distance between the two sequences.
+                DTW computes a <b>distance matrix</b> that compares the distance between each pair of points in the two sequences. We use vision foundation models, <i>e.g.</i>, DINOv2, to encode the image observations and compute their distance with the L2 norm. The optimal matching is represented by the <b>shortest path</b> through the matrix. Dynamic programming finds this path, minimizing the total distance between the two sequences.
                 The figure above shows matching a demonstration from \(\mathcal{D}_{target}\) (y-axis) to a sub-sequence in the offline dataset \(\mathcal{D}_{prior}\) (x-axis). Brighter colors indicate higher <span style="color: 
 #fce624;"><b>&#9650;</b></span> and darker colors indicate lower <span style="color: 
 #440055;"><b>&#9660;</b></span> cost. The red line <span style="color: #e90a12;"><b>&#9644;</b></span> indicates the optimal path through the matrix, <i>i.e.</i>, the optimal match between the sequences.
@@ -334,10 +334,10 @@
               <b>\(\texttt{STRAP}\) outperforms the retrieval baselines</b> <i>BehaviorRetrieval</i> (BR) [Du et al.
               2023] and
               <i>FlowRetrieval</i> (FR) [Lin et al. 2024] on average by \(+12.20\%\) and \(+12.47\%\) across all
-              LIBERO-10 tasks. These results demonstrate the policy's robustness to varying object poses. Both <b>DINOv2
-                and CLIP are viable representations for \(\texttt{STRAP}\)</b> with them being separated by only
+              LIBERO-10 tasks. These results demonstrate the policy's robustness to object poses. Both <b>DINOv2
+                and CLIP are viable representations for \(\texttt{STRAP}\)</b> with only a
               \(+0.73\%\)
-              across all LIBERO-10 tasks.
+              difference across all LIBERO-10 tasks.
             </p>
           </div>
         </div>
@@ -362,9 +362,9 @@
                 style="display: block; margin: 0 auto; max-width: 50%; height: auto;" />
               <br>
               <p>
-                While Behavior Cloning (BC) and \(\texttt{STRAP}\) solve the Franka-Pen-in-Cup demonstrated in \target
-                (\textit{base}), BC lacks robustness to out-of-distribution (\textit{OOD}) scenarios. The policy replays
-                the trajectories observed in \target. \method retrieves relevant sub-trajectories from \offline, \eg,
+                While Behavior Cloning (BC) and \(\texttt{STRAP}\) solve the Franka-Pen-in-Cup demonstrated in \(\mathcal{D}_{target}\)
+                (<i>base</i>), BC lacks robustness to out-of-distribution (<i>OOD</i>) scenarios. The policy replays
+                the trajectories observed in \(\mathcal{D}_{target}\). \(\texttt{STRAP}\) retrieves relevant sub-trajectories from \(\mathcal{D}_{prior}\), <i>e.g.</i>,
                 the robot putting the screwdriver in the cup or picking up pens in various poses. Augmented policy
                 learning then distills this knowledge into a policy, resulting in generalization to an OOD scenario.
               </p>
@@ -504,6 +504,31 @@
               </div>
             </div>
           </div>
+
+          <div class="container is-max-desktop">
+            <h2 class="title is-4">Datasets</h2>
+  
+            <div class="columns is-mobile is-vcentered">
+              <div class="column is-half">
+                <div class="content has-text-centered">
+                  <p>Demonstration Dataset \(\mathcal{D}_{target}\)</p>
+                  <video id="replay-video" autoplay playsinline loop muted controls>
+                    <source src="./static/videos/pick_dataset.mp4" type="video/mp4">
+                  </video>
+                  <!-- <h4 class="title is-8">Pen-in-Cup (out-of-distribution)</h4> -->
+                </div>
+              </div>
+            
+              <div class="column is-half">
+                <div class="content has-text-centered">
+                  <p>Offline Dataset \(\mathcal{D}_{prior}\)</p>
+                  <video id="replay-video" autoplay playsinline loop muted controls>
+                    <source src="./static/videos/10x10_dataset.mp4" type="video/mp4">
+                  </video>
+                  <!-- <h4 class="title is-8">Pen-in-Cup (out-of-distribution)</h4> -->
+                </div>
+              </div>
+            </div>
           <!-- <div class="columns is-centered is-mobile is-vcentered">
           <div class="column is-full-width">
             <p>

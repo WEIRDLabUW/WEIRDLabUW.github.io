@@ -248,6 +248,63 @@
   </section>
   <!--/ Pipeline Overview -->
 
+  <!-- DTW -->
+  <section class="section">
+    <div class="container is-max-desktop">
+
+      <div class="columns is-centered is-mobile is-vcentered">
+        <div class="column is-full-width">
+          <h2 class="title is-3">Subsequence Dynamic Time Warping</h2>
+        </div>
+      </div>
+      <br>
+      <div class="container is-max-desktop">
+
+        <div class="columns is-centered is-mobile is-vcentered">
+          <div class="column is-full-width">
+
+            <img src="./static/images/dtw_matching.png" class="money-figure" alt="Pipeline Overview" />
+            <br>
+            <br>
+            <p>
+              <b>Subsequence Dynamic Time Warping:</b>
+
+              To retrieve sequences of variable length, we build Dynamic Time Warping (DTW). DTW methods compute the similarity between two sequence that may vary in length or frequency.
+              The algorithm aligns the sequences by warping the time axis of the series using a set of step sizes to minimize the distance between corresponding points while obeying boundary conditions. 
+              Subsequence Dynamic Time Warping (S-DTW) loosens these boundary conditions to allow for subsequence matching.
+            </p>
+          </div>
+        </div>
+      </div>
+      <div class="columns is-centered is-mobile is-vcentered">
+
+        <div class="container is-max-desktop">
+
+          <div class="columns is-centered is-mobile is-vcentered">
+            <div class="column is-full-width">
+              <br>
+              <br>
+              <img src="./static/images/dtw_matrix.png" class="money-figure" alt="Pipeline Overview" />
+              <br>
+              <br>
+              <p>
+                DTW computes a <b>cost matrix</b> that compares the distance between each pair of points in the two sequences. We use vision foundation models, <i>e.g.</i>, DINOv2, to encode the image observations and compute their distance with the L2 norm. The optimal matching is represented by the <b>shortest path</b> through the matrix. Dynamic programming finds this path, minimizing the total distance between the two sequences.
+                The figure above shows matching a demonstration from \(\mathcal{D}_{target}\) (y-axis) to a sub-sequence in the offline dataset \(\mathcal{D}_{prior}\) (x-axis). Brighter colors indicate higher <span style="color: 
+#fce624;"><b>&#9650;</b></span> and darker colors indicate lower <span style="color: 
+#440055;"><b>&#9660;</b></span> cost. The red line <span style="color: #e90a12;"><b>&#9644;</b></span> indicates the optimal path through the matrix, <i>i.e.</i>, the optimal match between the sequences.
+              </p>
+            </div>
+          </div>
+        </div>
+        <div class="columns is-centered is-mobile is-vcentered">
+
+        </div>
+      </div>
+    </div>
+    </div>
+  </section>
+  <!--/ DTW -->
+
   <!-- Experiments -->
   <section class="section">
     <div class="container is-max-desktop">
@@ -394,15 +451,13 @@
   </section>
   <!--/ Ablations -->
 
-  <!-- <b></b>What types of matches are identified by <i>S-DTW</i>?</b> -->
-
   <!-- Real-World Experiments -->
   <section class="section">
     <div class="container is-max-desktop">
 
       <div class="columns is-centered is-mobile is-vcentered">
         <div class="column is-full-width">
-          <h2 class="title is-3">Fisher Information Exploration</h2>
+          <h2 class="title is-3">Real-World Experiments</h2>
         </div>
       </div>
       <br>
@@ -468,39 +523,83 @@
 
         </div>
         <!-- Real-World Experiments -->
-        <br>
 
-        <section class="section" id="BibTeX">
-          <div class="container is-max-desktop content">
-            <h2 class="title">BibTeX</h2>
-            <pre><code>@article{2025strap,
+        <!-- Qualitative DTW -->
+        <section class="section">
+          <div class="container is-max-desktop">
+
+            <div class="columns is-centered is-mobile is-vcentered">
+              <div class="column is-full-width">
+                <h2 class="title is-3">Qualitative Results</h2>
+              </div>
+            </div>
+            <div class="container is-max-desktop">
+
+              <div class="columns is-centered is-mobile is-vcentered">
+                <div class="column is-full-width">
+
+                  <b>What types of matches are identified by <i>S-DTW</i>?</b>
+                  <br>
+                  <br>
+                  <img src="./static/images/data_retrieved.png" class="money-figure" alt="Pipeline Overview" />
+                  <br>
+                  <br>
+                  <p>
+                    We visualize the top five tasks retrieved and accumulates the rest into the <i>"others"</i>
+                    category.
+                    <b>\(\texttt{STRAP}\) only retrieves semantically relevant sub-trajectories</b> &mdash; each task
+                    shares at
+                    least one sub-task with the target task! For example, <i>"put the black bowl in the bottom drawer of
+                      the
+                      cabinet"</i>, <i>"close the bottom drawer of the cabinet ..."</i>. \(\texttt{STRAP}\) retrieval is
+                    sparse, only selecting data from 5/90 semantically relevant tasks and ignoring irrelevant ones (no
+                    <i>"others"</i>)!
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div class="columns is-centered is-mobile is-vcentered">
+
+            </div>
+          </div>
+      </div>
+    </div>
+  </section>
+  <!--/ Qualitative DTW -->
+
+  <br>
+
+  <section class="section" id="BibTeX">
+    <div class="container is-max-desktop content">
+      <h2 class="title">BibTeX</h2>
+      <pre><code>@article{2025strap,
   title={???},
   author={???},
   journal={???},
   year={2025}
 }
 </code></pre>
-          </div>
-        </section>
+    </div>
+  </section>
 
 
-        <footer class="footer">
-          <div class="container">
-            <div class="columns is-centered">
-              <div class="column is-8">
-                <div class="content">
-                  <p>
-                    This website is based on the <a href="https://github.com/nerfies/nerfies.github.io"
-                      target="_blank">Nerfies website template</a>,
-                    which is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"
-                      target="_blank">Creative
-                      Commons Attribution-ShareAlike 4.0 International License</a>.
-                  </p>
-                </div>
-              </div>
-            </div>
+  <footer class="footer">
+    <div class="container">
+      <div class="columns is-centered">
+        <div class="column is-8">
+          <div class="content">
+            <p>
+              This website is based on the <a href="https://github.com/nerfies/nerfies.github.io"
+                target="_blank">Nerfies website template</a>,
+              which is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"
+                target="_blank">Creative
+                Commons Attribution-ShareAlike 4.0 International License</a>.
+            </p>
           </div>
-        </footer>
+        </div>
+      </div>
+    </div>
+  </footer>
 
 </body>
 

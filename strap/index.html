@@ -114,6 +114,11 @@
                     <span>Code (coming soon)</span>
                   </a>
                 </span>
+
+              <br>
+              <br>
+            <h1 class="title is-5" style="color: red"><b>This website is still under construction, please come back later!</b></h1>
+
                 <!-- Poster download link. -->
                 <!-- <span class="link-block">
                   <a href="static/assets/CVPR2023_VOT_poster.pdf" target="_blank"
@@ -160,6 +165,7 @@
       <div class="columns is-centered has-text-centered">
         <div class="column is-four-fifths">
           <div class="content">
+
             <h2 class="title is-3">Abstract</h2>
             <div class="content has-text-justified">
               <p>
@@ -199,8 +205,8 @@
         <div class="column is-four-fifths">
           <h2 class="title is-3">Video</h2>
           <div class="publication-video">
-            <iframe width="560" height="315" src="static/videos/strap_talk_crop.mp4"
-              title="YouTube video player" frameborder="0"
+            <iframe width="560" height="315" src="static/videos/strap_talk_crop.mp4" title="YouTube video player"
+              frameborder="0"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
               allowfullscreen></iframe>
           </div>
@@ -272,10 +278,12 @@
             <br>
             <br>
             <p>
-              <b>\(\texttt{STRAP}\) outperforms the retrieval baselines</b> <i>BehaviorRetrieval</i> (BR) [Du et al. 2023] and
+              <b>\(\texttt{STRAP}\) outperforms the retrieval baselines</b> <i>BehaviorRetrieval</i> (BR) [Du et al.
+              2023] and
               <i>FlowRetrieval</i> (FR) [Lin et al. 2024] on average by \(+12.20\%\) and \(+12.47\%\) across all
               LIBERO-10 tasks. These results demonstrate the policy's robustness to varying object poses. Both <b>DINOv2
-              and CLIP are viable representations for \(\texttt{STRAP}\)</b> with them being separated by only \(+0.73\%\)
+                and CLIP are viable representations for \(\texttt{STRAP}\)</b> with them being separated by only
+              \(+0.73\%\)
               across all LIBERO-10 tasks.
             </p>
           </div>
@@ -301,7 +309,11 @@
                 style="display: block; margin: 0 auto; max-width: 50%; height: auto;" />
               <br>
               <p>
-                While Behavior Cloning (BC) and \(\texttt{STRAP}\) solve the Franka-Pen-in-Cup demonstrated in \target (\textit{base}), BC lacks robustness to out-of-distribution (\textit{OOD}) scenarios. The policy replays the trajectories observed in \target. \method retrieves relevant sub-trajectories from \offline, \eg, the robot putting the screwdriver in the cup or picking up pens in various poses. Augmented policy learning then distills this knowledge into a policy, resulting in generalization to an OOD scenario.
+                While Behavior Cloning (BC) and \(\texttt{STRAP}\) solve the Franka-Pen-in-Cup demonstrated in \target
+                (\textit{base}), BC lacks robustness to out-of-distribution (\textit{OOD}) scenarios. The policy replays
+                the trajectories observed in \target. \method retrieves relevant sub-trajectories from \offline, \eg,
+                the robot putting the screwdriver in the cup or picking up pens in various poses. Augmented policy
+                learning then distills this knowledge into a policy, resulting in generalization to an OOD scenario.
               </p>
             </div>
           </div>
@@ -431,17 +443,17 @@
         <div class="container is-max-desktop">
           <h2 class="title is-4">Pen-in-Cup (out-of-distribution)</h2>
 
-        <div class="columns is-centered is-mobile is-vcentered">
-          <div class="column is-full-width">
-            <div class="content has-text-centered">
-              <video id="replay-video" controls autoplay playsinline loop muted>
-                <source src="./static/videos/pen_in_cup_ood.mp4" type="video/mp4">
-              </video>
-              <!-- <h4 class="title is-8">Pen-in-Cup (out-of-distribution)</h4> -->
+          <div class="columns is-centered is-mobile is-vcentered">
+            <div class="column is-full-width">
+              <div class="content has-text-centered">
+                <video id="replay-video" controls autoplay playsinline loop muted>
+                  <source src="./static/videos/pen_in_cup_ood.mp4" type="video/mp4">
+                </video>
+                <!-- <h4 class="title is-8">Pen-in-Cup (out-of-distribution)</h4> -->
+              </div>
             </div>
           </div>
-        </div>
-        <!-- <div class="columns is-centered is-mobile is-vcentered">
+          <!-- <div class="columns is-centered is-mobile is-vcentered">
           <div class="column is-full-width">
             <p>
               To identify the underlying physics parameters that govern the dynamics of the system, we need to collect
@@ -458,41 +470,41 @@
         </div> -->
 
 
-      </div>
-      <!-- Real-World Experiments -->
-      <br>
+        </div>
+        <!-- Real-World Experiments -->
+        <br>
 
-  <section class="section" id="BibTeX">
-    <div class="container is-max-desktop content">
-      <h2 class="title">BibTeX</h2>
-      <pre><code>@article{2025strap,
+        <section class="section" id="BibTeX">
+          <div class="container is-max-desktop content">
+            <h2 class="title">BibTeX</h2>
+            <pre><code>@article{2025strap,
   title={???},
   author={???},
   journal={???},
   year={2025}
 }
 </code></pre>
-    </div>
-  </section>
-
-
-  <footer class="footer">
-    <div class="container">
-      <div class="columns is-centered">
-        <div class="column is-8">
-          <div class="content">
-            <p>
-              This website is based on the <a href="https://github.com/nerfies/nerfies.github.io"
-                target="_blank">Nerfies website template</a>,
-              which is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"
-                target="_blank">Creative
-                Commons Attribution-ShareAlike 4.0 International License</a>.
-            </p>
           </div>
-        </div>
-      </div>
-    </div>
-  </footer>
+        </section>
+
+
+        <footer class="footer">
+          <div class="container">
+            <div class="columns is-centered">
+              <div class="column is-8">
+                <div class="content">
+                  <p>
+                    This website is based on the <a href="https://github.com/nerfies/nerfies.github.io"
+                      target="_blank">Nerfies website template</a>,
+                    which is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"
+                      target="_blank">Creative
+                      Commons Attribution-ShareAlike 4.0 International License</a>.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </footer>
 
 </body>
 

@@ -609,6 +609,45 @@
       </div>
 
       <div class="container is-max-desktop">
+        <!-- <h2 class="title is-4">Datasets</h2> -->
+        <br>
+        <p>
+          <b>Does \(\texttt{STRAP}\) retrieval scale to DROID?</b>
+        </p>
+        <br>
+        <div class="columns is-mobile is-vcentered">
+          <div class="column is-half">
+            <div class="content has-text-centered">
+              <p>Demonstration Dataset \(\mathcal{D}_{target}\)</p>
+              <video id="replay-video" autoplay playsinline loop muted controls>
+                <source src="./static/videos/retrieval_droid/demo.mp4" type="video/mp4">
+              </video>
+              <!-- <h4 class="title is-8">Pen-in-Cup (out-of-distribution)</h4> -->
+            </div>
+          </div>
+
+          <div class="column is-half">
+            <div class="content has-text-centered">
+              <p>Data Retrieved from DROID \(\mathcal{D}_{retrieved}\)</p>
+              <video id="replay-video" autoplay playsinline loop muted controls>
+                <source src="./static/videos/retrieval_droid/retrieved.mp4" type="video/mp4">
+              </video>
+              <!-- <h4 class="title is-8">Pen-in-Cup (out-of-distribution)</h4> -->
+            </div>
+          </div>
+        </div>
+        <br>
+        <br>
+        <p>
+          We encode 5k random demonstrations from the DROID dataset and retrieve relevant sub-trajectories.
+          \(\texttt{STRAP}\) finds <b>semantically relevant tasks from other lab's with similar environment and
+            camera setups</b>.
+          Note that our environment is not part of DROID!
+        </p>
+      </div>
+      <br>
+      <br>
+      <div class="container is-max-desktop">
         <div class="columns is-centered is-mobile is-vcentered">
           <div class="column is-full-width">
             <br>
@@ -640,7 +679,8 @@
 
             <div class="column has-text-centered">
 
-              <p><b>Task Instruction:</b> <span id="task-libero-string"><i>"pick up the book and place it in the back compartment of the caddy"</i></span></p>
+              <p><b>Task Instruction:</b> <span id="task-libero-string"><i>"pick up the book and place it in the back
+                    compartment of the caddy"</i></span></p>
               <br>
               <div id="task-libero-vid-input-0" class="rgb-image">
                 <video id="task-libero-vid" autoplay loop playsinline muted>
@@ -727,6 +767,7 @@
           </div>
         </div>
       </div>
+
     </div>
   </section>
   <!--/ Qualitative DTW -->

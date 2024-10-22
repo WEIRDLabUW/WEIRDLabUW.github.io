@@ -244,8 +244,8 @@
 
   <section class="hero teaser">
     <!-- <div class="container is-centered is-max-desktop"> -->
-    
-      <!-- <div class="column is-centered is-four-fifths">
+
+    <!-- <div class="column is-centered is-four-fifths">
 
       <div class="hero-body">
         <video id="teaser" autoplay muted loop playsinline>
@@ -256,23 +256,23 @@
         </h2>
       </div>
        -->
-      <!-- Paper video. -->
-      <section class="section">
-        <center>
-          <video autoplay controls muted loop playsinline width="800">
-            <source src="./static/videos/flashy_small.mp4"
-                    type="video/mp4">
-          </video>
-        </center>
-        <div class="columns is-centered has-text-centered">
-          <div class="column is-four-fifths">
-            <p>
-              \(\texttt{STRAP}\) is a framework for retrieval augmented policy learning based on vision foundation models and dynamic time warping.  
-            </p>
-          </div>
+    <!-- Paper video. -->
+    <section class="section">
+      <center>
+        <video autoplay controls muted loop playsinline width="800">
+          <source src="./static/videos/flashy_small.mp4" type="video/mp4">
+        </video>
+      </center>
+      <div class="columns is-centered has-text-centered">
+        <div class="column is-four-fifths">
+          <p>
+            \(\texttt{STRAP}\) is a framework for retrieval augmented policy learning based on vision foundation models
+            and dynamic time warping.
+          </p>
         </div>
-      </section>
-      <!--/ Paper video. -->
+      </div>
+    </section>
+    <!--/ Paper video. -->
   </section>
 
   <section class="section">
@@ -318,8 +318,7 @@
         <div class="column is-four-fifths">
           <h2 class="title is-3">Video</h2>
           <div class="publication-video">
-            <iframe width="400" src="static/videos/strap_talk_crop.mp4" title="YouTube video player"
-              frameborder="0"
+            <iframe width="400" src="static/videos/strap_talk_crop.mp4" title="YouTube video player" frameborder="0"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
               allowfullscreen></iframe>
           </div>
@@ -353,6 +352,17 @@
               training a policy on the union of \(\mathcal{D}_{retrieved}\) and \(\mathcal{D}_{target}\) results in
               better performance and robustness.
             </p>
+            
+            <br>
+            <div class="content">
+              <p><b>Our key insights are:</b></p>
+            <ul>
+              <li><strong>Vision foundation models</strong> offer powerful out-of-the-box representations for trajectory retrieval. They sufficiently encode scene semantics and offer visual robustness in contrast to brittle in-domain feature extractors from prior work.
+              </li>
+              <li><strong>Sub-trajectory retrieval</strong> enable maximal re-use of prior data capturing temporality of tasks and dynamics.</li>
+              <li><strong>Subsequence Dynamic Time Warping</strong> finds optimal sub-trajectory matches in offline datasets agnostic to length, horizon or demonstration frequency.</li>
+            </ul>
+          </div>
           </div>
         </div>
       </div>
@@ -365,146 +375,7 @@
   </section>
   <!--/ Pipeline Overview -->
 
-  <!-- DTW -->
-  <section class="section">
-    <div class="container is-max-desktop">
 
-      <div class="columns is-centered is-mobile is-vcentered">
-        <div class="column is-full-width">
-          <h2 class="title is-3">Subsequence Dynamic Time Warping</h2>
-        </div>
-      </div>
-      <br>
-      <div class="container is-max-desktop">
-
-        <div class="columns is-centered is-mobile is-vcentered">
-          <div class="column is-full-width">
-
-            <img src="./static/images/dtw_matching.png" class="money-figure" alt="Pipeline Overview" />
-            <br>
-            <br>
-            <p>
-              <b>Subsequence Dynamic Time Warping:</b>
-
-              To retrieve sequences of variable length, we build Dynamic Time Warping (DTW). DTW methods compute the
-              similarity between two sequence that may vary in length or frequency.
-              The algorithm aligns the sequences by warping the time axis of the series using a set of step sizes to
-              minimize the distance between corresponding points while obeying boundary conditions.
-              Subsequence Dynamic Time Warping (S-DTW) loosens these boundary conditions to allow for subsequence
-              matching.
-            </p>
-          </div>
-        </div>
-      </div>
-      <div class="columns is-centered is-mobile is-vcentered">
-
-        <div class="container is-max-desktop">
-
-          <div class="columns is-centered is-mobile is-vcentered">
-            <div class="column is-full-width">
-              <br>
-              <br>
-              <img src="./static/images/dtw_matrix.png" class="money-figure" alt="Pipeline Overview" />
-              <br>
-              <br>
-              <p>
-                DTW computes a <b>distance matrix</b> that compares the distance between each pair of points in the two
-                sequences. We use vision foundation models, <i>e.g.</i>, DINOv2, to encode the image observations and
-                compute their distance with the L2 norm. The optimal matching is represented by the <b>shortest path</b>
-                through the matrix. Dynamic programming finds this path, minimizing the total distance between the two
-                sequences.
-                The figure above shows matching a demonstration from \(\mathcal{D}_{target}\) (y-axis) to a sub-sequence
-                in the offline dataset \(\mathcal{D}_{prior}\) (x-axis). Brighter colors indicate higher <span style="color: 
-#fce624;"><b>&#9650;</b></span> and darker colors indicate lower <span style="color: 
-#440055;"><b>&#9660;</b></span> cost. The red line <span style="color: #e90a12;"><b>&#9644;</b></span> indicates the
-                optimal path through the matrix, <i>i.e.</i>, the optimal match between the sequences.
-              </p>
-            </div>
-          </div>
-        </div>
-        <div class="columns is-centered is-mobile is-vcentered">
-
-        </div>
-      </div>
-    </div>
-    </div>
-  </section>
-  <!--/ DTW -->
-
-  <!-- Experiments -->
-  <section class="section">
-    <div class="container is-max-desktop">
-
-      <div class="columns is-centered is-mobile is-vcentered">
-        <div class="column is-full-width">
-          <h2 class="title is-3">Simulation Experiments</h2>
-        </div>
-      </div>
-      <div class="container is-max-desktop">
-        <br>
-        <p>
-          <b>LIBERO-10</b>
-        </p>
-        <br>
-        <div class="columns is-centered is-mobile is-vcentered">
-          <div class="column is-full-width">
-
-            <!-- <p>
-              <b>Simulation Experiments:</b>
-            </p>
-            <br>
-            <br> -->
-
-            <img src="./static/images/results_sim.png" class="money-figure" alt="Pipeline Overview"
-              style="display: block; margin: 0 auto; max-width: 90%; height: auto;" />
-            <br>
-            <br>
-            <p>
-              <b>\(\texttt{STRAP}\) outperforms the retrieval baselines</b> <i>BehaviorRetrieval</i> (BR) [Du et al.
-              2023] and
-              <i>FlowRetrieval</i> (FR) [Lin et al. 2024] on average by \(+12.20\%\) and \(+12.47\%\) across all
-              LIBERO-10 tasks. These results demonstrate the policy's robustness to object poses. Both <b>DINOv2
-                and CLIP are viable representations for \(\texttt{STRAP}\)</b> with only a
-              \(+0.73\%\)
-              difference across all LIBERO-10 tasks.
-            </p>
-          </div>
-        </div>
-      </div>
-      <div class="container is-max-desktop">
-        <!-- <h2 class="title is-4">Datasets</h2> -->
-        <br>
-        <p>
-          <b>Datasets</b>
-        </p>
-        <br>
-        <div class="columns is-mobile is-vcentered">
-          <div class="column is-half">
-            <div class="content has-text-centered">
-              <p>Demonstration Dataset \(\mathcal{D}_{target}\)</p>
-              <video id="replay-video" autoplay playsinline loop muted controls>
-                <source src="./static/videos/libero10_dataset.mp4" type="video/mp4">
-              </video>
-            </div>
-          </div>
-
-          <div class="column is-half">
-            <div class="content has-text-centered">
-              <p>Offline Dataset \(\mathcal{D}_{prior}\)</p>
-              <video id="replay-video" autoplay playsinline loop muted controls>
-                <source src="./static/videos/libero90_dataset.mp4" type="video/mp4">
-              </video>
-            </div>
-          </div>
-        </div>
-
-
-      </div>
-
-    </div>
-    </div>
-  </section>
-  <!--/ Experiments -->
 
   <!-- Real-World Experiments -->
   <section class="section">
@@ -613,6 +484,81 @@
       </div>
   </section>
   <!-- Real-World Experiments -->
+
+  <!-- Experiments -->
+  <section class="section">
+    <div class="container is-max-desktop">
+
+      <div class="columns is-centered is-mobile is-vcentered">
+        <div class="column is-full-width">
+          <h2 class="title is-3">Simulation Experiments</h2>
+        </div>
+      </div>
+      <div class="container is-max-desktop">
+        <br>
+        <p>
+          <b>LIBERO-10</b>
+        </p>
+        <br>
+        <div class="columns is-centered is-mobile is-vcentered">
+          <div class="column is-full-width">
+
+            <!-- <p>
+              <b>Simulation Experiments:</b>
+            </p>
+            <br>
+            <br> -->
+
+            <img src="./static/images/results_sim.png" class="money-figure" alt="Pipeline Overview"
+              style="display: block; margin: 0 auto; max-width: 90%; height: auto;" />
+            <br>
+            <br>
+            <p>
+              <b>\(\texttt{STRAP}\) outperforms the retrieval baselines</b> <i>BehaviorRetrieval</i> (BR) [Du et al.
+              2023] and
+              <i>FlowRetrieval</i> (FR) [Lin et al. 2024] on average by \(+12.20\%\) and \(+12.47\%\) across all
+              LIBERO-10 tasks. These results demonstrate the policy's robustness to object poses. Both <b>DINOv2
+                and CLIP are viable representations for \(\texttt{STRAP}\)</b> with only a
+              \(+0.73\%\)
+              difference across all LIBERO-10 tasks.
+            </p>
+          </div>
+        </div>
+      </div>
+      <div class="container is-max-desktop">
+        <!-- <h2 class="title is-4">Datasets</h2> -->
+        <br>
+        <p>
+          <b>Datasets</b>
+        </p>
+        <br>
+        <div class="columns is-mobile is-vcentered">
+          <div class="column is-half">
+            <div class="content has-text-centered">
+              <p>Demonstration Dataset \(\mathcal{D}_{target}\)</p>
+              <video id="replay-video" autoplay playsinline loop muted controls>
+                <source src="./static/videos/libero10_dataset.mp4" type="video/mp4">
+              </video>
+            </div>
+          </div>
+
+          <div class="column is-half">
+            <div class="content has-text-centered">
+              <p>Offline Dataset \(\mathcal{D}_{prior}\)</p>
+              <video id="replay-video" autoplay playsinline loop muted controls>
+                <source src="./static/videos/libero90_dataset.mp4" type="video/mp4">
+              </video>
+            </div>
+          </div>
+        </div>
+
+
+      </div>
+
+    </div>
+    </div>
+  </section>
+  <!--/ Experiments -->
 
   <!-- Qualitative DTW -->
   <!-- <section class="section"> -->
@@ -854,6 +800,72 @@
     </div>
   </section>
   <!--/ Ablations -->
+
+  <!-- DTW -->
+  <section class="section">
+    <div class="container is-max-desktop">
+
+      <div class="columns is-centered is-mobile is-vcentered">
+        <div class="column is-full-width">
+          <h2 class="title is-3">Subsequence Dynamic Time Warping</h2>
+        </div>
+      </div>
+      <br>
+      <div class="container is-max-desktop">
+
+        <div class="columns is-centered is-mobile is-vcentered">
+          <div class="column is-full-width">
+
+            <img src="./static/images/dtw_matching.png" class="money-figure" alt="Pipeline Overview" />
+            <br>
+            <br>
+            <p>
+              <b>Subsequence Dynamic Time Warping:</b>
+
+              To retrieve sequences of variable length, we build Dynamic Time Warping (DTW). DTW methods compute the
+              similarity between two sequence that may vary in length or frequency.
+              The algorithm aligns the sequences by warping the time axis of the series using a set of step sizes to
+              minimize the distance between corresponding points while obeying boundary conditions.
+              Subsequence Dynamic Time Warping (S-DTW) loosens these boundary conditions to allow for subsequence
+              matching.
+            </p>
+          </div>
+        </div>
+      </div>
+      <div class="columns is-centered is-mobile is-vcentered">
+
+        <div class="container is-max-desktop">
+
+          <div class="columns is-centered is-mobile is-vcentered">
+            <div class="column is-full-width">
+              <br>
+              <br>
+              <img src="./static/images/dtw_matrix.png" class="money-figure" alt="Pipeline Overview" />
+              <br>
+              <br>
+              <p>
+                DTW computes a <b>distance matrix</b> that compares the distance between each pair of points in the two
+                sequences. We use vision foundation models, <i>e.g.</i>, DINOv2, to encode the image observations and
+                compute their distance with the L2 norm. The optimal matching is represented by the <b>shortest path</b>
+                through the matrix. Dynamic programming finds this path, minimizing the total distance between the two
+                sequences.
+                The figure above shows matching a demonstration from \(\mathcal{D}_{target}\) (y-axis) to a sub-sequence
+                in the offline dataset \(\mathcal{D}_{prior}\) (x-axis). Brighter colors indicate higher <span style="color: 
+  #fce624;"><b>&#9650;</b></span> and darker colors indicate lower <span style="color: 
+  #440055;"><b>&#9660;</b></span> cost. The red line <span style="color: #e90a12;"><b>&#9644;</b></span> indicates the
+                optimal path through the matrix, <i>i.e.</i>, the optimal match between the sequences.
+              </p>
+            </div>
+          </div>
+        </div>
+        <div class="columns is-centered is-mobile is-vcentered">
+
+        </div>
+      </div>
+    </div>
+    </div>
+  </section>
+  <!--/ DTW -->
 
   <section class="section" id="BibTeX">
     <div class="container is-max-desktop content">

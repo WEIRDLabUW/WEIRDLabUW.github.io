@@ -1,15 +1,9 @@
 # ASID
 
-This is the repository that contains source code for the [ASID: Active Exploration for System Identification in Robotic Manipulation](https://weirdlabuw.github.io/asid/).
+This is the repository that contains source code for the [STRAP: Robot Sub-Trajectory Retrieval for Augmented Policy Learning](https://weirdlabuw.github.io/strap/).
 
-If you find ASID useful for your work please cite:
+If you find STRAP useful for your work please cite:
 ```
-@inproceedings{memmel2024asid,
-  title={ASID: Active Exploration for System Identification in Robotic Manipulation},
-  author={Memmel, Marius and Wagenmaker, Andrew and Zhu, Chuning and Fox, Dieter and Gupta, Abhishek},
-  booktitle={The Twelfth International Conference on Learning Representations},
-  year={2024}
-}
 
 ```
 

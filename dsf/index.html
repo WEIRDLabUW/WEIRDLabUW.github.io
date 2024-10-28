@@ -4,10 +4,10 @@
 <head>
     <meta charset="utf-8">
     <meta name="description"
-        content="GOM models long-term dynamics in a policy and reward agnostic manner that transfers to various downstream tasks.">
+        content="DSF models long-term dynamics in a policy and reward agnostic manner that transfers to various downstream tasks.">
     <meta name="keywords" content="Reinforcement Learning, Robotics">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Transferable Reinforcement Learning via Generalized Occupancy Models</title>
+    <title>Transferable Reinforcement Learning via Distributional Successor Features</title>
 
     <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro" rel="stylesheet">
 
@@ -34,25 +34,25 @@
             <div class="container is-max-desktop">
                 <div class="columns is-centered">
                     <div class="column has-text-centered">
-                        <h1 class="title is-1 publication-title">Transferable Reinforcement Learning via Generalized
-                            Occupancy Models</h1>
+                        <h1 class="title is-1 publication-title">Transferable Reinforcement Learning via Distributional
+                            Successor Features</h1>
                         <div class="is-size-5 publication-authors">
                             <span class="author-block">
-                                <a href="https://homes.cs.washington.edu/~zchuning/">Chuning Zhu</a><sup>1</sup>,</span>
+                                <a href="https://homes.cs.washington.edu/~zchuning/">Chuning Zhu</a>,</span>
                             <span class="author-block">
-                                <a href="https://elliotxinqiwang.github.io/">Xinqi Wang</a><sup>1</sup>,</span>
+                                <a href="https://elliotxinqiwang.github.io/">Xinqi Wang</a>,</span>
                             <span class="author-block">
-                                <a href="https://thanandnow.github.io/">Tyler Han</a><sup>1</sup>,</span>
+                                <a href="https://thanandnow.github.io/">Tyler Han</a>,</span>
                             <span class="author-block">
-                                <a href="https://simonshaoleidu.com/">Simon Shaolei Du</a><sup>1</sup>,
+                                <a href="https://simonshaoleidu.com/">Simon Shaolei Du</a>,
                             </span>
                             <span class="author-block">
-                                <a href="https://homes.cs.washington.edu/~abhgupta/">Abhishek Gupta</a><sup>1</sup>,
+                                <a href="https://homes.cs.washington.edu/~abhgupta/">Abhishek Gupta</a>
                             </span>
                         </div>
 
                         <div class="is-size-5 publication-authors">
-                            <span class="author-block"><sup>1</sup>University of Washington</span>
+                            <span class="author-block">University of Washington</span>
                         </div>
 
                         <div class="column has-text-centered">
@@ -114,7 +114,7 @@
                 <div class="columns is-centered has-text-centered">
                     <div class="column is-four-fifths">
                         <div class="content has-text-justified">
-                            Given an unlabeled offline dataset, we learn a generalized occupancy model that models both
+                            Given an unlabeled offline dataset, Distribtional Successor Features model both
                             ``what outcomes can happen?" and ``how to achieve a particular outcome?" This is used for quick
                             adaptation to new downstream tasks without re-planning or test-time policy optimization.
                         </div>
@@ -151,11 +151,11 @@
                         through planning. However, autoregressive model rollouts suffer from compounding error, making model-based RL 
                         ineffective for long-horizon problems. Successor features offer an alternative by modeling a policy's long-term state 
                         occupancy, reducing policy evaluation under new tasks to linear reward regression. Yet, policy improvement with successor 
-                        features can be challenging. This work proposes a novel class of models, i.e., generalized occupancy models (GOMs), that 
+                        features can be challenging. This work proposes a novel class of models, i.e., Distributional Successor Features (DSFs), that 
                         learn a distribution of successor features from a stationary dataset, along with a policy that acts to realize different 
                         successor features. These models can quickly select the optimal action for arbitrary new tasks. By directly modeling 
-                        long-term outcomes in the dataset, GOMs avoid compounding error while enabling rapid transfer across reward functions. 
-                        We present a practical instantiation of GOMs using diffusion models and show their efficacy as a new class of transferable 
+                        long-term outcomes in the dataset, DSFs avoid compounding error while enabling rapid transfer across reward functions. 
+                        We present a practical instantiation of DSFs using diffusion models and show their efficacy as a new class of transferable 
                         models, both theoretically and empirically across various simulated robotics problems.
                     </div>
                 </div>
@@ -172,30 +172,30 @@
 
             <div class="columns is-centered">
                 <div class="column is-half has-text-justified">
-                    <h3 class="title is-5">Learning Generalized Occupancy Models</h3>
+                    <h3 class="title is-5">Learning Distributional Successor Features</h3>
                     <div class="content has-text-justified">
                         <img src="./static/images/cumulant.png" class="inline-figure" style="width:100%"
-                            alt="Learning GOMs." />
+                            alt="Learning DSFs." />
                     </div>
                     <div class="content has-text-justified">
                         <p>
-                            GOMs learn:
+                            DSFs learn:
                             <ul>
                                 <li> Distribution of all possible outcomes, represented by discounted sums of state features along trajectories (successor features).
                                 </li>
                                 <li> A readout policy that generates an action to realize a particular outcome. </li>
                             </ul>
                             Modeling outcomes as successor features enables the quick evaluation of outcomes under arbitrary rewards, while 
-                            modeling the distribution of all possible outcomes enables the extraction of optimal policies. Hence, GOMs retain 
+                            modeling the distribution of all possible outcomes enables the extraction of optimal policies. Hence, DSFs retain 
                             the generality of model-based RL while avoiding compounding error.
                         </p>
                     </div>
                 </div>
                 <div class="column is-half has-text-justified">
-                    <h3 class="title is-5">Adaptation and planning via GOMs</h3>
+                    <h3 class="title is-5">Adaptation and planning via DSFs</h3>
                     <div class="content has-text-centered">
                         <img src="./static/images/planning.png" class="inline-figure" style="width:100%"
-                            alt="Learning GOMs." />
+                            alt="Learning DSFs." />
                     </div>
                     <div class="content has-text-justified">
                         <p>
@@ -215,28 +215,28 @@
 
             <div class="columns is-centered">
                 <div class="column is-full-width has-text-justified">
-                    <h3 class="title is-4">Learning Generalized Occupancy Models</h3>
+                    <h3 class="title is-4">Learning Distributional Successor Features</h3>
                     <div class="content has-text-justified">
                         <img src="./static/images/cumulant.png" class="inline-figure" style="width:50%"
-                            alt="Learning GOMs." />
+                            alt="Learning DSFs." />
                     </div>
                     <div class="content has-text-justified">
                         <p>
-                            A generalized occupancy model consists of:
+                            Distributional Successor Features consists of:
                             <ol>
                                 <li> A distribution of all possible outcomes in the dataset, represented by discounted sums of state features along trajectories (successor features).
                                 </li>
                                 <li> A readout policy that generates an action to achieve a particular outcome. </li>
                             </ol>
                             Modeling outcomes as successor features enables the quick evaluation of outcomes under arbitrary rewards, while 
-                            modeling the distribution of all possible outcomes enables the extraction of optimal policies. Hence, GOMs retain 
+                            modeling the distribution of all possible outcomes enables the extraction of optimal policies. Hence, DSFs retain 
                             the generality of model-based RL while avoiding compounding error.
                         </p>
                     </div>
-                    <h3 class="title is-5">Adaptation and planning via GOMs</h3>
+                    <h3 class="title is-5">Adaptation and planning via DSFs</h3>
                     <div class="content has-text-centered">
                         <img src="./static/images/planning.png" class="inline-figure" style="width:60%"
-                            alt="Learning GOMs." />
+                            alt="Learning DSFs." />
                     </div>
                     <div class="content has-text-justified">
                         <p>
@@ -262,8 +262,8 @@
                     <h3 class="title is-5">Multitask Transfer</h3>
                     <div class="content has-text-justified">
                         <p>
-                            We evaluate GOMs' ability to transfer to challenging downstream tasks on the D4RL benchmark.
-                            GOMs show superior performance transferring to the hardest tasks compared to model-based RL, successor 
+                            We evaluate DSFs' ability to transfer to challenging downstream tasks on the D4RL benchmark.
+                            DSFs show superior performance transferring to the hardest tasks compared to model-based RL, successor 
                             features, and goal-conditioned baselines with misspecified goal distributions.
                         </p>
                     </div>
@@ -275,9 +275,9 @@
                         </video>
                     </div>
                     <div class="content has-text-justified">
-                        <p> To demonstrate GOMs' broad transferability, we plot the normalized
+                        <p> To demonstrate DSFs' broad transferability, we plot the normalized
                             returns for reaching various goals in antmaze, where each tile corresponds to the task of 
-                            navigating the robot to reach that particular tile. GOMs successfully transfer across a 
+                            navigating the robot to reach that particular tile. DSFs successfully transfer across a 
                             majority of tasks, whereas model-based RL struggles on longer-horizon tasks.
                         </p>
                     <div class="content has-text-centered">
@@ -291,9 +291,9 @@
                     <h3 class="title is-5">Transferring to Arbitrary Rewards</h3>
                     <div class="content has-text-justified">
                         <p>
-                            We show that GOMs can adapt to aribitrary rewards beyond goal-reaching in an antmaze
+                            We show that DSFs can adapt to aribitrary rewards beyond goal-reaching in an antmaze
                             preference environment, where the agent has to take a pariticular path to reach the goal
-                            according to human preference (specified as reward functions). GOMs and model-based RL 
+                            according to human preference (specified as reward functions). DSFs and model-based RL 
                             are able to complete the task according to the human preference, whereas goal-conditioned 
                             RL baselines do not conform to perferences.
                         </p>
@@ -308,7 +308,7 @@
 
                     <div class="content has-text-justified">
                         <p>
-                            We further demonstrate GOMs' arbitrary transfer capability by training an agent to 
+                            We further demonstrate DSFs' arbitrary transfer capability by training an agent to 
                             track various trajectories as denoted by the colored cells. All these runs share the
                             same outcome model and policy, only differing in the reward regression weights.
                         </p>
@@ -322,10 +322,10 @@
                     <h3 class="title is-5">Trajectory Stitching</h3>
                     <div class="content has-text-justified">
                         <p>
-                            Since GOMs are trained with distributional Bellman backup, they are able to perform "trajectory stitching,"
-                            i.e. recovering optimal trajectories by combining suboptimal trajectories. We validate GOMs' stitching 
+                            Since DSFs are trained with distributional Bellman backup, they are able to perform "trajectory stitching,"
+                            i.e. recovering optimal trajectories by combining suboptimal trajectories. We validate DSFs' stitching 
                             capability on the roboverse benchmark, where each task consists of two subtasks, but the dataset 
-                            only contains trajectories for each individual subtask. GOMs can complete the tasks by stitching
+                            only contains trajectories for each individual subtask. DSFs can complete the tasks by stitching
                             subtrajectories, whereas Monte-Carlo style baselines cannot.
                         </p>
                     </div>
@@ -349,7 +349,7 @@
             <h2 class="title has-text-centered"> BibTeX </h2>
             <pre><code>@article{zhu2024gom,
     author    = {Zhu, Chuning and Wang, Xinqi and Han, Tyler and Du, Simon Shaolei and Gupta, Abhishek},
-    title     = {Transferable Reinforcement Learning via Generalized Occupancy Models},
+    title     = {Transferable Reinforcement Learning via Distributional Successor Features},
     booktitle = {ArXiv Preprint},
     year      = {2024},
 }</code></pre>

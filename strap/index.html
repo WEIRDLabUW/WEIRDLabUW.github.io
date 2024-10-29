@@ -284,8 +284,11 @@
 
             <h2 class="title is-3">Abstract</h2>
             <div class="content has-text-justified">
+              <p><b>TL;DR</b> <i>retrieval</i> for robust few-shot imitation learning by 1) encoding trajectories with
+                <i>vision foundation models</i> and 2) retrieving <i>sub-trajectories</i> with <i>dynamic time
+                  warping</i></p>
               <p>
-                Robot learning is witnessing a significant increase in the size, diversity, and complexity of
+                <!-- Robot learning is witnessing a significant increase in the size, diversity, and complexity of
                 pre-collected datasets, mirroring trends in domains such as natural language processing and computer
                 vision. Many robot learning methods treat such datasets as multi-task expert data and learn a
                 multi-task, generalist policy by training broadly across them. Notably, while these generalist policies
@@ -305,7 +308,15 @@
                 methods in
                 simulated and real experiments, showing the ability to scale to much larger offline datasets in the real
                 world as well as the ability to learn robust control policies with just a handful of real-world
-                demonstrations.
+                demonstrations. -->
+                Robot learning is increasingly relying on large, diverse, and complex datasets, similar to trends in NLP
+                and computer vision. Generalist policies trained on these datasets can perform well across multiple
+                tasks but often underperform on individual tasks due to negative data transfer. This work proposes
+                training policies during deployment, adjusting to specific scenarios rather than using pre-trained,
+                zero-shot models. Our approach, \(\texttt{STRAP}\), retrieves and trains on relevant data at a
+                sub-trajectory level, enhancing generalization and robustness. Results show that \(\texttt{STRAP}\)
+                surpasses existing methods in both simulated and real experiments, achieving robust control with minimal
+                real-world demonstrations.
               </p>
             </div>
           </div>
@@ -334,7 +345,7 @@
 
       <div class="columns is-centered is-mobile is-vcentered">
         <div class="column is-full-width">
-          <h2 class="title is-3">Pipeline Overview</h2>
+          <h2 class="title is-3">Method Overview</h2>
         </div>
       </div>
       <br>
@@ -352,17 +363,21 @@
               training a policy on the union of \(\mathcal{D}_{retrieved}\) and \(\mathcal{D}_{target}\) results in
               better performance and robustness.
             </p>
-            
+
             <br>
             <div class="content">
               <p><b>Our key insights are:</b></p>
-            <ul>
-              <li><strong>Vision foundation models</strong> offer powerful out-of-the-box representations for trajectory retrieval. They sufficiently encode scene semantics and offer visual robustness in contrast to brittle in-domain feature extractors from prior work.
-              </li>
-              <li><strong>Sub-trajectory retrieval</strong> enable maximal re-use of prior data capturing temporality of tasks and dynamics.</li>
-              <li><strong>Subsequence Dynamic Time Warping</strong> finds optimal sub-trajectory matches in offline datasets agnostic to length, horizon or demonstration frequency.</li>
-            </ul>
-          </div>
+              <ul>
+                <li><strong>Vision foundation models</strong> offer powerful out-of-the-box representations for
+                  trajectory retrieval. They sufficiently encode scene semantics and offer visual robustness in contrast
+                  to brittle in-domain feature extractors from prior work.
+                </li>
+                <li><strong>Sub-trajectory retrieval</strong> enable maximal re-use of prior data capturing temporality
+                  of tasks and dynamics.</li>
+                <li><strong>Subsequence Dynamic Time Warping</strong> finds optimal sub-trajectory matches in offline
+                  datasets agnostic to length, horizon or demonstration frequency.</li>
+              </ul>
+            </div>
           </div>
         </div>
       </div>

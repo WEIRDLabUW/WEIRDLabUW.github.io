@@ -7,7 +7,7 @@
         content="DSF models long-term dynamics in a policy and reward agnostic manner that transfers to various downstream tasks.">
     <meta name="keywords" content="Reinforcement Learning, Robotics">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Transferable Reinforcement Learning via Distributional Successor Features</title>
+    <title>Distributional Successor Features Enable Zero-Shot Policy Optimization</title>
 
     <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro" rel="stylesheet">
 
@@ -34,8 +34,7 @@
             <div class="container is-max-desktop">
                 <div class="columns is-centered">
                     <div class="column has-text-centered">
-                        <h1 class="title is-1 publication-title">Transferable Reinforcement Learning via Distributional
-                            Successor Features</h1>
+                        <h1 class="title is-1 publication-title">Distributional Successor Features Enable Zero-Shot Policy Optimization</h1>
                         <div class="is-size-5 publication-authors">
                             <span class="author-block">
                                 <a href="https://homes.cs.washington.edu/~zchuning/">Chuning Zhu</a>,</span>
@@ -146,17 +145,21 @@
                 <div class="column is-four-fifths">
                     <h2 class="title is-3">Abstract</h2>
                     <div class="content has-text-justified">
-                        Intelligent agents must be generalists, capable of quickly adapting to various tasks. In reinforcement learning (RL), 
-                        model-based RL learns a dynamics model of the world, in principle enabling transfer to arbitrary reward functions 
-                        through planning. However, autoregressive model rollouts suffer from compounding error, making model-based RL 
-                        ineffective for long-horizon problems. Successor features offer an alternative by modeling a policy's long-term state 
-                        occupancy, reducing policy evaluation under new tasks to linear reward regression. Yet, policy improvement with successor 
-                        features can be challenging. This work proposes a novel class of models, i.e., Distributional Successor Features (DSFs), that 
-                        learn a distribution of successor features from a stationary dataset, along with a policy that acts to realize different 
-                        successor features. These models can quickly select the optimal action for arbitrary new tasks. By directly modeling 
-                        long-term outcomes in the dataset, DSFs avoid compounding error while enabling rapid transfer across reward functions. 
-                        We present a practical instantiation of DSFs using diffusion models and show their efficacy as a new class of transferable 
-                        models, both theoretically and empirically across various simulated robotics problems.
+                        Intelligent agents must be generalists, capable of quickly adapting to various tasks.
+                        In reinforcement learning (RL), model-based RL learns a dynamics model of
+                        the world, in principle enabling transfer to arbitrary reward functions through
+                        planning. However, autoregressive model rollouts suffer from compounding error,
+                        making model-based RL ineffective for long-horizon problems. Successor features
+                        offer an alternative by modeling a policy's long-term state occupancy, reducing
+                        policy evaluation under new rewards to linear regression. Yet, policy optimization
+                        with successor features can be challenging. This work proposes a novel class of
+                        models, i.e., Distributional Successor Features (DSFs), that learn a distribution
+                        of successor features from a stationary dataset, along with a policy that acts to
+                        realize different successor features. By directly modeling long-term outcomes
+                        in the dataset, DSFs avoid compounding error while enabling zero-shot policy
+                        optimization across reward functions. We present a practical instantiation of DSFs
+                        using diffusion models and show their efficacy as a new class of transferable models,
+                        both theoretically and empirically across various simulated robotics problems.
                     </div>
                 </div>
             </div>
@@ -165,49 +168,6 @@
     </section>
 
     <div class="hr"></div>
-
-    <!-- <section class="section">
-        <div class="container is-max-desktop">
-            <h2 class="title is-3 has-text-centered"> Method </h2>
-
-            <div class="columns is-centered">
-                <div class="column is-half has-text-justified">
-                    <h3 class="title is-5">Learning Distributional Successor Features</h3>
-                    <div class="content has-text-justified">
-                        <img src="./static/images/cumulant.png" class="inline-figure" style="width:100%"
-                            alt="Learning DSFs." />
-                    </div>
-                    <div class="content has-text-justified">
-                        <p>
-                            DSFs learn:
-                            <ul>
-                                <li> Distribution of all possible outcomes, represented by discounted sums of state features along trajectories (successor features).
-                                </li>
-                                <li> A readout policy that generates an action to realize a particular outcome. </li>
-                            </ul>
-                            Modeling outcomes as successor features enables the quick evaluation of outcomes under arbitrary rewards, while 
-                            modeling the distribution of all possible outcomes enables the extraction of optimal policies. Hence, DSFs retain 
-                            the generality of model-based RL while avoiding compounding error.
-                        </p>
-                    </div>
-                </div>
-                <div class="column is-half has-text-justified">
-                    <h3 class="title is-5">Adaptation and planning via DSFs</h3>
-                    <div class="content has-text-centered">
-                        <img src="./static/images/planning.png" class="inline-figure" style="width:100%"
-                            alt="Learning DSFs." />
-                    </div>
-                    <div class="content has-text-justified">
-                        <p>
-                            Assuming a linear dependence of rewards on cumulants, transferring to downstream tasks reduces to performing 
-                            linear regression and solving a simple optimization problem for the optimal possible outcome. This is passed 
-                            into the readout policy to generate an action.
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section> -->
 
     <section class="section">
         <div class="container is-max-desktop">
@@ -240,9 +200,10 @@
                     </div>
                     <div class="content has-text-justified">
                         <p>
-                            Assuming a linear dependence of rewards on cumulants, transferring to downstream tasks reduces to performing 
-                            linear regression and solving a simple optimization problem for the optimal possible outcome. This is passed 
-                            into the readout policy to generate an action.
+                            DSFs enable zero-shot policy optimization for arbitrary rewards without further training at test-time. Assuming 
+                            a linear dependence of rewards on cumulants, transferring to downstream tasks reduces to performing a linear 
+                            regression and solving a simple optimization problem for the optimal possible outcome, which is then passed into the 
+                            readout policy to generate an action. 
                         </p>
                     </div>
                 </div>
@@ -291,7 +252,7 @@
                     <h3 class="title is-5">Transferring to Arbitrary Rewards</h3>
                     <div class="content has-text-justified">
                         <p>
-                            We show that DSFs can adapt to aribitrary rewards beyond goal-reaching in an antmaze
+                            We show that DSFs can transfer to aribitrary rewards beyond goal-reaching in an antmaze
                             preference environment, where the agent has to take a pariticular path to reach the goal
                             according to human preference (specified as reward functions). DSFs and model-based RL 
                             are able to complete the task according to the human preference, whereas goal-conditioned 
@@ -349,7 +310,7 @@
             <h2 class="title has-text-centered"> BibTeX </h2>
             <pre><code>@article{zhu2024dsf,
     author    = {Zhu, Chuning and Wang, Xinqi and Han, Tyler and Du, Simon Shaolei and Gupta, Abhishek},
-    title     = {Transferable Reinforcement Learning via Distributional Successor Features},
+    title     = {Distributional Successor Features Enable Zero-Shot Policy Optimization},
     booktitle = {ArXiv Preprint},
     year      = {2024},
 }</code></pre>

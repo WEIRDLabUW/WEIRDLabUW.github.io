@@ -212,8 +212,8 @@
                       <p class="title is-6">Main Idea:</p>
                       <ol>
                           <li>We demonstrate theoretically that value functions define an ordering of states which is <span style="color: green; font-weight: bold;">robust to low-level dynamics gaps</span></li>
-                          <li>Using a simulation-learned value function as a terminal reward substantially <span style="color: green; font-weight: bold;">shortens the horizon of the search problem</span> for real-world RL fine-tuning</li>
-                          <li>Due to the shortened horizon, we can use <span style="color: green; font-weight: bold;">MBRL</span> which speeds up fine-tuning even more</li>
+                          <li>Using a simulation-learned value function as a terminal reward enables us to <span style="color: green; font-weight: bold;">shorten the horizon of the search problem</span> while still having a strong learning signal for real-world RL fine-tuning</li>
+                          <li>Shortening the horizon helps overcome the fundamental challenge of compounding errors faced by MBRL, allowing us to use <span style="color: green; font-weight: bold;">MBRL</span> to speed up fine-tuning even more</li>
                       </ol>
                     </div>
                 </div>
@@ -232,7 +232,24 @@
                 type="video/mp4">
       </video>
       <h3 class="subtitle has-text-centered">
-        <br>SGFT guides future policies to produce <span style="color: green; font-weight: bold;">trajectories</span> which move in the directions suggested by the <span style="color: lightgreen; font-weight: bold;">value function</span> and <span style="color: lightskyblue; font-weight: bold;">short rollouts</span>
+        <br>SGFT guides future policies to produce <span style="color: green; font-weight: bold;">trajectories</span> 
+        which move in the directions suggested by the <span style="color: lightgreen; font-weight: bold;">simulation-learned value function</span> and <span style="color: lightskyblue; font-weight: bold;">short hallucinated rollouts</span>.
+        <br>The <span style="color: lightgreen; font-weight: bold;">value function</span> provides strong reward signal for real-world RL fine-tuning, 
+        while <span style="color: lightskyblue; font-weight: bold;">hallucinated rollouts</span> enables an agent to train on transitions not seen in the dataset.
+        <br>Hallucinated states with <span style="color: lightgreen; font-weight: bold;">high value estimates (green)</span> are labeled with high reward during RL fine-tuning, and therefore more likely to be explored than
+        states with <span style="color: red; font-weight: bold;">low value estimates (red)</span>.
+      </h3>
+      </h2>
+    </div>
+  </div>
+</section>
+
+<section class="hero teaser">
+  <div class="container is-max-desktop">
+    <div class="hero-body">
+      <img src="./static/images/equations.png" class="inline-figure" style="width: 75%; display: block; margin: 0 auto;" />
+      <h3 class="subtitle has-text-centered">
+        <br>SGFT shortens the horizon of the search problem by changing the infinite horizon RL objective to a finite H-step RL objective with a terminal simulation-learned value function.
       </h3>
       </h2>
     </div>
@@ -256,7 +273,7 @@
                               type="video/mp4">
                     </video>
                     <h2 class="subtitle has-text-centered">
-                      Standard fine-tuning methods like SAC typically have a delearning phase.<br>
+                      Standard fine-tuning methods typically have a unlearning phase where the policy gets worse before it gets better.
                       Our method makes consistent rapid progress during fine-tuning.
                     </h2>
                   </div>

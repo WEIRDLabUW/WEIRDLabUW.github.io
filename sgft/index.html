@@ -145,7 +145,7 @@
             making direct zero-shot transfer challenging, especially in tasks where precise and forceful manipulation 
             is necessary. This makes real-world fine-tuning of policies pretrained in simulation an attractive approach 
             to robot learning. However, exploring the real-world dynamics with standard RL fine-tuning techniques 
-            is to inefficient for many real-world applications. This paper introduces Simulation-Guided Fine-Tuning, 
+            is to inefficient for many real-world applications. This paper introduces Simulation-Guided Fine-Tuning (SGFT), 
             a general framework which leverages the structure of the simulator to guide exploration, substantially 
             accelerating adaptation to the real-world. We demonstrate our approach across several manipulation tasks 
             in the real world, learning successful policies for problems that are challenging to learn using purely 
@@ -160,7 +160,7 @@
 </section>
 
 <section class="hero teaser">
-  <h2 class="title is-3 has-text-centered"> Progression Video of Hammering </h2>
+  <h2 class="title is-3 has-text-centered"> Progression Video of Hammering (1x Speed)</h2>
   <div class="container is-max-desktop">
     <div class="hero-body">
       <video id="teaser" autoplay muted loop playsinline style="width: 75%; display: block; margin: 0 auto;">
@@ -212,8 +212,8 @@
                       <p class="title is-6">Main Idea:</p>
                       <ol>
                           <li>We demonstrate theoretically that value functions define an ordering of states which is <span style="color: green; font-weight: bold;">robust to low-level dynamics gaps</span></li>
-                          <li>Using a simulation-learned value function as a terminal reward enables us to <span style="color: green; font-weight: bold;">shorten the horizon of the search problem</span> while still having a strong learning signal for real-world RL fine-tuning</li>
-                          <li>Shortening the horizon helps overcome the fundamental challenge of compounding errors faced by MBRL, allowing us to use <span style="color: green; font-weight: bold;">MBRL</span> to speed up fine-tuning even more</li>
+                          <li>Using a simulation-learned value function as a terminal reward enables us to <span style="color: green; font-weight: bold;">shorten the horizon of the search problem</span> while still having a strong learning signal for real-world RL fine-tuning*</li>
+                          <li>Shortening the horizon helps overcome the fundamental challenge of compounding errors faced by Model-Based RL (MBRL), allowing us to use <span style="color: green; font-weight: bold;">MBRL</span> to speed up fine-tuning even more</li>
                       </ol>
                     </div>
                 </div>

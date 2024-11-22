@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="description"
+        content="DiSPO models long-term dynamics in a policy and reward agnostic manner that transfers to various downstream tasks.">
+    <meta name="keywords" content="Reinforcement Learning, Robotics">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Distributional Successor Features Enable Zero-Shot Policy Optimization</title>
+
+    <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro" rel="stylesheet">
+
+    <link rel="stylesheet" href="./static/css/bulma.min.css">
+    <link rel="stylesheet" href="./static/css/bulma-carousel.min.css">
+    <link rel="stylesheet" href="./static/css/bulma-slider.min.css">
+    <link rel="stylesheet" href="./static/css/fontawesome.all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+    <link rel="stylesheet" href="./static/css/index.css">
+    <link rel="icon" href="./static/images/favicon.svg">
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script defer src="./static/js/fontawesome.all.min.js"></script>
+    <script src="./static/js/bulma-carousel.min.js"></script>
+    <script src="./static/js/bulma-slider.min.js"></script>
+    <script src="./static/js/index.js"></script>
+</head>
+
+<body>
+
+
+    <section class="hero">
+        <div class="hero-body">
+            <div class="container is-max-desktop">
+                <div class="columns is-centered">
+                    <div class="column has-text-centered">
+                        <h1 class="title is-1 publication-title">Distributional Successor Features Enable Zero-Shot Policy Optimization</h1>
+                        <div class="is-size-5 publication-authors">
+                            <span class="author-block">
+                                <a href="https://homes.cs.washington.edu/~zchuning/">Chuning Zhu</a>,</span>
+                            <span class="author-block">
+                                <a href="https://elliotxinqiwang.github.io/">Xinqi Wang</a>,</span>
+                            <span class="author-block">
+                                <a href="https://thanandnow.github.io/">Tyler Han</a>,</span>
+                            <span class="author-block">
+                                <a href="https://simonshaoleidu.com/">Simon Shaolei Du</a>,
+                            </span>
+                            <span class="author-block">
+                                <a href="https://homes.cs.washington.edu/~abhgupta/">Abhishek Gupta</a>
+                            </span>
+                        </div>
+
+                        <div class="is-size-5 publication-authors">
+                            <span class="author-block">University of Washington</span>
+                        </div>
+
+                        <div class="column has-text-centered">
+                            <div class="publication-links">
+                                <!-- PDF Link. -->
+                                <span class="link-block">
+                                    <a href="https://arxiv.org/abs/2403.06328"
+                                        class="external-link button is-normal is-rounded is-dark">
+                                        <span class="icon">
+                                            <i class="fas fa-file-pdf"></i>
+                                        </span>
+                                        <span>Paper</span>
+                                    </a>
+                                </span>
+                                <!-- Video Link. -->
+                                <!-- <span class="link-block">
+                <a href="https://youtu.be/DQGVD6KaVf8"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="fab fa-youtube"></i>
+                  </span>
+                  <span>Video</span>
+                </a>
+              </span> -->
+                                <!-- Code Link. -->
+                                <span class="link-block">
+                                    <a href="https://github.com/WEIRDLabUW/dispo"
+                                        class="external-link button is-normal is-rounded is-dark">
+                                        <span class="icon">
+                                            <i class="fab fa-github"></i>
+                                        </span>
+                                        <span>Code</span>
+                                    </a>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Paper video. -->
+                <!-- <div class="columns is-centered has-text-centered">
+        <div class="column is-four-fifths">
+          <div class="publication-video">
+            
+            <iframe src="https://www.youtube.com/embed/DQGVD6KaVf8?rel=0&amp;showinfo=0"
+                    frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+          </div>
+        </div>
+      </div> -->
+                <!--/ Paper video. -->
+                <!-- <div class="content has-text-centered">
+                    <img src="./static/images/algo.gif" class="inline-figure-four-thirds" alt="Algorith overview." />
+                </div> -->
+                <div class="content has-text-centered">
+                    <video id="exp-d4rl" autoplay muted playsinline height="100%" width="75%">
+                        <source src="./static/videos/algo.mp4" type="video/mp4">
+                    </video>
+                </div>
+                <div class="columns is-centered has-text-centered">
+                    <div class="column is-four-fifths">
+                        <div class="content has-text-justified">
+                            Given an unlabeled offline dataset, Distribtional Successor Features model both
+                            ``what outcomes can happen?" and ``how to achieve a particular outcome?" This is used for quick
+                            adaptation to new downstream tasks without re-planning or expensive test-time policy optimization.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- <section class="hero teaser">
+  <div class="container is-max-desktop">
+    <div class="hero-body">
+      <video id="teaser" autoplay muted loop playsinline height="100%">
+        <source src="./static/videos/repo_turtlebot.mp4" type="video/mp4">
+      </video>
+      <h2 class="subtitle has-text-centered">
+        <span class="dnerf">RePo learns minimally task-relevant representations that is resilient to spurious variations.
+      </h2>
+    </div>
+  </div>
+</section> -->
+
+    <div class="hr"></div>
+
+    <section class="section">
+        <div class="container is-max-desktop">
+            <!-- Abstract. -->
+            <div class="columns is-centered has-text-centered">
+                <div class="column is-four-fifths">
+                    <h2 class="title is-3">Abstract</h2>
+                    <div class="content has-text-justified">
+                        Intelligent agents must be generalists, capable of quickly adapting to various tasks.
+                        In reinforcement learning (RL), model-based RL learns a dynamics model of the
+                        world, in principle enabling transfer to arbitrary reward functions through planning.
+                        However, autoregressive model rollouts suffer from compounding error, making
+                        model-based RL ineffective for long-horizon problems. Successor features offer
+                        an alternative by modeling a policy's long-term state occupancy, reducing policy
+                        evaluation under new rewards to linear regression. Yet, policy optimization with
+                        successor features can be challenging. This work proposes a novel class of models,
+                        i.e., Distributional Successor Features for Zero-Shot Policy Optimization (DiSPOs),
+                        that learn a distribution of successor features of a stationary dataset's behavior
+                        policy, along with a policy that acts to realize different successor features within
+                        the dataset. By directly modeling long-term outcomes in the dataset, DiSPOs avoid
+                        compounding error while enabling a simple scheme for zero-shot policy optimiza-
+                        tion across reward functions. We present a practical instantiation of DiSPOs using
+                        diffusion models and show their efficacy as a new class of transferable models, both
+                        theoretically and empirically across various simulated robotics problems. 
+                    </div>
+                </div>
+            </div>
+            <!--/ Abstract. -->
+        </div>
+    </section>
+
+    <div class="hr"></div>
+
+    <section class="section">
+        <div class="container is-max-desktop">
+            <h2 class="title is-3 has-text-centered"> Method </h2>
+
+            <div class="columns is-centered">
+                <div class="column is-full-width has-text-justified">
+                    <h3 class="title is-5">Learning Distributional Successor Features</h3>
+                    <div class="content has-text-justified">
+                        <img src="./static/images/cumulant.png" class="inline-figure" style="width:50%"
+                            alt="Learning DiSPOs." />
+                    </div>
+                    <div class="content has-text-justified">
+                        <p>
+                            Distributional Successor Features consists of:
+                            <ol>
+                                <li> A distribution of all possible outcomes in the dataset, represented by discounted sums of state features along trajectories (successor features).
+                                </li>
+                                <li> A readout policy that generates an action to achieve a particular outcome. </li>
+                            </ol>
+                            Modeling outcomes as successor features enables the quick evaluation of outcomes under arbitrary rewards, while 
+                            modeling the distribution of all possible outcomes enables the extraction of optimal policies. Hence, DiSPOs retain 
+                            the generality of model-based RL while avoiding compounding error.
+                        </p>
+                    </div>
+                    <h3 class="title is-5">Zero-Shot Policy Optimization via Distributional Successor Features</h3>
+                    <div class="content has-text-centered">
+                        <img src="./static/images/planning.png" class="inline-figure" style="width:60%"
+                            alt="Learning DiSPOs." />
+                    </div>
+                    <div class="content has-text-justified">
+                        <p>
+                            DiSPOs enable zero-shot policy optimization for arbitrary rewards without further training at test-time. Assuming 
+                            a linear dependence of rewards on cumulants, transferring to downstream tasks reduces to performing a linear 
+                            regression and solving a simple optimization problem for the optimal possible outcome, which is then passed into the 
+                            readout policy to generate an action. 
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="hr"></div>
+
+
+    <section class="section">
+        <div class="container is-max-desktop">
+            <div class="columns is-centered">
+                <div class="column is-full-width has-text-justified">
+                    <h2 class="title is-3 has-text-centered"> Experiments </h2>
+
+                    <h3 class="title is-5">Multitask Transfer</h3>
+                    <div class="content has-text-justified">
+                        <p>
+                            We evaluate DiSPOs' ability to transfer to challenging downstream tasks on the D4RL benchmark.
+                            DiSPOs show superior performance transferring to the hardest tasks compared to model-based RL, successor 
+                            features, and goal-conditioned baselines with misspecified goal distributions.
+                        </p>
+                    </div>
+                    <div class="content has-text-centered">
+                        <img src="./static/images/table_1.png" class="inline-figure" style="width:75%"
+                            alt="D4RL experiments." />
+                        <video id="exp-d4rl" autoplay muted loop playsinline height="100%" width="75%">
+                            <source src="./static/videos/d4rl.mp4" type="video/mp4">
+                        </video>
+                    </div>
+                    <div class="content has-text-justified">
+                        <p> To demonstrate DiSPOs' broad transferability, we plot the normalized
+                            returns for reaching various goals in antmaze, where each tile corresponds to the task of 
+                            navigating the robot to reach that particular tile. DiSPOs successfully transfer across a 
+                            majority of tasks, whereas model-based RL struggles on longer-horizon tasks.
+                        </p>
+                    <div class="content has-text-centered">
+                        <img src="./static/images/transfer.png" class="inline-figure" style="width:50%"
+                            alt="D4RL transfer experiments." />
+                        <video id="exp-antmaze-transfer" autoplay muted loop playsinline height="100%" style="width:75%">
+                            <source src="./static/videos/antmaze_transfer.mp4" type="video/mp4">
+                        </video>
+                    </div>
+
+                    <h3 class="title is-5">Transferring to Arbitrary Rewards</h3>
+                    <div class="content has-text-justified">
+                        <p>
+                            We show that DiSPOs can transfer to aribitrary rewards beyond goal-reaching in an antmaze
+                            preference environment, where the agent has to take a pariticular path to reach the goal
+                            according to human preference (specified as reward functions). DiSPOs and model-based RL 
+                            are able to complete the task according to the human preference, whereas goal-conditioned 
+                            RL baselines do not conform to perferences.
+                        </p>
+                    </div>
+                    <div class="content has-text-centered">
+                        <img src="./static/images/table_2.png" class="inline-figure-four-thirds" style="width:50%"
+                            alt="Preference antmaze experiments." />
+                        <video id="exp-preference" autoplay muted loop playsinline height="100%" width="50%">
+                            <source src="./static/videos/preference.mp4" type="video/mp4">
+                        </video>
+                    </div>
+
+                    <div class="content has-text-justified">
+                        <p>
+                            We further demonstrate DiSPOs' arbitrary transfer capability by training an agent to 
+                            track various trajectories as denoted by the colored cells. All these runs share the
+                            same outcome model and policy, only differing in the reward regression weights.
+                        </p>
+                    </div>
+                    <div class="content has-text-centered">
+                        <video id="exp-drawing" autoplay muted loop playsinline height="100%" style="width:65%">
+                            <source src="./static/videos/drawing.mp4" type="video/mp4">
+                        </video>
+                    </div>
+
+                    <h3 class="title is-5">Trajectory Stitching</h3>
+                    <div class="content has-text-justified">
+                        <p>
+                            Since DiSPOs are trained with distributional Bellman backup, they are able to perform "trajectory stitching,"
+                            i.e. recovering optimal trajectories by combining suboptimal trajectories. We validate DiSPOs' stitching 
+                            capability on the roboverse benchmark, where each task consists of two subtasks, but the dataset 
+                            only contains trajectories for each individual subtask. DiSPOs can complete the tasks by stitching
+                            subtrajectories, whereas Monte-Carlo style baselines cannot.
+                        </p>
+                    </div>
+                    <div class="content has-text-centered">
+                        <img src="./static/images/table_3.png" class="inline-figure-four-thirds" style="width: 50%"
+                            alt="Roboverse experiments." />
+                        <video id="exp-maniskill" autoplay muted loop playsinline height="100%" width="65%">
+                            <source src="./static/videos/roboverse.mp4" type="video/mp4">
+                        </video>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="hr"></div>
+
+
+    <section class="section" id="BibTeX">
+        <div class="container is-max-desktop content">
+            <h2 class="title has-text-centered"> BibTeX </h2>
+            <pre><code>@article{zhu2024dispo,
+    author    = {Zhu, Chuning and Wang, Xinqi and Han, Tyler and Du, Simon Shaolei and Gupta, Abhishek},
+    title     = {Distributional Successor Features Enable Zero-Shot Policy Optimization},
+    booktitle = {ArXiv Preprint},
+    year      = {2024},
+}</code></pre>
+        </div>
+    </section>
+
+
+    <footer class="footer">
+        <div class="container">
+            <div class="columns is-centered">
+                <div class="column is-8">
+                    <div class="content has-text-centered">
+                        <p>
+                            Website template from <a href="https://nerfies.github.io/">Nerfies</a>.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+</body>
+
+</html>

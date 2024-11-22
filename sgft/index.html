@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="description"
+        content="Simulation Guided Fine-Tuning leverages the structure of the simulator to guide exploration, substantially accelerating adaptation to the real world">
+  <meta name="keywords" content="Sim2Real, Finetuning, Reinforcement Learning">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Rapidly Adapting Policies to the Real-World via Simulation-Guided Fine-Tuning</title>
+
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-CTQQ4KCWZN"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-CTQQ4KCWZN');
+  </script>
+
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro"
+        rel="stylesheet">
+
+  <link rel="stylesheet" href="./static/css/bulma.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-carousel.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-slider.min.css">
+  <link rel="stylesheet" href="./static/css/fontawesome.all.min.css">
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  <link rel="stylesheet" href="./static/css/index.css">
+  <link rel="icon" href="./static/images/favicon.ico">
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script defer src="./static/js/fontawesome.all.min.js"></script>
+  <script src="./static/js/bulma-carousel.min.js"></script>
+  <script src="./static/js/bulma-slider.min.js"></script>
+  <script src="./static/js/index.js"></script>
+</head>
+<body>
+
+<nav class="navbar" role="navigation" aria-label="main navigation">
+  <div class="navbar-brand">
+    <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false">
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+    </a>
+  </div>
+</nav>
+
+
+<section class="hero">
+  <div class="hero-body">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered">
+        <div class="column has-text-centered">
+          <h1 class="title is-1 publication-title">Rapidly Adapting Policies to the Real-World via Simulation-Guided Fine-Tuning</h1>
+          <div class="is-size-5 publication-authors">
+            <span class="author-block">
+              <a href="https://patrickyin.me/">Patrick Yin</a><sup>*1</sup>,</span>
+            <span class="author-block">
+              <a href="https://tyler-westenbroek.github.io/">Tyler Westenbroek</a><sup>*1</sup>,</span>
+            <span class="author-block">
+              <a href="https://simbag04.github.io/">Simran Bagaria</a><sup>1</sup>,
+            </span>
+            <span class="author-block">
+              <a href="https://kevinhuang8.github.io/">Kevin Huang</a><sup>1</sup>,
+            </span>
+            <span class="author-block">
+              <a href="https://www.chinganc.com/">Ching-An Cheng</a><sup>2</sup>,
+            </span>
+            <span class="author-block">
+              <a href="https://www.microsoft.com/en-us/research/people/akolobov/">Andrey Kolobov</a><sup>2</sup>,
+            </span>
+            <span class="author-block">
+              <a href="https://abhishekunique.github.io/">Abhishek Gupta</a><sup>1</sup>
+            </span>
+          </div>
+
+          <div class="is-size-5 publication-authors">
+            <span class="author-block"><sup>1</sup>University of Washington,</span>
+            <span class="author-block"><sup>2</sup>Microsoft Research</span>
+          </div>
+          <div class="is-size-10 publication-authors">
+            <span class="author-block"><sup>*</sup>Equal Contribution</span>
+          </div>
+
+          <div class="column has-text-centered">
+            <div class="publication-links">
+              <!-- PDF Link. -->
+              <span class="link-block">
+                <a href="./static/images/SGFT__CoRL_2025.pdf"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="fas fa-file-pdf"></i>
+                  </span>
+                  <span>Paper</span>
+                </a>
+              </span>
+              <!-- <span class="link-block">
+                <a href="TODO"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="ai ai-arxiv"></i>
+                  </span>
+                  <span>arXiv</span>
+                </a>
+              </span> -->
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="hero teaser">
+  <div class="container is-max-desktop">
+    <div class="hero-body">
+      <video id="teaser" autoplay muted loop playsinline style="width: 100%; display: block; margin: 0 auto;">
+        <source src="./static/videos/intro_video.mp4"
+                type="video/mp4">
+      </video>
+      <h3 class="subtitle has-text-centered">
+        <br>Learned with <span style="color: red; font-weight: bold;">less than 5 minutes</span> of real world fine-tuning data
+      </h3>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container is-max-desktop">
+    <!-- Abstract. -->
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Abstract</h2>
+        <div class="content has-text-justified">
+          <p>
+            Robot learning requires a considerable amount of data to realize the promise of generalization. 
+            However, it can be challenging to actually collect the magnitude of high-quality data necessary 
+            for generalization entirely in the real world. Simulation can serve as a source of plentiful data, 
+            wherein techniques such as reinforcement learning can obtain broad coverage over states and actions. 
+            However, high-fidelity physics simulators are fundamentally misspecified approximations to reality, 
+            making direct zero-shot transfer challenging, especially in tasks where precise and forceful manipulation 
+            is necessary. This makes real-world fine-tuning of policies pretrained in simulation an attractive approach 
+            to robot learning. However, exploring the real-world dynamics with standard RL fine-tuning techniques 
+            is to inefficient for many real-world applications. This paper introduces Simulation-Guided Fine-Tuning (SGFT), 
+            a general framework which leverages the structure of the simulator to guide exploration, substantially 
+            accelerating adaptation to the real-world. We demonstrate our approach across several manipulation tasks 
+            in the real world, learning successful policies for problems that are challenging to learn using purely 
+            real-world data. We further provide theoretical backing for the paradigm.
+          </p>
+        </div>
+      </div>
+    </div>
+    <!--/ Abstract. -->
+
+  </div>
+</section>
+
+<section class="hero teaser">
+  <h2 class="title is-3 has-text-centered"> Progression Video of Hammering (1x Speed)</h2>
+  <div class="container is-max-desktop">
+    <div class="hero-body">
+      <video id="teaser" autoplay muted loop playsinline style="width: 75%; display: block; margin: 0 auto;">
+        <source src="./static/videos/full_progression_video.mp4"
+                type="video/mp4">
+      </video>
+      <h2 class="subtitle has-text-centered">
+        <!-- <span class="dnerf">Nerfies</span> turns selfie videos from your phone into
+        free-viewpoint
+        portraits. -->
+      </h2>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container is-max-desktop">
+      <div class="columns is-centered">
+          <div class="column is-full-width has-text-justified">
+              <h2 class="title is-3 has-text-centered"> Method </h2>
+              <div class="container is-max-desktop">
+                <div class="columns is-centered is-mobile is-vcentered is-flex is-align-items-stretch">
+                  <div class="column is-two-third">
+                    <div class="content has-text-centered">
+                      <img src="./static/images/intro_figure.png" class="inline-figure" style="width:100%"
+                        alt="Preference Learning" />
+                    </div>
+                  </div>
+
+                  <div class="column is-one-third">
+                    <div class="content has-text-centered">
+                      <img style="position: relative; top: 40px;" src="./static/images/table.png" class="inline-figure" style="width:100%"
+                        alt="Preference Learning" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="columns is-centered">
+                <div class="column is-full-width has-text-justified">
+                    <div class="content has-text-justified">
+                      <p class="title is-6 has-text-centered">How do we solve contact-rich manipulation in situations where sim2real transfer fails?</p>
+                
+                      <p class="title is-6">Problem:</p>
+                      <ol>
+                          <li>Simulation provides extensive data coverage, but <span style="color: red; font-weight: bold;">misspecified physics</span> prevents zero-shot transfer</li>
+                          <li>RL fine-tuning with tabula rasa exploration is sample-inefficient because the search space <span style="color: red; font-weight: bold;">grows exponentially with the time horizon</span></li>
+                      </ol>
+          
+                      <p class="title is-6">Main Idea:</p>
+                      <ol>
+                          <li>We demonstrate theoretically that value functions define an ordering of states which is <span style="color: green; font-weight: bold;">robust to low-level dynamics gaps</span></li>
+                          <li>Using a simulation-learned value function as a terminal reward enables us to <span style="color: green; font-weight: bold;">shorten the horizon of the search problem</span> while still having a strong learning signal for real-world RL fine-tuning*</li>
+                          <li>Shortening the horizon helps overcome the fundamental challenge of compounding errors faced by Model-Based RL (MBRL), allowing us to use <span style="color: green; font-weight: bold;">MBRL</span> to speed up fine-tuning even more</li>
+                      </ol>
+                    </div>
+                </div>
+              </div>
+              <p><em>*Note:</em> The RL objective is now biased. Theoretical analysis in the paper shows this bias is acceptable.</p>
+          </div>
+      </div>
+  </div>
+</section>
+
+<section class="hero teaser">
+  <div class="container is-max-desktop">
+    <div class="hero-body">
+      <video id="teaser" autoplay muted loop playsinline style="width: 75%; display: block; margin: 0 auto;">
+        <source src="./static/videos/gif1.mp4"
+                type="video/mp4">
+      </video>
+      <h3 class="subtitle has-text-centered">
+        <br>SGFT guides future policies to produce <span style="color: green; font-weight: bold;">trajectories</span> 
+        which move in the directions suggested by the <span style="color: lightgreen; font-weight: bold;">simulation-learned value function</span> and <span style="color: lightskyblue; font-weight: bold;">short hallucinated rollouts</span>.
+        <br>The <span style="color: lightgreen; font-weight: bold;">value function</span> provides strong reward signal for real-world RL fine-tuning, 
+        while <span style="color: lightskyblue; font-weight: bold;">hallucinated rollouts</span> enables an agent to train on transitions not seen in the dataset.
+        <br>Hallucinated states with <span style="color: lightgreen; font-weight: bold;">high value estimates (green)</span> are labeled with high reward during RL fine-tuning, and therefore more likely to be explored than
+        states with <span style="color: red; font-weight: bold;">low value estimates (red)</span>.
+      </h3>
+      </h2>
+    </div>
+  </div>
+</section>
+
+<section class="hero teaser">
+  <div class="container is-max-desktop">
+    <div class="hero-body">
+      <img src="./static/images/equations.png" class="inline-figure" style="width: 75%; display: block; margin: 0 auto;" />
+      <h3 class="subtitle has-text-centered">
+        <br>SGFT shortens the horizon of the search problem by changing the infinite horizon RL objective to a finite H-step RL objective with a terminal simulation-learned value function.
+      </h3>
+      </h2>
+    </div>
+  </div>
+</section>
+
+<div class="hr"></div>
+
+
+<section class="section">
+  <div class="container is-max-desktop">
+      <div class="columns is-centered">
+          <div class="column is-full-width has-text-justified">
+              <h2 class="title is-3 has-text-centered"> Real World Experiments </h2>
+
+              <section class="hero teaser">
+                <div class="container is-max-desktop">
+                  <div class="hero-body">
+                    <video id="teaser" autoplay muted loop playsinline style="width: 75%; display: block; margin: 0 auto;">
+                      <source src="./static/videos/learning_curves.mp4"
+                              type="video/mp4">
+                    </video>
+                    <h2 class="subtitle has-text-centered">
+                      Standard fine-tuning methods typically have a unlearning phase where the policy gets worse before it gets better.
+                      Our method makes consistent rapid progress during fine-tuning.
+                    </h2>
+                  </div>
+                </div>
+              </section>
+
+              <!-- Exploration -->
+              <div class="container is-max-desktop">
+                <div class="columns is-centered is-mobile is-vcentered is-flex is-align-items-stretch">
+                  <div class="column is-one-fourth">
+                    <div class="content has-text-centered">
+                      <h4 class="title is-8" style="transform: rotate(180deg); writing-mode: vertical-rl; position: relative; top: 75px;">Hammering</h4>
+                    </div>
+                  </div>
+
+                  <div class="column is-one-third">
+                    <div class="content has-text-centered">
+                      <h4 class="title is-8">Simulation-Trained Policy</h4>
+                      <video id="replay-video" controls muted playsinline loop>
+                        <source src="./static/videos/sim_hammer.mp4" type="video/mp4">
+                      </video>
+                    </div>
+                  </div>
+
+                  <div class="column is-one-third">
+                    <div class="content has-text-centered">
+                      <h4 class="title is-8">Pretrained Policy</h4>
+                      <video id="replay-video" controls muted playsinline loop>
+                        <source src="./static/videos/pretrained_hammer.mp4" type="video/mp4">
+                      </video>
+                    </div>
+                  </div>
+
+                  <div class="column is-one-third">
+                    <div class="content has-text-centered">
+                      <h4 class="title is-8">Fine-tuned Policy</h4>
+                      <video id="replay-video" controls muted playsinline loop>
+                        <source src="./static/videos/finetuned_hammer.mp4" type="video/mp4">
+                      </video>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="columns is-centered is-mobile is-vcentered is-flex is-align-items-stretch">
+                  <div class="column is-one-fourth">
+                    <div class="content has-text-centered">
+                      <h4 class="title is-8" style="transform: rotate(180deg); writing-mode: vertical-rl; position: relative; top: 40px;">Insertion</h4>
+                    </div>
+                  </div>
+
+                  <div class="column is-one-third">
+                    <div class="content has-text-centered">
+                      <video id="replay-video" controls muted playsinline loop>
+                        <source src="./static/videos/sim_insertion.mp4" type="video/mp4">
+                      </video>
+                    </div>
+                  </div>
+
+                  <div class="column is-one-third">
+                    <div class="content has-text-centered">
+                      <video id="replay-video" controls muted playsinline loop>
+                        <source src="./static/videos/pretrained_insertion.mp4" type="video/mp4">
+                      </video>
+                    </div>
+                  </div>
+
+                  <div class="column is-one-third">
+                    <div class="content has-text-centered">
+                      <video id="replay-video" controls muted playsinline loop>
+                        <source src="./static/videos/finetuned_insertion.mp4" type="video/mp4">
+                      </video>                      
+                    </div>
+                  </div>
+                </div>
+
+                <div class="columns is-centered is-mobile is-vcentered is-flex is-align-items-stretch">
+                  <div class="column is-one-fourth">
+                    <div class="content has-text-centered">
+                      <h4 class="title is-8" style="transform: rotate(180deg); writing-mode: vertical-rl; position: relative; top: 65px;">Pushing</h4>
+                    </div>
+                  </div>
+
+                  <div class="column is-one-third">
+                    <div class="content has-text-centered">
+                      <video id="replay-video" controls muted playsinline loop>
+                        <source src="./static/videos/sim_pushing.mp4" type="video/mp4">
+                      </video>
+                    </div>
+                  </div>
+
+                  <div class="column is-one-third">
+                    <div class="content has-text-centered">
+                      <video id="replay-video" controls muted playsinline loop>
+                        <source src="./static/videos/pretrained_pushing.mp4" type="video/mp4">
+                      </video>
+                    </div>
+                  </div>
+
+                  <div class="column is-one-third">
+                    <div class="content has-text-centered">
+                      <video id="replay-video" controls muted playsinline loop>
+                        <source src="./static/videos/finetuned_pushing.mp4" type="video/mp4">
+                      </video>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="columns is-centered is-mobile is-vcentered">
+                  <div class="column is-full-width">
+                    <p>
+                      *For fine-tuned insertion policy video, we roll in with the pretrained policy to grasp and switch to the fine-tuned insertion policy
+                    </p>
+                  </div>
+                </div>
+              </div>
+          </div>
+      </div>
+  </div>
+</section>
+
+<div class="hr"></div>
+
+<section class="section" id="BibTeX">
+  <div class="container is-max-desktop content">
+    <h2 class="title">BibTeX</h2>
+    <pre><code>@article{yin2024sgft,
+  author    = {Yin, Patrick and Westenbroek, Tyler and Bagaria, Simran and Huang, Kevin and Cheng, Ching-An and Kolobov, Andrey and Gupta, Abhishek},
+  title     = {Rapidly Adapting Policies to the Real-World via Simulation-Guided Fine-Tuning},
+  booktitle = {ArXiv Preprint},
+  year      = {2024},
+}</code></pre>
+  </div>
+</section>
+
+
+<footer class="footer">
+  <div class="container">
+    <div class="columns is-centered">
+      <div class="column is-8">
+        <div class="content">
+          <p>
+            This website is based on the <a href="https://github.com/nerfies/nerfies.github.io"
+              target="_blank">Nerfies website template</a>,
+            which is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"
+              target="_blank">Creative
+              Commons Attribution-ShareAlike 4.0 International License</a>.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

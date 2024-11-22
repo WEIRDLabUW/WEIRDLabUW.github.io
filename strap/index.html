@@ -242,38 +242,60 @@
     </div>
   </section>
 
-  <section class="hero teaser">
-    <!-- <div class="container is-centered is-max-desktop"> -->
-
-    <!-- <div class="column is-centered is-four-fifths">
-
-      <div class="hero-body">
-        <video id="teaser" autoplay muted loop playsinline>
-          <source src="./static/videos/flashy_small.mp4" type="video/mp4">
-        </video>
-        <h2 class="subtitle has-text-centered">
-          ASID is a generic pipeline for Sim2Real transfer that solves dynamic tasks zero-shot!
-        </h2>
-      </div>
-       -->
-    <!-- Paper video. -->
-    <section class="section">
-      <center>
-        <video autoplay controls muted loop playsinline width="800">
-          <source src="./static/videos/flashy_small.mp4" type="video/mp4">
-        </video>
-      </center>
-      <div class="columns is-centered has-text-centered">
-        <div class="column is-four-fifths">
-          <p>
-            \(\texttt{STRAP}\) is a framework for retrieval augmented policy learning based on vision foundation models
-            and dynamic time warping.
-          </p>
+  <!-- Rollouts -->
+<section class="hero is-light">
+  <div class="hero-body">
+    <div class="container is-max-desktop">
+      <div id="results-carousel" class="carousel results-carousel">
+        <div class="item">
+            <video autoplay controls muted loop playsinline width="100%">
+              <source src="./static/videos/teaser/kitchen_sink.mp4"
+                      type="video/mp4">
+            </video>
+        </div>
+        <div class="item">
+            <video autoplay controls muted loop playsinline width="100%">
+              <source src="./static/videos/teaser/pen_in_cup_ood_1.mp4"
+                      type="video/mp4">
+            </video>
+        </div>
+        <div class="item">
+          <video autoplay controls muted loop playsinline width="100%">
+            <source src="./static/videos/teaser/kitchen_stove.mp4"
+                    type="video/mp4">
+          </video>
+        </div>
+        <div class="item">
+          <video autoplay controls muted loop playsinline width="100%">
+              <source src="./static/videos/teaser/pen_in_cup_ood_0.mp4"
+              type="video/mp4">
+          </video>
+        </div>
+        <div class="item">
+          <video autoplay controls muted loop playsinline width="100%">
+            <source src="./static/videos/teaser/kitchen_table.mp4"
+            type="video/mp4">
+          </video>
+        </div>
+        <div class="item">
+          <video autoplay controls muted loop playsinline width="100%">
+            <source src="./static/videos/teaser/pen_in_cup_base.mp4"
+            type="video/mp4">
+          </video>
         </div>
       </div>
-    </section>
-    <!--/ Paper video. -->
-  </section>
+    </div>
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <p>
+          \(\texttt{STRAP}\) achieves <strong>robust behavior from only 3 task demonstrations</strong>!
+        </p>
+      </div>
+    </div> 
+  </div>
+</section>
+<!--/ Rollouts. --> 
+
 
   <section class="section">
     <div class="container is-max-desktop">
@@ -402,10 +424,79 @@
         </div>
       </div>
       <div class="container is-max-desktop">
+        
+        <br>
+        <p>
+          <b>Kitchen</b>
+        </p>
+        <br>
+        <div class="columns is-centered is-mobile is-vcentered">
+          <div class="column is-full-width">
+
+            <img src="./static/images/results_real_kitchen.png" class="money-figure" alt="Pipeline Overview"
+              style="display: block; margin: 0 auto; max-width: 50%; height: auto;" />
+            <br>
+            <p>
+              \(\texttt{STRAP}\) solves several pick and place tasks in a realistic kitchen environment.
+              \(\texttt{STRAP}\) is surprisingly <b>robust to object poses unseen in demonstrations</b> while baselines fail to adapt. The policy further shows recovery behavior, completing the task even when the initial grasp fails and alters the object's pose.
+
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <br>
+        <p>
+          <b>Kitchen-DROID</b>
+        </p>
+        <br>
+        <div class="columns is-centered is-mobile is-vcentered">
+          <div class="column is-full-width">
+
+            <img src="./static/images/results_real_kitchen_droid.png" class="money-figure" alt="Pipeline Overview"
+              style="display: block; margin: 0 auto; max-width: 50%; height: auto;" />
+            <br>
+            <p>
+              To investigate scalability to larger datasets, we construct an additional offline dataset consisting of 5k demonstrations from the DROID dataset and 50 demonstrations collected in the same environment.
+              Since DTW scales linearly with the number of demonstrations and \(\texttt{STRAP}\)'s policy training stage is independent of the offline dataset's size but depends on the amount of data retrieved, it <b>naturally scales to larger datasets</b> like DROID while maintaining performance.
+
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="container is-max-desktop">
+        <!-- <h2 class="title is-4">Datasets</h2> -->
+        <br>
+        <p>
+          <b>Datasets</b>
+        </p>
+        <br>
+        <div class="columns is-mobile is-vcentered">
+          <div class="column is-half">
+            <div class="content has-text-centered">
+              <p>Demonstration Dataset \(\mathcal{D}_{target}\)</p>
+              <video id="replay-video" autoplay playsinline loop muted controls>
+                <source src="./static/videos/kitchen_demos.mp4" type="video/mp4">
+              </video>
+              <!-- <h4 class="title is-8">Pen-in-Cup (out-of-distribution)</h4> -->
+            </div>
+          </div>
+
+          <div class="column is-half">
+            <div class="content has-text-centered">
+              <p>Offline Dataset \(\mathcal{D}_{prior}\)</p>
+              <video id="replay-video" autoplay playsinline loop muted controls>
+                <source src="./static/videos/kitchen_dataset.mp4" type="video/mp4">
+              </video>
+              <!-- <h4 class="title is-8">Pen-in-Cup (out-of-distribution)</h4> -->
+            </div>
+          </div>
+        </div>
 
         <br>
         <p>
-          <b>Pen-in-Cup</b>
+          <b>Franka-Pen-in-Cup</b>
         </p>
         <br>
         <div class="columns is-centered is-mobile is-vcentered">
@@ -415,13 +506,15 @@
               style="display: block; margin: 0 auto; max-width: 50%; height: auto;" />
             <br>
             <p>
-              While Behavior Cloning (BC) and \(\texttt{STRAP}\) solve the Franka-Pen-in-Cup demonstrated in
-              \(\mathcal{D}_{target}\)
+              \(\texttt{STRAP}\) can leverage data from seemingly unrelated tasks to learn robustness behavior.
+              While behavior cloning replays the demonstrations, \(\texttt{STRAP}\) can adapt to unseen object poses and appearance.
+
+              <!-- \(\mathcal{D}_{target}\)
               (<i>base</i>), BC lacks robustness to out-of-distribution (<i>OOD</i>) scenarios. The policy replays
               the trajectories observed in \(\mathcal{D}_{target}\). \(\texttt{STRAP}\) retrieves relevant
               sub-trajectories from \(\mathcal{D}_{prior}\), <i>e.g.</i>,
               the robot putting the screwdriver in the cup or picking up pens in various poses. Augmented policy
-              learning then distills this knowledge into a policy, resulting in generalization to an OOD scenario.
+              learning then distills this knowledge into a policy, resulting in generalization to an OOD scenario. -->
             </p>
           </div>
         </div>
@@ -430,7 +523,7 @@
       <!-- Intuition -->
       <div class="container is-max-desktop">
 
-        <br>
+        <!-- <br>
         <p>
           <b>In-distribution (base)</b>
         </p>
@@ -446,8 +539,7 @@
         </div>
 
         <div class="container is-max-desktop">
-          <!-- <h2 class="title is-4">Pen-in-Cup (out-of-distribution)</h2> -->
-
+          
           <br>
           <p>
             <b>Out-of-distribution (OOD)</b>
@@ -459,10 +551,9 @@
                 <video id="replay-video" controls autoplay playsinline loop muted>
                   <source src="./static/videos/pen_in_cup_ood.mp4" type="video/mp4">
                 </video>
-                <!-- <h4 class="title is-8">Pen-in-Cup (out-of-distribution)</h4> -->
               </div>
             </div>
-          </div>
+          </div> -->
 
           <div class="container is-max-desktop">
             <!-- <h2 class="title is-4">Datasets</h2> -->
@@ -531,7 +622,7 @@
             <p>
               <b>\(\texttt{STRAP}\) outperforms the retrieval baselines</b> <i>BehaviorRetrieval</i> (BR) [Du et al.
               2023] and
-              <i>FlowRetrieval</i> (FR) [Lin et al. 2024] on average by \(+12.20\%\) and \(+12.47\%\) across all
+              <i>FlowRetrieval</i> (FR) [Lin et al. 2024] on average by \(+24.7\%\) and \(+25.0\%\) across all
               LIBERO-10 tasks. These results demonstrate the policy's robustness to object poses. Both <b>DINOv2
                 and CLIP are viable representations for \(\texttt{STRAP}\)</b> with only a
               \(+0.73\%\)

@@ -21,7 +21,7 @@
 
     // Libero task widget
     VIDEO_PATH = './static/videos/retrieval_strips/';
-    TASK_NAMES = [
+    TASK_NAMES_LIBERO = [
       'pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy',
       'put_both_moka_pots_on_the_stove',
       'put_both_the_alphabet_soup_and_the_cream_cheese_box_in_the_basket',
@@ -33,7 +33,7 @@
       'put_the_yellow_and_white_mug_in_the_microwave_and_close_it',
       'turn_on_the_stove_and_put_the_moka_pot_on_it'
     ];
-    TASK_INSTRUCTION = [
+    TASK_INSTRUCTION_LIBERO = [
       '"pick up the book and place it in the back compartment of the caddy"',
       '"put both moka pots on the stove"',
       '"put both the alphabet soup and the cream cheese box in the basket"',
@@ -45,7 +45,7 @@
       '"put the yellow and white mug in the microwave and close it"',
       '"turn on the stove and put the moka pot on it'
     ];
-    TASK_N_SUB = [
+    TASK_N_SUB_LIBERO = [
       4,
       9,
       7,
@@ -64,22 +64,22 @@
     }
 
     function prevLiberoTask() {
-      libero_vid_idx = mod(libero_vid_idx - 1, TASK_NAMES.length);
+      libero_vid_idx = mod(libero_vid_idx - 1, TASK_NAMES_LIBERO.length);
       setLiberoTask(libero_vid_idx);
     }
 
     function nextLiberoTask() {
-      libero_vid_idx = (libero_vid_idx + 1) % TASK_NAMES.length;
+      libero_vid_idx = (libero_vid_idx + 1) % TASK_NAMES_LIBERO.length;
       setLiberoTask(libero_vid_idx);
     }
 
     function setLiberoTask(libero_vid_idx) {
 
-      var task_str = TASK_NAMES[libero_vid_idx];
+      var task_str = TASK_NAMES_LIBERO[libero_vid_idx];
 
       for (var i = 0; i < 10; i++) {
 
-        if (i >= TASK_N_SUB[libero_vid_idx]) {
+        if (i >= TASK_N_SUB_LIBERO[libero_vid_idx]) {
           // Empty the video element
           $('#task-libero-vid-input-' + String(i)).empty();
           continue;
@@ -111,9 +111,83 @@
         };
       };
 
-      document.getElementById('task-libero-string').innerHTML = '<i>' + TASK_INSTRUCTION[libero_vid_idx] + '</i>';
+      document.getElementById('task-libero-string').innerHTML = '<i>' + TASK_INSTRUCTION_LIBERO[libero_vid_idx] + '</i>';
     }
+
+    TASK_NAMES_REAL = [
+      'pepper_3',
+      'chili_3',
+      'carrot_3'
+    ];
+    TASK_INSTRUCTION_REAL = [
+      '"pick up the pepper 🫑 and put it in the sink 🚰"',
+      '"pick up the chili 🌶️ and put it in the pan 🍳"',
+      '"pick up the carrot 🥕 and put it on the plate 🍽️"'
+    ];
+    TASK_N_SUB_REAL = [
+      3,
+      2,
+      2
+    ];
+
+    var real_vid_idx = 0;
+    function mod(n, m) {
+      return ((n % m) + m) % m;
+    }
+
+    function prevRealTask() {
+      real_vid_idx = mod(real_vid_idx - 1, TASK_NAMES_REAL.length);
+      setRealTask(real_vid_idx);
+    }
+
+    function nextRealTask() {
+      real_vid_idx = (real_vid_idx + 1) % TASK_NAMES_REAL.length;
+      setRealTask(real_vid_idx);
+    }
+
+    function setRealTask(real_vid_idx) {
+
+      var task_str = TASK_NAMES_REAL[real_vid_idx];
+
+      for (var i = 0; i < 10; i++) {
+
+        if (i >= TASK_N_SUB_REAL[real_vid_idx]) {
+          // Empty the video element
+          $('#task-real-vid-input-' + String(i)).empty();
+          continue;
+        }
+
+        let path = VIDEO_PATH + task_str + '/segment_' + String(i) + '/video_strip.mp4';
+
+        // Create the video element
+        let video = document.createElement('video');
+        video.id = 'replay-video';    // Set an ID if needed
+        video.controls = false;        // Enable controls
+        video.autoplay = true;        // Autoplay the video
+        video.playsinline = true;     // For inline playback
+        video.loop = true;            // Loop the video
+        video.muted = true;           // Mute the video
+
+        // Create the source element
+        let source = document.createElement('source');
+        source.src = path;
+        source.type = 'video/mp4';    // Set the correct video type
+
+        // Append the source to the video element
+        video.appendChild(source);
+
+        // Append the video to the target element
+        let input_id = '#task-real-vid-input-' + String(i);
+        video.onloadeddata = function () {
+          $(input_id).empty().append(video);
+        };
+      };
+
+      document.getElementById('task-real-string').innerHTML = '<i>' + TASK_INSTRUCTION_REAL[real_vid_idx] + '</i>';
+    }
+
     setLiberoTask(0);
+    setRealTask(0);
 
   </script>
 
@@ -243,58 +317,52 @@
   </section>
 
   <!-- Rollouts -->
-<section class="hero is-light">
-  <div class="hero-body">
-    <div class="container is-max-desktop">
-      <div id="results-carousel" class="carousel results-carousel">
-        <div class="item">
+  <section class="hero is-light">
+    <div class="hero-body">
+      <div class="container is-max-desktop">
+        <div id="results-carousel" class="carousel results-carousel">
+          <div class="item">
             <video autoplay muted loop playsinline width="100%">
-              <source src="./static/videos/teaser/kitchen_sink.mp4"
-                      type="video/mp4">
+              <source src="./static/videos/teaser/kitchen_sink.mp4" type="video/mp4">
             </video>
-        </div>
-        <div class="item">
+          </div>
+          <div class="item">
             <video autoplay muted loop playsinline width="100%">
-              <source src="./static/videos/teaser/pen_in_cup_ood_1.mp4"
-                      type="video/mp4">
+              <source src="./static/videos/teaser/pen_in_cup_ood_1.mp4" type="video/mp4">
             </video>
+          </div>
+          <div class="item">
+            <video autoplay muted loop playsinline width="100%">
+              <source src="./static/videos/teaser/kitchen_stove.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div class="item">
+            <video autoplay muted loop playsinline width="100%">
+              <source src="./static/videos/teaser/pen_in_cup_ood_0.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div class="item">
+            <video autoplay muted loop playsinline width="100%">
+              <source src="./static/videos/teaser/kitchen_table.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div class="item">
+            <video autoplay muted loop playsinline width="100%">
+              <source src="./static/videos/teaser/pen_in_cup_base.mp4" type="video/mp4">
+            </video>
+          </div>
         </div>
-        <div class="item">
-          <video autoplay muted loop playsinline width="100%">
-            <source src="./static/videos/teaser/kitchen_stove.mp4"
-                    type="video/mp4">
-          </video>
-        </div>
-        <div class="item">
-          <video autoplay muted loop playsinline width="100%">
-              <source src="./static/videos/teaser/pen_in_cup_ood_0.mp4"
-              type="video/mp4">
-          </video>
-        </div>
-        <div class="item">
-          <video autoplay muted loop playsinline width="100%">
-            <source src="./static/videos/teaser/kitchen_table.mp4"
-            type="video/mp4">
-          </video>
-        </div>
-        <div class="item">
-          <video autoplay muted loop playsinline width="100%">
-            <source src="./static/videos/teaser/pen_in_cup_base.mp4"
-            type="video/mp4">
-          </video>
+      </div>
+      <div class="columns is-centered has-text-centered">
+        <div class="column is-four-fifths">
+          <p>
+            \(\texttt{STRAP}\) achieves <strong>robust behavior</strong> from only <strong>3 task demonstrations</strong>!
+          </p>
         </div>
       </div>
     </div>
-    <div class="columns is-centered has-text-centered">
-      <div class="column is-four-fifths">
-        <p>
-          \(\texttt{STRAP}\) achieves <strong>robust behavior from only 3 task demonstrations</strong>!
-        </p>
-      </div>
-    </div> 
-  </div>
-</section>
-<!--/ Rollouts. --> 
+  </section>
+  <!--/ Rollouts. -->
 
 
   <section class="section">
@@ -306,9 +374,10 @@
 
             <h2 class="title is-3">Abstract</h2>
             <div class="content has-text-justified">
-              <p><b>TL;DR</b> <i>retrieval</i> for robust few-shot imitation learning by encoding trajectories with
+              <p><b>tl;dr</b> <i>Retrieval</i> for robust few-shot imitation learning by encoding trajectories with
                 <i>vision foundation models</i> and retrieving <i>sub-trajectories</i> with <i>subsequence dynamic time
-                  warping</i></p>
+                  warping.</i>
+              </p>
               <p>
                 <!-- Robot learning is witnessing a significant increase in the size, diversity, and complexity of
                 pre-collected datasets, mirroring trends in domains such as natural language processing and computer
@@ -424,12 +493,9 @@
         </div>
       </div>
       <div class="container is-max-desktop">
-        
-        <br>
         <p>
-          <b>Kitchen</b>
+        <h3 class="title is-5">Kitchen</h3>
         </p>
-        <br>
         <div class="columns is-centered is-mobile is-vcentered">
           <div class="column is-full-width">
 
@@ -438,92 +504,94 @@
             <br>
             <p>
               \(\texttt{STRAP}\) solves several pick and place tasks in a realistic kitchen environment.
-              \(\texttt{STRAP}\) is surprisingly <b>robust to object poses unseen in demonstrations</b> while baselines fail to adapt. The policy further shows recovery behavior, completing the task even when the initial grasp fails and alters the object's pose.
+              \(\texttt{STRAP}\) is surprisingly <b>robust to object poses unseen in demonstrations</b> while baselines
+              fail to adapt. The policy further shows recovery behavior, completing the task even when the initial grasp
+              fails and alters the object's pose.
 
             </p>
           </div>
         </div>
       </div>
-
       <br>
-        <p>
-          <b>Kitchen-DROID</b>
-        </p>
-        <br>
-        <div class="columns is-centered is-mobile is-vcentered">
-          <div class="column is-full-width">
+      <br>
+      <p>
+      <h3 class="title is-5">Kitchen-DROID</h3>
+      </p>
+      <div class="columns is-centered is-mobile is-vcentered">
+        <div class="column is-full-width">
 
-            <img src="./static/images/results_real_kitchen_droid.png" class="money-figure" alt="Pipeline Overview"
-              style="display: block; margin: 0 auto; max-width: 50%; height: auto;" />
-            <br>
-            <p>
-              To investigate scalability to larger datasets, we construct an additional offline dataset consisting of 5k demonstrations from the DROID dataset and 50 demonstrations collected in the same environment.
-              Since DTW scales linearly with the number of demonstrations and \(\texttt{STRAP}\)'s policy training stage is independent of the offline dataset's size but depends on the amount of data retrieved, it <b>naturally scales to larger datasets</b> like DROID while maintaining performance.
+          <img src="./static/images/results_real_kitchen_droid.png" class="money-figure" alt="Pipeline Overview"
+            style="display: block; margin: 0 auto; max-width: 50%; height: auto;" />
+          <br>
+          <p>
+            To investigate scalability to larger datasets, we construct an additional offline dataset consisting of 5k
+            demonstrations from the DROID dataset and 50 demonstrations collected in the same environment.
+            Since DTW scales linearly with the number of demonstrations and \(\texttt{STRAP}\)'s policy training stage
+            is independent of the offline dataset's size but depends on the amount of data retrieved, it <b>naturally
+              scales to larger datasets</b> like DROID while maintaining performance.
 
-            </p>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="container is-max-desktop">
+      <br>
+      <p>
+      <h3 class="title is-5">Datasets</h3>
+      </p>
+      <div class="columns is-mobile is-vcentered">
+        <div class="column is-half">
+          <div class="content has-text-centered">
+            <p>Demonstration Dataset \(\mathcal{D}_{target}\)</p>
+            <video id="replay-video" autoplay playsinline loop muted controls>
+              <source src="./static/videos/kitchen_demos.mp4" type="video/mp4">
+            </video>
+            <!-- <h4 class="title is-8">Pen-in-Cup (out-of-distribution)</h4> -->
+          </div>
+        </div>
+
+        <div class="column is-half">
+          <div class="content has-text-centered">
+            <p>Offline Dataset \(\mathcal{D}_{prior}\)</p>
+            <video id="replay-video" autoplay playsinline loop muted controls>
+              <source src="./static/videos/kitchen_dataset.mp4" type="video/mp4">
+            </video>
+            <!-- <h4 class="title is-8">Pen-in-Cup (out-of-distribution)</h4> -->
           </div>
         </div>
       </div>
+      <br>
 
-      <div class="container is-max-desktop">
-        <!-- <h2 class="title is-4">Datasets</h2> -->
-        <br>
-        <p>
-          <b>Datasets</b>
-        </p>
-        <br>
-        <div class="columns is-mobile is-vcentered">
-          <div class="column is-half">
-            <div class="content has-text-centered">
-              <p>Demonstration Dataset \(\mathcal{D}_{target}\)</p>
-              <video id="replay-video" autoplay playsinline loop muted controls>
-                <source src="./static/videos/kitchen_demos.mp4" type="video/mp4">
-              </video>
-              <!-- <h4 class="title is-8">Pen-in-Cup (out-of-distribution)</h4> -->
-            </div>
-          </div>
+      <p>
+      <h3 class="title is-5">Franka-Pen-in-Cup</h3>
+      </p>
+      <div class="columns is-centered is-mobile is-vcentered">
+        <div class="column is-full-width">
 
-          <div class="column is-half">
-            <div class="content has-text-centered">
-              <p>Offline Dataset \(\mathcal{D}_{prior}\)</p>
-              <video id="replay-video" autoplay playsinline loop muted controls>
-                <source src="./static/videos/kitchen_dataset.mp4" type="video/mp4">
-              </video>
-              <!-- <h4 class="title is-8">Pen-in-Cup (out-of-distribution)</h4> -->
-            </div>
-          </div>
-        </div>
+          <img src="./static/images/results_real.png" class="money-figure" alt="Pipeline Overview"
+            style="display: block; margin: 0 auto; max-width: 50%; height: auto;" />
+          <br>
+          <p>
+            \(\texttt{STRAP}\) can leverage data from seemingly unrelated tasks to learn robustness behavior.
+            While behavior cloning replays the demonstrations, \(\texttt{STRAP}\) can adapt to unseen object poses and
+            appearance.
 
-        <br>
-        <p>
-          <b>Franka-Pen-in-Cup</b>
-        </p>
-        <br>
-        <div class="columns is-centered is-mobile is-vcentered">
-          <div class="column is-full-width">
-
-            <img src="./static/images/results_real.png" class="money-figure" alt="Pipeline Overview"
-              style="display: block; margin: 0 auto; max-width: 50%; height: auto;" />
-            <br>
-            <p>
-              \(\texttt{STRAP}\) can leverage data from seemingly unrelated tasks to learn robustness behavior.
-              While behavior cloning replays the demonstrations, \(\texttt{STRAP}\) can adapt to unseen object poses and appearance.
-
-              <!-- \(\mathcal{D}_{target}\)
+            <!-- \(\mathcal{D}_{target}\)
               (<i>base</i>), BC lacks robustness to out-of-distribution (<i>OOD</i>) scenarios. The policy replays
               the trajectories observed in \(\mathcal{D}_{target}\). \(\texttt{STRAP}\) retrieves relevant
               sub-trajectories from \(\mathcal{D}_{prior}\), <i>e.g.</i>,
               the robot putting the screwdriver in the cup or picking up pens in various poses. Augmented policy
               learning then distills this knowledge into a policy, resulting in generalization to an OOD scenario. -->
-            </p>
-          </div>
+          </p>
         </div>
       </div>
+    </div>
 
-      <!-- Intuition -->
-      <div class="container is-max-desktop">
+    <!-- Intuition -->
+    <div class="container is-max-desktop">
 
-        <!-- <br>
+      <!-- <br>
         <p>
           <b>In-distribution (base)</b>
         </p>
@@ -555,39 +623,38 @@
             </div>
           </div> -->
 
-          <div class="container is-max-desktop">
-            <!-- <h2 class="title is-4">Datasets</h2> -->
-            <br>
-            <p>
-              <b>Datasets</b>
-            </p>
-            <br>
-            <div class="columns is-mobile is-vcentered">
-              <div class="column is-half">
-                <div class="content has-text-centered">
-                  <p>Demonstration Dataset \(\mathcal{D}_{target}\)</p>
-                  <video id="replay-video" autoplay playsinline loop muted controls>
-                    <source src="./static/videos/pick_dataset.mp4" type="video/mp4">
-                  </video>
-                  <!-- <h4 class="title is-8">Pen-in-Cup (out-of-distribution)</h4> -->
-                </div>
-              </div>
-
-              <div class="column is-half">
-                <div class="content has-text-centered">
-                  <p>Offline Dataset \(\mathcal{D}_{prior}\)</p>
-                  <video id="replay-video" autoplay playsinline loop muted controls>
-                    <source src="./static/videos/10x10_dataset.mp4" type="video/mp4">
-                  </video>
-                  <!-- <h4 class="title is-8">Pen-in-Cup (out-of-distribution)</h4> -->
-                </div>
-              </div>
+      <div class="container is-max-desktop">
+        <!-- <h2 class="title is-4">Datasets</h2> -->
+        <br>
+        <p>
+        <h3 class="title is-5">Datasets</h3>
+        </p>
+        <div class="columns is-mobile is-vcentered">
+          <div class="column is-half">
+            <div class="content has-text-centered">
+              <p>Demonstration Dataset \(\mathcal{D}_{target}\)</p>
+              <video id="replay-video" autoplay playsinline loop muted controls>
+                <source src="./static/videos/pick_dataset.mp4" type="video/mp4">
+              </video>
+              <!-- <h4 class="title is-8">Pen-in-Cup (out-of-distribution)</h4> -->
             </div>
+          </div>
 
-
+          <div class="column is-half">
+            <div class="content has-text-centered">
+              <p>Offline Dataset \(\mathcal{D}_{prior}\)</p>
+              <video id="replay-video" autoplay playsinline loop muted controls>
+                <source src="./static/videos/10x10_dataset.mp4" type="video/mp4">
+              </video>
+              <!-- <h4 class="title is-8">Pen-in-Cup (out-of-distribution)</h4> -->
+            </div>
           </div>
         </div>
+
+
       </div>
+    </div>
+    </div>
   </section>
   <!-- Real-World Experiments -->
 
@@ -601,11 +668,9 @@
         </div>
       </div>
       <div class="container is-max-desktop">
-        <br>
         <p>
-          <b>LIBERO-10</b>
+        <h3 class="title is-5">LIBERO-10</h3>
         </p>
-        <br>
         <div class="columns is-centered is-mobile is-vcentered">
           <div class="column is-full-width">
 
@@ -632,12 +697,10 @@
         </div>
       </div>
       <div class="container is-max-desktop">
-        <!-- <h2 class="title is-4">Datasets</h2> -->
         <br>
         <p>
-          <b>Datasets</b>
+        <h3 class="title is-5">Datasets</h3>
         </p>
-        <br>
         <div class="columns is-mobile is-vcentered">
           <div class="column is-half">
             <div class="content has-text-centered">
@@ -679,12 +742,10 @@
       </div>
 
       <div class="container is-max-desktop">
-        <!-- <h2 class="title is-4">Datasets</h2> -->
         <br>
         <p>
-          <b>Does \(\texttt{STRAP}\) retrieval scale to DROID?</b>
+        <h3 class="title is-5">Does \(\texttt{STRAP}\) retrieval scale to DROID?</h3>
         </p>
-        <br>
         <div class="columns is-mobile is-vcentered">
           <div class="column is-half">
             <div class="content has-text-centered">
@@ -717,22 +778,95 @@
       </div>
       <br>
       <br>
+
       <div class="container is-max-desktop">
         <div class="columns is-centered is-mobile is-vcentered">
           <div class="column is-full-width">
             <br>
+            <h3 class="title is-5">What types of matches are identified by <i>S-DTW</i>?</h3>
+            <p>
+              <b>Kitchen-DROID:</b><br>Below shows the demonstration segments (\(\mathcal{D}_{target}\)) denoted by
+              the red box <span style="color: #DC1D64;"><b>&#9744;</b></span> and retrieved sub-trajectories (from \(\mathcal{D}_{prior}\)).
+              \(\texttt{STRAP}\) <b>retrieves relevant segments</b> from the multi-task trajectories even if <b>object appearance and pose, or the task differ</b>.
+              <br>
+            </p>
+            <div class="column is-full-width has-text-centered">
+              <br>
+              <p>Use the buttons <b>&larr;</b> <b>&rarr;</b> to explore all tasks!</p>
+              <br>
+              <button class="button" id="prev-button" onclick="prevRealTask()">
+                <span class="icon">
+                  <i class="fas fa-arrow-left"></i>
+                </span>
+                <span>Prev.</span>
+              </button>
+              <button class="button" id="next-button" onclick="nextRealTask()">
+                <span>Next</span>
+                <span class="icon">
+                  <i class="fas fa-arrow-right"></i>
+                </span>
+              </button>
+            </div>
+
+            <div class="column has-text-centered">
+
+              <p><b>Task Instruction:</b> <span id="task-real-string"><i>"pick up the pepper 🫑 and put it in the sink
+                    🚰"</i></span></p>
+              <br>
+              <div id="task-real-vid-input-0" class="rgb-image">
+                <video id="task-real-vid" autoplay loop playsinline muted>
+                  <source src="./static/videos/retrieval_strips/pepper_3/segment_0/video_strip.mp4" type="video/mp4">
+              </div>
+
+              <div id="task-real-vid-input-1" class="rgb-image">
+                <video id="task-real-vid" autoplay loop playsinline muted>
+                  <source src="./static/videos/retrieval_strips/pepper_3/segment_1/video_strip.mp4" type="video/mp4">
+              </div>
+
+              <div id="task-real-vid-input-2" class="rgb-image">
+                <video id="task-real-vid" autoplay loop playsinline muted>
+                  <source src="./static/videos/retrieval_strips/pepper_3/segment_2/video_strip.mp4" type="video/mp4">
+              </div>
+
+              <div id="task-real-vid-input-3" class="rgb-image">
+                <!-- <video id="task-real-vid" autoplay loop playsinline muted>
+                  <source src="./static/videos/video_strip (1).mp4" type="video/mp4"> -->
+              </div>
+
+              <div id="task-real-vid-input-4" class="rgb-image">
+                <!-- <video id="task-libero-vid" autoplay loop playsinline muted>
+              <source src="./static/videos/video_strip (1).mp4" type="video/mp4"> -->
+              </div>
+
+              <div id="task-real-vid-input-5" class="rgb-image">
+                <!-- <video id="task-libero-vid" autoplay loop playsinline muted>
+              <source src="./static/videos/video_strip (1).mp4" type="video/mp4"> -->
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="container is-max-desktop">
+        <div class="columns is-centered is-mobile is-vcentered">
+          <div class="column is-full-width">
+            <!-- <br>
             <b>What types of matches are identified by <i>S-DTW</i>?</b>
             <br>
+            <br> -->
             <br>
             <p>
-              Above shows the demonstration segments from \(\mathcal{D}_{target}\) denoted by the red box <span
-                style="color: #DC1D64;"><b>&#9744;</b></span> and retrieved sub-trajectories from the offline
-              dataset \(\mathcal{D}_{prior}\). Use the buttons <b>&larr;</b> <b>&rarr;</b> to explore all
-              LIBERO-10 tasks!
+              <b>LIBERO-10:</b><br>Below shows the demonstration segments (\(\mathcal{D}_{target}\)) denoted by
+              the red box <span style="color: #DC1D64;"><b>&#9744;</b></span> and retrieved sub-trajectories (from \(\mathcal{D}_{prior}\)).
+              \(\texttt{STRAP}\) <b>retrieves relevant segments</b> from the multi-task trajectories <b>matching the demonstrations</b>.
+              <br>
             </p>
-            <br>
             <div class="column is-full-width has-text-centered">
-
+              <br>
+              <p>Use the buttons <b>&larr;</b> <b>&rarr;</b> to explore all tasks!</p>
+              <br>
               <button class="button" id="prev-button" onclick="prevLiberoTask()">
                 <span class="icon">
                   <i class="fas fa-arrow-left"></i>
@@ -754,52 +888,60 @@
               <br>
               <div id="task-libero-vid-input-0" class="rgb-image">
                 <video id="task-libero-vid" autoplay loop playsinline muted>
-                  <source src="./static/videos/video_strip (1).mp4" type="video/mp4">
+                  <source
+                    src="./static/videos/retrieval_strips/pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy/segment_0/video_strip.mp4"
+                    type="video/mp4">
               </div>
 
               <div id="task-libero-vid-input-1" class="rgb-image">
                 <video id="task-libero-vid" autoplay loop playsinline muted>
-                  <source src="./static/videos/video_strip (1).mp4" type="video/mp4">
+                  <source
+                    src="./static/videos/retrieval_strips/pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy/segment_1/video_strip.mp4"
+                    type="video/mp4">
               </div>
 
               <div id="task-libero-vid-input-2" class="rgb-image">
                 <video id="task-libero-vid" autoplay loop playsinline muted>
-                  <source src="./static/videos/video_strip (1).mp4" type="video/mp4">
+                  <source
+                    src="./static/videos/retrieval_strips/pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy/segment_2/video_strip.mp4"
+                    type="video/mp4">
               </div>
 
               <div id="task-libero-vid-input-3" class="rgb-image">
                 <video id="task-libero-vid" autoplay loop playsinline muted>
-                  <source src="./static/videos/video_strip (1).mp4" type="video/mp4">
+                  <source
+                    src="./static/videos/retrieval_strips/pick_up_the_book_and_place_it_in_the_back_compartment_of_the_caddy/segment_3/video_strip.mp4"
+                    type="video/mp4">
               </div>
 
               <div id="task-libero-vid-input-4" class="rgb-image">
                 <!-- <video id="task-libero-vid" autoplay loop playsinline muted>
-                  <source src="./static/videos/video_strip (1).mp4" type="video/mp4"> -->
+              <source src="./static/videos/video_strip (1).mp4" type="video/mp4"> -->
               </div>
 
               <div id="task-libero-vid-input-5" class="rgb-image">
                 <!-- <video id="task-libero-vid" autoplay loop playsinline muted>
-                  <source src="./static/videos/video_strip (1).mp4" type="video/mp4"> -->
+              <source src="./static/videos/video_strip (1).mp4" type="video/mp4"> -->
               </div>
 
               <div id="task-libero-vid-input-6" class="rgb-image">
                 <!-- <video id="task-libero-vid" autoplay loop playsinline muted>
-                  <source src="./static/videos/video_strip (1).mp4" type="video/mp4"> -->
+              <source src="./static/videos/video_strip (1).mp4" type="video/mp4"> -->
               </div>
 
               <div id="task-libero-vid-input-7" class="rgb-image">
                 <!-- <video id="task-libero-vid" autoplay loop playsinline muted>
-                  <source src="./static/videos/video_strip (1).mp4" type="video/mp4"> -->
+              <source src="./static/videos/video_strip (1).mp4" type="video/mp4"> -->
               </div>
 
               <div id="task-libero-vid-input-8" class="rgb-image">
                 <!-- <video id="task-libero-vid" autoplay loop playsinline muted>
-                  <source src="./static/videos/video_strip (1).mp4" type="video/mp4"> -->
+              <source src="./static/videos/video_strip (1).mp4" type="video/mp4"> -->
               </div>
 
               <div id="task-libero-vid-input-9" class="rgb-image">
                 <!-- <video id="task-libero-vid" autoplay loop playsinline muted>
-                  <source src="./static/videos/video_strip (1).mp4" type="video/mp4"> -->
+              <source src="./static/videos/video_strip (1).mp4" type="video/mp4"> -->
               </div>
 
             </div>
@@ -807,18 +949,20 @@
         </div>
 
       </div>
+
       <br>
       <br>
       <div class="container is-max-desktop">
         <div class="columns is-centered is-mobile is-vcentered">
           <div class="column is-full-width">
 
-            <b>How does \(\texttt{STRAP}\) compare to other retrieval mechanisms?</b>
+            <h3 class="title is-5">How does \(\texttt{STRAP}\) compare to other retrieval mechanisms?</h3>
             <br>
-            <br>
+
             <img src="./static/images/data_retrieved.png" class="money-figure" alt="Pipeline Overview" />
             <br>
             <br>
+
             <p>
               We visualize the top five tasks retrieved and accumulates the rest into the <i>"others"</i>
               category.
@@ -856,10 +1000,10 @@
         <div class="columns is-centered is-mobile is-vcentered">
           <div class="column is-full-width">
             <p>
-              <b>Does <i>sub-trajectory retrieval</i> improve performance in few-shot imitation learning?</b>
+            <h3 class="title is-5">Does <i>sub-trajectory retrieval</i> improve performance in few-shot imitation
+              learning?</h3>
             </p>
-            <br>
-            <br><img src="./static/images/ablation_traj.png" class="money-figure" alt="Pipeline Overview"
+            <img src="./static/images/ablation_traj.png" class="money-figure" alt="Pipeline Overview"
               style="display: block; margin: 0 auto; max-width: 70%; height: auto;" />
             <br>
             <br>
@@ -879,10 +1023,9 @@
         <div class="columns is-centered is-mobile is-vcentered">
           <div class="column is-full-width">
             <p>
-              <b>How effective are the representations from <i>vision-foundation models</i> for retrieval?</b>
+            <h3 class="title is-5">How effective are the representations from <i>vision-foundation models</i> for
+              retrieval?</h3>
             </p>
-            <br>
-            <br>
             <img src="./static/images/ablation_representation.png" class="money-figure" alt="Pipeline Overview"
               style="display: block; margin: 0 auto; max-width: 70%; height: auto;" />
             <br>

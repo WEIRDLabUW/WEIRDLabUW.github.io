@@ -125,7 +125,7 @@
       '"pick up the carrot 🥕 and put it on the plate 🍽️"'
     ];
     TASK_N_SUB_REAL = [
-      3,
+      2, //3,
       2,
       2
     ];
@@ -157,7 +157,7 @@
           continue;
         }
 
-        let path = VIDEO_PATH + task_str + '/segment_' + String(i) + '/video_strip.mp4';
+        let path = VIDEO_PATH + task_str + '/segment_' + String(i + TASK_N_SUB_REAL[real_vid_idx]) + '/video_strip.mp4';
 
         // Create the video element
         let video = document.createElement('video');
@@ -183,6 +183,23 @@
         };
       };
 
+
+      let path = VIDEO_PATH + task_str + '/legend.png';
+      let img = document.createElement('img');
+      let input_id = '#task-real-legend';
+
+      // Set the image source -> legend
+      img.src = path;
+      img.style.display = 'block';
+      img.style.margin = '0 auto';
+      img.style.maxWidth = '70%';
+      img.style.height = 'auto';
+      // Use the correct onload event
+      img.onload = function () {
+        // Clear the container and append the new image
+        $(input_id).empty().append(img);
+      };
+        
       document.getElementById('task-real-string').innerHTML = '<i>' + TASK_INSTRUCTION_REAL[real_vid_idx] + '</i>';
     }
 
@@ -842,7 +859,7 @@
             <h3 class="title is-5">What types of matches are identified by <i>S-DTW</i>?</h3>
             <p>
               <b>Kitchen-DROID:</b><br>Below shows the demonstration segments (\(\mathcal{D}_{target}\)) denoted by
-              the red box <span style="color: #DC1D64;"><b>&#9744;</b></span> and retrieved sub-trajectories (from \(\mathcal{D}_{prior}\)).
+              the red box <span style="color: #DC1D64;"><b>&#9724;</b></span> and retrieved sub-trajectories (from \(\mathcal{D}_{prior}\)).
               \(\texttt{STRAP}\) <b>retrieves relevant segments</b> from the multi-task trajectories even if <b>object appearance and pose, or the task differ</b>.
               <br>
             </p>
@@ -871,34 +888,30 @@
               <br>
               <div id="task-real-vid-input-0" class="rgb-image">
                 <video id="task-real-vid" autoplay loop playsinline muted>
-                  <source src="./static/videos/retrieval_strips/pepper_3/segment_0/video_strip.mp4" type="video/mp4">
+                  <source src="./static/videos/retrieval_strips/pepper_3/segment_3/video_strip.mp4" type="video/mp4">
               </div>
 
               <div id="task-real-vid-input-1" class="rgb-image">
                 <video id="task-real-vid" autoplay loop playsinline muted>
-                  <source src="./static/videos/retrieval_strips/pepper_3/segment_1/video_strip.mp4" type="video/mp4">
+                  <source src="./static/videos/retrieval_strips/pepper_3/segment_4/video_strip.mp4" type="video/mp4">
               </div>
 
               <div id="task-real-vid-input-2" class="rgb-image">
-                <video id="task-real-vid" autoplay loop playsinline muted>
-                  <source src="./static/videos/retrieval_strips/pepper_3/segment_2/video_strip.mp4" type="video/mp4">
               </div>
 
               <div id="task-real-vid-input-3" class="rgb-image">
-                <!-- <video id="task-real-vid" autoplay loop playsinline muted>
-                  <source src="./static/videos/video_strip (1).mp4" type="video/mp4"> -->
               </div>
 
               <div id="task-real-vid-input-4" class="rgb-image">
-                <!-- <video id="task-libero-vid" autoplay loop playsinline muted>
-              <source src="./static/videos/video_strip (1).mp4" type="video/mp4"> -->
               </div>
 
               <div id="task-real-vid-input-5" class="rgb-image">
-                <!-- <video id="task-libero-vid" autoplay loop playsinline muted>
-              <source src="./static/videos/video_strip (1).mp4" type="video/mp4"> -->
               </div>
-
+              
+              <div id="task-real-legend" class="rgb-image">
+              <img src="./static/videos/retrieval_strips/pepper_3/legend.png" alt="color language mapping" 
+              style="display: block; margin: 0 auto; max-width: 70%; height: auto;"/>
+              </div>
             </div>
           </div>
         </div>
@@ -915,7 +928,7 @@
             <br>
             <p>
               <b>LIBERO-10:</b><br>Below shows the demonstration segments (\(\mathcal{D}_{target}\)) denoted by
-              the red box <span style="color: #DC1D64;"><b>&#9744;</b></span> and retrieved sub-trajectories (from \(\mathcal{D}_{prior}\)).
+              the red box <span style="color: #DC1D64;"><b>&#9724;</b></span> and retrieved sub-trajectories (from \(\mathcal{D}_{prior}\)).
               \(\texttt{STRAP}\) <b>retrieves relevant segments</b> from the multi-task trajectories <b>matching the demonstrations</b>.
               <br>
             </p>

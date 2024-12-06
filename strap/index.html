@@ -157,7 +157,7 @@
           continue;
         }
 
-        let path = VIDEO_PATH + task_str + '/segment_' + String(i + TASK_N_SUB_REAL[real_vid_idx]) + '/video_strip.mp4';
+        let path = VIDEO_PATH + task_str + '/segment_' + String(i) + '/video_strip.mp4';
 
         // Create the video element
         let video = document.createElement('video');
@@ -456,13 +456,16 @@
           <h2 class="title is-3">Method Overview</h2>
         </div>
       </div>
-      <br>
       <div class="container is-max-desktop">
 
         <div class="columns is-centered is-mobile is-vcentered">
           <div class="column is-full-width">
-
-            <img src="./static/images/method_figure.png" class="money-figure" alt="Pipeline Overview" />
+            <!-- <img src="./static/images/method_figure.png" class="money-figure" alt="Pipeline Overview" /> -->
+            <video autoplay muted loop playsinline width="100%">
+              <source src="./static/videos/method.mov" type="video/mp4">
+            </video>
+            <br>
+            <br>
             <p>
               <b>Overview of \(\texttt{STRAP}\):</b> 1) demonstrations \(\mathcal{D}_{target}\) and offline dataset
               \(\mathcal{D}_{prior}\) are encoded into a shared embedding space using a vision foundation model, 2)
@@ -888,12 +891,12 @@
               <br>
               <div id="task-real-vid-input-0" class="rgb-image">
                 <video id="task-real-vid" autoplay loop playsinline muted>
-                  <source src="./static/videos/retrieval_strips/pepper_3/segment_3/video_strip.mp4" type="video/mp4">
+                  <source src="./static/videos/retrieval_strips/pepper_3/segment_0/video_strip.mp4" type="video/mp4">
               </div>
 
               <div id="task-real-vid-input-1" class="rgb-image">
                 <video id="task-real-vid" autoplay loop playsinline muted>
-                  <source src="./static/videos/retrieval_strips/pepper_3/segment_4/video_strip.mp4" type="video/mp4">
+                  <source src="./static/videos/retrieval_strips/pepper_3/segment_1/video_strip.mp4" type="video/mp4">
               </div>
 
               <div id="task-real-vid-input-2" class="rgb-image">

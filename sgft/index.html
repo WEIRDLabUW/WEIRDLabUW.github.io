@@ -97,6 +97,16 @@
                   <span>Paper</span>
                 </a>
               </span>
+              <!-- Code Link. -->
+              <span class="link-block">
+                <a href="https://github.com/WEIRDLabUW/sgft"
+                  class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                    <i class="fab fa-github"></i>
+                  </span>
+                  <span>Code</span>
+                </a>
+              </span>
               <!-- <span class="link-block">
                 <a href="TODO"
                    class="external-link button is-normal is-rounded is-dark">
@@ -160,7 +170,7 @@
 </section>
 
 <section class="hero teaser">
-  <h2 class="title is-3 has-text-centered"> Progression Video of Hammering (1x Speed)</h2>
+  <h2 class="title is-3 has-text-centered"> Progression Video of Hammering</h2>
   <div class="container is-max-desktop">
     <div class="hero-body">
       <video id="teaser" autoplay muted loop playsinline style="width: 75%; display: block; margin: 0 auto;">
@@ -212,8 +222,8 @@
                       <p class="title is-6">Main Idea:</p>
                       <ol>
                           <li>We demonstrate theoretically that value functions define an ordering of states which is <span style="color: green; font-weight: bold;">robust to low-level dynamics gaps</span></li>
-                          <li>Using a simulation-learned value function as a terminal reward enables us to <span style="color: green; font-weight: bold;">shorten the horizon of the search problem</span> while still having a strong learning signal for real-world RL fine-tuning*</li>
-                          <li>Shortening the horizon helps overcome the fundamental challenge of compounding errors faced by Model-Based RL (MBRL), allowing us to use <span style="color: green; font-weight: bold;">MBRL</span> to speed up fine-tuning even more</li>
+                          <li>Using a simulation-learned value function (Vsim) for potential-based reward shaping provides dense rewards to <span style="color: green; font-weight: bold;">guide real-world exploration</span></li>
+                          <li>SGFT also integrates nicely with <span style="color: green; font-weight: bold;">Model-Based RL</span> (MBRL) by making short-horizon predictions with a dynamics model and bootstrapping with Vsim to <span style="color: green; font-weight: bold;">shorten the horizon of the search problem</span>*. This side-steps the core challenge of compounding errors faced by MBRL, allowing us to use MBRL to speed up fine-tuning even more. </li>
                       </ol>
                     </div>
                 </div>
@@ -389,6 +399,29 @@
                   </div>
                 </div>
               </div>
+
+              <section class="hero teaser">
+                <div class="container is-max-desktop">
+                  <div class="columns is-centered is-mobile is-vcentered is-flex is-align-items-stretch">
+                    <div class="content has-text-centered">
+                      <img 
+                        src="./static/images/real_plots.png" 
+                        class="inline-figure" 
+                        style="width: 100%; position: relative; top: 40px; margin-bottom: 20px;" 
+                        alt="Preference Learning" 
+                      />
+                    </div>
+                  </div>
+              
+                  <div class="columns is-centered">
+                    <div class="column is-full-width">
+                      <div class="content has-text-justified">
+                        <p>Above is a comparison of time to learn each task with our method vs existing baselines using sim2real transfer, RL finetuning, and/or model-based RL. In each case, our method outperforms baselines in sample efficiency by at least 2x!</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </section>
           </div>
       </div>
   </div>
@@ -399,11 +432,11 @@
 <section class="section" id="BibTeX">
   <div class="container is-max-desktop content">
     <h2 class="title">BibTeX</h2>
-    <pre><code>@article{yin2024sgft,
+    <pre><code>@article{yin2025sgft,
   author    = {Yin, Patrick and Westenbroek, Tyler and Bagaria, Simran and Huang, Kevin and Cheng, Ching-An and Kolobov, Andrey and Gupta, Abhishek},
   title     = {Rapidly Adapting Policies to the Real-World via Simulation-Guided Fine-Tuning},
   booktitle = {ArXiv Preprint},
-  year      = {2024},
+  year      = {2025},
 }</code></pre>
   </div>
 </section>

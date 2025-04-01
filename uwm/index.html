@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="description"
+    content="Unified World Models: Coupling Video and Action Diffusion for Pretraining on Large Robotic Datasets.">
+  <meta name="keywords" content="Imitation Learning, Robotics, Diffusion Models, World Models">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Unified World Models: Coupling Video and Action Diffusion for Pretraining on Large Robotic Datasets</title>
+
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro" rel="stylesheet">
+
+  <link rel="stylesheet" href="./static/css/bulma.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-carousel.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-slider.min.css">
+  <link rel="stylesheet" href="./static/css/fontawesome.all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  <link rel="stylesheet" href="./static/css/index.css">
+  <link rel="icon" href="./static/images/favicon.svg">
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script defer src="./static/js/fontawesome.all.min.js"></script>
+  <script src="./static/js/bulma-carousel.min.js"></script>
+  <script src="./static/js/bulma-slider.min.js"></script>
+  <script src="./static/js/index.js"></script>
+</head>
+
+<body>
+  <section class="hero">
+    <div class="hero-body">
+      <div class="container is-max-desktop">
+        <div class="columns is-centered">
+          <div class="column has-text-centered">
+            <h1 class="title is-1 publication-title">
+              <span class="multi-color-text">Unified World Models</span>: Coupling Video and Action Diffusion <br>
+              for Pretraining on Large Robotic Datasets
+            </h1>
+
+            <div class="is-size-5 publication-authors">
+              <!-- Each author with their respective superscripts. -->
+              <span class="author-block">
+                <a href="https://homes.cs.washington.edu/~zchuning/">Chuning Zhu</a><sup>1</sup>,
+              </span>
+              <span class="author-block">
+                <a href="https://raymondyu5.github.io/">Raymond Yu</a><sup>1</sup>,
+              </span>
+              <span class="author-block">
+                <a href="https://syfeng.net/">Siyuan Feng</a><sup>2</sup>,
+              </span>
+              <span class="author-block">
+                <a href="https://scholar.google.com/citations?user=eGoTK1YAAAAJ&hl=en">
+                  Benjamin Burchfiel
+                </a><sup>2</sup>,
+              </span>
+              <span class="author-block">
+                <a href="https://www.paarthshah.me/about">Paarth Shah</a><sup>2</sup>,
+              </span>
+              <span class="author-block">
+                <a href="https://homes.cs.washington.edu/~abhgupta/">Abhishek Gupta</a><sup>1</sup>
+              </span>
+            </div>
+
+            <div class="is-size-5 publication-authors mt-3">
+              <span class="author-block"><sup>1</sup> University of Washington</span>
+              <span class="author-block"><sup>2</sup> Toyota Research Institute</span>
+            </div>
+
+            <div class="column has-text-centered">
+              <div class="publication-links">
+                <!-- PDF Link. -->
+                <span class="link-block">
+                  <a href="https://arxiv.org/" class="external-link button is-normal is-rounded is-dark">
+                    <span class="icon">
+                      <i class="fas fa-file-pdf"></i>
+                    </span>
+                    <span>Paper</span>
+                  </a>
+                </span>
+                <!-- Video Link. -->
+                <!-- <span class="link-block">
+                <a href="https://youtu.be/DQGVD6KaVf8"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="fab fa-youtube"></i>
+                  </span>
+                  <span>Video</span>
+                </a>
+              </span> -->
+                <!-- Code Link. -->
+                <span class="link-block">
+                  <a href="https://github.com/" class="external-link button is-normal is-rounded is-dark">
+                    <span class="icon">
+                      <i class="fab fa-github"></i>
+                    </span>
+                    <span>Code</span>
+                  </a>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Paper video. -->
+        <!-- <div class="columns is-centered has-text-centered">
+        <div class="column is-four-fifths">
+          <div class="publication-video">
+            
+            <iframe src="https://www.youtube.com/embed/DQGVD6KaVf8?rel=0&amp;showinfo=0"
+                    frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+          </div>
+        </div>
+      </div> -->
+        <!--/ Paper video. -->
+        <!-- <div class="content has-text-centered">
+                    <img src="./static/images/algo.gif" class="inline-figure-four-thirds" alt="Algorith overview." />
+                </div> -->
+        <div class="content has-text-centered">
+          <video id="exp-d4rl" autoplay muted playsinline height="100%" width="100%">
+            <source src="./static/videos/teaser.mov" type="video/mp4">
+          </video>
+        </div>
+        <div class="columns is-centered has-text-centered">
+          <div class="column is-four-fifths">
+            <div class="content has-text-justified">
+              <span class="multi-color-text">Unified World Models</span> (UWM) is a single framework that
+              uses separate diffusion timesteps for actions and video
+              to flexibly learn policies, forward/inverse dynamics,
+              and video prediction from both action-labeled and unlabeled
+              data in one unified transformer.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- <section class="hero teaser">
+  <div class="container is-max-desktop">
+    <div class="hero-body">
+      <video id="teaser" autoplay muted loop playsinline height="100%">
+        <source src="./static/videos/repo_turtlebot.mp4" type="video/mp4">
+      </video>
+      <h2 class="subtitle has-text-centered">
+        <span class="dnerf">RePo learns minimally task-relevant representations that is resilient to spurious variations.
+      </h2>
+    </div>
+  </div>
+</section> -->
+
+  <div class="hr"></div>
+
+  <section class="section">
+    <div class="container is-max-desktop">
+      <!-- Abstract. -->
+      <div class="columns is-centered has-text-centered">
+        <div class="column is-four-fifths">
+          <h2 class="title is-3">Motivation</h2>
+          <div class="content has-text-justified">
+            Scaling imitation learning is limited by the need for large numbers of high-quality demonstrations, yet
+            there’s a vast amount of unlabeled video data depicting real-world robot interactions that remains untapped.
+            Conventional methods can’t directly harness these videos because they lack action annotations. Unified World
+            Models (UWM) bridge this gap by treating action-free videos as “fully noised” on the action dimension,
+            letting us pretrain a multi-functional diffusion model that robustly captures both policy and temporal
+            dynamics. This approach not only expands our training data but also leads to stronger generalization under
+            domain shifts, since UWM naturally learns forward/inverse dynamics and action distributions in one
+            integrated framework.
+          </div>
+        </div>
+      </div>
+      <!--/ Abstract. -->
+    </div>
+  </section>
+
+  <div class="hr"></div>
+
+  <section class="section">
+    <div class="container is-max-desktop">
+      <h2 class="title is-3 has-text-centered"> How Does UWM Learn from Both Actions and Videos? </h2>
+
+      <div class="columns is-centered">
+        <div class="column is-full-width has-text-justified">
+          <h3 class="title is-5"></h3>
+          <div class="content has-text-justified">
+            <img src="./static/images/training_policy.png" class="inline-figure" style="width:100%" alt="Learning DiSPOs." />
+          </div>
+          <div class="content has-text-justified">
+            <p>
+              Unified World Models (UWM) fuse <strong>action diffusion</strong> and
+              <strong>video diffusion</strong> in one transformer, with <em>separate timesteps</em>
+              for each modality. This lets us:
+            </p>
+            <ul>
+              <li>Generate actions (policy) by masking future frames.</li>
+              <li>Predict forward dynamics by fixing actions.</li>
+              <li>Infer inverse dynamics by conditioning on frames.</li>
+              <li>Leverage unlabeled video by fully noising the action channel.</li>
+            </ul>
+          </div>
+          <h3 class="title is-5">Unified Training With & Without Actions</h3>
+          <div class="content has-text-centered">
+            <img src="./static/images/dataset.png" class="inline-figure" style="width:100%" alt="Learning DiSPOs." />
+          </div>
+          <div class="content has-text-justified">
+            <p>
+              Our training process integrates <em>(observation, action, next-observation)</em> triplets from
+              demonstrations alongside unlabeled video frames lacking explicit actions.
+              During each mini-batch:
+            </p>
+            <ul>
+              <li><strong>Action-Labeled Samples:</strong> The diffusion timesteps for both <em>action</em> and
+                <em>next-frame</em> are randomly drawn. We learn to reconstruct the correct action and predict the next
+                observation based on the current state.
+              </li>
+              <li><strong>Action-Free Videos:</strong> We treat the missing actions as fully noised. This forces the
+                model to rely on visual cues and learn robust representations, even in the absence of explicit action
+                labels.</li>
+            </ul>
+            <p>
+              By sampling from both labeled and unlabeled data during training, the model steadily learns
+              <strong>both</strong> the action distributions and underlying state transitions.
+              To demonstrate this approach at scale, we train on <strong>DROID</strong>,
+              a large and diverse set of robotic trajectories that offers multi-environment coverage
+              and varied manipulation tasks.
+              <em>See the paper for more details on dataset composition and preprocessing.</em>
+
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="hr"></div>
+  <section class="section">
+    <div class="container is-max-desktop">
+
+      <!-- Section Title -->
+      <h2 class="title is-3 has-text-centered">Experiments</h2>
+
+      <!-- Subsection: Real Robot Experiments -->
+      <h3 class="title is-5 mt-4">Real Robot Experiments</h3>
+      <div class="content has-text-justified">
+        <p>
+          We evaluate <strong>Unified World Models (UWM)</strong> on diverse real-world tasks, each demanding
+          precise control and robust generalization. Training combines demonstrations with action-free
+          videos, allowing UWM to learn both policy and environment dynamics.
+        </p>
+      </div>
+
+      <!-- Buttons for Real Robot tasks -->
+      <div class="content has-text-centered">
+        <button class="button custom-btn-gradient" onclick="showExperiment('rice')">
+         Cook-Rice 
+        </button>
+        <button class="button custom-btn-gradient" onclick="showExperiment('towel')">
+          Hang-Towel
+        </button>
+        <button class="button custom-btn-gradient" onclick="showExperiment('paper')">
+          Refill-Paper-Towels
+        </button>
+        <button class="button custom-btn-gradient" onclick="showExperiment('bowl')">
+          Stack-Bowls
+        </button>
+        <button class="button custom-btn-gradient" onclick="showExperiment('block')">
+          Place-Block
+        </button>
+      </div>
+
+      <!-- Rice Container (5 videos: 5 in-dist) -->
+      <div id="rice" style="display: block; text-align:center; margin-top: 1rem;">
+        <h4 class="title is-5">Rice (In-Distribution)</h4>
+        <!-- 5 in_dist videos -->
+        <video autoplay muted playsinline loop style="width:30%; margin:0.5rem;">
+          <source src="./static/videos/rice/rice1.mov" type="video/mp4">
+        </video>
+        <video autoplay muted playsinline loop style="width:30%; margin:0.5rem;">
+          <source src="./static/videos/rice/rice2.mov" type="video/mp4">
+        </video>
+        <video autoplay muted playsinline loop style="width:30%; margin:0.5rem;">
+          <source src="./static/videos/rice/rice3.mov" type="video/mp4">
+        </video>
+        <video autoplay muted playsinline loop style="width:30%; margin:0.5rem;">
+          <source src="./static/videos/rice/rice4.mov" type="video/mp4">
+        </video>
+        <video autoplay muted playsinline loop style="width:30%; margin:0.5rem;">
+          <source src="./static/videos/rice/rice5.mov" type="video/mp4">
+        </video>
+      </div>
+
+      <!-- Towel Container (10 videos: 5 in-dist, 5 ood-dist) -->
+      <div id="towel" style="display: none; text-align:center; margin-top: 1rem;">
+        <h4 class="title is-5">Towel (In-Distribution)</h4>
+        <!-- 5 in_dist videos -->
+        <video autoplay muted playsinline loop style="width:30%; margin:0.5rem;">
+          <source src="./static/videos/in_towel/intowel1.mov" type="video/mp4">
+        </video>
+        <video autoplay muted playsinline loop style="width:30%; margin:0.5rem;">
+          <source src="./static/videos/in_towel/intowel2.mp4" type="video/mp4">
+        </video>
+        <video autoplay muted playsinline loop style="width:30%; margin:0.5rem;">
+          <source src="./static/videos/in_towel/intowel3.mov" type="video/mp4">
+        </video>
+        <video autoplay muted playsinline loop style="width:30%; margin:0.5rem;">
+          <source src="./static/videos/in_towel/intowel4.mov" type="video/mp4">
+        </video>
+        <video autoplay muted playsinline loop style="width:30%; margin:0.5rem;">
+          <source src="./static/videos/in_towel/intowel5.mov" type="video/mp4">
+        </video>
+
+        <h4 class="title is-5" style="margin-top:2rem;">Towel (Out-of-Distribution)</h4>
+        <!-- 5 ood_dist videos -->
+        <video autoplay muted playsinline loop style="width:30%; margin:0.5rem;">
+          <source src="./static/videos/out_towel/outtowel1.mov" type="video/mp4">
+        </video>
+        <video autoplay muted playsinline loop style="width:30%; margin:0.5rem;">
+          <source src="./static/videos/out_towel/outtowel2.mov" type="video/mp4">
+        </video>
+        <video autoplay muted playsinline loop style="width:30%; margin:0.5rem;">
+          <source src="./static/videos/out_towel/outtowel3.mov" type="video/mp4">
+        </video>
+        <video autoplay muted playsinline loop style="width:30%; margin:0.5rem;">
+          <source src="./static/videos/out_towel/outtowel4.mov" type="video/mp4">
+        </video>
+        <video autoplay muted playsinline loop style="width:30%; margin:0.5rem;">
+          <source src="./static/videos/out_towel/outtowel5.mov" type="video/mp4">
+        </video>
+      </div>
+
+      <!-- PAPER Container (10 videos: 5 in-dist, 5 ood-dist) -->
+      <div id="paper" style="display: none; text-align:center; margin-top: 1rem;">
+        <h4 class="title is-5">Paper (In-Distribution)</h4>
+        <!-- 5 in_dist videos -->
+        <video autoplay muted playsinline loop style="width:30%; margin:0.5rem;">
+          <source src="./static/videos/in_paper/paper1.mov" type="video/mp4">
+        </video>
+        <video autoplay muted playsinline loop style="width:30%; margin:0.5rem;">
+          <source src="./static/videos/in_paper/paper2.mov" type="video/mp4">
+        </video>
+        <video autoplay muted playsinline loop style="width:30%; margin:0.5rem;">
+          <source src="./static/videos/in_paper/paper3.mov" type="video/mp4">
+        </video>
+        <video autoplay muted playsinline loop style="width:30%; margin:0.5rem;">
+          <source src="./static/videos/in_paper/paper4.mov" type="video/mp4">
+        </video>
+        <video autoplay muted playsinline loop style="width:30%; margin:0.5rem;">
+          <source src="./static/videos/in_paper/paper5.mov" type="video/mp4">
+        </video>
+
+        <h4 class="title is-5" style="margin-top:2rem;">Paper (Out-of-Distribution)</h4>
+        <!-- 5 ood_dist videos -->
+        <video autoplay muted playsinline loop style="width:30%; margin:0.5rem;">
+          <source src="./static/videos/ood_paper/paper1.mov" type="video/mp4">
+        </video>
+        <video autoplay muted playsinline loop style="width:30%; margin:0.5rem;">
+          <source src="./static/videos/ood_paper/paper2.mov" type="video/mp4">
+        </video>
+        <video autoplay muted playsinline loop style="width:30%; margin:0.5rem;">
+          <source src="./static/videos/ood_paper/paper3.mov" type="video/mp4">
+        </video>
+        <video autoplay muted playsinline loop style="width:30%; margin:0.5rem;">
+          <source src="./static/videos/ood_paper/paper4.mov" type="video/mp4">
+        </video>
+        <video autoplay muted playsinline loop style="width:30%; margin:0.5rem;">
+          <source src="./static/videos/ood_paper/paper5.mov" type="video/mp4">
+        </video>
+      </div>
+
+      <!-- BLOCK Container (10 videos: 5 in-dist, 5 ood-dist) -->
+      <div id="block" style="display: none; text-align:center; margin-top: 1rem;">
+        <h4 class="title is-5">Block (In-Distribution)</h4>
+        <!-- 5 in_dist videos -->
+        <video autoplay muted playsinline loop style="width:30%; margin:0.5rem;">
+          <source src="./static/videos/in_block/block1.mov" type="video/mp4">
+        </video>
+        <video autoplay muted playsinline loop style="width:30%; margin:0.5rem;">
+          <source src="./static/videos/in_block/block2.mov" type="video/mp4">
+        </video>
+        <video autoplay muted playsinline loop style="width:30%; margin:0.5rem;">
+          <source src="./static/videos/in_block/block3.mov" type="video/mp4">
+        </video>
+        <video autoplay muted playsinline loop style="width:30%; margin:0.5rem;">
+          <source src="./static/videos/in_block/block4.mov" type="video/mp4">
+        </video>
+        <video autoplay muted playsinline loop style="width:30%; margin:0.5rem;">
+          <source src="./static/videos/in_block/block5.mov" type="video/mp4">
+        </video>
+
+        <h4 class="title is-5" style="margin-top:2rem;">Block (Out-of-Distribution)</h4>
+        <!-- 5 ood_dist videos -->
+        <video autoplay muted playsinline loop style="width:30%; margin:0.5rem;">
+          <source src="./static/videos/ood_block/block1.mov" type="video/mp4">
+        </video>
+        <video autoplay muted playsinline loop style="width:30%; margin:0.5rem;">
+          <source src="./static/videos/ood_block/block2.mov" type="video/mp4">
+        </video>
+        <video autoplay muted playsinline loop style="width:30%; margin:0.5rem;">
+          <source src="./static/videos/ood_block/block3.mov" type="video/mp4">
+        </video>
+        <video autoplay muted playsinline loop style="width:30%; margin:0.5rem;">
+          <source src="./static/videos/ood_block/block4.mov" type="video/mp4">
+        </video>
+        <video autoplay muted playsinline loop style="width:30%; margin:0.5rem;">
+          <source src="./static/videos/ood_block/block5.mov" type="video/mp4">
+        </video>
+      </div>
+
+
+      <!-- BOWL Container (10 videos: 5 in-dist, 5 ood-dist) -->
+      <div id="bowl" style="display: none; text-align:center; margin-top: 1rem;">
+        <h4 class="title is-5">Bowl (In-Distribution)</h4>
+        <!-- 5 in_dist videos -->
+        <video autoplay muted playsinline loop style="width:30%; margin:0.5rem;">
+          <source src="./static/videos/in_bowl/bowl1.mov" type="video/mp4">
+        </video>
+        <video autoplay muted playsinline loop style="width:30%; margin:0.5rem;">
+          <source src="./static/videos/in_bowl/bowl2.mov" type="video/mp4">
+        </video>
+        <video autoplay muted playsinline loop style="width:30%; margin:0.5rem;">
+          <source src="./static/videos/in_bowl/bowl3.mov" type="video/mp4">
+        </video>
+        <video autoplay muted playsinline loop style="width:30%; margin:0.5rem;">
+          <source src="./static/videos/in_bowl/bowl4.mov" type="video/mp4">
+        </video>
+        <video autoplay muted playsinline loop style="width:30%; margin:0.5rem;">
+          <source src="./static/videos/in_bowl/bowl5.mov" type="video/mp4">
+        </video>
+
+        <h4 class="title is-5" style="margin-top:2rem;">Bowl (Out-of-Distribution)</h4>
+        <!-- 5 ood_dist videos -->
+        <video autoplay muted playsinline loop style="width:30%; margin:0.5rem;">
+          <source src="./static/videos/ood_bowl/bowl1.mov" type="video/mp4">
+        </video>
+        <video autoplay muted playsinline loop style="width:30%; margin:0.5rem;">
+          <source src="./static/videos/ood_bowl/bowl2.mov" type="video/mp4">
+        </video>
+        <video autoplay muted playsinline loop style="width:30%; margin:0.5rem;">
+          <source src="./static/videos/ood_bowl/bowl3.mov" type="video/mp4">
+        </video>
+        <video autoplay muted playsinline loop style="width:30%; margin:0.5rem;">
+          <source src="./static/videos/ood_bowl/bowl4.mov" type="video/mp4">
+        </video>
+        <video autoplay muted playsinline loop style="width:30%; margin:0.5rem;">
+          <source src="./static/videos/ood_bowl/bowl5.mov" type="video/mp4">
+        </video>
+      </div>
+
+      <!-- Optional table or figure for Real Robot results -->
+      <p class="has-text-centered">
+        <img src="./static/images/real_robot.png" style="width:100%;" alt="Real Robot Results Table">
+      </p>
+
+      <!-- Subsection: Simulation Experiments -->
+      <h3 class="title is-5 mt-5">Simulation Experiments</h3>
+      <div class="content has-text-justified">
+        <p>
+          To further evaluate <strong>UWM</strong>'s robustness and scalability, we test it on
+          <strong>LIBERO</strong>,
+          a challenging robotic manipulation benchmark with diverse tasks.
+          We analyze UWM’s generalization across different object interactions and environment setups.
+        </p>
+        <p>
+          The LIBERO benchmark contains 100 robotic manipulation tasks, from which we use <strong>five
+            distinct evaluation tasks</strong> to assess UWM’s ability to generalize.
+        </p>
+      </div>
+
+      <div class="columns is-mobile is-centered">
+        <div class="column is-one-fifth" style="text-align:center;">
+          <video autoplay muted loop playsinline style="width:100%;">
+            <source src="./static/videos/libero/1.mp4" type="video/mp4">
+          </video>
+        </div>
+        <div class="column is-one-fifth" style="text-align:center;">
+          <video autoplay muted loop playsinline style="width:100%;">
+            <source src="./static/videos/libero/2.mp4" type="video/mp4">
+          </video>
+        </div>
+        <div class="column is-one-fifth" style="text-align:center;">
+          <video autoplay muted loop playsinline style="width:100%;">
+            <source src="./static/videos/libero/3.mp4" type="video/mp4">
+          </video>
+        </div>
+        <div class="column is-one-fifth" style="text-align:center;">
+          <video autoplay muted loop playsinline style="width:100%;">
+            <source src="./static/videos/libero/4.mp4" type="video/mp4">
+          </video>
+        </div>
+        <div class="column is-one-fifth" style="text-align:center;">
+          <video autoplay muted loop playsinline style="width:100%;">
+            <source src="./static/videos/libero/5.mp4" type="video/mp4">
+          </video>
+        </div>
+      </div>
+
+  </section>
+  <div class="hr"></div>
+
+  <!-- Script for toggling videos -->
+  <script>
+    function showExperiment(name) {
+      // Hide all
+      document.getElementById('rice').style.display = 'none';
+      document.getElementById('towel').style.display = 'none';
+      document.getElementById('paper').style.display = 'none';
+      document.getElementById('bowl').style.display = 'none';
+      document.getElementById('block').style.display = 'none';
+
+      // Show the selected experiment
+      document.getElementById(name).style.display = 'block';
+    }
+  </script>
+
+
+  <div class="hr"></div>
+
+
+  <div class="hr"></div>
+
+  <!-- Team Section -->
+  <section class="section" id="team">
+    <div class="container is-max-desktop">
+      <h2 class="title is-3 has-text-centered">Team</h2>
+
+      <div class="columns is-multiline is-centered has-text-centered">
+
+        <!-- Team Member 1: Chuning Zhu -->
+        <div class="column is-one-third">
+          <figure class="image" style="margin: 0 auto;">
+            <a href="https://homes.cs.washington.edu/~zchuning/" target="_blank" rel="noopener">
+              <img src="./static/images/chuning.jpg" alt="Chuning Zhu" class="team-photo">
+            </a>
+          </figure>
+          <p class="mt-2"><strong>Chuning Zhu</strong></p>
+          <p class="is-size-7">University of Washington</p>
+        </div>
+
+        <!-- Team Member 2: Raymond Yu -->
+        <div class="column is-one-third">
+          <figure class="image" style="margin: 0 auto;">
+            <a href="https://raymondyu5.github.io/" target="_blank" rel="noopener">
+              <img src="./static/images/raymond.png" alt="Raymond Yu" class="team-photo">
+            </a>
+          </figure>
+          <p class="mt-2"><strong>Raymond Yu</strong></p>
+          <p class="is-size-7">University of Washington</p>
+        </div>
+
+        <!-- Team Member 3: Siyuan Feng -->
+        <div class="column is-one-third">
+          <figure class="image" style="margin: 0 auto;">
+            <a href="https://syfeng.net/" target="_blank" rel="noopener">
+              <img src="./static/images/sfeng.jpg" alt="Siyuan Feng" class="team-photo">
+            </a>
+          </figure>
+          <p class="mt-2"><strong>Siyuan Feng</strong></p>
+          <p class="is-size-7">Toyota Research Institute</p>
+        </div>
+
+        <!-- Team Member 4: Benjamin Burchfiel -->
+        <div class="column is-one-third">
+          <figure class="image" style="margin: 0 auto;">
+            <a href="https://scholar.google.com/citations?user=eGoTK1YAAAAJ&hl=en" target="_blank" rel="noopener">
+              <img src="./static/images/benjamin.jpg" alt="Benjamin Burchfiel" class="team-photo">
+            </a>
+          </figure>
+          <p class="mt-2"><strong>Benjamin Burchfiel</strong></p>
+          <p class="is-size-7">Toyota Research Institute</p>
+        </div>
+
+        <!-- Team Member 5: Paarth Shah -->
+        <div class="column is-one-third">
+          <figure class="image" style="margin: 0 auto;">
+            <a href="https://www.paarthshah.me/about" target="_blank" rel="noopener">
+              <img src="./static/images/paarth.jpeg" alt="Paarth Shah" class="team-photo">
+            </a>
+          </figure>
+          <p class="mt-2"><strong>Paarth Shah</strong></p>
+          <p class="is-size-7">Toyota Research Institute</p>
+        </div>
+
+        <!-- Team Member 6: Abhishek Gupta -->
+        <div class="column is-one-third">
+          <figure class="image" style="margin: 0 auto;">
+            <a href="https://homes.cs.washington.edu/~abhgupta/" target="_blank" rel="noopener">
+              <img src="./static/images/abhgupta.jpeg" alt="Abhishek Gupta" class="team-photo">
+            </a>
+          </figure>
+          <p class="mt-2"><strong>Abhishek Gupta</strong></p>
+          <p class="is-size-7">University of Washington</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+
+  <style>
+    .team-photo {
+      width: 128px !important;
+      height: 128px !important;
+      border-radius: 50% !important;
+      object-fit: cover !important;
+      display: block !important;
+    }
+
+    .team-photo {
+      width: 128px;
+      height: 128px;
+      border-radius: 50%;
+      object-fit: cover;
+      /* crops to the center */
+    }
+
+    .mt-2 {
+      margin-top: 0.5rem;
+      /* minor top spacing for the name */
+    }
+  </style>
+
+
+  <section class="section" id="BibTeX">
+    <div class="container is-max-desktop content">
+      <h2 class="title has-text-centered">BibTeX</h2>
+      <pre><code>@article{zhu2025uwm,
+        author    = {Chuning Zhu and Raymond Yu and Siyuan Feng and Benjamin Burchfiel and Paarth Shah and Abhishek Gupta},
+        title     = {Unified World Models: Coupling Video and Action Diffusion for Pretraining on Large Robotic Datasets},
+        booktitle = {TBD},
+        year      = {2025},
+    }</code></pre>
+    </div>
+  </section>
+
+
+
+  <footer class="footer">
+    <div class="container">
+      <div class="columns is-centered">
+        <div class="column is-8">
+          <div class="content has-text-centered">
+            <p>
+              Website template from <a href="https://nerfies.github.io/">Nerfies</a>.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+</body>
+
+</html>

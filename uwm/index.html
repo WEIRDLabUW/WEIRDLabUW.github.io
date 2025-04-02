@@ -182,7 +182,8 @@
         <div class="column is-full-width has-text-justified">
           <h3 class="title is-5"></h3>
           <div class="content has-text-justified">
-            <img src="./static/images/training_policy.png" class="inline-figure" style="width:100%" alt="Learning DiSPOs." />
+            <img src="./static/images/training_policy.png" class="inline-figure" style="width:100%"
+              alt="Learning DiSPOs." />
           </div>
           <div class="content has-text-justified">
             <p>
@@ -251,7 +252,7 @@
       <!-- Buttons for Real Robot tasks -->
       <div class="content has-text-centered">
         <button class="button custom-btn-gradient" onclick="showExperiment('rice')">
-         Cook-Rice 
+          Cook-Rice
         </button>
         <button class="button custom-btn-gradient" onclick="showExperiment('towel')">
           Hang-Towel
@@ -270,184 +271,279 @@
       <!-- Rice Container (5 videos: 5 in-dist) -->
       <div id="rice" style="display: block; text-align:center; margin-top: 1rem;">
         <h4 class="title is-5">Rice (In-Distribution)</h4>
-        <!-- 5 in_dist videos -->
-        <video autoplay muted playsinline loop style="width:30%; margin:0.5rem;">
-          <source src="./static/videos/rice/rice1.mp4" type="video/mp4">
-        </video>
-        <video autoplay muted playsinline loop style="width:30%; margin:0.5rem;">
-          <source src="./static/videos/rice/rice2.mp4" type="video/mp4">
-        </video>
-        <video autoplay muted playsinline loop style="width:30%; margin:0.5rem;">
-          <source src="./static/videos/rice/rice3.mp4" type="video/mp4">
-        </video>
-        <video autoplay muted playsinline loop style="width:30%; margin:0.5rem;">
-          <source src="./static/videos/rice/rice4.mp4" type="video/mp4">
-        </video>
-        <video autoplay muted playsinline loop style="width:30%; margin:0.5rem;">
-          <source src="./static/videos/rice/rice5.mp4" type="video/mp4">
-        </video>
+        <div class="columns is-mobile is-centered">
+          <div class="column is-one-fifth" style="text-align:center;">
+            <video autoplay muted loop playsinline class="video-hover">
+              <source src="./static/videos/rice/rice1.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div class="column is-one-fifth" style="text-align:center;">
+            <video autoplay muted loop playsinline class="video-hover">
+              <source src="./static/videos/rice/rice2.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div class="column is-one-fifth" style="text-align:center;">
+            <video autoplay muted loop playsinline class="video-hover">
+              <source src="./static/videos/rice/rice3.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div class="column is-one-fifth" style="text-align:center;">
+            <video autoplay muted loop playsinline class="video-hover">
+              <source src="./static/videos/rice/rice4.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div class="column is-one-fifth" style="text-align:center;">
+            <video autoplay muted loop playsinline class="video-hover">
+              <source src="./static/videos/rice/rice5.mp4" type="video/mp4">
+            </video>
+          </div>
+        </div>
       </div>
 
       <!-- Towel Container (10 videos: 5 in-dist, 5 ood-dist) -->
       <div id="towel" style="display: none; text-align:center; margin-top: 1rem;">
         <h4 class="title is-5">Towel (In-Distribution)</h4>
-        <!-- 5 in_dist videos -->
-        <video autoplay muted playsinline loop style="width:30%; margin:0.5rem;">
-          <source src="./static/videos/in_towel/intowel1.mp4" type="video/mp4">
-        </video>
-        <video autoplay muted playsinline loop style="width:30%; margin:0.5rem;">
-          <source src="./static/videos/in_towel/intowel2.mp4" type="video/mp4">
-        </video>
-        <video autoplay muted playsinline loop style="width:30%; margin:0.5rem;">
-          <source src="./static/videos/in_towel/intowel3.mp4" type="video/mp4">
-        </video>
-        <video autoplay muted playsinline loop style="width:30%; margin:0.5rem;">
-          <source src="./static/videos/in_towel/intowel4.mp4" type="video/mp4">
-        </video>
-        <video autoplay muted playsinline loop style="width:30%; margin:0.5rem;">
-          <source src="./static/videos/in_towel/intowel5.mp4" type="video/mp4">
-        </video>
-
+        <div class="columns is-mobile is-centered">
+          <div class="column is-one-fifth" style="text-align:center;">
+            <video autoplay muted loop playsinline class="video-hover">
+              <source src="./static/videos/in_towel/intowel1.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div class="column is-one-fifth" style="text-align:center;">
+            <video autoplay muted loop playsinline class="video-hover">
+              <source src="./static/videos/in_towel/intowel2.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div class="column is-one-fifth" style="text-align:center;">
+            <video autoplay muted loop playsinline class="video-hover">
+              <source src="./static/videos/in_towel/intowel3.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div class="column is-one-fifth" style="text-align:center;">
+            <video autoplay muted loop playsinline class="video-hover">
+              <source src="./static/videos/in_towel/intowel4.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div class="column is-one-fifth" style="text-align:center;">
+            <video autoplay muted loop playsinline class="video-hover">
+              <source src="./static/videos/in_towel/intowel5.mp4" type="video/mp4">
+            </video>
+          </div>
+        </div>
         <h4 class="title is-5" style="margin-top:2rem;">Towel (Out-of-Distribution)</h4>
-        <!-- 5 ood_dist videos -->
-        <video autoplay muted playsinline loop style="width:30%; margin:0.5rem;">
-          <source src="./static/videos/out_towel/outtowel1.mp4" type="video/mp4">
-        </video>
-        <video autoplay muted playsinline loop style="width:30%; margin:0.5rem;">
-          <source src="./static/videos/out_towel/outtowel2.mp4" type="video/mp4">
-        </video>
-        <video autoplay muted playsinline loop style="width:30%; margin:0.5rem;">
-          <source src="./static/videos/out_towel/outtowel3.mp4" type="video/mp4">
-        </video>
-        <video autoplay muted playsinline loop style="width:30%; margin:0.5rem;">
-          <source src="./static/videos/out_towel/outtowel4.mp4" type="video/mp4">
-        </video>
-        <video autoplay muted playsinline loop style="width:30%; margin:0.5rem;">
-          <source src="./static/videos/out_towel/outtowel5.mp4" type="video/mp4">
-        </video>
+        <div class="columns is-mobile is-centered">
+          <div class="column is-one-fifth" style="text-align:center;">
+            <video autoplay muted loop playsinline class="video-hover">
+              <source src="./static/videos/out_towel/outtowel1.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div class="column is-one-fifth" style="text-align:center;">
+            <video autoplay muted loop playsinline class="video-hover">
+              <source src="./static/videos/out_towel/outtowel2.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div class="column is-one-fifth" style="text-align:center;">
+            <video autoplay muted loop playsinline class="video-hover">
+              <source src="./static/videos/out_towel/outtowel3.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div class="column is-one-fifth" style="text-align:center;">
+            <video autoplay muted loop playsinline class="video-hover">
+              <source src="./static/videos/out_towel/outtowel4.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div class="column is-one-fifth" style="text-align:center;">
+            <video autoplay muted loop playsinline class="video-hover">
+              <source src="./static/videos/out_towel/outtowel5.mp4" type="video/mp4">
+            </video>
+          </div>
+        </div>
       </div>
+      
 
       <!-- PAPER Container (10 videos: 5 in-dist, 5 ood-dist) -->
       <div id="paper" style="display: none; text-align:center; margin-top: 1rem;">
         <h4 class="title is-5">Paper (In-Distribution)</h4>
-        <!-- 5 in_dist videos -->
-        <video autoplay muted playsinline loop style="width:30%; margin:0.5rem;">
-          <source src="./static/videos/in_paper/paper1.mp4" type="video/mp4">
-        </video>
-        <video autoplay muted playsinline loop style="width:30%; margin:0.5rem;">
-          <source src="./static/videos/in_paper/paper2.mp4" type="video/mp4">
-        </video>
-        <video autoplay muted playsinline loop style="width:30%; margin:0.5rem;">
-          <source src="./static/videos/in_paper/paper3.mp4" type="video/mp4">
-        </video>
-        <video autoplay muted playsinline loop style="width:30%; margin:0.5rem;">
-          <source src="./static/videos/in_paper/paper4.mp4" type="video/mp4">
-        </video>
-        <video autoplay muted playsinline loop style="width:30%; margin:0.5rem;">
-          <source src="./static/videos/in_paper/paper5.mp4" type="video/mp4">
-        </video>
-
+        <div class="columns is-mobile is-centered">
+          <div class="column is-one-fifth" style="text-align:center;">
+            <video autoplay muted loop playsinline class="video-hover">
+              <source src="./static/videos/in_paper/paper1.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div class="column is-one-fifth" style="text-align:center;">
+            <video autoplay muted loop playsinline class="video-hover">
+              <source src="./static/videos/in_paper/paper2.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div class="column is-one-fifth" style="text-align:center;">
+            <video autoplay muted loop playsinline class="video-hover">
+              <source src="./static/videos/in_paper/paper3.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div class="column is-one-fifth" style="text-align:center;">
+            <video autoplay muted loop playsinline class="video-hover">
+              <source src="./static/videos/in_paper/paper4.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div class="column is-one-fifth" style="text-align:center;">
+            <video autoplay muted loop playsinline class="video-hover">
+              <source src="./static/videos/in_paper/paper5.mp4" type="video/mp4">
+            </video>
+          </div>
+        </div>
         <h4 class="title is-5" style="margin-top:2rem;">Paper (Out-of-Distribution)</h4>
-        <!-- 5 ood_dist videos -->
-        <video autoplay muted playsinline loop style="width:30%; margin:0.5rem;">
-          <source src="./static/videos/ood_paper/paper1.mp4" type="video/mp4">
-        </video>
-        <video autoplay muted playsinline loop style="width:30%; margin:0.5rem;">
-          <source src="./static/videos/ood_paper/paper2.mp4" type="video/mp4">
-        </video>
-        <video autoplay muted playsinline loop style="width:30%; margin:0.5rem;">
-          <source src="./static/videos/ood_paper/paper3.mp4" type="video/mp4">
-        </video>
-        <video autoplay muted playsinline loop style="width:30%; margin:0.5rem;">
-          <source src="./static/videos/ood_paper/paper4.mp4" type="video/mp4">
-        </video>
-        <video autoplay muted playsinline loop style="width:30%; margin:0.5rem;">
-          <source src="./static/videos/ood_paper/paper5.mp4" type="video/mp4">
-        </video>
+        <div class="columns is-mobile is-centered">
+          <div class="column is-one-fifth" style="text-align:center;">
+            <video autoplay muted loop playsinline class="video-hover">
+              <source src="./static/videos/ood_paper/paper1.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div class="column is-one-fifth" style="text-align:center;">
+            <video autoplay muted loop playsinline class="video-hover">
+              <source src="./static/videos/ood_paper/paper2.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div class="column is-one-fifth" style="text-align:center;">
+            <video autoplay muted loop playsinline class="video-hover">
+              <source src="./static/videos/ood_paper/paper3.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div class="column is-one-fifth" style="text-align:center;">
+            <video autoplay muted loop playsinline class="video-hover">
+              <source src="./static/videos/ood_paper/paper4.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div class="column is-one-fifth" style="text-align:center;">
+            <video autoplay muted loop playsinline class="video-hover">
+              <source src="./static/videos/ood_paper/paper5.mp4" type="video/mp4">
+            </video>
+          </div>
+        </div>
       </div>
 
       <!-- BLOCK Container (10 videos: 5 in-dist, 5 ood-dist) -->
       <div id="block" style="display: none; text-align:center; margin-top: 1rem;">
         <h4 class="title is-5">Block (In-Distribution)</h4>
-        <!-- 5 in_dist videos -->
-        <video autoplay muted playsinline loop style="width:30%; margin:0.5rem;">
-          <source src="./static/videos/in_block/block1.mp4" type="video/mp4">
-        </video>
-        <video autoplay muted playsinline loop style="width:30%; margin:0.5rem;">
-          <source src="./static/videos/in_block/block2.mp4" type="video/mp4">
-        </video>
-        <video autoplay muted playsinline loop style="width:30%; margin:0.5rem;">
-          <source src="./static/videos/in_block/block3.mp4" type="video/mp4">
-        </video>
-        <video autoplay muted playsinline loop style="width:30%; margin:0.5rem;">
-          <source src="./static/videos/in_block/block4.mp4" type="video/mp4">
-        </video>
-        <video autoplay muted playsinline loop style="width:30%; margin:0.5rem;">
-          <source src="./static/videos/in_block/block5.mp4" type="video/mp4">
-        </video>
-
+        <div class="columns is-mobile is-centered">
+          <div class="column is-one-fifth" style="text-align:center;">
+            <video autoplay muted loop playsinline class="video-hover">
+              <source src="./static/videos/in_block/block1.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div class="column is-one-fifth" style="text-align:center;">
+            <video autoplay muted loop playsinline class="video-hover">
+              <source src="./static/videos/in_block/block2.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div class="column is-one-fifth" style="text-align:center;">
+            <video autoplay muted loop playsinline class="video-hover">
+              <source src="./static/videos/in_block/block3.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div class="column is-one-fifth" style="text-align:center;">
+            <video autoplay muted loop playsinline class="video-hover">
+              <source src="./static/videos/in_block/block4.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div class="column is-one-fifth" style="text-align:center;">
+            <video autoplay muted loop playsinline class="video-hover">
+              <source src="./static/videos/in_block/block5.mp4" type="video/mp4">
+            </video>
+          </div>
+        </div>
         <h4 class="title is-5" style="margin-top:2rem;">Block (Out-of-Distribution)</h4>
-        <!-- 5 ood_dist videos -->
-        <video autoplay muted playsinline loop style="width:30%; margin:0.5rem;">
-          <source src="./static/videos/ood_block/block1.mp4" type="video/mp4">
-        </video>
-        <video autoplay muted playsinline loop style="width:30%; margin:0.5rem;">
-          <source src="./static/videos/ood_block/block2.mp4" type="video/mp4">
-        </video>
-        <video autoplay muted playsinline loop style="width:30%; margin:0.5rem;">
-          <source src="./static/videos/ood_block/block3.mp4" type="video/mp4">
-        </video>
-        <video autoplay muted playsinline loop style="width:30%; margin:0.5rem;">
-          <source src="./static/videos/ood_block/block4.mp4" type="video/mp4">
-        </video>
-        <video autoplay muted playsinline loop style="width:30%; margin:0.5rem;">
-          <source src="./static/videos/ood_block/block5.mp4" type="video/mp4">
-        </video>
+        <div class="columns is-mobile is-centered">
+          <div class="column is-one-fifth" style="text-align:center;">
+            <video autoplay muted loop playsinline class="video-hover">
+              <source src="./static/videos/ood_block/block1.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div class="column is-one-fifth" style="text-align:center;">
+            <video autoplay muted loop playsinline class="video-hover">
+              <source src="./static/videos/ood_block/block2.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div class="column is-one-fifth" style="text-align:center;">
+            <video autoplay muted loop playsinline class="video-hover">
+              <source src="./static/videos/ood_block/block3.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div class="column is-one-fifth" style="text-align:center;">
+            <video autoplay muted loop playsinline class="video-hover">
+              <source src="./static/videos/ood_block/block4.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div class="column is-one-fifth" style="text-align:center;">
+            <video autoplay muted loop playsinline class="video-hover">
+              <source src="./static/videos/ood_block/block5.mp4" type="video/mp4">
+            </video>
+          </div>
+        </div>
       </div>
 
 
-      <!-- BOWL Container (10 videos: 5 in-dist, 5 ood-dist) -->
       <div id="bowl" style="display: none; text-align:center; margin-top: 1rem;">
         <h4 class="title is-5">Bowl (In-Distribution)</h4>
-        <!-- 5 in_dist videos -->
-        <video autoplay muted playsinline loop style="width:30%; margin:0.5rem;">
-          <source src="./static/videos/in_bowl/bowl1.mp4" type="video/mp4">
-        </video>
-        <video autoplay muted playsinline loop style="width:30%; margin:0.5rem;">
-          <source src="./static/videos/in_bowl/bowl2.mp4" type="video/mp4">
-        </video>
-        <video autoplay muted playsinline loop style="width:30%; margin:0.5rem;">
-          <source src="./static/videos/in_bowl/bowl3.mp4" type="video/mp4">
-        </video>
-        <video autoplay muted playsinline loop style="width:30%; margin:0.5rem;">
-          <source src="./static/videos/in_bowl/bowl4.mp4" type="video/mp4">
-        </video>
-        <video autoplay muted playsinline loop style="width:30%; margin:0.5rem;">
-          <source src="./static/videos/in_bowl/bowl5.mp4" type="video/mp4">
-        </video>
-
+        <div class="columns is-mobile is-centered">
+          <div class="column is-one-fifth" style="text-align:center;">
+            <video autoplay muted loop playsinline class="video-hover">
+              <source src="./static/videos/in_bowl/bowl1.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div class="column is-one-fifth" style="text-align:center;">
+            <video autoplay muted loop playsinline class="video-hover">
+              <source src="./static/videos/in_bowl/bowl2.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div class="column is-one-fifth" style="text-align:center;">
+            <video autoplay muted loop playsinline class="video-hover">
+              <source src="./static/videos/in_bowl/bowl3.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div class="column is-one-fifth" style="text-align:center;">
+            <video autoplay muted loop playsinline class="video-hover">
+              <source src="./static/videos/in_bowl/bowl4.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div class="column is-one-fifth" style="text-align:center;">
+            <video autoplay muted loop playsinline class="video-hover">
+              <source src="./static/videos/in_bowl/bowl5.mp4" type="video/mp4">
+            </video>
+          </div>
+        </div>
         <h4 class="title is-5" style="margin-top:2rem;">Bowl (Out-of-Distribution)</h4>
-        <!-- 5 ood_dist videos -->
-        <video autoplay muted playsinline loop style="width:30%; margin:0.5rem;">
-          <source src="./static/videos/ood_bowl/bowl1.mp4" type="video/mp4">
-        </video>
-        <video autoplay muted playsinline loop style="width:30%; margin:0.5rem;">
-          <source src="./static/videos/ood_bowl/bowl2.mp4" type="video/mp4">
-        </video>
-        <video autoplay muted playsinline loop style="width:30%; margin:0.5rem;">
-          <source src="./static/videos/ood_bowl/bowl3.mp4" type="video/mp4">
-        </video>
-        <video autoplay muted playsinline loop style="width:30%; margin:0.5rem;">
-          <source src="./static/videos/ood_bowl/bowl4.mp4" type="video/mp4">
-        </video>
-        <video autoplay muted playsinline loop style="width:30%; margin:0.5rem;">
-          <source src="./static/videos/ood_bowl/bowl5.mp4" type="video/mp4">
-        </video>
+        <div class="columns is-mobile is-centered">
+          <div class="column is-one-fifth" style="text-align:center;">
+            <video autoplay muted loop playsinline class="video-hover">
+              <source src="./static/videos/ood_bowl/bowl1.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div class="column is-one-fifth" style="text-align:center;">
+            <video autoplay muted loop playsinline class="video-hover">
+              <source src="./static/videos/ood_bowl/bowl2.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div class="column is-one-fifth" style="text-align:center;">
+            <video autoplay muted loop playsinline class="video-hover">
+              <source src="./static/videos/ood_bowl/bowl3.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div class="column is-one-fifth" style="text-align:center;">
+            <video autoplay muted loop playsinline class="video-hover">
+              <source src="./static/videos/ood_bowl/bowl4.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div class="column is-one-fifth" style="text-align:center;">
+            <video autoplay muted loop playsinline class="video-hover">
+              <source src="./static/videos/ood_bowl/bowl5.mp4" type="video/mp4">
+            </video>
+          </div>
+        </div>
       </div>
 
       <!-- Optional table or figure for Real Robot results -->
       <p class="has-text-centered">
-        <img src="./static/images/real_robot.png" style="width:100%;" alt="Real Robot Results Table">
+        <img src="./static/images/results.png" style="width:100%;" alt="Real Robot Results Table">
       </p>
 
       <!-- Subsection: Simulation Experiments -->

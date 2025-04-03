@@ -182,8 +182,7 @@
         <div class="column is-full-width has-text-justified">
           <h3 class="title is-5"></h3>
           <div class="content has-text-justified">
-            <img src="./static/images/training_policy.png" class="inline-figure" style="width:100%"
-              alt="Learning DiSPOs." />
+            <img src="./static/images/training.png" class="inline-figure" style="width:100%" alt="UWMs" />
           </div>
           <div class="content has-text-justified">
             <p>
@@ -200,7 +199,7 @@
           </div>
           <h3 class="title is-5">Unified Training With & Without Actions</h3>
           <div class="content has-text-centered">
-            <img src="./static/images/dataset.png" class="inline-figure" style="width:100%" alt="Learning DiSPOs." />
+            <img src="./static/images/droid.png" class="inline-figure" style="width:70%" alt="" />
           </div>
           <div class="content has-text-justified">
             <p>
@@ -224,10 +223,24 @@
               a large and diverse set of robotic trajectories that offers multi-environment coverage
               and varied manipulation tasks.
               <em>See the paper for more details on dataset composition and preprocessing.</em>
-
             </p>
           </div>
-        </div>
+          <h3 class="title is-5">Forward Dynamics via Video Diffusion</h3>
+          <div class="content has-text-justified">
+            <p>
+              One of the core capabilities of UWM is modeling <strong>forward dynamics</strong>, that is, predicting how the environment changes given the current observation and action.
+              We achieve this by setting the <em>action diffusion timestep to zero</em>, effectively conditioning on the true action,
+              and allowing the <em>video diffusion</em> process to denoise the future frame.
+              This enables UWM to forecast plausible next observations, grounded in both action and visual context.
+            </p>
+          </div>
+          <div class="content has-text-centered">
+            <img src="./static/images/forward.png" class="inline-figure" style="width:60%" alt="" />
+          </div>
+          <p>
+            Above is an example of forward prediction from UWM, shown in both simulation in the top row and the real world in the bottom row.
+          </p>
+          
       </div>
     </div>
   </section>
@@ -245,26 +258,26 @@
         <p>
           We evaluate <strong>Unified World Models (UWM)</strong> on diverse real-world tasks, each demanding
           precise control and robust generalization. Training combines demonstrations with action-free
-          videos, allowing UWM to learn both policy and environment dynamics.
+          videos from DROID, allowing UWM to learn both policy and environment dynamics.
         </p>
       </div>
 
       <!-- Buttons for Real Robot tasks -->
       <div class="content has-text-centered">
         <button class="button custom-btn-gradient" onclick="showExperiment('rice')">
-          Cook-Rice
+          Rice-Cooker
         </button>
         <button class="button custom-btn-gradient" onclick="showExperiment('towel')">
           Hang-Towel
         </button>
         <button class="button custom-btn-gradient" onclick="showExperiment('paper')">
-          Refill-Paper-Towels
+          Paper-Towel
         </button>
         <button class="button custom-btn-gradient" onclick="showExperiment('bowl')">
           Stack-Bowls
         </button>
         <button class="button custom-btn-gradient" onclick="showExperiment('block')">
-          Place-Block
+          Block-Cabinet
         </button>
       </div>
 
@@ -359,7 +372,7 @@
           </div>
         </div>
       </div>
-      
+
 
       <!-- PAPER Container (10 videos: 5 in-dist, 5 ood-dist) -->
       <div id="paper" style="display: none; text-align:center; margin-top: 1rem;">
@@ -543,7 +556,7 @@
 
       <!-- Optional table or figure for Real Robot results -->
       <p class="has-text-centered">
-        <img src="./static/images/results.png" style="width:100%;" alt="Real Robot Results Table">
+        <img src="./static/images/results.png" style="width:110%;" alt="Real Robot Results Table">
       </p>
 
       <!-- Subsection: Simulation Experiments -->
@@ -561,32 +574,72 @@
         </p>
       </div>
 
-      <div class="columns is-mobile is-centered">
-        <div class="column is-one-fifth" style="text-align:center;">
-          <video autoplay muted loop playsinline style="width:100%;">
-            <source src="./static/videos/libero/1.mp4" type="video/mp4">
-          </video>
+      <div class="container is-max-desktop" style="margin-top: 2rem;">
+        <h4 class="title is-5 has-text-centered">LIBERO (Simulation)</h4>
+
+        <!-- Top row with labels -->
+        <div class="columns is-mobile is-centered has-text-centered">
+          <div class="column is-one-fifth">
+            <p><strong>Soup-Cheese</strong></p>
+            <video autoplay muted loop playsinline class="video-hover">
+              <source src="./static/videos/libero/1.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div class="column is-one-fifth">
+            <p><strong>Book-Caddy</strong></p>
+            <video autoplay muted loop playsinline class="video-hover">
+              <source src="./static/videos/libero/2.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div class="column is-one-fifth">
+            <p><strong>Bowl-Drawer</strong></p>
+            <video autoplay muted loop playsinline class="video-hover">
+              <source src="./static/videos/libero/3.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div class="column is-one-fifth">
+            <p><strong>Mug-Mug</strong></p>
+            <video autoplay muted loop playsinline class="video-hover">
+              <source src="./static/videos/libero/4.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div class="column is-one-fifth">
+            <p><strong>Moka-Moka</strong></p>
+            <video autoplay muted loop playsinline class="video-hover">
+              <source src="./static/videos/libero/5.mp4" type="video/mp4">
+            </video>
+          </div>
         </div>
-        <div class="column is-one-fifth" style="text-align:center;">
-          <video autoplay muted loop playsinline style="width:100%;">
-            <source src="./static/videos/libero/2.mp4" type="video/mp4">
-          </video>
+        <div class="columns is-mobile is-centered">
+          <div class="column is-one-fifth" style="text-align:center;">
+            <video autoplay muted loop playsinline class="video-hover">
+              <source src="./static/videos/libero/11.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div class="column is-one-fifth" style="text-align:center;">
+            <video autoplay muted loop playsinline class="video-hover">
+              <source src="./static/videos/libero/22.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div class="column is-one-fifth" style="text-align:center;">
+            <video autoplay muted loop playsinline class="video-hover">
+              <source src="./static/videos/libero/33.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div class="column is-one-fifth" style="text-align:center;">
+            <video autoplay muted loop playsinline class="video-hover">
+              <source src="./static/videos/libero/44.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div class="column is-one-fifth" style="text-align:center;">
+            <video autoplay muted loop playsinline class="video-hover">
+              <source src="./static/videos/libero/55.mp4" type="video/mp4">
+            </video>
+          </div>
         </div>
-        <div class="column is-one-fifth" style="text-align:center;">
-          <video autoplay muted loop playsinline style="width:100%;">
-            <source src="./static/videos/libero/3.mp4" type="video/mp4">
-          </video>
-        </div>
-        <div class="column is-one-fifth" style="text-align:center;">
-          <video autoplay muted loop playsinline style="width:100%;">
-            <source src="./static/videos/libero/4.mp4" type="video/mp4">
-          </video>
-        </div>
-        <div class="column is-one-fifth" style="text-align:center;">
-          <video autoplay muted loop playsinline style="width:100%;">
-            <source src="./static/videos/libero/5.mp4" type="video/mp4">
-          </video>
-        </div>
+        <p class="has-text-centered">
+          <img src="./static/images/libero_table.png" style="width:90%;" alt="Sim Results Table">
+        </p>
       </div>
 
   </section>
@@ -622,97 +675,86 @@
 
         <!-- Team Member 1: Chuning Zhu -->
         <div class="column is-one-third">
-          <figure class="image" style="margin: 0 auto;">
-            <a href="https://homes.cs.washington.edu/~zchuning/" target="_blank" rel="noopener">
-              <img src="./static/images/chuning.jpg" alt="Chuning Zhu" class="team-photo">
-            </a>
-          </figure>
-          <p class="mt-2"><strong>Chuning Zhu</strong></p>
-          <p class="is-size-7">University of Washington</p>
+          <div class="has-text-centered">
+            <figure class="image is-inline-block">
+              <a href="https://homes.cs.washington.edu/~zchuning/" target="_blank" rel="noopener">
+                <img src="./static/images/chuning.jpg" alt="Chuning Zhu" class="team-photo">
+              </a>
+            </figure>
+            <p class="mt-2"><strong>Chuning Zhu</strong></p>
+            <p class="is-size-7">University of Washington</p>
+          </div>
         </div>
 
         <!-- Team Member 2: Raymond Yu -->
         <div class="column is-one-third">
-          <figure class="image" style="margin: 0 auto;">
-            <a href="https://raymondyu5.github.io/" target="_blank" rel="noopener">
-              <img src="./static/images/raymond.png" alt="Raymond Yu" class="team-photo">
-            </a>
-          </figure>
-          <p class="mt-2"><strong>Raymond Yu</strong></p>
-          <p class="is-size-7">University of Washington</p>
+          <div class="has-text-centered">
+            <figure class="image is-inline-block">
+              <a href="https://raymondyu5.github.io/" target="_blank" rel="noopener">
+                <img src="./static/images/raymond.png" alt="Raymond Yu" class="team-photo">
+              </a>
+            </figure>
+            <p class="mt-2"><strong>Raymond Yu</strong></p>
+            <p class="is-size-7">University of Washington</p>
+          </div>
         </div>
 
         <!-- Team Member 3: Siyuan Feng -->
         <div class="column is-one-third">
-          <figure class="image" style="margin: 0 auto;">
-            <a href="https://www.cs.cmu.edu/~sfeng/" target="_blank" rel="noopener">
-              <img src="./static/images/sfeng.jpg" alt="Siyuan Feng" class="team-photo">
-            </a>
-          </figure>
-          <p class="mt-2"><strong>Siyuan Feng</strong></p>
-          <p class="is-size-7">Toyota Research Institute</p>
+          <div class="has-text-centered">
+            <figure class="image is-inline-block">
+              <a href="https://www.cs.cmu.edu/~sfeng/" target="_blank" rel="noopener">
+                <img src="./static/images/sfeng.jpg" alt="Siyuan Feng" class="team-photo">
+              </a>
+            </figure>
+            <p class="mt-2"><strong>Siyuan Feng</strong></p>
+            <p class="is-size-7">Toyota Research Institute</p>
+          </div>
         </div>
 
         <!-- Team Member 4: Benjamin Burchfiel -->
         <div class="column is-one-third">
-          <figure class="image" style="margin: 0 auto;">
-            <a href="https://scholar.google.com/citations?user=eGoTK1YAAAAJ&hl=en" target="_blank" rel="noopener">
-              <img src="./static/images/benjamin.jpg" alt="Benjamin Burchfiel" class="team-photo">
-            </a>
-          </figure>
-          <p class="mt-2"><strong>Benjamin Burchfiel</strong></p>
-          <p class="is-size-7">Toyota Research Institute</p>
+          <div class="has-text-centered">
+            <figure class="image is-inline-block">
+              <a href="https://scholar.google.com/citations?user=eGoTK1YAAAAJ&hl=en" target="_blank" rel="noopener">
+                <img src="./static/images/benjamin.jpg" alt="Benjamin Burchfiel" class="team-photo">
+              </a>
+            </figure>
+            <p class="mt-2"><strong>Benjamin Burchfiel</strong></p>
+            <p class="is-size-7">Toyota Research Institute</p>
+          </div>
         </div>
 
         <!-- Team Member 5: Paarth Shah -->
         <div class="column is-one-third">
-          <figure class="image" style="margin: 0 auto;">
-            <a href="https://www.paarthshah.me/about" target="_blank" rel="noopener">
-              <img src="./static/images/paarth.jpeg" alt="Paarth Shah" class="team-photo">
-            </a>
-          </figure>
-          <p class="mt-2"><strong>Paarth Shah</strong></p>
-          <p class="is-size-7">Toyota Research Institute</p>
+          <div class="has-text-centered">
+            <figure class="image is-inline-block">
+              <a href="https://www.paarthshah.me/about" target="_blank" rel="noopener">
+                <img src="./static/images/paarth.jpeg" alt="Paarth Shah" class="team-photo">
+              </a>
+            </figure>
+            <p class="mt-2"><strong>Paarth Shah</strong></p>
+            <p class="is-size-7">Toyota Research Institute</p>
+          </div>
         </div>
 
         <!-- Team Member 6: Abhishek Gupta -->
         <div class="column is-one-third">
-          <figure class="image" style="margin: 0 auto;">
-            <a href="https://homes.cs.washington.edu/~abhgupta/" target="_blank" rel="noopener">
-              <img src="./static/images/abhgupta.jpeg" alt="Abhishek Gupta" class="team-photo">
-            </a>
-          </figure>
-          <p class="mt-2"><strong>Abhishek Gupta</strong></p>
-          <p class="is-size-7">University of Washington</p>
+          <div class="has-text-centered">
+            <figure class="image is-inline-block">
+              <a href="https://homes.cs.washington.edu/~abhgupta/" target="_blank" rel="noopener">
+                <img src="./static/images/abhgupta.jpeg" alt="Abhishek Gupta" class="team-photo">
+              </a>
+            </figure>
+            <p class="mt-2"><strong>Abhishek Gupta</strong></p>
+            <p class="is-size-7">University of Washington</p>
+          </div>
         </div>
 
       </div>
     </div>
   </section>
 
-
-  <style>
-    .team-photo {
-      width: 128px !important;
-      height: 128px !important;
-      border-radius: 50% !important;
-      object-fit: cover !important;
-      display: block !important;
-    }
-
-    .team-photo {
-      width: 128px;
-      height: 128px;
-      border-radius: 50%;
-      object-fit: cover;
-      /* crops to the center */
-    }
-
-    .mt-2 {
-      margin-top: 0.5rem;
-      /* minor top spacing for the name */
-    }
-  </style>
 
 
   <section class="section" id="BibTeX">

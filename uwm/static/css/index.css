@@ -237,3 +237,24 @@ img.inline-figure {
   z-index: 10;
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
 }
+
+.team-photo {
+  width: 128px !important;
+  height: 128px !important;
+  border-radius: 50% !important;
+  object-fit: cover !important;
+  display: block !important;
+}
+
+.team-photo {
+  width: 128px;
+  height: 128px;
+  border-radius: 50%;
+  object-fit: cover;
+  /* crops to the center */
+}
+
+.mt-2 {
+  margin-top: 0.5rem;
+  /* minor top spacing for the name */
+}

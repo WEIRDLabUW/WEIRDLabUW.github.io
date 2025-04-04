@@ -225,24 +225,7 @@
               <em>See the paper for more details on dataset composition and preprocessing.</em>
             </p>
           </div>
-          <h3 class="title is-5">Forward Dynamics via Video Diffusion</h3>
-          <div class="content has-text-justified">
-            <p>
-              One of the core capabilities of UWM is modeling <strong>forward dynamics</strong>, that is, predicting how the environment changes given the current observation and action.
-              We achieve this by setting the <em>action diffusion timestep to zero</em>, effectively conditioning on the true action,
-              and allowing the <em>video diffusion</em> process to denoise the future frame.
-              This enables UWM to forecast plausible next observations, grounded in both action and visual context.
-            </p>
-          </div>
-          <div class="content has-text-centered">
-            <img src="./static/images/forward.png" class="inline-figure" style="width:60%" alt="" />
-          </div>
-          <p>
-            Above is an example of forward prediction from UWM, shown in both simulation in the top row and the real world in the bottom row.
-          </p>
-          
       </div>
-    </div>
   </section>
 
   <div class="hr"></div>
@@ -264,25 +247,25 @@
 
       <!-- Buttons for Real Robot tasks -->
       <div class="content has-text-centered">
-        <button class="button custom-btn-gradient" onclick="showExperiment('rice')">
-          Rice-Cooker
-        </button>
-        <button class="button custom-btn-gradient" onclick="showExperiment('towel')">
-          Hang-Towel
-        </button>
-        <button class="button custom-btn-gradient" onclick="showExperiment('paper')">
-          Paper-Towel
-        </button>
         <button class="button custom-btn-gradient" onclick="showExperiment('bowl')">
           Stack-Bowls
         </button>
         <button class="button custom-btn-gradient" onclick="showExperiment('block')">
           Block-Cabinet
         </button>
+        <button class="button custom-btn-gradient" onclick="showExperiment('paper')">
+          Paper-Towel
+        </button>
+        <button class="button custom-btn-gradient" onclick="showExperiment('towel')">
+          Hang-Towel
+        </button>
+        <button class="button custom-btn-gradient" onclick="showExperiment('rice')">
+          Rice-Cooker
+        </button>
       </div>
 
       <!-- Rice Container (5 videos: 5 in-dist) -->
-      <div id="rice" style="display: block; text-align:center; margin-top: 1rem;">
+      <div id="rice" style="display: none; text-align:center; margin-top: 1rem;">
         <h4 class="title is-5">Rice (In-Distribution)</h4>
         <div class="columns is-mobile is-centered">
           <div class="column is-one-fifth" style="text-align:center;">
@@ -495,7 +478,7 @@
       </div>
 
 
-      <div id="bowl" style="display: none; text-align:center; margin-top: 1rem;">
+      <div id="bowl" style="display: block; text-align:center; margin-top: 1rem;">
         <h4 class="title is-5">Bowl (In-Distribution)</h4>
         <div class="columns is-mobile is-centered">
           <div class="column is-one-fifth" style="text-align:center;">
@@ -554,13 +537,103 @@
         </div>
       </div>
 
-      <!-- Optional table or figure for Real Robot results -->
-      <p class="has-text-centered">
-        <img src="./static/images/results.png" style="width:110%;" alt="Real Robot Results Table">
-      </p>
+      <div class="section">
+        <p class="content has-text-justified">
+          UWM outperforms baseline models across all tasks. The graph below shows evaluation results for in-distribution (ID) and out-of-distribution (OOD) settings, under both pretraining and co-training setups.
+        </p>
+        <p class="has-text-centered">
+          <img src="./static/images/results_bar.png" style="width:80%; max-width:960px; border-radius: 8px;" alt="Real Robot Results Table">
+        </p>
+      </div>
+
+      <h3 class="title is-5 mt-4">Categorized OOD Experiments</h3>
+      <div class="content has-text-justified">
+        <p>
+          We performed a series of categorized OOD evaluations covering conditions like lighting, occlusions, and
+          clutter.
+          Below, we show qualitative comparisons between <strong>UWM</strong>, <strong>UWM Co-Trained</strong>, and a
+          standard behavior cloning (<strong>DP</strong>) baseline.
+        </p>
+      </div>
+
+      <!-- Categorized OOD Buttons -->
+      <div class="content has-text-centered mt-6">
+        <button class="button custom-btn-gradient" onclick="showOOD('block')">Block-Cabinet</button>
+        <button class="button custom-btn-gradient" onclick="showOOD('bowl')">Stack-Bowls</button>
+      </div>
+
+      <!-- Categorized OOD Video Containers -->
+      <div id="ood-block" class="columns is-vcentered is-centered mt-6" style="gap: 2rem;">
+        <div class="column is-one-third has-text-centered">
+          <h4 class="title is-5 mb-2" style="font-weight: 700;">UWM Co-Trained</h4>
+          <video autoplay muted loop playsinline class="video-hover"
+          style="width: 100%; max-width: 480px; border-radius: 8px;">
+          <source src="./static/videos/categorized_ood/uwm_cotrained_block_cabinet.MP4" type="video/mp4">
+        </video>
+      </div>
+        <div class="column is-one-third has-text-centered">
+          <h4 class="title is-5 mb-2" style="font-weight: 700;">UWM</h4>
+          <video autoplay muted loop playsinline class="video-hover"
+            style="width: 100%; max-width: 480px; border-radius: 8px;">
+            <source src="./static/videos/categorized_ood/uwm_block_cabinet.MP4" type="video/mp4">
+          </video>
+        </div>
+      <div class="column is-one-third has-text-centered">
+        <h4 class="title is-5 mb-2" style="font-weight: 700;">DP Baseline</h4>
+        <video autoplay muted loop playsinline class="video-hover"
+          style="width: 100%; max-width: 480px; border-radius: 8px;">
+          <source src="./static/videos/categorized_ood/dp_block_cabinet.MP4" type="video/mp4">
+        </video>
+      </div>
+      </div>
+
+      <div id="ood-bowl" class="columns is-vcentered is-centered mt-4" style="gap: 2rem; display: none;">
+        <div class="column is-one-third has-text-centered">
+          <h4 class="title is-5 mb-2" style="font-weight: 700;">DP Baseline</h4>
+          <video autoplay muted loop playsinline class="video-hover"
+            style="width: 100%; max-width: 480px; border-radius: 8px;">
+            <source src="./static/videos/categorized_ood/dp_stack_bowls.MP4" type="video/mp4">
+          </video>
+        </div>
+        <div class="column is-one-third has-text-centered">
+          <h4 class="title is-5 mb-2" style="font-weight: 700;">UWM</h4>
+          <video autoplay muted loop playsinline class="video-hover"
+            style="width: 100%; max-width: 480px; border-radius: 8px;">
+            <source src="./static/videos/categorized_ood/uwm_stack_bowls.MP4" type="video/mp4">
+          </video>
+        </div>
+        <div class="column is-one-third has-text-centered">
+          <h4 class="title is-5 mb-2" style="font-weight: 700;">UWM Co-Trained</h4>
+          <video autoplay muted loop playsinline class="video-hover"
+            style="width: 100%; max-width: 480px; border-radius: 8px;">
+            <source src="./static/videos/categorized_ood/uwm_cotrained_stack_bowls.MP4" type="video/mp4">
+          </video>
+        </div>
+      </div>
+      <div class="section">
+        <p class="content has-text-justified">
+          UWM outperforms baseline models across all tasks. The graph below shows evaluation results for in-distribution (ID) and out-of-distribution (OOD) settings, under both pretraining and co-training setups.
+        </p>
+        <p class="has-text-centered">
+          <img src="./static/images/results_graph.png" style="width:70%; max-width:960px; border-radius: 8px;" alt="Real Robot Results Table">
+        </p>
+      </div>
+
+      <script>
+        function showOOD(task) {
+          document.getElementById('ood-block').style.display = 'none';
+          document.getElementById('ood-bowl').style.display = 'none';
+          document.getElementById('ood-' + task).style.display = 'flex';
+        }
+
+        // Show block-cabinet by default on page load
+        window.onload = function () {
+          showOOD('block');
+        }
+      </script>
 
       <!-- Subsection: Simulation Experiments -->
-      <h3 class="title is-5 mt-5">Simulation Experiments</h3>
+      <h3 class="title is-5 mt-4">Simulation Experiments</h3>
       <div class="content has-text-justified">
         <p>
           To further evaluate <strong>UWM</strong>'s robustness and scalability, we test it on
@@ -641,7 +714,45 @@
           <img src="./static/images/libero_table.png" style="width:90%;" alt="Sim Results Table">
         </p>
       </div>
+      <h3 class="title is-5 mt-4">Forward Dynamics via Video Diffusion</h3>
+      <div class="content has-text-justified">
+        <p>
+          One of the core capabilities of UWM is modeling <strong>forward dynamics</strong>, that is, predicting how
+          the environment changes given the current observation and action.
+          We achieve this by setting the <em>action diffusion timestep to zero</em>, effectively conditioning on the
+          true action,
+          and allowing the <em>video diffusion</em> process to denoise the future frame.
+          This enables UWM to forecast plausible next observations, grounded in both action and visual context.
+        </p>
+      </div>
+      <div class="content has-text-centered">
+        <img src="./static/images/forward.png" class="inline-figure" style="width:60%" alt="" />
+      </div>
+      <p>
+        Above is an example of forward prediction from UWM, shown in both simulation in the top row and the real
+        world in the bottom row.
+      </p>
 
+      <h3 class="title is-5 mt-4">Inverse Dynamics</h3>
+      <div class="content has-text-justified">
+        <p>
+          We evaluate the inverse dynamics mode of UWM on trajectory tracking, where we provide a reference expert trajectory and query the inverse
+          dynamics model to track it. Specifically, we condition the model on consecutive frame pairs and predict the action taken between them.
+        </p>
+        <p>
+          This allows UWM to reproduce expert behavior without relying on a full policy rollout. We test this approach on 50 expert trajectories from the LIBERO dataset.
+          The table below shows success rates for both inverse dynamics tracking and policy rollouts under different time budgets.
+        </p>
+      </div>
+      <div class="content has-text-centered">
+        <img src="./static/images/inverse_table.png" class="inline-figure" style="width:60%; border-radius: 8px;" alt="Inverse Dynamics Table" />
+      </div>
+      <div class="content has-text-justified">
+        <p>
+          We observe that given the same time limit as the trajectory length, the inverse dynamics model achieves a higher success rate than the policy.
+          Policies tend to drift from the reference trajectory but often recover over time. This explains why performance improves under longer time horizons like 1000 steps.
+        </p>
+      </div>
   </section>
   <div class="hr"></div>
 
@@ -649,11 +760,11 @@
   <script>
     function showExperiment(name) {
       // Hide all
-      document.getElementById('rice').style.display = 'none';
-      document.getElementById('towel').style.display = 'none';
-      document.getElementById('paper').style.display = 'none';
       document.getElementById('bowl').style.display = 'none';
       document.getElementById('block').style.display = 'none';
+      document.getElementById('paper').style.display = 'none';
+      document.getElementById('towel').style.display = 'none';
+      document.getElementById('rice').style.display = 'none';
 
       // Show the selected experiment
       document.getElementById(name).style.display = 'block';

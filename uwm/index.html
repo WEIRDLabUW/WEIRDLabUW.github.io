@@ -70,7 +70,7 @@
               <div class="publication-links">
                 <!-- PDF Link. -->
                 <span class="link-block">
-                  <a href="https://arxiv.org/" class="external-link button is-normal is-rounded is-dark">
+                  <a href="http://arxiv.org/abs/2504.02792" class="external-link button is-normal is-rounded is-dark">
                     <span class="icon">
                       <i class="fas fa-file-pdf"></i>
                     </span>
@@ -117,7 +117,7 @@
                 </div> -->
         <div class="content has-text-centered">
           <video id="exp-d4rl" autoplay muted playsinline height="100%" width="100%">
-            <source src="./static/videos/teaser.mov" type="video/mp4">
+            <source src="./static/videos/teaser.mp4" type="video/mp4">
           </video>
         </div>
         <div class="columns is-centered has-text-centered">
@@ -176,7 +176,7 @@
 
   <section class="section">
     <div class="container is-max-desktop">
-      <h2 class="title is-3 has-text-centered"> How Does UWM Learn from Both Actions and Videos? </h2>
+      <h2 class="title is-3 has-text-centered"> Method </h2>
 
       <div class="columns is-centered">
         <div class="column is-full-width has-text-justified">
@@ -188,42 +188,34 @@
             <p>
               Unified World Models (UWM) fuse <strong>action diffusion</strong> and
               <strong>video diffusion</strong> in one transformer, with <em>separate timesteps</em>
-              for each modality. This lets us:
+              for each modality. At training time, we sample these timesteps independently at random,
+              exposing the model to all combinations. At inference time, we can flexibly sample from 
+              the marginal and conditional distributions by controlling the modality-specific
+              timesteps. Speficially, UWM can represent a <strong>policy</strong>, a <strong>forward dynamics model</strong>, 
+              an <strong>inverse dynamics model</strong>, and a <strong>video prediction model</strong> in one unified framework.
             </p>
-            <ul>
-              <li>Generate actions (policy) by masking future frames.</li>
-              <li>Predict forward dynamics by fixing actions.</li>
-              <li>Infer inverse dynamics by conditioning on frames.</li>
-              <li>Leverage unlabeled video by fully noising the action channel.</li>
-            </ul>
           </div>
-          <h3 class="title is-5">Unified Training With & Without Actions</h3>
+          <h3 class="title is-5">Unified Training On Robot and Video Data</h3>
           <div class="content has-text-centered">
             <img src="./static/images/droid.png" class="inline-figure" style="width:70%" alt="" />
           </div>
           <div class="content has-text-justified">
             <p>
-              Our training process integrates <em>(observation, action, next-observation)</em> triplets from
-              demonstrations alongside unlabeled video frames lacking explicit actions.
-              During each mini-batch:
+              Our training process can flexibly integrates <em>(o, a, o')</em> triplets from
+              robot trajectories alongside <em>(o, o')</em> tuples from unlabeled videos, using
+              the diffusion timestep as a mask.
+              For each mini-batch:
             </p>
             <ul>
-              <li><strong>Action-Labeled Samples:</strong> The diffusion timesteps for both <em>action</em> and
-                <em>next-frame</em> are randomly drawn. We learn to reconstruct the correct action and predict the next
-                observation based on the current state.
+              <li><strong>Robot Trajectories:</strong> The diffusion timesteps for both <em>action</em> and
+                <em>next-frame</em> are randomly sampled. We learn to predict the correct action and next
+                observation noises conditioned on the current observation and diffusion timesteps.
               </li>
-              <li><strong>Action-Free Videos:</strong> We treat the missing actions as fully noised. This forces the
-                model to rely on visual cues and learn robust representations, even in the absence of explicit action
-                labels.</li>
+              <li><strong>Action-Free Videos:</strong> We treat the missing actions as fully noised, manually setting 
+                the action diffusion timestep to T. This encourages the model to rely on visual cues and learn robust 
+                representations, even in the absence of explicit action labels.
+              </li>
             </ul>
-            <p>
-              By sampling from both labeled and unlabeled data during training, the model steadily learns
-              <strong>both</strong> the action distributions and underlying state transitions.
-              To demonstrate this approach at scale, we train on <strong>DROID</strong>,
-              a large and diverse set of robotic trajectories that offers multi-environment coverage
-              and varied manipulation tasks.
-              <em>See the paper for more details on dataset composition and preprocessing.</em>
-            </p>
           </div>
       </div>
   </section>
@@ -236,12 +228,12 @@
       <h2 class="title is-3 has-text-centered">Experiments</h2>
 
       <!-- Subsection: Real Robot Experiments -->
-      <h3 class="title is-5 mt-4">Real Robot Experiments</h3>
+      <h3 class="title is-5 mt-4">Real-Robot Experiments</h3>
       <div class="content has-text-justified">
         <p>
-          We evaluate <strong>Unified World Models (UWM)</strong> on diverse real-world tasks, each demanding
-          precise control and robust generalization. Training combines demonstrations with action-free
-          videos from DROID, allowing UWM to learn both policy and environment dynamics.
+          We evaluate UWM on diverse real-world tasks. To evaluate UWM's ability to learn from large multitask
+          robotic datasets, we pretrain a UWM on a subset of the DROID dataset, and then finetune it on the task-specific
+          datasets. The following are rollout videos of UWM on the five evaluation tasks
         </p>
       </div>
 
@@ -266,7 +258,7 @@
 
       <!-- Rice Container (5 videos: 5 in-dist) -->
       <div id="rice" style="display: none; text-align:center; margin-top: 1rem;">
-        <h4 class="title is-5">Rice (In-Distribution)</h4>
+        <h4 class="title is-5">In-Distribution</h4>
         <div class="columns is-mobile is-centered">
           <div class="column is-one-fifth" style="text-align:center;">
             <video autoplay muted loop playsinline class="video-hover">
@@ -298,7 +290,7 @@
 
       <!-- Towel Container (10 videos: 5 in-dist, 5 ood-dist) -->
       <div id="towel" style="display: none; text-align:center; margin-top: 1rem;">
-        <h4 class="title is-5">Towel (In-Distribution)</h4>
+        <h4 class="title is-5">In-Distribution</h4>
         <div class="columns is-mobile is-centered">
           <div class="column is-one-fifth" style="text-align:center;">
             <video autoplay muted loop playsinline class="video-hover">
@@ -326,7 +318,7 @@
             </video>
           </div>
         </div>
-        <h4 class="title is-5" style="margin-top:2rem;">Towel (Out-of-Distribution)</h4>
+        <h4 class="title is-5" style="margin-top:2rem;">Out-of-Distribution</h4>
         <div class="columns is-mobile is-centered">
           <div class="column is-one-fifth" style="text-align:center;">
             <video autoplay muted loop playsinline class="video-hover">
@@ -359,7 +351,7 @@
 
       <!-- PAPER Container (10 videos: 5 in-dist, 5 ood-dist) -->
       <div id="paper" style="display: none; text-align:center; margin-top: 1rem;">
-        <h4 class="title is-5">Paper (In-Distribution)</h4>
+        <h4 class="title is-5">In-Distribution</h4>
         <div class="columns is-mobile is-centered">
           <div class="column is-one-fifth" style="text-align:center;">
             <video autoplay muted loop playsinline class="video-hover">
@@ -387,7 +379,7 @@
             </video>
           </div>
         </div>
-        <h4 class="title is-5" style="margin-top:2rem;">Paper (Out-of-Distribution)</h4>
+        <h4 class="title is-5" style="margin-top:2rem;">Out-of-Distribution</h4>
         <div class="columns is-mobile is-centered">
           <div class="column is-one-fifth" style="text-align:center;">
             <video autoplay muted loop playsinline class="video-hover">
@@ -419,7 +411,7 @@
 
       <!-- BLOCK Container (10 videos: 5 in-dist, 5 ood-dist) -->
       <div id="block" style="display: none; text-align:center; margin-top: 1rem;">
-        <h4 class="title is-5">Block (In-Distribution)</h4>
+        <h4 class="title is-5">In-Distribution</h4>
         <div class="columns is-mobile is-centered">
           <div class="column is-one-fifth" style="text-align:center;">
             <video autoplay muted loop playsinline class="video-hover">
@@ -447,7 +439,7 @@
             </video>
           </div>
         </div>
-        <h4 class="title is-5" style="margin-top:2rem;">Block (Out-of-Distribution)</h4>
+        <h4 class="title is-5" style="margin-top:2rem;">Out-of-Distribution</h4>
         <div class="columns is-mobile is-centered">
           <div class="column is-one-fifth" style="text-align:center;">
             <video autoplay muted loop playsinline class="video-hover">
@@ -479,7 +471,7 @@
 
 
       <div id="bowl" style="display: block; text-align:center; margin-top: 1rem;">
-        <h4 class="title is-5">Bowl (In-Distribution)</h4>
+        <h4 class="title is-5">In-Distribution</h4>
         <div class="columns is-mobile is-centered">
           <div class="column is-one-fifth" style="text-align:center;">
             <video autoplay muted loop playsinline class="video-hover">
@@ -507,7 +499,7 @@
             </video>
           </div>
         </div>
-        <h4 class="title is-5" style="margin-top:2rem;">Bowl (Out-of-Distribution)</h4>
+        <h4 class="title is-5" style="margin-top:2rem;">Out-of-Distribution</h4>
         <div class="columns is-mobile is-centered">
           <div class="column is-one-fifth" style="text-align:center;">
             <video autoplay muted loop playsinline class="video-hover">
@@ -610,14 +602,6 @@
           </video>
         </div>
       </div>
-      <div class="section">
-        <p class="content has-text-justified">
-          UWM outperforms baseline models across all tasks. The graph below shows evaluation results for in-distribution (ID) and out-of-distribution (OOD) settings, under both pretraining and co-training setups.
-        </p>
-        <p class="has-text-centered">
-          <img src="./static/images/results_graph.png" style="width:70%; max-width:960px; border-radius: 8px;" alt="Real Robot Results Table">
-        </p>
-      </div>
 
       <script>
         function showOOD(task) {
@@ -637,13 +621,10 @@
       <div class="content has-text-justified">
         <p>
           To further evaluate <strong>UWM</strong>'s robustness and scalability, we test it on
-          <strong>LIBERO</strong>,
-          a challenging robotic manipulation benchmark with diverse tasks.
+          <strong>LIBERO</strong>, a robotic manipulation benchmark with diverse tasks.
           We analyze UWM’s generalization across different object interactions and environment setups.
-        </p>
-        <p>
-          The LIBERO benchmark contains 100 robotic manipulation tasks, from which we use <strong>five
-            distinct evaluation tasks</strong> to assess UWM’s ability to generalize.
+          The LIBERO benchmark contains 100 robotic manipulation tasks, from which we use 90 for pretraining
+          and finetune to five evaluation tasks to assess UWM’s ability to generalize.
         </p>
       </div>
 
@@ -723,23 +704,19 @@
           true action,
           and allowing the <em>video diffusion</em> process to denoise the future frame.
           This enables UWM to forecast plausible next observations, grounded in both action and visual context.
+          Below is an example of forward prediction from UWM, shown in both simulation in the top row and the real
+          world in the bottom row.
         </p>
       </div>
       <div class="content has-text-centered">
         <img src="./static/images/forward.png" class="inline-figure" style="width:60%" alt="" />
       </div>
-      <p>
-        Above is an example of forward prediction from UWM, shown in both simulation in the top row and the real
-        world in the bottom row.
-      </p>
 
       <h3 class="title is-5 mt-4">Inverse Dynamics</h3>
       <div class="content has-text-justified">
         <p>
           We evaluate the inverse dynamics mode of UWM on trajectory tracking, where we provide a reference expert trajectory and query the inverse
           dynamics model to track it. Specifically, we condition the model on consecutive frame pairs and predict the action taken between them.
-        </p>
-        <p>
           This allows UWM to reproduce expert behavior without relying on a full policy rollout. We test this approach on 50 expert trajectories from the LIBERO dataset.
           The table below shows success rates for both inverse dynamics tracking and policy rollouts under different time budgets.
         </p>
@@ -752,6 +729,17 @@
           We observe that given the same time limit as the trajectory length, the inverse dynamics model achieves a higher success rate than the policy.
           Policies tend to drift from the reference trajectory but often recover over time. This explains why performance improves under longer time horizons like 1000 steps.
         </p>
+      </div>
+
+      <h3 class="title is-5 mt-4">Scalability with Data</h3>
+      <div class="content has-text-justified">
+        <p>
+          To study UWM's ability to scale with pretraining, we train UWM and DP on the task-specific expert demonstrations <emph>from scratch</emph>.
+          We find that UWM and DP perform similarly when trained from scratch. However, UWM scales from pretraining more effectively than DP. 
+        </p>
+      </div>
+      <div class="content has-text-centered">
+        <img src="./static/images/scratch.png" class="inline-figure" style="width:60%; border-radius: 8px;" alt="Scaling with pretraining" />
       </div>
   </section>
   <div class="hr"></div>

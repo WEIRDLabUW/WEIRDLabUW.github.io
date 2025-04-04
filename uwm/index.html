@@ -199,8 +199,8 @@
           <div class="content has-text-justified">
             <p>
               Our training process can flexibly integrates <em>(o, a, o')</em> triplets from
-              robot trajectories alongside <em>(o, o')</em> tuples from unlabeled videos, using
-              the diffusion timestep as a mask.
+              robot trajectories alongside <em>(o, o')</em> tuples from unlabeled videos using
+              diffusion timesteps as masks.
               For each mini-batch:
             </p>
             <ul>
@@ -531,10 +531,13 @@
 
       <div class="section">
         <p class="content has-text-justified">
-          UWM outperforms baseline models across all tasks. The graph below shows evaluation results for in-distribution (ID) and out-of-distribution (OOD) settings, under both pretraining and co-training setups.
+          UWM outperforms baseline models across all tasks. The table below shows evaluation results for in-distribution (ID) and out-of-distribution (OOD) settings, under both pretraining and co-training setups.
         </p>
         <p class="has-text-centered">
-          <img src="./static/images/results_bar.png" style="width:80%; max-width:960px; border-radius: 8px;" alt="Real Robot Results Table">
+          <img src="./static/images/real_robot.png" style="width:100%; max-width:960px; border-radius: 8px;" alt="Real Robot Results Table">
+        </p>
+        <p class="has-text-centered">
+          <img src="./static/images/results_bar.png" style="width:60%; max-width:960px; border-radius: 8px;" alt="Real Robot Results Plot">
         </p>
       </div>
 
@@ -545,6 +548,12 @@
           clutter.
           Below, we show qualitative comparisons between <strong>UWM</strong>, <strong>UWM Co-Trained</strong>, and a
           standard behavior cloning (<strong>DP</strong>) baseline.
+        </p>
+      </div>
+
+      <div class="content has-text-justified">
+        <p class="has-text-centered">
+          <img src="./static/images/categorized_ood.png" style="width:60%;" alt="Categorized OOD Results Table">
         </p>
       </div>
 

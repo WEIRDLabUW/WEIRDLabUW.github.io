@@ -78,15 +78,15 @@
                   </a>
                 </span>
                 <!-- Video Link. -->
-                <!-- <span class="link-block">
-                <a href="https://youtu.be/DQGVD6KaVf8"
-                   class="external-link button is-normal is-rounded is-dark">
-                  <span class="icon">
-                      <i class="fab fa-youtube"></i>
-                  </span>
-                  <span>Video</span>
-                </a>
-              </span> -->
+                <span class="link-block">
+                  <a href="https://youtu.be/v"
+                    class="external-link button is-normal is-rounded is-dark">
+                    <span class="icon">
+                        <i class="fab fa-youtube"></i>
+                    </span>
+                    <span>Video</span>
+                  </a>
+                </span>
                 <!-- Code Link. -->
                 <span class="link-block">
                   <a href="https://github.com/WEIRDLabUW/unified-world-model" class="external-link button is-normal is-rounded is-dark">
@@ -101,20 +101,6 @@
           </div>
         </div>
 
-        <!-- Paper video. -->
-        <!-- <div class="columns is-centered has-text-centered">
-        <div class="column is-four-fifths">
-          <div class="publication-video">
-            
-            <iframe src="https://www.youtube.com/embed/DQGVD6KaVf8?rel=0&amp;showinfo=0"
-                    frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
-          </div>
-        </div>
-      </div> -->
-        <!--/ Paper video. -->
-        <!-- <div class="content has-text-centered">
-                    <img src="./static/images/algo.gif" class="inline-figure-four-thirds" alt="Algorith overview." />
-                </div> -->
         <div class="content has-text-centered">
           <video id="exp-d4rl" autoplay muted playsinline height="100%" width="100%">
             <source src="./static/videos/teaser.mp4" type="video/mp4">
@@ -134,24 +120,11 @@
     </div>
   </section>
 
-  <!-- <section class="hero teaser">
-  <div class="container is-max-desktop">
-    <div class="hero-body">
-      <video id="teaser" autoplay muted loop playsinline height="100%">
-        <source src="./static/videos/repo_turtlebot.mp4" type="video/mp4">
-      </video>
-      <h2 class="subtitle has-text-centered">
-        <span class="dnerf">RePo learns minimally task-relevant representations that is resilient to spurious variations.
-      </h2>
-    </div>
-  </div>
-</section> -->
-
   <div class="hr"></div>
 
   <section class="section">
     <div class="container is-max-desktop">
-      <!-- Abstract. -->
+      <!-- Abstract -->
       <div class="columns is-centered has-text-centered">
         <div class="column is-four-fifths">
           <h2 class="title is-3">Motivation</h2>
@@ -166,7 +139,18 @@
           </div>
         </div>
       </div>
-      <!--/ Abstract. -->
+      <!--/ Abstract -->
+      <!-- Paper video. -->
+      <div class="columns is-centered has-text-centered">
+        <div class="column is-four-fifths">
+          <!-- <h2 class="title is-3">Video</h2> -->
+          <div class="publication-video">            
+            <iframe src="https://www.youtube.com/embed/SDJn_o3ApN4?rel=0&amp;showinfo=0"
+                    frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+          </div>
+        </div>
+      </div>
+      <!--/ Paper video. -->
     </div>
   </section>
 
@@ -179,10 +163,10 @@
       <div class="columns is-centered">
         <div class="column is-full-width has-text-justified">
           <h3 class="title is-5"></h3>
-          <div class="content has-text-justified">
+          <!-- <div class="content has-text-justified">
             <img src="./static/images/training.png" class="inline-figure" style="width:100%" alt="UWMs" />
-          </div>
-          <div class="content has-text-justified">
+          </div> -->
+          <!-- <div class="content has-text-justified">
             <p>
               Unified World Models (UWM) combine <strong>action diffusion</strong> and
               <strong>video diffusion</strong> in one transformer, with <em>separate timesteps</em>
@@ -192,17 +176,19 @@
               timesteps. UWM can represent a <strong>policy</strong>, a <strong>forward dynamics model</strong>, 
               an <strong>inverse dynamics model</strong>, and a <strong>video prediction model</strong> in one unified framework.
             </p>
-          </div>
+          </div> -->
           <h3 class="title is-5">Unified Training on Robot and Video Data</h3>
           <div class="content has-text-justified">
             <p>
-              UWM's training process can seamlessly integrate (o, a, o') triplets from
-              robot trajectories with (o, o') tuples from unlabeled videos using
-              diffusion timesteps as masks. Specifically, 
+              Unified World Models (UWM) combine <strong>action</strong> and
+              <strong>video</strong> diffusion in one transformer, with <em>separate timesteps</em>
+              for each modality. UWM's training process can seamlessly integrate (o, a, o') triplets from
+              robot trajectories with (o, o') tuples from action-free videos, using
+              random noises as masks. 
             </p>
             <ul>
-              <li><strong>For robot trajectories:</strong> the diffusion timesteps for both actions and
-                next observations are randomly sampled. The model is trained to predict the action and next
+              <li><strong>For robot trajectories:</strong> the diffusion timesteps for actions and
+                next observations are sampled independently at random. The model is trained to predict the action and next
                 observation noises conditioned on the noisy inputs and diffusion timesteps.
               </li>
               <li><strong>For action-free videos:</strong> we treat the missing actions as fully noised, manually setting 
@@ -210,12 +196,18 @@
                 representations, even in the absence of explicit action labels.
               </li>
             </ul>
+            <p class="has-text-centered">
+              <video autoplay muted loop playsinline width=100%">
+                <source src="./static/videos/train_modes.mp4" type="video/mp4">
+              </video>
+            </p>
           </div>
           <h3 class="title is-5">Flexible Inference</h3>
           <div class="content has-text-justified">
             <p>
-              UWM can draw samples from conditional and marginal distributions by controlling the 
-              modality-specific diffusion timesteps. The video below depicts the inference process of UWM.
+              UWM can flexibly generate samples from conditional and marginal distributions by controlling the modality-specific diffusion timesteps.
+              In particular, UWM can represent a <strong>policy</strong>, a <strong>forward dynamics model</strong>, 
+              an <strong>inverse dynamics model</strong>, and a <strong>video prediction model</strong> in one unified framework.
             </p>
           </div>
           <div class="content has-text-justified">
@@ -241,7 +233,7 @@
         <p>
           To evaluate UWM's ability to learn from large multitask robotic datasets, we pretrain a UWM on a subset of the <strong>DROID</strong> dataset, 
           and then finetune it to diverse downstream tasks. We find UWM to outperform baseline models in both in-distribution (ID) and out-of-distribution (OOD) settings. 
-          We also find cotraining on a video dataset to further improve performance. The following are rollout videos 
+          We also find cotraining on an in-domain video dataset to further improve performance. Below are rollout videos 
           of UWM on the evaluation tasks.
         </p>
       </div>
@@ -550,8 +542,8 @@
       <div class="content has-text-justified">
         <p>
           We perform a series of categorized OOD evaluations covering conditions like lighting, backgrounds, and
-          clutter. Below, we show qualitative comparisons between <strong>UWM Cotrained</strong>, <strong>UWM</strong>, and a
-          standard behavior cloning (<strong>DP</strong>) baseline.
+          clutter. Below, we show qualitative comparisons between UWM Cotrained, UWM Pretrained, and a
+          standard behavior cloning baseline (DP).
         </p>
       </div>
 
@@ -565,22 +557,19 @@
       <div id="ood-bowl" class="columns is-vcentered is-centered mt-4" style="gap: 2rem; ">
         <div class="column is-one-third has-text-centered">
           <h4 class="title is-5 mb-2" style="font-weight: 700;">UWM Cotrained</h4>
-          <video autoplay muted loop playsinline class="video-hover"
-            style="width: 100%; max-width: 480px; border-radius: 8px;">
+          <video autoplay muted loop playsinline class="video-hover">
             <source src="./static/videos/categorized_ood/stack_bowls_uwm_cotrained.mp4" type="video/mp4">
           </video>
         </div>
         <div class="column is-one-third has-text-centered">
-          <h4 class="title is-5 mb-2" style="font-weight: 700;">UWM</h4>
-          <video autoplay muted loop playsinline class="video-hover"
-            style="width: 100%; max-width: 480px; border-radius: 8px;">
+          <h4 class="title is-5 mb-2" style="font-weight: 700;">UWM Pretrained</h4>
+          <video autoplay muted loop playsinline class="video-hover">
             <source src="./static/videos/categorized_ood/stack_bowls_uwm.mp4" type="video/mp4">
           </video>
         </div>
         <div class="column is-one-third has-text-centered">
           <h4 class="title is-5 mb-2" style="font-weight: 700;">DP</h4>
-          <video autoplay muted loop playsinline class="video-hover"
-            style="width: 100%; max-width: 480px; border-radius: 8px;">
+          <video autoplay muted loop playsinline class="video-hover">
             <source src="./static/videos/categorized_ood/stack_bowls_dp.mp4" type="video/mp4">
           </video>
         </div>
@@ -634,7 +623,7 @@
       <div class="content has-text-justified">
         <p>
           To further evaluate UWM's effectiveness for pretraining, we test it on
-          <strong>LIBERO</strong>, a robotic manipulation benchmark with diverse tasks.
+          <strong>LIBERO</strong>, a robotic manipulation benchmark.
           The LIBERO benchmark contains 100 robotic manipulation tasks and corresponding datasets,
           from which we use 90 for pretraining and 5 for evaluation.
         </p>
@@ -644,31 +633,31 @@
         <!-- Top row with labels -->
         <div class="columns is-mobile is-centered has-text-centered">
           <div class="column is-one-fifth">
-            <p><strong>Soup-Cheese</strong></p>
+            <p class="mb-2"><strong>Soup-Cheese</strong></p>
             <video autoplay muted loop playsinline class="video-hover">
               <source src="./static/videos/libero/1.mp4" type="video/mp4">
             </video>
           </div>
           <div class="column is-one-fifth">
-            <p><strong>Book-Caddy</strong></p>
+            <p class="mb-2"><strong>Book-Caddy</strong></p>
             <video autoplay muted loop playsinline class="video-hover">
               <source src="./static/videos/libero/2.mp4" type="video/mp4">
             </video>
           </div>
           <div class="column is-one-fifth">
-            <p><strong>Bowl-Drawer</strong></p>
+            <p class="mb-2"><strong>Bowl-Drawer</strong></p>
             <video autoplay muted loop playsinline class="video-hover">
               <source src="./static/videos/libero/3.mp4" type="video/mp4">
             </video>
           </div>
           <div class="column is-one-fifth">
-            <p><strong>Mug-Mug</strong></p>
+            <p class="mb-2"><strong>Mug-Mug</strong></p>
             <video autoplay muted loop playsinline class="video-hover">
               <source src="./static/videos/libero/4.mp4" type="video/mp4">
             </video>
           </div>
           <div class="column is-one-fifth">
-            <p><strong>Moka-Moka</strong></p>
+            <p class="mb-2"><strong>Moka-Moka</strong></p>
             <video autoplay muted loop playsinline class="video-hover">
               <source src="./static/videos/libero/5.mp4" type="video/mp4">
             </video>
@@ -712,7 +701,7 @@
           the environment changes given the current observations and actions to take. 
           We visualize the forward dynamics predictions of UWM below. The first row shows static
           images, and the second row shows synchornized continuous predictions for full trajectories 
-          (we re-query the forward dynamics model after each chunk of actions). 
+          (querying the forward dynamics model after each chunk of actions). 
         </p>
       </div>
       <!-- <div class="content has-text-centered">
@@ -722,33 +711,30 @@
       <!-- Forward Dynamics Image Containers -->
       <div id="fd-images" class="columns is-vcentered is-centered is-variable is-5 mt-4">
         <div class="column is-one-third has-text-centered">
-          <img class="video-hover" src="./static/images/forward_dynamics/fd_stack_bowls.png" alt="Forward Dynamics Stack-Bowls">
+          <img src="./static/images/forward_dynamics/fd_stack_bowls.png" alt="Forward Dynamics Stack-Bowls">
         </div>
         <div class="column is-one-third has-text-centered">
-          <img class="video-hover" src="./static/images/forward_dynamics/fd_block_cabinet.png" alt="Forward Dynamics Block-Cabinet">
+          <img src="./static/images/forward_dynamics/fd_block_cabinet.png" alt="Forward Dynamics Block-Cabinet">
         </div>
         <div class="column is-one-third has-text-centered">
-          <img class="video-hover" src="./static/images/forward_dynamics/fd_hang_towel.png" alt="Forward Dynamics Hang-Towel">
+          <img src="./static/images/forward_dynamics/fd_hang_towel.png" alt="Forward Dynamics Hang-Towel">
         </div>
       </div>
 
       <!-- Forward Dynamics Video Containers -->
       <div id="fd-videos" class="columns is-vcentered is-centered is-variable is-5 mt-4">
         <div class="column is-one-third has-text-centered">
-          <video autoplay muted loop playsinline class="video-hover"
-            style="width: 100%; max-width: 480px; border-radius: 8px;">
+          <video autoplay muted loop playsinline>
             <source src="./static/videos/forward_dynamics/fd_video_stack_bowls.mp4" type="video/mp4">
           </video>
         </div>
         <div class="column is-one-third has-text-centered">
-          <video autoplay muted loop playsinline class="video-hover"
-            style="width: 100%; max-width: 480px; border-radius: 8px;">
+          <video autoplay muted loop playsinline>
             <source src="./static/videos/forward_dynamics/fd_video_block_cabinet.mp4" type="video/mp4">
           </video>
         </div>
         <div class="column is-one-third has-text-centered">
-          <video autoplay muted loop playsinline class="video-hover"
-            style="width: 100%; max-width: 480px; border-radius: 8px;">
+          <video autoplay muted loop playsinline>
             <source src="./static/videos/forward_dynamics/fd_video_hang_towel.mp4" type="video/mp4">
           </video>
         </div>
@@ -758,11 +744,23 @@
       <div class="content has-text-justified">
         <p>
           We evaluate UWM’s inverse dynamics mode on tracking expert trajectories. Specifically, we condition the model on current observations 
-          from the environment and expected future observations from an expert trajectory. This should allow UWM to replicate the expert's behavior. 
-          We find that, given the same time limit as the trajectory length, the inverse dynamics model achieves a higher success rate 
+          from the environment and expected future observations from an expert trajectory. This should replicate the expert's behavior. 
+          We find that, given the same time limit as the expert trajectory, the inverse dynamics model achieves a higher success rate 
           compared to a finetuned policy. Policies tend to drift from the reference trajectory but often recover eventually, explaining why 
           their performance improves with longer horizons (e.g. 1000 steps).
         </p>
+      </div>
+      <div id="id-videos" class="columns is-vcentered is-centered is-variable is-5 mt-4">
+        <div class="column is-half has-text-centered">
+          <video autoplay muted loop playsinline>
+            <source src="./static/videos/inverse_dynamics/id_book_caddy.mp4" type="video/mp4">
+          </video>
+        </div>
+        <div class="column is-half has-text-centered">
+          <video autoplay muted loop playsinline>
+            <source src="./static/videos/inverse_dynamics/id_soup_cheese.mp4" type="video/mp4">
+          </video>
+        </div>
       </div>
       <div class="content has-text-centered">
         <img src="./static/images/inverse_table.png" class="inline-figure" style="width:60%; border-radius: 8px;" alt="Inverse Dynamics Table" />

@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="description" content="Semantic World Modeling">
+  <meta name="keywords" content="Robot Learning, Vision Language Models, World Models">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Semantic World Modeling</title>
+
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XHJWDHYL2Z"></script>
+
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro" rel="stylesheet">
+
+  <link rel="stylesheet" href="./static/css/bulma.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-carousel.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-slider.min.css">
+  <link rel="stylesheet" href="./static/css/fontawesome.all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  <link rel="stylesheet" href="./static/css/index.css">
+  <link rel="icon" href="./static/images/favicon.ico">
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script defer src="./static/js/fontawesome.all.min.js"></script>
+  <script src="./static/js/bulma-carousel.min.js"></script>
+  <script src="./static/js/bulma-slider.min.js"></script>
+  <script src="./static/js/index.js"></script>
+
+  <!-- TEX -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.0/es5/tex-mml-chtml.js" integrity="sha384-..."
+    crossorigin="anonymous"></script>
+</head>
+
+<body>
+
+  <section class="hero">
+    <div class="hero-body">
+      <div class="container is-max-desktop">
+        <div class="columns is-centered">
+          <div class="column has-text-centered">
+            <h1 class="title is-1 publication-title">Semantic World Modeling</h1>
+            <div class="is-size-5 publication-authors">
+              <span class="author-block">
+                <a href="https://jacob-berg.com">Jacob Berg</a><sup>1</sup>,</span>
+              <span class="author-block">
+                <a href="https://homes.cs.washington.edu/~zchuning/">Chuning Zhu</a>1</sup>,</span>
+              <span class="author-block">
+                <a href="https://www.linkedin.com/in/yanda-bao/">Yanda Bao</a><sup>1</sup>,</span>
+              <span class="author-block">
+                <a href="https://idurugkar.github.io/">Ishan Durugkar</a><sup>2</sup>,</span>
+              <span class="author-block">
+                <a href="https://homes.cs.washington.edu/~abhgupta/">Abhishek Gupta</a><sup>1</sup></span>
+            </div>
+
+            <div class="is-size-5 publication-authors">
+              <span class="author-block"><sup>1</sup>University of Washington</span>
+              <span class="author-block"><sup>2</sup>Sony AI</span>
+            </div>
+
+            <div class="is-size-5 has-text-weight-semibold mt-3 publication-title">
+              <span class="author-block">Under Submission</span>
+            </div>
+
+            <div class="column has-text-centered">
+              <div class="publication-links">
+                <!-- PDF Link. -->
+                <span class="link-block">
+                  <a href="static/documents/swm.pdf" class="external-link button is-normal is-rounded is-dark">
+                    <span class="icon">
+                      <i class="fas fa-file-pdf"></i>
+                    </span>
+                    <span>Paper</span>
+                  </a>
+                </span>
+                <span class="link-block">
+                  <a href="https://example.com" class="external-link button is-normal is-rounded is-dark">
+                    <span class="icon">
+                      <i class="ai ai-arxiv"></i>
+                    </span>
+                    <span>arXiv</span>
+                  </a>
+                </span>
+                <!-- Video Link.
+                <span class="link-block">
+                  <a href="https://example.com" class="external-link button is-normal is-rounded is-dark">
+                    <span class="icon">
+                      <i class="fab fa-youtube"></i>
+                    </span>
+                    <span>Video</span>
+                  </a>
+                </span> -->
+                <!-- Code Link. -->
+                <span class="link-block">
+                  <a  class="external-link button is-normal is-rounded is-dark">
+                    <span class="icon">
+                      <i class="fab fa-github"></i>
+                    </span>
+                    <span>Code Coming Soon</span>
+                  </a>
+                </span>
+                <!-- Demo Link. -->
+                <span class="link-block">
+                  <a href="#demo" class="external-link button is-normal is-rounded is-dark">
+                    <span class="icon">
+                      <i class="fas fa-play"></i>
+                    </span>
+                    <span>Demo</span>
+                  </a>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" style="padding-top: 0rem; margin-top: -5rem;">
+    <div class="container is-max-desktop">
+      <!-- Abstract. -->
+      <div class="columns is-centered has-text-centered">
+        <img src="./static/images/teaser.png" class="money-figure" alt="Teaser" />
+      </div>
+
+      <div class="columns is-centered has-text-centered">
+        <div class="column is-four-fifths">
+          <div class="content">
+
+            <h2 class="title is-3">Abstract</h2>
+            <div class="content has-text-justified">
+              <!-- <p><b>tl;dr</b> Learning world models using visual question answering about the <i>future</i>.
+              </p> -->
+              <p>
+                Planning with world models offers a powerful paradigm for robotic control. 
+                Conventional approaches train a model to predict future frames conditioned on current frames and actions, which 
+                can then be used for planning. However, the objective of predicting future pixels is often at odds with the actual 
+                planning objective; strong pixel reconstruction does not always correlate with good planning decisions. We posit that 
+                instead of reconstructing future frames as pixels, world models only need to predict task-relevant <i>semantic</i> information 
+                about the future. To do this, we pose world modeling as a visual question answering problem, about semantic information in <i>future frames</i>. 
+                This perspective allows world modeling to be approached with the same tools underlying vision language models. We show how vision language models can 
+                be trained as "semantic world models" through a supervised finetuning process on image-action-text data, enabling planning for decision-making 
+                while inheriting many of the generalization and robustness properties from the pretrained vision-language models. We demonstrate how such a 
+                semantic world model can be used for policy improvement on open-ended robotics tasks, leading to significant generalization improvements over 
+                typical paradigms of reconstruction-based action-conditional world modeling. 
+
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!--/ Abstract. -->
+
+    </div>
+  </section>
+
+  <!-- Interactive Demo -->
+  <section class="section" id="demo" style="background: white; padding: 3rem 1.5rem;">
+    <link rel="stylesheet" href="static/css/demo.css">
+    <div class="container">
+      <header style="text-align: center; margin-bottom: 1rem;">
+        <h2 class="title is-3" style="margin-bottom: 0.5rem;">Try out Semantic World Modeling yourself!</h2>
+      </header>
+
+      <!-- Instructions Collapsible -->
+      <div class="instructions-container instructions-small" style="margin-bottom: 1rem;">
+        <button class="instructions-toggle" id="instructionsToggle">
+          <svg class="instructions-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+          </svg>
+          <span>How to use this demo</span>
+          <svg class="chevron-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M6 9l6 6 6-6"/>
+          </svg>
+        </button>
+        <div class="instructions-content" id="instructionsContent">
+          <ol class="instructions-list">
+            <li>
+              <strong>Load an example:</strong> Click the "Load Random Example" button to sample a random initial state.
+            </li>
+            <li>
+              <strong>Draw actions:</strong> Click and drag on the initial state image to draw a trajectory. Each point is converted into an action.
+            </li>
+            <li>
+              <strong>Submit actions:</strong> Click "Submit Actions" to see what the final state will look like after executing your drawn actions.
+            </li>
+            <li>
+              <strong>Ask questions:</strong> Type a question about the future state (e.g., "Is the red pentagon touching the red star?") or click one of the suggested sample questions.
+            </li>
+            <li>
+              <strong>View predictions:</strong> The model will predict the answer with a confidence visualization showing how the answer changes from initial to final state.
+            </li>
+          </ol>
+        </div>
+      </div>
+      <!-- /Instructions Collapsible -->
+
+      <main style="background: var(--bg-primary); border-radius: 0.75rem; padding: 1.25rem; box-shadow: var(--shadow-xl);">
+        <section style="margin-bottom: 1.25rem;">
+          <div style="display: flex; justify-content: center;">
+            <button id="randomPairBtn" class="btn btn-primary">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/>
+                <path d="M21 3v5h-5"/>
+                <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/>
+                <path d="M3 21v-5h5"/>
+              </svg>
+              Load Random Example
+            </button>
+          </div>
+        </section>
+
+        <section class="images-section">
+          <div class="image-container">
+            <div class="swm-inputs-box">
+              <div class="swm-inputs-label">SWM Inputs</div>
+              <div class="swm-inputs-content">
+                <div class="image-card">
+                  <h3>Initial State</h3>
+                  <div class="drawing-controls" id="drawingControls" style="display: none;">
+                    <button id="clearDrawingBtn" class="btn btn-small btn-danger">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M3 6h18"/>
+                        <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/>
+                        <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>
+                      </svg>
+                      Clear Drawing
+                    </button>
+                    <button id="submitActionsBtn" class="btn btn-small btn-success" disabled>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                        <path d="M22 4 12 14.01l-3-3"/>
+                      </svg>
+                      Submit Actions
+                    </button>
+                    <span class="points-counter" id="pointsCounter">Actions: 0 / 20</span>
+                  </div>
+                  <div class="image-wrapper" id="initialImageWrapper">
+                    <div class="placeholder">Click "Load Random Example" to start</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="final-state-box">
+              <div class="final-state-content">
+                <div class="image-card final-state-card">
+                  <h3>Final State <span class="reference-label">(For your reference)</span></h3>
+                  <div class="image-wrapper" id="finalImageWrapper">
+                    <div class="placeholder">Submit actions to see final state</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="question-section">
+          <div class="question-card">
+            <h3>Ask a Question</h3>
+            <div class="input-group">
+              <input 
+                type="text" 
+                id="questionInput" 
+                placeholder="e.g., Is the red block on top of the blue block?"
+                disabled
+              />
+              <button id="askBtn" class="btn btn-secondary" disabled>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M22 2 11 13"/>
+                  <path d="m22 2-7 20-4-9-9-4 20-7z"/>
+                </svg>
+                Ask
+              </button>
+            </div>
+            <div class="sample-questions" id="sampleQuestions">
+              <div class="placeholder-text">Submit actions to see questions</div>
+            </div>
+          </div>
+        </section>
+
+        <section class="answer-section" id="answerSection" style="display: none; margin-bottom: 0;">
+          <div class="answer-card">
+            <div class="answer-header">
+              <h3>Model's Answer</h3>
+              <div class="answer-result" id="answerResult"></div>
+            </div>
+            <div class="confidence-bar">
+              <div class="confidence-label">
+                <span>No</span>
+                <span id="confidenceText"></span>
+                <span>Yes</span>
+              </div>
+              <div class="confidence-track">
+                <div class="confidence-fill" id="confidenceFill"></div>
+                <div class="initial-line" id="initialLine">
+                  <div class="line-pointer"></div>
+                </div>
+                <div class="confidence-marker" id="confidenceMarker">
+                  <div class="marker-pointer"></div>
+                </div>
+              </div>
+            </div>
+            <div class="probability-details">
+              <div class="prob-item">
+                <span class="prob-label">No Probability:</span>
+                <span class="prob-value" id="noProb">-</span>
+              </div>
+              <div class="prob-item">
+                <span class="prob-label">Yes Probability:</span>
+                <span class="prob-value" id="yesProb">-</span>
+              </div>
+            </div>
+            <div class="prediction-legend">
+              <div class="legend-item">
+                <span class="legend-indicator initial-indicator"></span>
+                <span class="legend-label">Initial QA answer</span>
+              </div>
+              <div class="legend-item">
+                <span class="legend-indicator future-indicator"></span>
+                <span class="legend-label">Future QA answer</span>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <div class="loading-overlay" id="loadingOverlay">
+        <div class="spinner"></div>
+        <p>Processing...</p>
+      </div>
+    </div>
+    <script src="static/js/demo.js"></script>
+  </section>
+  <!-- /Interactive Demo -->
+
+  <!-- Pipeline Overview -->
+  <section class="section">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered is-mobile is-vcentered">
+        <div class="column is-full-width">
+          <h2 class="title is-3">Method Overview</h2>
+        </div>
+      </div>
+      <div class="container is-max-desktop">
+
+        <div class="columns is-centered is-mobile is-vcentered">
+          <div class="column is-full-width">
+            <img src="./static/images/method_figure.png" class="money-figure " alt="Pipeline Overview" style="max-width: 60%; height: auto; display: block; margin: 0 auto;" />
+            <br>
+            <br>
+            <p>
+              <b>Overview of Semantic World Models:</b> Semantic World Models (SWMs) unlike traditional world models are
+               <i>answers questions about the future</i> given current observations (represented as an image) and a sequence of actions. 
+            </p>
+
+            <br>
+            <div class="content">
+              <p><b>Our key insights are:</b></p>
+              <ul>
+                <li><strong>Future Question Answering</strong> offers a framework in order to train world models and can be adapted to plan. It also
+                  gives a framework to instantiate goals for planning in a genralizable and simple way.
+                </li>
+                <li><strong>Adapting Vision Language Models (VLMs)</strong> allows this fraamework to leverage the internet scale pretraining of VLMs. The pretraining of 
+                VLMs on question answering lends itself to future question answering well.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!--/ Pipeline Overview -->
+
+  <!-- Real-World Experiments -->
+  <section class="section" style="padding-top: 1rem;">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered is-mobile is-vcentered">
+        <div class="column is-full-width">
+          <h2 class="title is-3">Results</h2>
+        </div>
+      </div>
+      <p>
+      <h3 class="title is-5">Policy Improvement</h3>
+      </p>
+      <div class="columns is-centered is-mobile is-vcentered">
+        <div class="column is-full-width">
+            
+          <img src="./static/images/policy_improvement_combined.png" class="money-figure" alt="Improvement Results"
+            style="display: block; margin: 0 auto; max-width: 80%; height: auto;" />
+          <br>
+          <p>
+            For more complicated tasks, we consider a scenario in which a base policy 
+            generates a candidate trajectory that is refined using SWM and gradient-based 
+            optimization.  As shown below, our method is able to both iteratively refine the candidate
+            trajectory to improve base policy performance, and beat out the baselines.
+          </p>
+        </div>
+
+
+      </div>
+      <div class="content has-text-centered">
+        <!-- Improvement Videos Carousel -->
+        <div class="improvement-carousel-container">
+          <div class="carousel-header">
+            <h4 id="taskTitle" class="carousel-title">Red Pentagon to Blue Moon</h4>
+          </div>
+          
+          <div class="carousel-wrapper">
+            <button class="carousel-btn carousel-btn-left" id="prevBtn">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M15 18l-6-6 6-6"/>
+              </svg>
+            </button>
+            
+            <div class="carousel-video-container">
+              <video id="improvementVideo" autoplay playsinline loop muted controls>
+                <source src="./static/videos/improvement/red_pentagon_blue_moon_improv.mp4" type="video/mp4">
+              </video>
+            </div>
+            
+            <button class="carousel-btn carousel-btn-right" id="nextBtn">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M9 18l6-6-6-6"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+      
+      <div class="container is-max-desktop">
+        <p>
+        <h3 class="title is-5">Sampling Based Planning</h3>
+        </p>
+        <div class="columns is-centered is-mobile is-vcentered">
+          <div class="column is-full-width">
+            <p>
+              We evaluate our Semantic World Model as a world model for control using the Model Predictive Path Integral (MPPI) planner across 
+              LangTable and OGBench tasks. SWM enables direct planning in semantic space—without pixel-level reconstruction—achieving near-perfect 
+              success rates on reaching and block separation tasks. While MPPI planning is computationally intensive for complex domains,
+              these results demonstrate that SWM can effectively guide low-level control through high-level semantic reasoning.
+
+            </p>
+          </div>
+        </div>
+      </div>
+      <div class="columns is-mobile is-centered" style="align-items: baseline;">
+        <div class="column is-4 has-text-centered">
+          <video autoplay playsinline loop muted controls>
+            <source src="./static/videos/lt_reaching.mp4" type="video/mp4">
+          </video>
+          <p>LangTable Reaching (100% success rate)</p>
+        </div>
+      
+        <div class="column is-4 has-text-centered">
+          <video autoplay playsinline loop muted controls>
+            <source src="./static/videos/lt_seperate_blocks.mp4" type="video/mp4">
+          </video>
+          <p>LangTable Separation (100% success rate). Goal: separate the star blocks</p>
+        </div>
+      
+        <div class="column is-4 has-text-centered">
+          <video autoplay playsinline loop muted controls>
+            <source src="./static/videos/og_reaching_planning.mp4" type="video/mp4">
+          </video>
+          <p>OgBench Reaching (97% success rate)</p>
+        </div>
+      </div>   
+      <h3 class="title is-5">Multi Step Tasks</h3>
+      </p>
+      <div class="columns is-centered is-mobile is-vcentered">
+        <div class="column is-full-width">
+            
+          <img src="./static/images/multistep_fig.png" class="money-figure" alt="Multi Step Results"
+            style="display: block; margin: 0 auto; max-width: 80%; height: auto;" />
+          <br>
+          <p>
+                Extend planning to long-horizon problems by chaining short subgoals verified by SWM. For each subgoal we ask a simple yes/no question 
+                (e.g. <em>"Is the peg touching the red cube?"</em>) and transition subgoals after the model predicts completion. Below are example 
+                multi step tasks:
+                
+
+            <!-- To solve long-horizon tasks, we can extend the aforementioned planning procedure to a multi-step formulation. 
+            We leverage the capabilities of SWM to decide task progress and transition between subgoals without requiring any additional components. 
+            Concretely, we define a series of sequential subgoals ${g_1, g_2, \dots, g_T}$, where each subgoal $g_t$ is associated with a question and a 
+            desired answer corresponding to when the subgoal was completed. We sequentially execute each subgoal and verify its completion using \algname{}. 
+            This is feasible at no additional cost because we include zero-horizon examples in the training dataset. For example, in the block picking task,
+             we used the following sub-goals: ["Is the block grasped?", "Is the block stacked on top of the other block?"],  with the desired answers ["yes", "yes"] 
+             in order to accomplish a two-stage task. This method is used to extend planning to multi-step LangTable tasks.              -->
+          </p>
+          <br>
+        </div>
+      </div>
+
+      <div class="columns is-mobile" style="align-items: baseline;">
+        <!-- <div class="column is-4 has-text-centered">
+          <video autoplay playsinline loop muted controls>
+            <source src="./static/videos/multistep/gc_bm_yp_rm.mp4" type="video/mp4">
+          </video>
+          <p>Green cube to blue moon and and yellow pentagon to red moon</p>
+        </div> -->
+      
+        <div class="column is-4 is-offset-1 has-text-centered">
+          <video autoplay playsinline loop muted controls>
+            <source src="./static/videos/multistep/rp_bm_ys_bc_gc_bm.mp4" type="video/mp4">
+          </video>
+          <p>Red pentagon and green cube to blue moon, and yellow star to blue cube
+          </p>
+        </div>
+      
+        <div class="column is-4 is-offset-2 has-text-centered">
+          <video autoplay playsinline loop muted controls>
+            <source src="./static/videos/multistep/ys_bc_yp_rm.mp4" type="video/mp4">
+          </video>
+          <p>Yellow star to blue cube, yellow pentagon to red moon
+          </p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+  <!--/ Real-World Experiments -->
+
+
+  <!-- Architecture -->
+  <section class="section">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered is-mobile is-vcentered">
+        <div class="column is-full-width">
+          <h2 class="title is-3">Model Architecture</h2>
+        </div>
+      </div>
+      <div class="container is-max-desktop">
+        <div class="columns is-centered is-mobile is-vcentered">
+          <div class="column is-full-width">
+            <img src="./static/images/architecture_figure_v4.png" class="money-figure" alt="Architecture Figure"
+              style="display: block; margin: 0 auto; max-width: 70%; height: auto;" />
+            <br>
+            <br>
+            <p>
+              <b>Semantic World Model Architecture:</b> We design our model to answer questions about future events 
+              conditioned on actions. Since this is fundamentally a visual question-answering task with action conditioning, 
+              we bootstrap from a large pretrained VLM to transfer its generalization capabilities to robotics tasks. 
+              Our architecture is based on PaliGemma (3B parameters), which contains three core pretrained components: 
+              a Gemma language model, a SigCLIP vision encoder, and projection matrices. To condition the model on actions, 
+              we introduce a new projection matrix that maps actions into the language model's token embedding space, similar 
+              to how images are projected.   This approach enables the model to capture environment dynamics in language space without requiring pixel-level 
+              reconstruction, making it efficient for planning by evaluating candidate action sequences against desired outcomes.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!--/ Architecture -->
+ <!-- Ablations -->
+ <section class="section" style="padding-top: 1rem;">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered is-mobile is-vcentered">
+      <div class="column is-full-width">
+        <h2 class="title is-3">Ablations</h2>
+      </div>
+    </div>
+    <p>
+    <h3 class="title is-5">Out of Distribution Performance</h3>
+    </p>
+    <div class="columns is-centered is-mobile is-vcentered">
+      <div class="column is-full-width">
+          
+        <img src="./static/images/ood_improvement.png" class="money-figure" alt="OOD Performance Results"
+        style="display: block; margin: 0 auto; max-width: 50%; height: auto;" />
+        <br>
+        <ul>
+          <li><strong>Compositional Generalization:</strong> Introduce new colored blocks and modify color-shape pairs in LangTable
+            <ul>
+              <li>28% improvement over base policies</li>
+              <li>Retains pretraining knowledge for compositional generalization</li>
+            </ul>
+          </li>
+          <li><strong>Background Robustness:</strong> Change OGBench background to novel color combinations
+            <ul>
+              <li>15% improvement over base policy</li>
+              <li>Successfully generalizes to new visual conditions</li>
+            </ul>
+          </li>
+        </ul>
+
+        <div class="content has-text-centered">
+          <video id="replay-video" autoplay playsinline loop muted controls>
+            <source src="./static/videos/yellow_moon_purple_cube_ood.mp4" type="video/mp4">
+          </video>
+          <p>OOD Language Table environment: Yellow moon to purple cube.</p>
+        </div>
+
+    </div>
+
+
+    </div>
+
+    
+    <div class="container is-max-desktop">
+      <p>
+      <h3 class="title is-5">Learning from negative data</h3>
+      </p>
+      <div class="columns is-centered is-mobile is-vcentered">
+          <p>
+                <div class="column is-10 is-offset-1">
+                  <br>
+                  <div class="table-container is-mobile">
+                    <table class="table is-fullwidth is-bordered is-striped">
+                      <thead>
+                        <tr>
+                          <th></th>
+                          <th colspan="2" class="has-text-centered"><em>LangTable</em></th>
+                          <th colspan="2" class="has-text-centered"><em>OGBench</em></th>
+                        </tr>
+                        <tr>
+                          <th>Dataset Type</th>
+                          <th class="has-text-centered">Expert Data</th>
+                          <th class="has-text-centered">Expert Data OOD</th>
+                          <th class="has-text-centered">Expert Data</th>
+                          <th class="has-text-centered">Expert Data OOD</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td>Sub Optimal</td>
+                          <td class="has-text-centered">85.98 ± 0.33</td>
+                          <td class="has-text-centered">81.99 ± 1.46</td>
+                          <td class="has-text-centered">90.83 ± 0.39</td>
+                          <td class="has-text-centered">85.56 ± 1.10</td>
+                        </tr>
+                        <tr>
+                          <td>Expert</td>
+                          <td class="has-text-centered">91.27 ± 0.79</td>
+                          <td class="has-text-centered">86.49 ± 0.39</td>
+                          <td class="has-text-centered">96.53 ± 0.13</td>
+                          <td class="has-text-centered">87.33 ± 2.13</td>
+                        </tr>
+                        <tr class="is-selected">
+                          <td><strong>Combined</strong></td>
+                          <td class="has-text-centered"><strong>92.92 ± 0.34</strong></td>
+                          <td class="has-text-centered"><strong>88.32 ± 2.10</strong></td>
+                          <td class="has-text-centered"><strong>96.86 ± 0.13</strong></td>
+                          <td class="has-text-centered"><strong>88.16 ± 1.54</strong></td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                  <br>
+                  <p>
+                    Training with combined sub-optimal and expert data yields the best performance across both in-domain and out-of-distribution scenarios, 
+                    demonstrating the value of learning from diverse data quality.
+                  </p>
+
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <h3 class="title is-5">Visualization of Attention Maps</h3>
+    </p>
+    <div class="columns is-centered is-mobile is-vcentered">
+      <div class="column is-full-width">
+          
+        <div class="content has-text-centered">
+          <video id="replay-video" autoplay playsinline loop muted controls>
+            <source src="./static/videos/attn_maps.mp4" type="video/mp4">
+          </video>
+        </div>
+        <br>
+        <p>
+          Visualization of attention maps in an intermediate layer of the SWM overlayed on current observation. 
+          The model is prompted with the question "is the red moon touching the blue cube?".
+        </p>
+        <br>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+  <section class="section" id="BibTeX">
+    <div class="container is-max-desktop content">
+      <h2 class="title">BibTeX</h2>
+      <pre><code>Comming Soon!
+</code></pre>
+    </div>
+  </section>
+  <footer class="footer">
+    <div class="container">
+      <div class="columns is-centered">
+        <div class="column is-8">
+          <div class="content">
+            <p>
+              This website is based on the <a href="https://github.com/nerfies/nerfies.github.io"
+                target="_blank">Nerfies website template</a>,
+              which is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"
+                target="_blank">Creative
+                Commons Attribution-ShareAlike 4.0 International License</a>.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+</body>
+
+</html>

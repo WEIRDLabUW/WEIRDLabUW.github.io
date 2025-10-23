@@ -188,17 +188,34 @@ function populateSampleQuestions(sampleQuestions) {
     // Use first sample question as placeholder
     elements.questionInput.placeholder = 'e.g., ' + sampleQuestions[0].question;
     
-    // Add label
-    const label = document.createElement('div');
-    label.textContent = 'Sample questions (click to use):';
-    label.className = 'sample-questions-label';
-    elements.sampleQuestions.appendChild(label);
+    // Create toggle button
+    const toggleBtn = document.createElement('div');
+    toggleBtn.className = 'sample-questions-toggle';
+    toggleBtn.innerHTML = `
+        <span>Sample questions (click to use)</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M6 9l6 6 6-6"/>
+        </svg>
+    `;
     
-    // Add question items
+    // Create content container
+    const content = document.createElement('div');
+    content.className = 'sample-questions-content';
+    
+    // Add question items to content
     sampleQuestions.forEach(item => {
         const questionDiv = createSampleQuestionElement(item);
-        elements.sampleQuestions.appendChild(questionDiv);
+        content.appendChild(questionDiv);
     });
+    
+    // Add toggle functionality
+    toggleBtn.addEventListener('click', () => {
+        toggleBtn.classList.toggle('collapsed');
+        content.classList.toggle('collapsed');
+    });
+    
+    elements.sampleQuestions.appendChild(toggleBtn);
+    elements.sampleQuestions.appendChild(content);
 }
 
 function createSampleQuestionElement(item) {
@@ -254,8 +271,13 @@ async function askQuestion() {
             throw new Error(data.detail || data.error || 'Failed to get answer');
         }
         
-        // Remove sample questions after first question is asked
-        elements.sampleQuestions.innerHTML = '';
+        // Collapse sample questions after first question is asked
+        const toggleBtn = elements.sampleQuestions.querySelector('.sample-questions-toggle');
+        const content = elements.sampleQuestions.querySelector('.sample-questions-content');
+        if (toggleBtn && content && !toggleBtn.classList.contains('collapsed')) {
+            toggleBtn.classList.add('collapsed');
+            content.classList.add('collapsed');
+        }
         
         // Display answer
         displayAnswer(data);

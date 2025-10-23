@@ -297,6 +297,52 @@ section:last-child {
     margin-bottom: 0.5rem;
 }
 
+.sample-questions-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.5rem 0.75rem;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    cursor: pointer;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    transition: all 0.2s ease;
+    margin-bottom: 0.5rem;
+}
+
+.sample-questions-toggle:hover {
+    background: var(--bg-tertiary);
+    border-color: var(--primary-color);
+}
+
+.sample-questions-toggle svg {
+    transition: transform 0.2s ease;
+    width: 16px;
+    height: 16px;
+}
+
+.sample-questions-toggle.collapsed svg {
+    transform: rotate(-90deg);
+}
+
+.sample-questions-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    overflow: hidden;
+    transition: max-height 0.3s ease, opacity 0.3s ease;
+    max-height: 500px;
+    opacity: 1;
+}
+
+.sample-questions-content.collapsed {
+    max-height: 0;
+    opacity: 0;
+    margin: 0;
+}
+
 .placeholder-text {
     color: var(--text-secondary);
     font-size: 0.85rem;

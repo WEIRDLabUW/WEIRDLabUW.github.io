@@ -131,7 +131,9 @@ async function loadRandomPair() {
     showLoading();
     
     try {
-        const response = await fetch(`${API_BASE_URL}/api/random_pair`);
+        const response = await fetch(`${API_BASE_URL}/api/random_pair`, {
+            credentials: 'include'
+        });
         const data = await response.json();
         
         if (!response.ok) {
@@ -259,6 +261,7 @@ async function askQuestion() {
             headers: {
                 'Content-Type': 'application/json',
             },
+            credentials: 'include',
             body: JSON.stringify({ 
                 session_id: sessionId,
                 question: question 
@@ -632,6 +635,7 @@ async function submitActions() {
             headers: {
                 'Content-Type': 'application/json',
             },
+            credentials: 'include',
             body: JSON.stringify({ 
                 session_id: sessionId,
                 points: drawnPoints 

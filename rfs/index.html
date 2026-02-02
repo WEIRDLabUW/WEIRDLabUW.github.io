@@ -6,10 +6,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>RFS</title>
   <!-- <link rel="icon" href="./figs/logo.png" type="image/png"> -->
+  <link rel="stylesheet" href="style.css">
   <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-PYVRSFMDRL"></script>
   
-
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+      }
+    }
+  </script>
   <script>
     window.MathJax = {
       tex: {
@@ -28,6 +36,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1">
   
+  <script defer type="module" src="src/app.js"></script>
 
 
 
@@ -47,12 +56,18 @@
 
     gtag('config', 'G-PYVRSFMDRL');
   </script>
+  <link rel="stylesheet" href="style.css" />
 
   <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro"
         rel="stylesheet">
 
+  <link rel="stylesheet" href="./static/css/bulma.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-carousel.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-slider.min.css">
+  <link rel="stylesheet" href="./static/css/fontawesome.all.min.css">
   <link rel="stylesheet"
         href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  <link rel="stylesheet" href="./static/css/index.css">
 
 
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
@@ -111,18 +126,14 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 </script>
 
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+  integrity="sha512-K5m4Jv..."
+  crossorigin="anonymous"
+  referrerpolicy="no-referrer"
+/>
 
-
-  <script type="importmap">
-    {
-      "imports": {
-        "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
-        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
-      }
-    }
-  </script>
-  <script type="module" crossorigin src="/rfs/assets/index-CLSeec3z.js"></script>
-  <link rel="stylesheet" crossorigin href="/rfs/assets/index-DdvoROVj.css">
 </head>
 
 
@@ -223,20 +234,20 @@ document.addEventListener('DOMContentLoaded', () => {
   <!-- 4x4 video background -->
   <div class="hero-video-grid">
     <!-- repeat 16 times -->
-    <video src="/rfs/assets/rgb01-D3pVFLOw.mp4" muted loop autoplay playsinline></video>
-    <video src="/rfs/assets/episode_4-CQIxmypo.mp4" muted loop autoplay playsinline></video>
-    <video src="/rfs/assets/rgb01-DuzSqPXj.mp4" muted loop autoplay playsinline></video>
-    <video src="/rfs/assets/episode_24-FVVyrO-k.mp4" muted loop autoplay playsinline></video>
+    <video src="models/stack/rgb01.mp4" muted loop autoplay playsinline></video>
+    <video src="models/push2grasp/episode_4.mp4" muted loop autoplay playsinline></video>
+    <video src="models/pour/rgb01.mp4" muted loop autoplay playsinline></video>
+    <video src="models/pack/episode_24.mp4" muted loop autoplay playsinline></video>
 
     <!-- <video src="models/push2grasp/episode_4.mp4" muted loop autoplay playsinline></video>
     <video src="models/push2grasp/episode_23.mp4" muted loop autoplay playsinline></video>
     <video src="models/pack/episode_24.mp4" muted loop autoplay playsinline></video>
     <video src="models/pack/episode_12.mp4" muted loop autoplay playsinline></video> -->
 
-    <video class="fast-video" src="/rfs/assets/rfs_cup-BPLbh3U8.mp4" muted loop autoplay playsinline></video>
-    <video class="fast-video" src="/rfs/assets/rfs_box-CbhXPNHq.mp4" muted loop autoplay playsinline></video>
-    <video class="fast-video" src="/rfs/assets/rfs_bee-DHqZiP5R.mp4" muted loop autoplay playsinline></video>
-    <video class="fast-video" src="/rfs/assets/rfs_bunny-CVe05RUv.mp4" muted loop autoplay playsinline></video>
+    <video class="fast-video" src="models/place/real_robot/rfs_cup.mp4" muted loop autoplay playsinline></video>
+    <video class="fast-video" src="models/place/real_robot/rfs_box.mp4" muted loop autoplay playsinline></video>
+    <video class="fast-video" src="models/place/real_robot/rfs_bee.mp4" muted loop autoplay playsinline></video>
+    <video class="fast-video" src="models/place/real_robot/rfs_bunny.mp4" muted loop autoplay playsinline></video>
 
     
 
@@ -321,7 +332,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   <!-- Init Policy -->
   <div class="init-row">
-    <video src="/rfs/assets/teaser_speed-BcUIe5xD.mp4"
+    <video src="models/videos/teaser_speed.mp4"
            muted loop autoplay playsinline controls></video>
   </div>
 
@@ -366,7 +377,7 @@ function toggleSection(id, header) {
   <!-- Top overlay -->
   
 
-  <video src="/rfs/assets/rfs-CGY04x_C.mp4"
+  <video src="models/rfs.mp4"
         muted loop autoplay playsinline controls
         style="width: 100%; border-radius: 12px;"></video>
 
@@ -390,7 +401,7 @@ function toggleSection(id, header) {
 
 
     
-  <video src="/rfs/assets/overview-D33UtLbh.mp4"
+  <video src="models/overview.mp4"
         muted loop autoplay playsinline controls
         style="width: 100%; border-radius: 12px;"></video>
 
@@ -498,7 +509,7 @@ function toggleSection(id, header) {
 
       <div class="media-box video-panel">
         <video
-          src="/rfs/assets/rgb_video03-csZppk3c.mp4"
+          src="models/stack/rgb_video03.mp4"
           controls
           muted
           loop
@@ -509,7 +520,7 @@ function toggleSection(id, header) {
 
       <div class="media-box video-panel">
         <video
-          src="/rfs/assets/rgb03-C9n5mIeX.mp4"
+          src="models/pour/rgb03.mp4"
           controls
           muted
           loop
@@ -520,7 +531,7 @@ function toggleSection(id, header) {
 
        <div class="media-box video-panel">
          <video
-          src="/rfs/assets/episode_12-B0HRmMOe.mp4"
+          src="models/pack/episode_12.mp4"
           controls
           muted
           loop
@@ -531,7 +542,7 @@ function toggleSection(id, header) {
 
        <div class="media-box video-panel">
         <video
-          src="/rfs/assets/episode_5-Ca1nXbmC.mp4"
+          src="models/push2grasp/episode_5.mp4"
           controls
           muted
           loop
@@ -669,7 +680,7 @@ function toggleSection(id, header) {
 <div class="media-glb-row four-col">
       <div class="media-box video-panel">
         <video
-          src="/rfs/assets/rgb_video01-wm9AZBex.mp4"
+          src="models/grasp/rgb_video01.mp4"
           controls
           muted
           loop
@@ -689,7 +700,7 @@ function toggleSection(id, header) {
 
       <div class="media-box video-panel">
         <video
-          src="/rfs/assets/rgb_video02-8xjeZs09.mp4"
+          src="models/grasp/rgb_video02.mp4"
           controls
           muted
           loop
@@ -830,7 +841,7 @@ function toggleSection(id, header) {
     <div class="media-glb-row four-col">
       <div class="media-box video-panel">
         <video
-          src="/rfs/assets/rgb01-DKY4lSzY.mp4"
+          src="models/place/rgb01.mp4"
           controls
           muted
           loop
@@ -850,7 +861,7 @@ function toggleSection(id, header) {
 
       <div class="media-box video-panel">
         <video
-          src="/rfs/assets/rgb02-DyobwcxT.mp4"
+          src="models/place/rgb02.mp4"
           controls
           muted
           loop
@@ -997,7 +1008,7 @@ function toggleSection(id, header) {
   <div class="media-glb-row four-col">
     <div class="media-box video-panel">
       <video
-        src="/rfs/assets/episode_1-DiKHzLOZ.mp4"
+        src="models/pack/episode_1.mp4"
         controls
         muted
         loop
@@ -1007,7 +1018,7 @@ function toggleSection(id, header) {
 
     <div class="media-box video-panel">
       <video
-        src="/rfs/assets/episode_8-BKr7dpbW.mp4"
+        src="models/pack/episode_8.mp4"
         controls
         muted
         loop
@@ -1019,7 +1030,7 @@ function toggleSection(id, header) {
 
     <div class="media-box video-panel">
       <video
-        src="/rfs/assets/episode_12-B0HRmMOe.mp4"
+        src="models/pack/episode_12.mp4"
         controls
         muted
         loop
@@ -1029,7 +1040,7 @@ function toggleSection(id, header) {
 
       <div class="media-box video-panel">
       <video
-        src="/rfs/assets/episode_24-FVVyrO-k.mp4"
+        src="models/pack/episode_24.mp4"
         controls
         muted
         loop
@@ -1120,7 +1131,7 @@ function toggleSection(id, header) {
     <div class="media-glb-row four-col">
           <div class="media-box video-panel">
             <video
-              src="/rfs/assets/episode_4-CQIxmypo.mp4"
+              src="models/push2grasp/episode_4.mp4"
               controls
               muted
               loop
@@ -1131,7 +1142,7 @@ function toggleSection(id, header) {
 
           <div class="media-box video-panel">
             <video
-              src="/rfs/assets/episode_5-Ca1nXbmC.mp4"
+              src="models/push2grasp/episode_5.mp4"
               controls
               muted
               loop
@@ -1144,7 +1155,7 @@ function toggleSection(id, header) {
 
           <div class="media-box video-panel">
             <video
-              src="/rfs/assets/episode_23-DwSOYMRm.mp4"
+              src="models/push2grasp/episode_23.mp4"
               controls
               muted
               loop
@@ -1155,7 +1166,7 @@ function toggleSection(id, header) {
 
            <div class="media-box video-panel">
             <video
-              src="/rfs/assets/episode_29-DxHUap7J.mp4"
+              src="models/push2grasp/episode_29.mp4"
               controls
               muted
               loop
@@ -1243,7 +1254,7 @@ function toggleSection(id, header) {
 
   <div class="media-glb-row four-col">
     <div class="media-box video-panel">
-      <video src="/rfs/assets/rgb01-DuzSqPXj.mp4" controls muted loop autoplay playsinline></video>
+      <video src="models/pour/rgb01.mp4" controls muted loop autoplay playsinline></video>
     </div>
 
     <main class="wrap embedded-viewer" data-model="models/pour/animation01.glb">
@@ -1252,7 +1263,7 @@ function toggleSection(id, header) {
     </main>
 
     <div class="media-box video-panel">
-      <video src="/rfs/assets/rgb02-D0TDKkDG.mp4" controls muted loop autoplay playsinline></video>
+      <video src="models/pour/rgb02.mp4" controls muted loop autoplay playsinline></video>
     </div>
 
     <main class="wrap embedded-viewer" data-model="models/pour/animation02.glb">
@@ -1377,7 +1388,7 @@ function toggleSection(id, header) {
 
   <div class="media-glb-row four-col">
     <div class="media-box video-panel">
-      <video src="/rfs/assets/rgb01-D3pVFLOw.mp4" controls muted loop autoplay playsinline></video>
+      <video src="models/stack/rgb01.mp4" controls muted loop autoplay playsinline></video>
     </div>
 
     <main class="wrap embedded-viewer" data-model="models/stack/animation01.glb">
@@ -1386,7 +1397,7 @@ function toggleSection(id, header) {
     </main>
 
     <div class="media-box video-panel">
-      <video src="/rfs/assets/rgb02-BnGebNdr.mp4" controls muted loop autoplay playsinline></video>
+      <video src="models/stack/rgb02.mp4" controls muted loop autoplay playsinline></video>
     </div>
 
     <main class="wrap embedded-viewer" data-model="models/stack/animation02.glb">
@@ -1656,7 +1667,7 @@ function toggleSection(id, header) {
   <div class="compare-col">
     <div class="result-row-label ">🦾 RFS Rollout</div>
     <div class="video-grid multi same-row3">
-      <video  class="fast-video" src="/rfs/assets/rfs_bunny-CVe05RUv.mp4" muted loop autoplay playsinline></video>
+      <video  class="fast-video" src="models/place/real_robot/rfs_bunny.mp4" muted loop autoplay playsinline></video>
       <!-- <video src="models/place/real_robot/rfs_bottle.mp4" muted loop autoplay playsinline></video> -->
     </div>
   </div>
@@ -1664,7 +1675,7 @@ function toggleSection(id, header) {
   <div class="compare-col">
     <div class="result-row-label">💡 Zero-shot Sim2Real</div>
     <div class="video-grid multi same-row3">
-      <video class="fast-video" src="/rfs/assets/zeroshot_bunny-B_3rjZlT.mp4" muted loop autoplay playsinline></video>
+      <video class="fast-video" src="models/place/real_robot/zeroshot_bunny.mp4" muted loop autoplay playsinline></video>
       <!-- <video src="models/place/real_robot/zeroshot_bottle.mp4" muted loop autoplay playsinline></video>
     </div> -->
   </div>
@@ -1749,21 +1760,21 @@ function toggleSection(id, header) {
 
         <div class="result-label" data-split="unknown">🦾 RFS Rollout</div>
 <div class="video-grid multi same-row2" data-split="unknown">
-  <video class="fast-video" src="/rfs/assets/rfs_bee-DHqZiP5R.mp4" muted loop autoplay playsinline></video>
-  <video class="fast-video" src="/rfs/assets/rfs_flamingo-CkwlX_vf.mp4" muted loop autoplay playsinline></video>
-  <video class="fast-video" src="/rfs/assets/rfs_pig-zX8N24uc.mp4" muted loop autoplay playsinline></video>
-  <video class="fast-video" src="/rfs/assets/rfs_box-CbhXPNHq.mp4" muted loop autoplay playsinline></video>
-  <video class="fast-video" src="/rfs/assets/rfs_cup-BPLbh3U8.mp4" muted loop autoplay playsinline></video>
+  <video class="fast-video" src="models/place/real_robot/rfs_bee.mp4" muted loop autoplay playsinline></video>
+  <video class="fast-video" src="models/place/real_robot/rfs_flamingo.mp4" muted loop autoplay playsinline></video>
+  <video class="fast-video" src="models/place/real_robot/rfs_pig.mp4" muted loop autoplay playsinline></video>
+  <video class="fast-video" src="models/place/real_robot/rfs_box.mp4" muted loop autoplay playsinline></video>
+  <video class="fast-video" src="models/place/real_robot/rfs_cup.mp4" muted loop autoplay playsinline></video>
   
 </div>
 
 <div class="result-label" data-split="unknown">💡 Zero-shot Sim2Real</div>
 <div class="video-grid multi same-row2" data-split="unknown">
-  <video class="fast-video" src="/rfs/assets/zeroshot_bee-D9_owhT9.mp4" muted loop autoplay playsinline></video>
-  <video class="fast-video" src="/rfs/assets/zeroshot_flamingo-BFkzhpCQ.mp4" muted loop autoplay playsinline></video>
-  <video class="fast-video" src="/rfs/assets/zeroshot_pig-DJtSJbb4.mp4" muted loop autoplay playsinline></video>
-  <video class="fast-video" src="/rfs/assets/zeroshot_box-CwRzP83e.mp4" muted loop autoplay playsinline></video>
-  <video class="fast-video" src="/rfs/assets/zeroshot_cup-CRR4fZz9.mp4" muted loop autoplay playsinline></video>
+  <video class="fast-video" src="models/place/real_robot/zeroshot_bee.mp4" muted loop autoplay playsinline></video>
+  <video class="fast-video" src="models/place/real_robot/zeroshot_flamingo.mp4" muted loop autoplay playsinline></video>
+  <video class="fast-video" src="models/place/real_robot/zeroshot_pig.mp4" muted loop autoplay playsinline></video>
+  <video class="fast-video" src="models/place/real_robot/zeroshot_box.mp4" muted loop autoplay playsinline></video>
+  <video class="fast-video" src="models/place/real_robot/zeroshot_cup.mp4" muted loop autoplay playsinline></video>
   
 </div>  
 
@@ -1874,16 +1885,16 @@ function toggleSection(id, header) {
                 <div class="compare-col">
                   <div class="result-row-label ">🦾 RFS Rollout</div>
                   <div class="video-grid multi same-row">
-                    <video class="fast-video" src="/rfs/assets/rfs_bunny-BOD2E5vO.mp4" muted loop autoplay playsinline></video>
-                    <video class="fast-video" src="/rfs/assets/rfs_bottle-AFhvni-9.mp4" muted loop autoplay playsinline></video>
+                    <video class="fast-video" src="models/grasp/real/rfs_bunny.mp4" muted loop autoplay playsinline></video>
+                    <video class="fast-video" src="models/grasp/real/rfs_bottle.mp4" muted loop autoplay playsinline></video>
                   </div>
                 </div>
 
                 <div class="compare-col">
                   <div class="result-row-label">💡 Zero-shot Sim2Real</div>
                   <div class="video-grid multi same-row">
-                    <video class="fast-video" src="/rfs/assets/zeroshot_bunny-B1DacdVA.mp4" muted loop autoplay playsinline></video>
-                    <video class="fast-video" src="/rfs/assets/zeroshot_bottle-CVc228m7.mp4" muted loop autoplay playsinline></video>
+                    <video class="fast-video" src="models/grasp/real/zeroshot_bunny.mp4" muted loop autoplay playsinline></video>
+                    <video class="fast-video" src="models/grasp/real/zeroshot_bottle.mp4" muted loop autoplay playsinline></video>
                   </div>
                 </div>
 
@@ -1969,18 +1980,18 @@ function toggleSection(id, header) {
 
          <div class="result-label" data-split="unknown">🦾 RFS Rollout</div>
         <div class="video-grid multi" data-split="unknown">
-          <video class="fast-video" src="/rfs/assets/rfs_bee-DpFMcIFE.mp4" muted loop autoplay playsinline></video>
-          <video class="fast-video" src="/rfs/assets/rfs_flamingo-Cv0RR5B1.mp4" muted loop autoplay playsinline></video>
-          <video class="fast-video" src="/rfs/assets/rfs_pig-YUHcij2g.mp4" muted loop autoplay playsinline></video>
-          <video class="fast-video" src="/rfs/assets/rfs_spider-DZvWimVo.mp4" muted loop autoplay playsinline></video>
+          <video class="fast-video" src="models/grasp/real/rfs_bee.mp4" muted loop autoplay playsinline></video>
+          <video class="fast-video" src="models/grasp/real/rfs_flamingo.mp4" muted loop autoplay playsinline></video>
+          <video class="fast-video" src="models/grasp/real/rfs_pig.mp4" muted loop autoplay playsinline></video>
+          <video class="fast-video" src="models/grasp/real/rfs_spider.mp4" muted loop autoplay playsinline></video>
         </div>
 
         <div class="result-label" data-split="unknown">💡 Zero-shot Sim2Real</div>
         <div class="video-grid multi" data-split="unknown">
-          <video class="fast-video" src="/rfs/assets/zeroshot_bee-CmybTVJz.mp4" muted loop autoplay playsinline></video>
-          <video class="fast-video" src="/rfs/assets/zeroshot_ball-BpsWj7oK.mp4" muted loop autoplay playsinline></video>
-          <video class="fast-video" src="/rfs/assets/zeroshot_pig-BkHE9MiF.mp4" muted loop autoplay playsinline></video>
-          <video class="fast-video" src="/rfs/assets/zeroshot_spider-CJmZkmNs.mp4" muted loop autoplay playsinline></video>
+          <video class="fast-video" src="models/grasp/real/zeroshot_bee.mp4" muted loop autoplay playsinline></video>
+          <video class="fast-video" src="models/grasp/real/zeroshot_ball.mp4" muted loop autoplay playsinline></video>
+          <video class="fast-video" src="models/grasp/real/zeroshot_pig.mp4" muted loop autoplay playsinline></video>
+          <video class="fast-video" src="models/grasp/real/zeroshot_spider.mp4" muted loop autoplay playsinline></video>
         </div>
 
 
@@ -2091,7 +2102,7 @@ function toggleSection(id, header) {
 
     <!-- Init Policy -->
     <div class="init-row">
-      <video src="/rfs/assets/final-sL2ihuPb.mp4"
+      <video src="models/videos/final.mp4"
             muted loop autoplay playsinline controls></video>
     </div>
 
@@ -2245,6 +2256,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
       viewer.replaceWith(placeholder);
     }
+  });
+</script>
+
+
+<script>
+  const nav = document.querySelector('.floating-nav');
+  const trigger = document.querySelector('.floating-nav-trigger');
+
+  trigger.addEventListener('click', () => {
+    nav.classList.toggle('open');
   });
 </script>
 

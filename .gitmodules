@@ -1,4 +1,0 @@
-[submodule "rfs"]
-	path = rfs
-	url = https://github.com/Entongsu/rfs.git
-	branch = gh-pages

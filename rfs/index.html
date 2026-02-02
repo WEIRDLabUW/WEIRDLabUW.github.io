@@ -1,0 +1,2251 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RFS</title>
+  <!-- <link rel="icon" href="./figs/logo.png" type="image/png"> -->
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-PYVRSFMDRL"></script>
+  
+
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      }
+    };
+  </script>
+
+
+
+
+ <meta charset="utf-8">
+  <meta name="description"
+        content="Reinforcement learning with Residual flow steering for dexterous manipulation.">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  
+
+
+
+  
+  <title>RFS</title>
+
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-PYVRSFMDRL"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+
+    function gtag() {
+      dataLayer.push(arguments);
+    }
+
+    gtag('js', new Date());
+
+    gtag('config', 'G-PYVRSFMDRL');
+  </script>
+
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro"
+        rel="stylesheet">
+
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script defer src="./static/js/fontawesome.all.min.js"></script>
+  <script src="./static/js/bulma-carousel.min.js"></script>
+  <script src="./static/js/bulma-slider.min.js"></script>
+  <script src="./static/js/index.js"></script>
+
+
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const items = document.querySelectorAll('.progress-item');
+  const fill = document.querySelector('.progress-line-fill');
+  const track = document.querySelector('.progress-track');
+
+  const sections = [];
+
+  items.forEach(item => {
+    const id = item.dataset.section;
+    const el = document.getElementById(id);
+    if (el) sections.push({ id, el });
+  });
+
+  if (!sections.length) return;
+
+  function updateProgress() {
+    const vh = window.innerHeight;
+    const threshold = vh * 0.35;
+
+    let active = 0;
+    sections.forEach((s, i) => {
+      if (s.el.getBoundingClientRect().top <= threshold) {
+        active = i;
+      }
+    });
+
+    // Update dots
+    items.forEach(item => {
+      const idx = sections.findIndex(s => s.id === item.dataset.section);
+      item.classList.remove('active', 'passed');
+      if (idx === active) item.classList.add('active');
+      if (idx < active) item.classList.add('passed');
+    });
+
+    // Update vertical fill
+    if (fill && track) {
+      const maxH = track.offsetHeight - 32;
+      const h = (active / (sections.length - 1)) * maxH;
+      fill.style.height = `${Math.max(0, h)}px`;
+    }
+  }
+
+  window.addEventListener('scroll', updateProgress, { passive: true });
+  updateProgress();
+});
+</script>
+
+
+
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+      }
+    }
+  </script>
+  <script type="module" crossorigin src="/rfs/assets/index-Kfz-nWo0.js"></script>
+  <link rel="stylesheet" crossorigin href="/rfs/assets/index-BoJiDSk7.css">
+</head>
+
+
+
+
+
+
+<body>
+  <!-- Right floating navigation -->
+  <nav class="floating-nav" id="floatingNav">
+    <div class="floating-nav-trigger">
+      <i class="fas fa-list"></i>
+    </div>
+    <div class="floating-nav-content">
+      <ul class="floating-nav-menu">
+       <li><a href="#motivation" class="floating-nav-link"></a></li>
+        <li><a href="#motivation" class="floating-nav-link"></a></li>
+        <li><a href="#motivation" class="floating-nav-link">Motivation</a></li>
+        <li><a href="#abstract" class="floating-nav-link">Abstract</a></li>
+        <li><a href="#approach" class="floating-nav-link">Approach</a></li>
+        <li><a href="#simulation_result" class="floating-nav-link">Simulation Results</a></li>
+        <li><a href="#real_result" class="floating-nav-link">Real World Results</a></li>
+        <li><a href="#final" class="floating-nav-link">Last but not the least</a></li>
+      </ul>
+    </div>
+  </nav>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-ZWM4GPQF93"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-ZWM4GPQF93');
+</script>
+
+<!-- 
+<section class="hero">
+  <div class="hero-body">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered">
+        <div class="column has-text-centered">
+          <h1 class="title is-1 publication-title">RFS: Reinforcement learning with Residual flow steering for dexterous manipulation</h1>
+          <div class="is-size-5 publication-authors">
+            <span class="author-block">
+              <a href="https://entongsu.github.io/">Entong Su</a><sup>1</sup>,</span>
+            <span class="author-block">
+              <a href="https://tyler-westenbroek.github.io/">Tyler Westenbroek</a><sup>1</sup>,</span>
+            <span class="author-block">
+              <a href="https://scholar.google.com/citations?user=DkUUhXEAAAAJ&hl=en">Anusha Nagabandi</a><sup>2</sup>,
+            </span>
+            <span class="author-block">
+              <a href="https://homes.cs.washington.edu/~abhgupta/">Abhishek Gupta</a><sup>1</sup>,
+            </span>
+            
+          </div>
+
+          <div class="is-size-5 publication-authors">
+            <span class="author-block"><sup>1</sup>University of Washington,</span>
+            <span class="author-block"><sup>2</sup>Amazon</span>
+          </div>
+
+          <div class="column has-text-centered">
+            <div class="publication-links">
+             
+              <span class="link-block">
+                <a href="https://arxiv.org/pdf/2011.12948"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="fas fa-file-pdf"></i>
+                  </span>
+                  <span>Paper</span>
+                </a>
+              </span>
+              <span class="link-block">
+               
+              <span class="link-block">
+                <a href="https://github.com/"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="fab fa-github"></i>
+                  </span>
+                  <span>Code (Coming Soon)</span>
+                  </a>
+              </span>
+          
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section> -->
+
+
+<div class="hero-title-wrap">
+
+  <!-- 4x4 video background -->
+  <div class="hero-video-grid">
+    <!-- repeat 16 times -->
+    <video src="/rfs/assets/rgb01-D3pVFLOw.mp4" muted loop autoplay playsinline></video>
+    <video src="/rfs/assets/episode_4-CQIxmypo.mp4" muted loop autoplay playsinline></video>
+    <video src="/rfs/assets/rgb01-DuzSqPXj.mp4" muted loop autoplay playsinline></video>
+    <video src="/rfs/assets/episode_24-FVVyrO-k.mp4" muted loop autoplay playsinline></video>
+
+    <!-- <video src="models/push2grasp/episode_4.mp4" muted loop autoplay playsinline></video>
+    <video src="models/push2grasp/episode_23.mp4" muted loop autoplay playsinline></video>
+    <video src="models/pack/episode_24.mp4" muted loop autoplay playsinline></video>
+    <video src="models/pack/episode_12.mp4" muted loop autoplay playsinline></video> -->
+
+    <video class="fast-video" src="/rfs/assets/rfs_cup-BPLbh3U8.mp4" muted loop autoplay playsinline></video>
+    <video class="fast-video" src="/rfs/assets/rfs_box-CbhXPNHq.mp4" muted loop autoplay playsinline></video>
+    <video class="fast-video" src="/rfs/assets/rfs_bee-DHqZiP5R.mp4" muted loop autoplay playsinline></video>
+    <video class="fast-video" src="/rfs/assets/rfs_bunny-CVe05RUv.mp4" muted loop autoplay playsinline></video>
+
+    
+
+    <!-- <video src="models/grasp/real/rfs_bunny_resized.mp4" muted loop autoplay playsinline></video>
+    <video src="models/grasp/real/rfs_bee_resized.mp4" muted loop autoplay playsinline></video>
+    <video src="models/place/real_robot/rfs_flamingo_resized.mp4" muted loop autoplay playsinline></video>
+    <video src="models/place/real_robot/rfs_pig_resized.mp4" muted loop autoplay playsinline></video> -->
+  </div>
+
+  <!-- Title overlay -->
+  <div class="hero-overlay">
+  <h1>RFS</h1>
+  <p>Reinforcement Learning with Residual Flow Steering for Dexterous Manipulation</p>
+
+  <!-- ===== AUTHORS ===== -->
+  <div class="hero-authors">
+    <div class="publication-authors">
+      <span class="author-block">
+        <a href="https://entongsu.github.io/">Entong Su</a><sup>1</sup>,
+      </span>
+      <span class="author-block">
+        <a href="https://tyler-westenbroek.github.io/">Tyler Westenbroek</a><sup>1</sup>,
+      </span>
+      <span class="author-block">
+        <a href="https://scholar.google.com/citations?user=DkUUhXEAAAAJ&hl=en">Anusha Nagabandi</a><sup>2</sup>,
+      </span>
+      <span class="author-block">
+        <a href="https://homes.cs.washington.edu/~abhgupta/">Abhishek Gupta</a><sup>1</sup>
+      </span>
+    </div>
+
+    <div class="publication-authors affiliations">
+      <span class="author-block"><sup>1</sup>University of Washington</span>
+      <span class="author-block"><sup>2</sup>Amazon</span>
+    </div>
+
+    <!-- ===== LINKS ===== -->
+    <div class="publication-links">
+      <a href="https://github.com/"
+         class="hero-link">
+        <i class="fas fa-file-pdf"></i> Paper (Coming Soon)
+      </a>
+      <a href="https://github.com/"
+         class="hero-link">
+        <i class="fab fa-github"></i> Code (Coming Soon)
+      </a>
+    </div>
+  </div>
+</div>
+
+</div>
+
+
+
+
+  <div class="container is-max-desktop">
+   
+
+    <div class="tagline" id="abstract">Abstract</div>
+
+    <div class="pipeline-grid card-surface">
+        
+        <p>
+           We propose an efficient reinforcement learning (RL) framework for fast adaptation of pretrained generative policies. Specifically, our proposed methodology - residual flow steering, instantiates an efficient RL technique that quickly adapts a pretrained flow-matching model by steering it jointly by optimizing a policy for selecting both a latent noise distribution and a residual action. Doing so allows policies to perform both local (residual actions) and global exploration (latent noise), data-efficient adaptation. We demonstrate that this technique is effective for dexterous manipulation problems, serving both as a tool to pretrain behaviors in simulation and efficiently finetune them in the real world.
+        </p>
+     
+    <!-- </div> -->
+    <!-- </div> -->
+      </div>
+  </div>
+ 
+
+  
+
+<!-- ================= MOTIVATION ================= -->
+<section id="motivation-section">
+ <!-- ===== MOTIVATION ===== -->
+<div class="container is-max-desktop">
+
+  <div class="tagline" id="motivation">Motivation</div>
+  <div class="pipeline-grid card-surface">
+
+  <!-- Init Policy -->
+  <div class="init-row">
+    <video src="/rfs/assets/teaser_speed-BcUIe5xD.mp4"
+           muted loop autoplay playsinline controls></video>
+  </div>
+
+  
+
+  </div>
+</div>
+
+</section>
+
+
+
+<script>
+function toggleSection(id, header) {
+  const section = document.getElementById(id);
+  const isOpen = section.classList.contains('open');
+
+  section.classList.toggle('open');
+  header.classList.toggle('active', !isOpen);
+}
+</script>
+
+
+
+
+
+
+
+
+  <div  class="container is-max-desktop">
+    <div class="tagline" id="approach">Approach</div>
+      
+      <div class="pipeline-grid card-surface">
+
+
+  <div class="result-label">
+   RFS Pipeline
+  </div>
+
+    <!-- Init Policy -->
+    <div class="init-row" style="position: relative;">
+  <!-- Top overlay -->
+  
+
+  <video src="/rfs/assets/rfs-CGY04x_C.mp4"
+        muted loop autoplay playsinline controls
+        style="width: 100%; border-radius: 12px;"></video>
+
+ 
+ 
+</div>
+
+
+    <figcaption class="has-text-black mt-3" style="text-align: justify; max-width: 100%; margin: 0 auto;">
+       Overview of <strong>Residual Flow Steering (RFS)</strong>. 
+       Given a state $s$, the RFS policy $\pi_{\text{RFS}}$ outputs a latent flow variable $w_0$ and a residual action $a_r$, which jointly steer a pretrained base policy $\pi_{\text{FM}}$ to produce the final action $a_b + a_r$.
+        RFS enables both global mode shifting and fine-grained residual correction, allowing the policy to expand beyond the demonstration data manifold.
+    </figcaption>
+
+
+      <div class="result-label">
+   Sim-to-Real Pipeline
+  </div>
+  
+
+
+
+    
+  <video src="/rfs/assets/overview-D33UtLbh.mp4"
+        muted loop autoplay playsinline controls
+        style="width: 100%; border-radius: 12px;"></video>
+
+
+       <figcaption class="has-text-black mt-3" style="text-align: justify; max-width: 100%; margin: 0 auto;">
+  Overview of our <strong>sim-to-real pipeline.</strong>
+    (1) VR teleoperation is used to collect demonstrations across multiple manipulation tasks to train task-specific flow-matching base policies.
+    (2) In simulation, the RFS policy $\pi_{\text{RFS}}$ is fine-tuned on top of each base policy and distilled into task-specific visuomotor policies to improve sim-to-real transfer.
+    (3) During zero-shot real-world deployment, human corrective actions correct execution failures such as unstable grasps and misplacement.
+    (4) These corrected transitions are used for offline fine-tuning of $\pi_{\text{RFS}}$ on a Franka--Leap Hand system, improving real-world grasping and pick-and-place performance.
+ </figcaption>
+
+      
+
+    </div>
+
+ </div>
+  
+
+
+
+
+
+
+
+
+
+
+  
+
+    
+  <div class="container is-max-desktop">
+
+    <div class="tagline" id="simulation_result">🎥 Simulation Rollout Results</div>
+    <div class="pipeline-grid card-surface">
+      <div class="task-scope">
+    
+
+
+
+
+    <div class="task-selector">
+
+
+       <div class="task-card active"  onclick="showTask('average', this)">
+        <!-- <img src="figs/push.png" alt="Push-to-Grasp"> -->
+        <span>🧭 Overall</span>
+      </div>
+
+
+      <div class="task-card" onclick="showTask('grasp', this)">
+        <!-- <img src="figs/grasp.png" alt="Grasping"> -->
+        <span>🖐️Grasping</span>
+      </div>
+
+      <div class="task-card" onclick="showTask('pick_place', this)">
+        <!-- <img src="figs/pick.png" alt="Pick & Place"> -->
+        <span>📦Pick & Place</span>
+      </div>
+
+     
+
+       <div class="task-card" onclick="showTask('pour', this)">
+        <!-- <img src="figs/push.png" alt="Push-to-Grasp"> -->
+        <span>🌊Pour</span>
+      </div>
+
+       <div class="task-card" onclick="showTask('stack', this)">
+        <!-- <img src="figs/push.png" alt="Push-to-Grasp"> -->
+        <span>🎨 Stack</span>
+      </div>
+
+
+      <div class="task-card" onclick="showTask('pack', this)">
+        <!-- <img src="figs/pack.png" alt="Packing"> -->
+        <span>🧺Packing</span>
+      </div>
+
+      <div class="task-card" onclick="showTask('push_to_grasp', this)">
+        <!-- <img src="figs/push.png" alt="Push-to-Grasp"> -->
+        <span>🫳Push-to-Grasp</span>
+      </div>
+
+    </div>
+
+
+
+<div id="average" class="task-panel">
+
+
+
+
+  <div class="result-label">
+    🦾 RFS Rollout 
+  </div>
+
+  
+
+
+<div class="media-glb-row four-col">
+     
+     
+
+
+
+      <div class="media-box video-panel">
+        <video
+          src="/rfs/assets/rgb_video03-csZppk3c.mp4"
+          controls
+          muted
+          loop
+          playsinline
+          autoplay
+        ></video>
+      </div>
+
+      <div class="media-box video-panel">
+        <video
+          src="/rfs/assets/rgb03-C9n5mIeX.mp4"
+          controls
+          muted
+          loop
+          playsinline
+          autoplay
+        ></video>
+      </div>
+
+       <div class="media-box video-panel">
+         <video
+          src="/rfs/assets/episode_12-B0HRmMOe.mp4"
+          controls
+          muted
+          loop
+          playsinline
+          autoplay
+        ></video>
+      </div>
+
+       <div class="media-box video-panel">
+        <video
+          src="/rfs/assets/episode_5-Ca1nXbmC.mp4"
+          controls
+          muted
+          loop
+          playsinline
+          autoplay
+        ></video>
+      </div>
+
+
+
+</div>
+
+
+  <!-- <h3 class="title is-4">Success Rate</h3> -->
+
+   <div class="result-label">
+   Success Rate
+  </div>
+
+
+  <!-- ===== BAR CHART ===== -->
+<div class="plot-area">
+  <div class="bar-group" style="--bar-height:25.1%;"><span class="bar-value">25.1%</span><div class="bar"></div><span class="bar-label">FM</span></div>
+  <div class="bar-group" style="--bar-height:17.8%;"><span class="bar-value">17.8%</span><div class="bar"></div><span class="bar-label">DPPO</span></div>
+  <div class="bar-group" style="--bar-height:40.9%;"><span class="bar-value">40.9%</span><div class="bar"></div><span class="bar-label">RF</span></div>
+  <div class="bar-group" style="--bar-height:48.8%;"><span class="bar-value">48.8%</span><div class="bar"></div><span class="bar-label">IQL</span></div>
+  <div class="bar-group" style="--bar-height:35.5%;"><span class="bar-value">35.5%</span><div class="bar"></div><span class="bar-label">AWAC</span></div>
+  <div class="bar-group" style="--bar-height:15.3%;"><span class="bar-value">15.3%</span><div class="bar"></div><span class="bar-label">FQL</span></div>
+  <div class="bar-group" style="--bar-height:34.3%;"><span class="bar-value">34.3%</span><div class="bar"></div><span class="bar-label">RLPD</span></div>
+  <div class="bar-group" style="--bar-height:19.9%;"><span class="bar-value">19.9%</span><div class="bar"></div><span class="bar-label">IBRL</span></div>
+  <div class="bar-group" style="--bar-height:28.6%;"><span class="bar-value">28.6%</span><div class="bar"></div><span class="bar-label">PD</span></div>
+  <div class="bar-group" style="--bar-height:43.3%;"><span class="bar-value">43.3%</span><div class="bar"></div><span class="bar-label">ResiP</span></div>
+  <div class="bar-group" style="--bar-height:48.3%;"><span class="bar-value">48.3%</span><div class="bar"></div><span class="bar-label">DSRL</span></div>
+  <div class="bar-group" style="--bar-height:86.1%;"><span class="bar-value">86.1%</span><div class="bar"></div><span class="bar-label">RFS</span></div>
+</div>
+
+
+  <!-- ===== METHODS GRID ===== -->
+<div class="methods-grid">
+
+  <div class="methods-row">
+    <div class="method-category">Base Policy</div>
+    <div class="method-item">
+      <h4>Flow Matching</h4>
+      <span class="metric-value">0.251 ± 0.151</span>
+    </div>
+  </div>
+
+  <div class="methods-row">
+    <div class="method-category">Diffusion / Flow RL Finetuning</div>
+    <div class="method-item">
+      <h4>DPPO</h4>
+      <span class="metric-value">0.178 ± 0.183</span>
+    </div>
+    <div class="method-item">
+      <h4>ReinFlow</h4>
+      <span class="metric-value">0.409 ± 0.168</span>
+    </div>
+  </div>
+
+  <div class="methods-row">
+    <div class="method-category">Offline-to-Online RL</div>
+    <div class="method-item">
+      <h4>IQL</h4>
+      <span class="metric-value">0.488 ± 0.184</span>
+    </div>
+    <div class="method-item">
+      <h4>AWAC</h4>
+      <span class="metric-value">0.355 ± 0.299</span>
+    </div>
+    <div class="method-item">
+      <h4>Flow Q-Learning</h4>
+      <span class="metric-value">0.153 ± 0.202</span>
+    </div>
+  </div>
+
+  <div class="methods-row">
+    <div class="method-category">RL with Demonstrations</div>
+    <div class="method-item">
+      <h4>RLPD</h4>
+      <span class="metric-value">0.343 ± 0.327</span>
+    </div>
+    <div class="method-item">
+      <h4>IBRL</h4>
+      <span class="metric-value">0.199 ± 0.200</span>
+    </div>
+  </div>
+
+  <div class="methods-row">
+    <div class="method-category">Residual RL (State-of-the-Art)</div>
+    <div class="method-item">
+      <h4>Policy Decorator</h4>
+      <span class="metric-value">0.286 ± 0.194</span>
+    </div>
+    <div class="method-item">
+      <h4>ResiP</h4>
+      <span class="metric-value">0.433 ± 0.203</span>
+    </div>
+  </div>
+
+  <div class="methods-row">
+    <div class="method-category">Strong Baselines</div>
+    <div class="method-item">
+      <h4>DSRL</h4>
+      <span class="metric-value">0.483 ± 0.224</span>
+    </div>
+  </div>
+
+  <div class="methods-row highlight">
+    <div class="method-category">Ours</div>
+    <div class="method-item highlight">
+      <h4>RFS (Ours)</h4>
+      <span class="metric-value">0.861 ± 0.083</span>
+    </div>
+  </div>
+
+
+
+</div>
+
+ </div>
+
+
+
+
+
+<div id="grasp" class="task-panel hidden">
+
+
+  <div class="result-label">
+    🦾 RFS Rollout 
+  </div>
+
+
+<div class="media-glb-row four-col">
+      <div class="media-box video-panel">
+        <video
+          src="/rfs/assets/rgb_video01-wm9AZBex.mp4"
+          controls
+          muted
+          loop
+          playsinline
+        ></video>
+      </div>
+
+      <main
+        class="wrap embedded-viewer"
+        data-model="models/grasp/animation01.glb"
+      >
+        <div class="spinner">Loading…</div>
+        <button class="glb-fullscreen-btn" title="Fullscreen">🔍</button>
+      </main>
+
+
+
+      <div class="media-box video-panel">
+        <video
+          src="/rfs/assets/rgb_video02-8xjeZs09.mp4"
+          controls
+          muted
+          loop
+          playsinline
+        ></video>
+      </div>
+
+      <main
+        class="wrap embedded-viewer"
+        data-model="models/grasp/animation02.glb"
+      >
+        <div class="spinner">Loading…</div>
+        <button class="glb-fullscreen-btn" title="Fullscreen">🔍</button>
+      </main>
+    </div>
+  
+
+  <div class="result-label">
+    Success Rate
+  </div>
+
+  
+
+  <div class="plot-area">
+    <div class="bar-group" style="--bar-height:49.5%;"><span class="bar-value">49.5%</span><div class="bar"></div><span class="bar-label">FM</span></div>
+    <div class="bar-group" style="--bar-height:41%;"><span class="bar-value">41.0%</span><div class="bar"></div><span class="bar-label">DPPO</span></div>
+    <div class="bar-group" style="--bar-height:58.4%;"><span class="bar-value">58.4%</span><div class="bar"></div><span class="bar-label">RF</span></div>
+    <div class="bar-group" style="--bar-height:69%;"><span class="bar-value">69.0%</span><div class="bar"></div><span class="bar-label">IQL</span></div>
+    <div class="bar-group" style="--bar-height:48.5%;"><span class="bar-value">48.5%</span><div class="bar"></div><span class="bar-label">AWAC</span></div>
+    <div class="bar-group" style="--bar-height:5%;"><span class="bar-value">5.0%</span><div class="bar"></div><span class="bar-label">FQL</span></div>
+    <div class="bar-group" style="--bar-height:54.7%;"><span class="bar-value">54.7%</span><div class="bar"></div><span class="bar-label">RLPD</span></div>
+    <div class="bar-group" style="--bar-height:40.4%;"><span class="bar-value">40.4%</span><div class="bar"></div><span class="bar-label">IBRL</span></div>
+    <div class="bar-group" style="--bar-height:52%;"><span class="bar-value">52.0%</span><div class="bar"></div><span class="bar-label">PD</span></div>
+    <div class="bar-group" style="--bar-height:65%;"><span class="bar-value">65.0%</span><div class="bar"></div><span class="bar-label">ResiP</span></div>
+    <div class="bar-group" style="--bar-height:73.2%;"><span class="bar-value">73.2%</span><div class="bar"></div><span class="bar-label">DSRL</span></div>
+    <div class="bar-group" style="--bar-height:89.9%;"><span class="bar-value">89.9%</span><div class="bar"></div><span class="bar-label">RFS</span></div>
+  </div>
+
+<div class="methods-grid">
+
+  <div class="methods-row">
+    <div class="method-category">Base Policy</div>
+    <div class="method-item">
+      <h4>Flow Matching</h4>
+      <span class="metric-value">0.495</span>
+    </div>
+  </div>
+
+  <div class="methods-row">
+    <div class="method-category">Diffusion / Flow RL Finetuning</div>
+    <div class="method-item">
+      <h4>DPPO</h4>
+      <span class="metric-value">0.41 ± 0.05</span>
+    </div>
+    <div class="method-item">
+      <h4>ReinFlow</h4>
+      <span class="metric-value">0.584 ± 0.043</span>
+    </div>
+  </div>
+
+  <div class="methods-row">
+    <div class="method-category">Offline-to-Online RL</div>
+    <div class="method-item">
+      <h4>IQL</h4>
+      <span class="metric-value">0.690 ± 0.034</span>
+    </div>
+    <div class="method-item">
+      <h4>AWAC</h4>
+      <span class="metric-value">0.485 ± 0.163</span>
+    </div>
+    <div class="method-item">
+      <h4>Flow Q-Learning</h4>
+      <span class="metric-value">0.050 ± 0.012</span>
+    </div>
+  </div>
+
+  <div class="methods-row">
+    <div class="method-category">RL with Demonstrations</div>
+    <div class="method-item">
+      <h4>RLPD</h4>
+      <span class="metric-value">0.547 ± 0.056</span>
+    </div>
+    <div class="method-item">
+      <h4>IBRL</h4>
+      <span class="metric-value">0.404 ± 0.216</span>
+    </div>
+  </div>
+
+  <div class="methods-row">
+    <div class="method-category">Residual RL (State-of-the-Art)</div>
+    <div class="method-item">
+      <h4>Policy Decorator</h4>
+      <span class="metric-value">0.52 ± 0.09</span>
+    </div>
+    <div class="method-item">
+      <h4>ResiP</h4>
+      <span class="metric-value">0.65 ± 0.096</span>
+    </div>
+  </div>
+
+  <div class="methods-row">
+    <div class="method-category">Strong Baselines</div>
+    <div class="method-item">
+      <h4>DSRL</h4>
+      <span class="metric-value">0.732 ± 0.04</span>
+    </div>
+  </div>
+
+  <div class="methods-row highlight">
+    <div class="method-category">Ours</div>
+    <div class="method-item highlight">
+      <h4>RFS (Ours)</h4>
+      <span class="metric-value">0.899 ± 0.026</span>
+    </div>
+  </div>
+
+</div>
+
+
+
+
+ 
+</div>
+
+   
+
+    
+
+    <!-- ================= PICK & PLACE ================= -->
+ <div id="pick_place" class="task-panel hidden">
+
+
+   <div class="result-label">
+    🦾 RFS Rollout 
+  </div>
+
+   
+    <div class="media-glb-row four-col">
+      <div class="media-box video-panel">
+        <video
+          src="/rfs/assets/rgb01-DKY4lSzY.mp4"
+          controls
+          muted
+          loop
+          playsinline
+        ></video>
+      </div>
+
+      <main
+        class="wrap embedded-viewer"
+        data-model="models/place/animation01.glb"
+      >
+        <div class="spinner">Loading…</div>
+        <button class="glb-fullscreen-btn" title="Fullscreen">🔍</button>
+      </main>
+
+
+
+      <div class="media-box video-panel">
+        <video
+          src="/rfs/assets/rgb02-DyobwcxT.mp4"
+          controls
+          muted
+          loop
+          playsinline
+        ></video>
+      </div>
+
+      <main
+        class="wrap embedded-viewer"
+        data-model="models/place/animation02.glb"
+      >
+        <div class="spinner">Loading…</div>
+        <button class="glb-fullscreen-btn" title="Fullscreen">🔍</button>
+      </main>
+    </div>
+     
+
+   <div class="result-label">
+    Success Rate
+  </div>
+
+  <!-- ===== BAR CHART ===== -->
+  <div class="plot-area">
+    <div class="bar-group" style="--bar-height:36.7%;"><span class="bar-value">36.7%</span><div class="bar"></div><span class="bar-label">FM</span></div>
+    <div class="bar-group" style="--bar-height:43.3%;"><span class="bar-value">43.3%</span><div class="bar"></div><span class="bar-label">DPPO</span></div>
+    <div class="bar-group" style="--bar-height:46.2%;"><span class="bar-value">46.2%</span><div class="bar"></div><span class="bar-label">RF</span></div>
+    <div class="bar-group" style="--bar-height:56.0%;"><span class="bar-value">56.0%</span><div class="bar"></div><span class="bar-label">IQL</span></div>
+    <div class="bar-group" style="--bar-height:24.0%;"><span class="bar-value">24.0%</span><div class="bar"></div><span class="bar-label">AWAC</span></div>
+    <div class="bar-group" style="--bar-height:48.6%;"><span class="bar-value">48.6%</span><div class="bar"></div><span class="bar-label">FQL</span></div>
+    <div class="bar-group" style="--bar-height:76.3%;"><span class="bar-value">76.3%</span><div class="bar"></div><span class="bar-label">RLPD</span></div>
+    <div class="bar-group" style="--bar-height:0%;"><span class="bar-value">0.0%</span><div class="bar"></div><span class="bar-label">IBRL</span></div>
+    <div class="bar-group" style="--bar-height:31.4%;"><span class="bar-value">31.4%</span><div class="bar"></div><span class="bar-label">PD</span></div>
+    <div class="bar-group" style="--bar-height:57.0%;"><span class="bar-value">57.0%</span><div class="bar"></div><span class="bar-label">ResiP</span></div>
+    <div class="bar-group" style="--bar-height:69.2%;"><span class="bar-value">69.2%</span><div class="bar"></div><span class="bar-label">DSRL</span></div>
+    <div class="bar-group" style="--bar-height:93.9%;"><span class="bar-value">93.9%</span><div class="bar"></div><span class="bar-label">RFS</span></div>
+  </div>
+
+  <!-- ===== METHODS GRID (ALL BASELINES) ===== -->
+  <div class="methods-grid">
+
+    <!-- Base Policy -->
+    <div class="methods-row">
+      <div class="method-category">Base Policy</div>
+      <div class="method-item">
+        <h4>Flow Matching</h4>
+        <span class="metric-value">0.367</span>
+      </div>
+    </div>
+
+    <!-- Diffusion / Flow RL Finetuning -->
+    <div class="methods-row">
+      <div class="method-category">Diffusion / Flow RL Finetuning</div>
+      <div class="method-item">
+        <h4>DPPO</h4>
+        <span class="metric-value">0.433 ± 0.102</span>
+      </div>
+      <div class="method-item">
+        <h4>ReinFlow</h4>
+        <span class="metric-value">0.462 ± 0.081</span>
+      </div>
+    </div>
+
+    <!-- Offline-to-Online RL -->
+    <div class="methods-row">
+      <div class="method-category">Offline-to-Online RL</div>
+      <div class="method-item">
+        <h4>IQL</h4>
+        <span class="metric-value">0.560 ± 0.075</span>
+      </div>
+      <div class="method-item">
+        <h4>AWAC</h4>
+        <span class="metric-value">0.240 ± 0.120</span>
+      </div>
+      <div class="method-item">
+        <h4>Flow Q-Learning</h4>
+        <span class="metric-value">0.486 ± 0.110</span>
+      </div>
+    </div>
+
+    <!-- RL with Demonstrations -->
+    <div class="methods-row">
+      <div class="method-category">RL with Demonstrations</div>
+      <div class="method-item">
+        <h4>RLPD</h4>
+        <span class="metric-value">0.763 ± 0.059</span>
+      </div>
+      <div class="method-item">
+        <h4>IBRL</h4>
+        <span class="metric-value">0.000 ± 0.000</span>
+      </div>
+    </div>
+
+    <!-- Residual RL -->
+    <div class="methods-row">
+      <div class="method-category">Residual RL (State-of-the-Art)</div>
+      <div class="method-item">
+        <h4>Policy Decorator</h4>
+        <span class="metric-value">0.314 ± 0.160</span>
+      </div>
+      <div class="method-item">
+        <h4>ResiP</h4>
+        <span class="metric-value">0.570 ± 0.014</span>
+      </div>
+    </div>
+
+    <!-- Strong Baselines -->
+    <div class="methods-row">
+      <div class="method-category">Strong Baselines</div>
+      <div class="method-item">
+        <h4>DSRL</h4>
+        <span class="metric-value">0.692 ± 0.012</span>
+      </div>
+    </div>
+
+    <!-- Ours -->
+    <div class="methods-row highlight">
+      <div class="method-category">Ours</div>
+      <div class="method-item highlight">
+        <h4>RFS (Ours)</h4>
+        <span class="metric-value">0.939 ± 0.012</span>
+      </div>
+    </div>
+    </div>
+ 
+
+ 
+
+
+
+</div>
+
+
+
+<!-- ================= Pack ================= -->
+<div id="pack" class="task-panel hidden">
+
+
+  <div class="result-label">
+    🦾 RFS Rollout 
+  </div>
+
+
+ 
+  <div class="media-glb-row four-col">
+    <div class="media-box video-panel">
+      <video
+        src="/rfs/assets/episode_1-DiKHzLOZ.mp4"
+        controls
+        muted
+        loop
+        playsinline
+      ></video>
+    </div>
+
+    <div class="media-box video-panel">
+      <video
+        src="/rfs/assets/episode_8-BKr7dpbW.mp4"
+        controls
+        muted
+        loop
+        playsinline
+      ></video>
+    </div>
+
+
+
+    <div class="media-box video-panel">
+      <video
+        src="/rfs/assets/episode_12-B0HRmMOe.mp4"
+        controls
+        muted
+        loop
+        playsinline
+      ></video>
+    </div>
+
+      <div class="media-box video-panel">
+      <video
+        src="/rfs/assets/episode_24-FVVyrO-k.mp4"
+        controls
+        muted
+        loop
+        playsinline
+      ></video>
+    </div>
+  </div>
+
+  <div class="result-label">
+    Success Rate
+  </div>
+
+  <div class="plot-area">
+    <div class="bar-group" style="--bar-height:30%;"><span class="bar-value">30.0%</span><div class="bar"></div><span class="bar-label">FM</span></div>
+    <div class="bar-group" style="--bar-height:18.6%;"><span class="bar-value">18.6%</span><div class="bar"></div><span class="bar-label">DPPO</span></div>
+    <div class="bar-group" style="--bar-height:10.0%;"><span class="bar-value">10.0%</span><div class="bar"></div><span class="bar-label">RF</span></div>
+    <div class="bar-group" style="--bar-height:20.3%;"><span class="bar-value">20.3%</span><div class="bar"></div><span class="bar-label">IQL</span></div>
+    <div class="bar-group" style="--bar-height:0%;"><span class="bar-value">0.0%</span><div class="bar"></div><span class="bar-label">AWAC</span></div>
+    <div class="bar-group" style="--bar-height:0%;"><span class="bar-value">0.0%</span><div class="bar"></div><span class="bar-label">FQL</span></div>
+    <div class="bar-group" style="--bar-height:0%;"><span class="bar-value">0.0%</span><div class="bar"></div><span class="bar-label">RLPD</span></div>
+    <div class="bar-group" style="--bar-height:43.2%;"><span class="bar-value">43.2%</span><div class="bar"></div><span class="bar-label">IBRL</span></div>
+    <div class="bar-group" style="--bar-height:53.5%;"><span class="bar-value">53.5%</span><div class="bar"></div><span class="bar-label">PD</span></div>
+    <div class="bar-group" style="--bar-height:30.2%;"><span class="bar-value">30.2%</span><div class="bar"></div><span class="bar-label">ResiP</span></div>
+    <div class="bar-group" style="--bar-height:63.9%;"><span class="bar-value">63.9%</span><div class="bar"></div><span class="bar-label">DSRL</span></div>
+    <div class="bar-group" style="--bar-height:78.1%;"><span class="bar-value">78.1%</span><div class="bar"></div><span class="bar-label">RFS</span></div>
+  </div>
+
+  <div class="methods-grid">
+    <div class="methods-row">
+      <div class="method-category">Base Policy</div>
+      <div class="method-item"><h4>Flow Matching</h4><span class="metric-value">0.30</span></div>
+    </div>
+
+    <div class="methods-row">
+      <div class="method-category">Diffusion / Flow RL Finetuning</div>
+      <div class="method-item"><h4>DPPO</h4><span class="metric-value">0.186 ± 0.023</span></div>
+      <div class="method-item"><h4>ReinFlow</h4><span class="metric-value">0.100 ± 0.089</span></div>
+    </div>
+
+    <div class="methods-row">
+      <div class="method-category">Offline-to-Online RL</div>
+      <div class="method-item"><h4>IQL</h4><span class="metric-value">0.203 ± 0.063</span></div>
+      <div class="method-item"><h4>AWAC</h4><span class="metric-value">0.000 ± 0.000</span></div>
+      <div class="method-item"><h4>Flow Q-Learning</h4><span class="metric-value">0.000 ± 0.000</span></div>
+    </div>
+
+    <div class="methods-row">
+      <div class="method-category">RL with Demonstrations</div>
+      <div class="method-item"><h4>RLPD</h4><span class="metric-value">0.000 ± 0.000</span></div>
+      <div class="method-item"><h4>IBRL</h4><span class="metric-value">0.432 ± 0.150</span></div>
+    </div>
+
+    <div class="methods-row">
+      <div class="method-category">Residual RL (State-of-the-Art)</div>
+      <div class="method-item"><h4>Policy Decorator</h4><span class="metric-value">0.535 ± 0.021</span></div>
+      <div class="method-item"><h4>ResiP</h4><span class="metric-value">0.302 ± 0.028</span></div>
+    </div>
+
+    <div class="methods-row">
+      <div class="method-category">Strong Baselines</div>
+      <div class="method-item"><h4>DSRL</h4><span class="metric-value">0.639 ± 0.024</span></div>
+    </div>
+
+    <div class="methods-row highlight">
+      <div class="method-category">Ours</div>
+      <div class="method-item highlight"><h4>RFS (Ours)</h4><span class="metric-value">0.781 ± 0.019</span></div>
+    </div>
+  </div>
+
+
+  
+
+     
+</div>
+
+
+<!-- ================= PUSH ================= -->
+
+<div id="push_to_grasp" class="task-panel hidden">
+
+
+  <div class="result-label">
+    🦾 RFS Rollout 
+  </div>
+
+
+   
+    <div class="media-glb-row four-col">
+          <div class="media-box video-panel">
+            <video
+              src="/rfs/assets/episode_4-CQIxmypo.mp4"
+              controls
+              muted
+              loop
+              playsinline
+              autoplay
+            ></video>
+          </div>
+
+          <div class="media-box video-panel">
+            <video
+              src="/rfs/assets/episode_5-Ca1nXbmC.mp4"
+              controls
+              muted
+              loop
+              playsinline
+              autoplay
+            ></video>
+          </div>
+
+
+
+          <div class="media-box video-panel">
+            <video
+              src="/rfs/assets/episode_23-DwSOYMRm.mp4"
+              controls
+              muted
+              loop
+              playsinline
+              autoplay
+            ></video>
+          </div>
+
+           <div class="media-box video-panel">
+            <video
+              src="/rfs/assets/episode_29-DxHUap7J.mp4"
+              controls
+              muted
+              loop
+              playsinline
+              autoplay
+            ></video>
+          </div>
+        </div>
+
+     
+    <div class="result-label">  
+    Success Rate
+  </div>
+
+  <div class="plot-area">
+    <div class="bar-group" style="--bar-height:13.1%;"><span class="bar-value">13.1%</span><div class="bar"></div><span class="bar-label">FM</span></div>
+    <div class="bar-group" style="--bar-height:4.0%;"><span class="bar-value">4.0%</span><div class="bar"></div><span class="bar-label">DPPO</span></div>
+    <div class="bar-group" style="--bar-height:39.8%;"><span class="bar-value">39.8%</span><div class="bar"></div><span class="bar-label">RF</span></div>
+    <div class="bar-group" style="--bar-height:26.7%;"><span class="bar-value">26.7%</span><div class="bar"></div><span class="bar-label">IQL</span></div>
+    <div class="bar-group" style="--bar-height:0%;"><span class="bar-value">0.0%</span><div class="bar"></div><span class="bar-label">AWAC</span></div>
+    <div class="bar-group" style="--bar-height:38.1%;"><span class="bar-value">38.1%</span><div class="bar"></div><span class="bar-label">FQL</span></div>
+    <div class="bar-group" style="--bar-height:1.2%;"><span class="bar-value">1.2%</span><div class="bar"></div><span class="bar-label">RLPD</span></div>
+    <div class="bar-group" style="--bar-height:0%;"><span class="bar-value">0.0%</span><div class="bar"></div><span class="bar-label">IBRL</span></div>
+    <div class="bar-group" style="--bar-height:17.6%;"><span class="bar-value">17.6%</span><div class="bar"></div><span class="bar-label">PD</span></div>
+    <div class="bar-group" style="--bar-height:16.5%;"><span class="bar-value">16.5%</span><div class="bar"></div><span class="bar-label">ResiP</span></div>
+    <div class="bar-group" style="--bar-height:43.0%;"><span class="bar-value">43.0%</span><div class="bar"></div><span class="bar-label">DSRL</span></div>
+    <div class="bar-group" style="--bar-height:72.1%;"><span class="bar-value">72.1%</span><div class="bar"></div><span class="bar-label">RFS</span></div>
+  </div>
+
+  <div class="methods-grid">
+    <div class="methods-row">
+      <div class="method-category">Base Policy</div>
+      <div class="method-item"><h4>Flow Matching</h4><span class="metric-value">0.131</span></div>
+    </div>
+
+    <div class="methods-row">
+      <div class="method-category">Diffusion / Flow RL Finetuning</div>
+      <div class="method-item"><h4>DPPO</h4><span class="metric-value">0.040 ± 0.036</span></div>
+      <div class="method-item"><h4>ReinFlow</h4><span class="metric-value">0.398 ± 0.236</span></div>
+    </div>
+
+    <div class="methods-row">
+      <div class="method-category">Offline-to-Online RL</div>
+      <div class="method-item"><h4>IQL</h4><span class="metric-value">0.267 ± 0.108</span></div>
+      <div class="method-item"><h4>AWAC</h4><span class="metric-value">0.000 ± 0.000</span></div>
+      <div class="method-item"><h4>Flow Q-Learning</h4><span class="metric-value">0.381 ± 0.040</span></div>
+    </div>
+
+    <div class="methods-row">
+      <div class="method-category">RL with Demonstrations</div>
+      <div class="method-item"><h4>RLPD</h4><span class="metric-value">0.012 ± 0.024</span></div>
+      <div class="method-item"><h4>IBRL</h4><span class="metric-value">0.000 ± 0.000</span></div>
+    </div>
+
+    <div class="methods-row">
+      <div class="method-category">Residual RL (State-of-the-Art)</div>
+      <div class="method-item"><h4>Policy Decorator</h4><span class="metric-value">0.176 ± 0.016</span></div>
+      <div class="method-item"><h4>ResiP</h4><span class="metric-value">0.165 ± 0.180</span></div>
+    </div>
+
+    <div class="methods-row">
+      <div class="method-category">Strong Baselines</div>
+      <div class="method-item"><h4>DSRL</h4><span class="metric-value">0.430 ± 0.085</span></div>
+    </div>
+
+    <div class="methods-row highlight">
+      <div class="method-category">Ours</div>
+      <div class="method-item highlight"><h4>RFS (Ours)</h4><span class="metric-value">0.721 ± 0.022</span></div>
+    </div>
+  </div>
+
+  
+
+</div>
+
+ 
+
+
+
+<!-- ================= POURING ================= -->
+<div id="pour" class="task-panel hidden">
+
+
+    <div class="result-label">🦾 RFS Rollout </div>
+
+  <div class="media-glb-row four-col">
+    <div class="media-box video-panel">
+      <video src="/rfs/assets/rgb01-DuzSqPXj.mp4" controls muted loop autoplay playsinline></video>
+    </div>
+
+    <main class="wrap embedded-viewer" data-model="models/pour/animation01.glb">
+      <div class="spinner">Loading…</div>
+      <button class="glb-fullscreen-btn">🔍</button>
+    </main>
+
+    <div class="media-box video-panel">
+      <video src="/rfs/assets/rgb02-D0TDKkDG.mp4" controls muted loop autoplay playsinline></video>
+    </div>
+
+    <main class="wrap embedded-viewer" data-model="models/pour/animation02.glb">
+      <div class="spinner">Loading…</div>
+      <button class="glb-fullscreen-btn">🔍</button>
+    </main>
+  </div>
+    <div class="result-label">  
+      Success Rate
+    </div>
+
+
+  <!-- ===== BAR CHART ===== -->
+ <div class="plot-area">
+  <div class="bar-group" style="--bar-height:13.1%;"><span class="bar-value">13.1%</span><div class="bar"></div><span class="bar-label">FM</span></div>
+  <div class="bar-group" style="--bar-height:4.0%;"><span class="bar-value">4.0%</span><div class="bar"></div><span class="bar-label">DPPO</span></div>
+  <div class="bar-group" style="--bar-height:39.8%;"><span class="bar-value">39.8%</span><div class="bar"></div><span class="bar-label">RF</span></div>
+  <div class="bar-group" style="--bar-height:26.7%;"><span class="bar-value">26.7%</span><div class="bar"></div><span class="bar-label">IQL</span></div>
+  <div class="bar-group" style="--bar-height:0%;"><span class="bar-value">0.0%</span><div class="bar"></div><span class="bar-label">AWAC</span></div>
+  <div class="bar-group" style="--bar-height:38.1%;"><span class="bar-value">38.1%</span><div class="bar"></div><span class="bar-label">FQL</span></div>
+  <div class="bar-group" style="--bar-height:1.2%;"><span class="bar-value">1.2%</span><div class="bar"></div><span class="bar-label">RLPD</span></div>
+  <div class="bar-group" style="--bar-height:0%;"><span class="bar-value">0.0%</span><div class="bar"></div><span class="bar-label">IBRL</span></div>
+  <div class="bar-group" style="--bar-height:17.6%;"><span class="bar-value">17.6%</span><div class="bar"></div><span class="bar-label">PD</span></div>
+  <div class="bar-group" style="--bar-height:16.5%;"><span class="bar-value">16.5%</span><div class="bar"></div><span class="bar-label">ResiP</span></div>
+  <div class="bar-group" style="--bar-height:43.0%;"><span class="bar-value">43.0%</span><div class="bar"></div><span class="bar-label">DSRL</span></div>
+  <div class="bar-group" style="--bar-height:72.1%;"><span class="bar-value">72.1%</span><div class="bar"></div><span class="bar-label">RFS</span></div>
+</div>
+
+
+  <!-- ===== METHODS GRID ===== -->
+<div class="methods-grid">
+  <div class="methods-row">
+    <div class="method-category">Base Policy</div>
+    <div class="method-item">
+      <h4>Flow Matching</h4>
+      <span class="metric-value">0.131</span>
+    </div>
+  </div>
+
+  <div class="methods-row">
+    <div class="method-category">Diffusion / Flow RL Finetuning</div>
+    <div class="method-item">
+      <h4>DPPO</h4>
+      <span class="metric-value">0.040 ± 0.036</span>
+    </div>
+    <div class="method-item">
+      <h4>ReinFlow</h4>
+      <span class="metric-value">0.398 ± 0.236</span>
+    </div>
+  </div>
+
+  <div class="methods-row">
+    <div class="method-category">Offline-to-Online RL</div>
+    <div class="method-item">
+      <h4>IQL</h4>
+      <span class="metric-value">0.267 ± 0.108</span>
+    </div>
+    <div class="method-item">
+      <h4>AWAC</h4>
+      <span class="metric-value">0.000 ± 0.000</span>
+    </div>
+    <div class="method-item">
+      <h4>Flow Q-Learning</h4>
+      <span class="metric-value">0.381 ± 0.040</span>
+    </div>
+  </div>
+
+  <div class="methods-row">
+    <div class="method-category">RL with Demonstrations</div>
+    <div class="method-item">
+      <h4>RLPD</h4>
+      <span class="metric-value">0.012 ± 0.024</span>
+    </div>
+    <div class="method-item">
+      <h4>IBRL</h4>
+      <span class="metric-value">0.000 ± 0.000</span>
+    </div>
+  </div>
+
+  <div class="methods-row">
+    <div class="method-category">Residual RL (State-of-the-Art)</div>
+    <div class="method-item">
+      <h4>Policy Decorator</h4>
+      <span class="metric-value">0.176 ± 0.016</span>
+    </div>
+    <div class="method-item">
+      <h4>ResiP</h4>
+      <span class="metric-value">0.165 ± 0.180</span>
+    </div>
+  </div>
+
+  <div class="methods-row">
+    <div class="method-category">Strong Baselines</div>
+    <div class="method-item">
+      <h4>DSRL</h4>
+      <span class="metric-value">0.430 ± 0.085</span>
+    </div>
+  </div>
+
+  <div class="methods-row highlight">
+    <div class="method-category">Ours</div>
+    <div class="method-item highlight">
+      <h4>RFS (Ours)</h4>
+      <span class="metric-value">0.721 ± 0.022</span>
+    </div>
+  </div>
+</div>
+
+
+
+</div>
+
+
+
+
+
+
+<div id="stack" class="task-panel hidden">
+
+
+   <div class="result-label">🦾 RFS Rollout</div>
+
+  <div class="media-glb-row four-col">
+    <div class="media-box video-panel">
+      <video src="/rfs/assets/rgb01-D3pVFLOw.mp4" controls muted loop autoplay playsinline></video>
+    </div>
+
+    <main class="wrap embedded-viewer" data-model="models/stack/animation01.glb">
+      <div class="spinner">Loading…</div>
+      <button class="glb-fullscreen-btn">🔍</button>
+    </main>
+
+    <div class="media-box video-panel">
+      <video src="/rfs/assets/rgb02-BnGebNdr.mp4" controls muted loop autoplay playsinline></video>
+    </div>
+
+    <main class="wrap embedded-viewer" data-model="models/stack/animation02.glb">
+      <div class="spinner">Loading…</div>
+      <button class="glb-fullscreen-btn">🔍</button>
+    </main>
+  </div>
+  <div class="result-label">Success Rate</div>
+
+ <!-- ================= STACKING ================= -->
+<div class="plot-area">
+  <div class="bar-group" style="--bar-height:6.0%;"><span class="bar-value">6.0%</span><div class="bar"></div><span class="bar-label">FM</span></div>
+  <div class="bar-group" style="--bar-height:0%;"><span class="bar-value">0.0%</span><div class="bar"></div><span class="bar-label">DPPO</span></div>
+  <div class="bar-group" style="--bar-height:59.0%;"><span class="bar-value">59.0%</span><div class="bar"></div><span class="bar-label">RF</span></div>
+  <div class="bar-group" style="--bar-height:62.5%;"><span class="bar-value">62.5%</span><div class="bar"></div><span class="bar-label">IQL</span></div>
+  <div class="bar-group" style="--bar-height:78.0%;"><span class="bar-value">78.0%</span><div class="bar"></div><span class="bar-label">AWAC</span></div>
+  <div class="bar-group" style="--bar-height:0%;"><span class="bar-value">0.0%</span><div class="bar"></div><span class="bar-label">FQL</span></div>
+  <div class="bar-group" style="--bar-height:5.3%;"><span class="bar-value">5.3%</span><div class="bar"></div><span class="bar-label">RLPD</span></div>
+  <div class="bar-group" style="--bar-height:0%;"><span class="bar-value">0.0%</span><div class="bar"></div><span class="bar-label">IBRL</span></div>
+  <div class="bar-group" style="--bar-height:0%;"><span class="bar-value">0.0%</span><div class="bar"></div><span class="bar-label">PD</span></div>
+  <div class="bar-group" style="--bar-height:67.0%;"><span class="bar-value">67.0%</span><div class="bar"></div><span class="bar-label">ResiP</span></div>
+  <div class="bar-group" style="--bar-height:13.5%;"><span class="bar-value">13.5%</span><div class="bar"></div><span class="bar-label">DSRL</span></div>
+  <div class="bar-group" style="--bar-height:95.1%;"><span class="bar-value">95.1%</span><div class="bar"></div><span class="bar-label">RFS</span></div>
+</div>
+
+
+
+  <!-- ===== METHODS GRID ===== -->
+  
+  <div class="methods-grid">
+  <div class="methods-row">
+    <div class="method-category">Base Policy</div>
+    <div class="method-item">
+      <h4>Flow Matching</h4>
+      <span class="metric-value">0.060</span>
+    </div>
+  </div>
+
+  <div class="methods-row">
+    <div class="method-category">Diffusion / Flow RL Finetuning</div>
+    <div class="method-item">
+      <h4>DPPO</h4>
+      <span class="metric-value">0.000 ± 0.000</span>
+    </div>
+    <div class="method-item">
+      <h4>ReinFlow</h4>
+      <span class="metric-value">0.590 ± 0.021</span>
+    </div>
+  </div>
+
+  <div class="methods-row">
+    <div class="method-category">Offline-to-Online RL</div>
+    <div class="method-item">
+      <h4>IQL</h4>
+      <span class="metric-value">0.625 ± 0.073</span>
+    </div>
+    <div class="method-item">
+      <h4>AWAC</h4>
+      <span class="metric-value">0.780 ± 0.030</span>
+    </div>
+    <div class="method-item">
+      <h4>Flow Q-Learning</h4>
+      <span class="metric-value">0.000 ± 0.000</span>
+    </div>
+  </div>
+
+  <div class="methods-row">
+    <div class="method-category">RL with Demonstrations</div>
+    <div class="method-item">
+      <h4>RLPD</h4>
+      <span class="metric-value">0.053 ± 0.130</span>
+    </div>
+    <div class="method-item">
+      <h4>IBRL</h4>
+      <span class="metric-value">0.000 ± 0.000</span>
+    </div>
+  </div>
+
+  <div class="methods-row">
+    <div class="method-category">Residual RL (State-of-the-Art)</div>
+    <div class="method-item">
+      <h4>Policy Decorator</h4>
+      <span class="metric-value">0.000 ± 0.000</span>
+    </div>
+    <div class="method-item">
+      <h4>ResiP</h4>
+      <span class="metric-value">0.670 ± 0.050</span>
+    </div>
+  </div>
+
+  <div class="methods-row">
+    <div class="method-category">Strong Baselines</div>
+    <div class="method-item">
+      <h4>DSRL</h4>
+      <span class="metric-value">0.135 ± 0.015</span>
+    </div>
+  </div>
+
+  <div class="methods-row highlight">
+    <div class="method-category">Ours</div>
+    <div class="method-item highlight">
+      <h4>RFS (Ours)</h4>
+      <span class="metric-value">0.951 ± 0.006</span>
+    </div>
+  </div>
+</div>
+
+
+
+ 
+</div>
+
+
+<!-- ================= BASELINE PAPERS ================= -->
+<details class="expand-bar baseline-papers">
+  <summary class="expand-summary">
+    📚 Baseline Methods & References
+  </summary>
+
+  <div class="baseline-paper-list">
+
+    <ol>
+      <li>
+        <strong>Diffusion Policy Policy Optimization (DPPO):</strong><br>
+        Allen Z. Ren, Justin Lidard, Lars L. Ankile, Anthony Simeonov, Pulkit Agrawal,
+        Anirudha Majumdar, Benjamin Burchfiel, Hongkai Dai, and Max Simchowitz.
+        <em>Diffusion Policy Policy Optimization.</em> ICLR 2025.
+      </li>
+      <br>
+      <li>
+        <strong>ReinFlow</strong><br>
+        Tonghe Zhang, Chao Yu, Sichang Su, and Yu Wang.
+        <em>ReinFlow: Fine-tuning Flow Matching Policy with Online Reinforcement Learning.</em>
+        NeurIPS 2025.
+      </li>
+      <br>
+
+      <li>
+        <strong>IQL</strong><br>
+        Ilya Kostrikov, Ashvin Nair, and Sergey Levine.
+        <em>Offline Reinforcement Learning with Implicit Q-Learning.</em>
+        ICLR 2022.
+      </li>
+      <br>
+
+      <li>
+        <strong>AWAC</strong><br>
+        Ashvin Nair, Abhishek Gupta, Murtaza Dalal, and Sergey Levine.
+        <em>AWAC: Accelerating Online Reinforcement Learning with Offline Datasets.</em>
+        arXiv 2021.
+      </li>
+      <br>
+
+      <li>
+        <strong>Flow Q-Learning (FQL)</strong>
+        Seohong Park, Qiyang Li, and Sergey Levine.<br>
+        <em>Flow Q-Learning.</em>
+        ICML 2025.
+      </li>
+      <br>
+
+      <li>
+        <strong>RLPD</strong><br>
+        Philip J. Ball, Laura Smith, Ilya Kostrikov, and Sergey Levine.
+        <em>Efficient Online Reinforcement Learning with Offline Data.</em>
+        ICML 2023.
+      </li>
+      <br>
+
+      <li>
+        <strong>IBRL</strong><br>
+        Hengyuan Hu, Suvir Mirchandani, and Dorsa Sadigh.
+        <em>Imitation Bootstrapped Reinforcement Learning.</em>
+        RSS 2024.
+      </li>
+      <br>
+
+      <li>
+        <strong>Policy Decorator</strong><br>
+        Xiu Yuan, Tongzhou Mu, Stone Tao, Yunhao Fang, Mengke Zhang, and Hao Su.
+        <em>Policy Decorator: Model-Agnostic Online Refinement for Large Policy Models.</em>
+        ICLR 2025.
+      </li>
+      <br>
+
+      <li>
+        <strong>ResiP</strong><br>
+        Lars Ankile, Anthony Simeonov, Idan Shenfeld, Marcel Torne, and Pulkit Agrawal.
+        <em>From Imitation to Refinement – Residual RL for Precise Assembly.</em>
+        ICRA 2025.
+      </li>
+      <br>
+
+      <li>
+        <strong>DSRL</strong><br>
+        Andrew Wagenmaker, Mitsuhiko Nakamoto, Yunchu Zhang, Seohong Park,
+        Waleed Yagoub, Anusha Nagabandi, Abhishek Gupta, and Sergey Levine.
+        <em>Steering Your Diffusion Policy with Latent Space Reinforcement Learning.</em>
+        CoRL 2025.
+      </li>
+    </ol>
+
+  </div>
+</details>
+
+
+</div>
+
+
+
+</div>
+</div>
+
+
+
+
+<!-- ================= REAL ROBOT RESULTS ================= -->
+<section class="section" id="real_result">
+  <div class="container is-max-desktop">
+
+    <div class="tagline">🤖 Real Robot Results</div>
+
+    <div class="pipeline-grid card-surface">
+        <div class="task-scope">
+
+
+      <!-- ===== TASK SELECTOR ===== -->
+      <div class="task-selector_real">
+          
+          <div class="task-card active" onclick="showRealTask('rr_place', this)">📦 Pick & Place</div>
+          <div class="task-card" onclick="showRealTask('rr_grasp', this)">🖐️ Grasp</div>
+        </div>
+
+
+     
+
+<!-- ================= PLACE ================= -->
+<div id="rr_place" class="task-panel">
+
+
+   
+
+
+
+ 
+
+  <!-- ===== KNOWN / UNKNOWN SWITCH ===== -->
+  <div class="ku-toggle">
+    <button class="ku-btn" onclick="showKU('known', this)">✅ Known Objects</button>
+    <button class="ku-btn active" onclick="showKU('unknown', this)">❓ Unknown Objects</button>
+  </div>
+
+
+
+
+
+
+
+  <!-- ================= KNOWN OBJECTS ================= -->
+  <div class="ku-panel known" id="ku-known-place">
+    <!-- <div class="ku-title">✅ Known Objects</div> -->
+
+    <div class="rr-bars">
+
+         <div class="compare-row" data-split="known">
+
+  <div class="compare-col">
+    <div class="result-row-label ">🦾 RFS Rollout</div>
+    <div class="video-grid multi same-row3">
+      <video  class="fast-video" src="/rfs/assets/rfs_bunny-CVe05RUv.mp4" muted loop autoplay playsinline></video>
+      <!-- <video src="models/place/real_robot/rfs_bottle.mp4" muted loop autoplay playsinline></video> -->
+    </div>
+  </div>
+
+  <div class="compare-col">
+    <div class="result-row-label">💡 Zero-shot Sim2Real</div>
+    <div class="video-grid multi same-row3">
+      <video class="fast-video" src="/rfs/assets/zeroshot_bunny-B_3rjZlT.mp4" muted loop autoplay playsinline></video>
+      <!-- <video src="models/place/real_robot/zeroshot_bottle.mp4" muted loop autoplay playsinline></video>
+    </div> -->
+  </div>
+
+</div>
+
+
+</div>
+
+
+
+      <div class="result-label ">Success Rate</div>
+
+         <div class="rr-row highlight">
+                      <span class="rr-label">RFS (Ours)</span>
+                      <div class="rr-track">
+                        <div class="rr-fill" style="--w:90.0%"></div>
+                      </div>
+                      <span class="rr-val">90.0 ± 0.0</span>
+              </div>
+
+
+              <div class="rr-row">
+                  <span class="rr-label">DSRL</span>
+                  <div class="rr-track">
+                    <div class="rr-fill" style="--w:80.0%"></div>
+                  </div>
+                  <span class="rr-val">80.0 ± 0.0</span>
+              </div>
+
+
+              <div class="rr-row">
+                <span class="rr-label">Residual RL</span>
+                <div class="rr-track">
+                  <div class="rr-fill" style="--w:50.0%"></div>
+                </div>
+                <span class="rr-val">50.0 ± 0.0</span>
+              </div>
+
+
+
+
+               <hr style="border: none; border-top: 3px dashed #111;">
+              
+
+              <div class="rr-row">
+                <span class="rr-label">BC</span>
+                <div class="rr-track">
+                  <div class="rr-fill" style="--w:40.0%"></div>
+                </div>
+                <span class="rr-val">40 ± 0.0</span>
+              </div>
+
+              <div class="rr-row">
+                <span class="rr-label">Co-training</span>
+                <div class="rr-track">
+                  <div class="rr-fill" style="--w:60.0%"></div>
+                </div>
+                <span class="rr-val">60.0± 0.0</span>
+              </div>
+
+              <div class="rr-row">
+                <span class="rr-label">Zero-shot Sim2Real</span>
+                <div class="rr-track">
+                  <div class="rr-fill" style="--w:50.0%"></div>
+                </div>
+                <span class="rr-val">50 ± 0.0</span>
+              </div>
+
+    </div>
+
+
+
+
+
+  </div>
+
+  <!-- ================= UNKNOWN OBJECTS ================= -->
+  <div class="ku-panel unknown" id="ku-unknown-place">
+    <!-- <div class="ku-title">❓ Unknown Objects</div> -->
+
+
+        <div class="result-label" data-split="unknown">🦾 RFS Rollout</div>
+<div class="video-grid multi same-row2" data-split="unknown">
+  <video class="fast-video" src="/rfs/assets/rfs_bee-DHqZiP5R.mp4" muted loop autoplay playsinline></video>
+  <video class="fast-video" src="/rfs/assets/rfs_flamingo-CkwlX_vf.mp4" muted loop autoplay playsinline></video>
+  <video class="fast-video" src="/rfs/assets/rfs_pig-zX8N24uc.mp4" muted loop autoplay playsinline></video>
+  <video class="fast-video" src="/rfs/assets/rfs_box-CbhXPNHq.mp4" muted loop autoplay playsinline></video>
+  <video class="fast-video" src="/rfs/assets/rfs_cup-BPLbh3U8.mp4" muted loop autoplay playsinline></video>
+  
+</div>
+
+<div class="result-label" data-split="unknown">💡 Zero-shot Sim2Real</div>
+<div class="video-grid multi same-row2" data-split="unknown">
+  <video class="fast-video" src="/rfs/assets/zeroshot_bee-D9_owhT9.mp4" muted loop autoplay playsinline></video>
+  <video class="fast-video" src="/rfs/assets/zeroshot_flamingo-BFkzhpCQ.mp4" muted loop autoplay playsinline></video>
+  <video class="fast-video" src="/rfs/assets/zeroshot_pig-DJtSJbb4.mp4" muted loop autoplay playsinline></video>
+  <video class="fast-video" src="/rfs/assets/zeroshot_box-CwRzP83e.mp4" muted loop autoplay playsinline></video>
+  <video class="fast-video" src="/rfs/assets/zeroshot_cup-CRR4fZz9.mp4" muted loop autoplay playsinline></video>
+  
+</div>  
+
+ 
+    <div class="rr-bars">
+       <div class="result-label ">Success Rate</div>
+
+       <div class="rr-row highlight">
+                      <span class="rr-label">RFS (Ours)</span>
+                      <div class="rr-track">
+                        <div class="rr-fill" style="--w:70.0%"></div>
+                      </div>
+                      <span class="rr-val">70.0 ± 9.0</span>
+              </div>
+
+
+              <div class="rr-row">
+                  <span class="rr-label">DSRL</span>
+                  <div class="rr-track">
+                    <div class="rr-fill" style="--w:60.0%"></div>
+                  </div>
+                  <span class="rr-val">60.0 ± 14.8</span>
+              </div>
+
+
+              <div class="rr-row">
+                <span class="rr-label">Residual RL</span>
+                <div class="rr-track">
+                  <div class="rr-fill" style="--w:36.0%"></div>
+                </div>
+                <span class="rr-val">36.0 ± 4.7</span>
+              </div>
+
+
+             
+
+
+               
+
+              <hr style="border: none; border-top: 3px dashed #111;">
+
+
+              
+
+              <div class="rr-row">
+                <span class="rr-label">BC</span>
+                <div class="rr-track">
+                  <div class="rr-fill" style="--w:23.0%"></div>
+                </div>
+                <span class="rr-val">23 ± 9.0</span>
+              </div>
+
+              <div class="rr-row">
+                <span class="rr-label">Co-training</span>
+                <div class="rr-track">
+                  <div class="rr-fill" style="--w:46.0%"></div>
+                </div>
+                <span class="rr-val">46.0± 12.0</span>
+              </div>
+
+              <div class="rr-row">
+                <span class="rr-label">Zero-shot Sim2Real</span>
+                <div class="rr-track">
+                  <div class="rr-fill" style="--w:40.0%"></div>
+                </div>
+                <span class="rr-val">40 ± 9.0</span>
+              </div>
+
+    </div>
+
+
+ 
+  </div>
+
+ 
+
+</div>
+
+
+   
+
+
+
+ <!-- ================= GRASP ================= -->
+      <div id="rr_grasp" class="task-panel hidden">
+
+       
+
+
+       
+
+        
+
+        
+        <!-- ===== KNOWN / UNKNOWN SWITCH ===== -->
+        <div class="ku-toggle">
+          <button class="ku-btn" onclick="showKU('known', this)">✅ Known Objects</button>
+          <button class="ku-btn active" onclick="showKU('unknown', this)">❓ Unknown Objects</button>
+        </div>
+
+
+        <div class="ku-panel known" id="ku-known-grasp">
+            <!-- <div class="ku-title">✅ Known Objects</div> -->
+
+
+              <div class="compare-row" data-split="known">
+
+                <div class="compare-col">
+                  <div class="result-row-label ">🦾 RFS Rollout</div>
+                  <div class="video-grid multi same-row">
+                    <video class="fast-video" src="/rfs/assets/rfs_bunny-BOD2E5vO.mp4" muted loop autoplay playsinline></video>
+                    <video class="fast-video" src="/rfs/assets/rfs_bottle-AFhvni-9.mp4" muted loop autoplay playsinline></video>
+                  </div>
+                </div>
+
+                <div class="compare-col">
+                  <div class="result-row-label">💡 Zero-shot Sim2Real</div>
+                  <div class="video-grid multi same-row">
+                    <video class="fast-video" src="/rfs/assets/zeroshot_bunny-B1DacdVA.mp4" muted loop autoplay playsinline></video>
+                    <video class="fast-video" src="/rfs/assets/zeroshot_bottle-CVc228m7.mp4" muted loop autoplay playsinline></video>
+                  </div>
+                </div>
+
+              </div>
+            
+
+            <div class="rr-bars">
+
+              <div class="result-label ">Success Rate</div>
+
+              
+               <div class="rr-row highlight">
+                  <span class="rr-label">RFS (Ours)</span>
+                  <div class="rr-track">
+                    <div class="rr-fill" style="--w:80.0%"></div>
+                  </div>
+                  <span class="rr-val">80.0 ± 4.7</span>
+              </div>
+
+
+              <div class="rr-row">
+                  <span class="rr-label">DSRL</span>
+                  <div class="rr-track">
+                    <div class="rr-fill" style="--w:65.0%"></div>
+                  </div>
+                  <span class="rr-val">65.0 ± 5.0</span>
+              </div>
+
+
+              <div class="rr-row">
+                <span class="rr-label">Residual RL</span>
+                <div class="rr-track">
+                  <div class="rr-fill" style="--w:70%"></div>
+                </div>
+                <span class="rr-val">70.0 ± 0.0</span>
+              </div>
+
+
+              
+
+              <hr style="border: none; border-top: 3px dashed #111;">
+
+
+              
+
+              <div class="rr-row">
+                <span class="rr-label">BC</span>
+                <div class="rr-track">
+                  <div class="rr-fill" style="--w:73.3%"></div>
+                </div>
+                <span class="rr-val">73.3 ± 0.0</span>
+              </div>
+
+              <div class="rr-row">
+                <span class="rr-label">Co-training</span>
+                <div class="rr-track">
+                  <div class="rr-fill" style="--w:83.3%"></div>
+                </div>
+                <span class="rr-val">83.3 ± 0.0</span>
+              </div>
+
+              <div class="rr-row">
+                <span class="rr-label">Zero-shot Sim2Real</span>
+                <div class="rr-track">
+                  <div class="rr-fill" style="--w:43.3%"></div>
+                </div>
+                <span class="rr-val">43.3 ± 10.0</span>
+              </div>
+
+          
+
+            </div>
+
+          
+
+
+          </div>
+        
+
+
+          <div class="ku-panel unknown" id="ku-unknown-grasp">
+        <!-- <div class="ku-title">❓ Unknown Objects</div> -->
+
+         <div class="result-label" data-split="unknown">🦾 RFS Rollout</div>
+        <div class="video-grid multi" data-split="unknown">
+          <video class="fast-video" src="/rfs/assets/rfs_bee-DpFMcIFE.mp4" muted loop autoplay playsinline></video>
+          <video class="fast-video" src="/rfs/assets/rfs_flamingo-Cv0RR5B1.mp4" muted loop autoplay playsinline></video>
+          <video class="fast-video" src="/rfs/assets/rfs_pig-YUHcij2g.mp4" muted loop autoplay playsinline></video>
+          <video class="fast-video" src="/rfs/assets/rfs_spider-DZvWimVo.mp4" muted loop autoplay playsinline></video>
+        </div>
+
+        <div class="result-label" data-split="unknown">💡 Zero-shot Sim2Real</div>
+        <div class="video-grid multi" data-split="unknown">
+          <video class="fast-video" src="/rfs/assets/zeroshot_bee-CmybTVJz.mp4" muted loop autoplay playsinline></video>
+          <video class="fast-video" src="/rfs/assets/zeroshot_ball-BpsWj7oK.mp4" muted loop autoplay playsinline></video>
+          <video class="fast-video" src="/rfs/assets/zeroshot_pig-BkHE9MiF.mp4" muted loop autoplay playsinline></video>
+          <video class="fast-video" src="/rfs/assets/zeroshot_spider-CJmZkmNs.mp4" muted loop autoplay playsinline></video>
+        </div>
+
+
+      <div class="rr-bars">
+
+        <div class="result-label ">Success Rate</div>
+
+            <div class="rr-row highlight">
+                      <span class="rr-label">RFS (Ours)</span>
+                      <div class="rr-track">
+                        <div class="rr-fill" style="--w:74.0%"></div>
+                      </div>
+                      <span class="rr-val">74.0 ± 14.7</span>
+              </div>
+
+
+              <div class="rr-row">
+                  <span class="rr-label">DSRL</span>
+                  <div class="rr-track">
+                    <div class="rr-fill" style="--w:47.5%"></div>
+                  </div>
+                  <span class="rr-val">47.5 ± 4.3</span>
+              </div>
+
+
+              <div class="rr-row">
+                <span class="rr-label">Residual RL</span>
+                <div class="rr-track">
+                  <div class="rr-fill" style="--w:48.0%"></div>
+                </div>
+                <span class="rr-val">48.0 ± 14.8</span>
+              </div>
+
+
+             
+
+               <hr style="border: none; border-top: 3px dashed #111;">
+          
+
+
+              
+
+              <div class="rr-row">
+                <span class="rr-label">BC</span>
+                <div class="rr-track">
+                  <div class="rr-fill" style="--w:35.0%"></div>
+                </div>
+                <span class="rr-val">35 ± 5.0</span>
+              </div>
+
+              <div class="rr-row">
+                <span class="rr-label">Co-training</span>
+                <div class="rr-track">
+                  <div class="rr-fill" style="--w:47.5%"></div>
+                </div>
+                <span class="rr-val">47.5 ± 28.3</span>
+              </div>
+
+              <div class="rr-row">
+                <span class="rr-label">Zero-shot Sim2Real</span>
+                <div class="rr-track">
+                  <div class="rr-fill" style="--w:30.0%"></div>
+                </div>
+                <span class="rr-val">30 ± 12.0</span>
+              </div>
+
+
+      </div>
+
+
+      
+       
+
+
+
+      </div>
+
+
+
+
+
+
+
+      
+     
+
+</div>
+      
+
+
+  
+</div>
+</div>
+
+</section>
+
+  
+
+
+
+
+ 
+
+  <div  class="container is-max-desktop">
+    <div class="tagline" id="final">🌟 Last but not the least</div>
+      
+      <div class="pipeline-grid card-surface">
+
+    <!-- Init Policy -->
+    <div class="init-row">
+      <video src="/rfs/assets/final-sL2ihuPb.mp4"
+            muted loop autoplay playsinline controls></video>
+    </div>
+
+      
+
+    </div>
+
+ </div>
+  </div>
+
+
+
+
+
+<div class="container is-max-desktop">
+
+    <div class="tagline" id="BibTeX">BibTeX</div>
+     
+      <pre>
+      <code>
+      </code></pre>
+
+
+</div>
+
+
+<footer class="page-footer">
+  <p>
+    Website template modified from incredible PolaRiS, NeRFies, and VAMOS.
+  </p>
+</footer>
+
+
+
+<!-- ================= TASK SWITCH SCRIPT ================= -->
+<script>
+function toggleTask(taskId, card) {
+  const scope = card.closest('.task-scope');
+  const panel = scope.querySelector(`#${taskId}`);
+  const isOpen = !panel.classList.contains('hidden');
+
+  // close if already open
+  if (isOpen) {
+    panel.classList.add('hidden');
+    card.classList.remove('active');
+    return;
+  }
+
+  // close only panels in THIS scope
+  scope.querySelectorAll('.task-panel').forEach(p => p.classList.add('hidden'));
+  scope.querySelectorAll('.task-card').forEach(c => c.classList.remove('active'));
+
+  panel.classList.remove('hidden');
+  card.classList.add('active');
+}
+
+// wrappers (clear semantics)
+function showTask(taskId, card) {
+  toggleTask(taskId, card);
+}
+
+function showRealTask(taskId, card) {
+  toggleTask(taskId, card);
+}
+</script>
+
+
+<script>
+function showKU(type, btn) {
+  /* =========================
+     0. Scope to CURRENT TASK
+  ========================= */
+  const task = btn.closest('.task-panel');
+  if (!task) return;
+
+  /* =========================
+     1. Toggle KU PANELS
+  ========================= */
+  task.querySelectorAll('.ku-panel').forEach(panel => {
+    panel.classList.toggle('hidden', !panel.classList.contains(type));
+  });
+
+  /* =========================
+     2. Toggle VIDEO BLOCKS
+     (compare-row, grids, labels)
+  ========================= */
+  task.querySelectorAll('[data-split]').forEach(el => {
+    el.style.display = (el.dataset.split === type) ? '' : 'none';
+
+    // autoplay / pause videos correctly
+    el.querySelectorAll('video').forEach(v => {
+      if (el.dataset.split === type) {
+        v.play();
+      } else {
+        v.pause();
+      }
+    });
+  });
+
+  /* =========================
+     3. Toggle BUTTON STATE
+  ========================= */
+  btn.parentElement.querySelectorAll('.ku-btn')
+    .forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+/* =========================
+   Default state: KNOWN
+   (per task-panel)
+========================= */
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.task-panel').forEach(task => {
+    const btn = task.querySelector('.ku-btn.active');
+    if (!btn) return;
+
+    const type = btn.textContent.includes('Unknown') ? 'unknown' : 'known';
+    showKU(type, btn);
+  });
+});
+</script>
+
+
+
+<script>
+  document.querySelectorAll('.fast-video').forEach(v => {
+    v.playbackRate = 2.0;
+  });
+</script>
+
+
+
+<script>
+    // ===============================
+  let isDesktop = window.matchMedia(
+    "(hover: hover) and (pointer: fine)"
+  ).matches;
+
+ 
+  document.querySelectorAll(".embedded-viewer").forEach((viewer) => {
+    if (!isDesktop) {
+      const placeholder = document.createElement("div");
+      placeholder.className = "glb-desktop-only";
+      placeholder.innerHTML = `
+        <div class="glb-msg">
+          🖥️ Interactive 3D view available on desktop only
+        </div>
+      `;
+
+      viewer.replaceWith(placeholder);
+    }
+  });
+</script>
+
+</body>
+
+</html>

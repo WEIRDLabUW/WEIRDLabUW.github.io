@@ -1,0 +1,695 @@
+body {
+  font-family: 'Noto Sans', sans-serif;
+}
+
+
+.footer .icon-link {
+    font-size: 25px;
+    color: #000;
+}
+
+.link-block a {
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+.dnerf {
+  font-variant: small-caps;
+}
+
+
+.teaser .hero-body {
+  padding-top: 0;
+  padding-bottom: 3rem;
+}
+
+.teaser {
+  font-family: 'Google Sans', sans-serif;
+}
+
+
+.publication-title {
+}
+
+.publication-banner {
+  max-height: parent;
+
+}
+
+.publication-banner video {
+  position: relative;
+  left: auto;
+  top: auto;
+  transform: none;
+  object-fit: fit;
+}
+
+.publication-header .hero-body {
+}
+
+.publication-title {
+    font-family: 'Google Sans', sans-serif;
+}
+
+.publication-authors {
+    font-family: 'Google Sans', sans-serif;
+}
+
+.publication-venue {
+    color: #555;
+    width: fit-content;
+    font-weight: bold;
+}
+
+.publication-awards {
+    color: #ff3860;
+    width: fit-content;
+    font-weight: bolder;
+}
+
+.publication-authors {
+}
+
+.publication-authors a {
+   color: hsl(204, 86%, 53%) !important;
+}
+
+.publication-authors a:hover {
+    text-decoration: underline;
+}
+
+.author-block {
+  display: inline-block;
+}
+
+.publication-banner img {
+}
+
+.publication-authors {
+  /*color: #4286f4;*/
+}
+
+.publication-video {
+    position: relative;
+    width: 100%;
+    height: 0;
+    padding-bottom: 56.25%;
+
+    overflow: hidden;
+    border-radius: 10px !important;
+}
+
+.publication-video iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.publication-body img {
+}
+
+.results-carousel {
+  overflow: hidden;
+}
+
+.results-carousel .item {
+  margin: 5px;
+  overflow: hidden;
+  border: 1px solid #bbb;
+  border-radius: 10px;
+  padding: 0;
+  font-size: 0;
+}
+
+.results-carousel video {
+  margin: 0;
+}
+
+
+.interpolation-panel {
+  background: #f5f5f5;
+  border-radius: 10px;
+}
+
+.interpolation-panel .interpolation-image {
+  width: 100%;
+  border-radius: 5px;
+}
+
+.interpolation-video-column {
+}
+
+.interpolation-panel .slider {
+  margin: 0 !important;
+}
+
+.interpolation-panel .slider {
+  margin: 0 !important;
+}
+
+#interpolation-image-wrapper {
+  width: 100%;
+}
+#interpolation-image-wrapper img {
+  border-radius: 5px;
+}
+
+
+
+
+
+
+wrap {
+  display: flex;
+  width: 100vw;
+  flex-grow: 1;
+  position: relative;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+/* Fullscreen toggle button */
+/* #fullscreen-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+
+  z-index: 20;
+
+  background: rgba(0, 0, 0, 0.55);
+  color: #fff;
+
+  border: none;
+  border-radius: 6px;
+
+  padding: 6px 8px;
+  font-size: 13px;
+  line-height: 1;
+
+  cursor: pointer;
+} */
+
+#fullscreen-btn:hover {
+  background: rgba(255, 0, 0, 0.85);
+}
+
+
+/* 🔹 Fullscreen mode */
+.wrap.fullscreen {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 9999;
+  border-radius: 0;
+}
+
+
+
+.viewer-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(5, auto);
+  gap: 12px;
+}
+
+/* each viewer cell */
+/* .wrap.embedded-viewer {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  background: #000;
+  position: relative;
+  overflow: hidden;
+}
+
+/* 🔍 Bottom-center fullscreen button (small) */
+.wrap.embedded-viewer .fullscreen-btn {
+  position: absolute;
+  bottom: 12px;                 /* slightly higher */
+  left: 50%;
+  transform: translateX(-50%);
+
+  padding: 16px 20px;            /* ⬅️ bigger click area */
+  font-size: 18px;              /* ⬅️ larger icon/text */
+  line-height: 1;
+
+  background: rgba(0, 0, 0, 0.65);
+  color: white;
+  border: none;
+  border-radius: 10px;          /* nicer pill shape */
+
+  cursor: pointer;
+  z-index: 20;
+}
+
+/* Hover */
+.wrap.embedded-viewer .fullscreen-btn:hover {
+  background: rgba(0, 0, 0, 0.85);
+}
+
+.wrap.embedded-viewer .fullscreen-btn {
+  opacity: 1;
+  transition: opacity 0.2s ease;
+}
+
+.wrap.embedded-viewer:hover .fullscreen-btn {
+  opacity: 1;
+}
+
+.dropzone {
+  display: flex;
+  flex-grow: 1;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.placeholder {
+  width: 100%;
+  max-width: 500px;
+  border-radius: 0.5em;
+  background: #252525;
+  padding: 2em;
+  text-align: center;
+}
+
+.placeholder p {
+  font-size: 1.2rem;
+  color: #999;
+}
+
+.viewer {
+  width: 100%;
+  height: 100%;
+  /* flex-grow: 1;
+  flex-shrink: 1;
+  position: absolute;
+  top: 0;
+  z-index: 0; */
+}
+
+.axes {
+    width: 100px;
+    height: 100px;
+    margin: 20px;
+    padding: 0px;
+    position: absolute;
+    left: 0px;
+    bottom: 0px;
+    z-index: 10;
+    pointer-events: none;
+}
+
+/******************************************************************************
+ * Header
+ */
+
+header {
+  display: flex;
+  background: #353535;
+  padding: 0 2em;
+  height: 4rem;
+  line-height: 4rem;
+  align-items: center;
+  overflow-x: auto;
+  overflow-y: hidden;
+  white-space: nowrap;
+  box-shadow: 0px 0px 8px 2px rgba(0, 0, 0, 0.3);
+  z-index: 1;
+
+  -webkit-app-region: drag;
+}
+
+header h1 {
+  color: #F5F5F5;
+  font-size: 1.4rem;
+  font-weight: 300;
+  line-height: 4rem;
+  margin: 0;
+}
+
+header h1 > a {
+  color: inherit;
+  font-size: inherit;
+  text-decoration: inherit;
+}
+
+.gui-wrap {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+}
+
+.gui-wrap > .main {
+  pointer-events: all;
+  max-height: 100%;
+  overflow: auto;
+}
+
+/* Slider label text */
+.dg .property-name {
+  font-size: 10px;
+  opacity: 0.85;
+}
+
+/* Buttons (Play / Stop) */
+.dg li button {
+  font-size: 10px;
+}
+/* === Make playSpeed input look like Play / Stop buttons === */
+.dg li.cr.number input[type="text"],
+.dg li.cr.number input[type="range"] {
+  height: 24px;
+  padding: 2px 6px;
+
+  border-radius: 6px;
+  border: none;
+
+  background: rgba(0, 0, 0, 0.6);
+  color: #fff;
+
+  font-size: 10px;
+  line-height: 1;
+
+  box-sizing: border-box;
+}
+
+
+@media screen and (max-width: 700px) {
+  header h1 {
+    font-size: 1em;
+  }
+}
+
+
+
+
+/******************************************************************************
+ * CSS Spinner
+ *
+ * http://tobiasahlin.com/spinkit/
+ */
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  margin: -20px;
+
+  background-color: #333;
+
+  border-radius: 100%;
+  -webkit-animation: sk-scaleout 1.0s infinite ease-in-out;
+  animation: sk-scaleout 1.0s infinite ease-in-out;
+}
+
+@-webkit-keyframes sk-scaleout {
+  0% { -webkit-transform: scale(0) }
+  100% {
+    -webkit-transform: scale(1.0);
+    opacity: 0;
+  }
+}
+
+@keyframes sk-scaleout {
+  0% {
+    -webkit-transform: scale(0);
+    transform: scale(0);
+  } 100% {
+    -webkit-transform: scale(1.0);
+    transform: scale(1.0);
+    opacity: 0;
+  }
+}
+
+.media-glb-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+/* 🔲 Shared square box */
+.media-box {
+  aspect-ratio: 1 / 1;     /* ✅ square */
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+  border-radius: 10px;
+  background: black;
+}
+/* Video */
+.video-panel video {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;   /* 🔥 critical */
+  background: black;
+}
+
+/* glTF viewer box */
+.wrap.embedded-viewer {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #000;
+}
+
+
+.wrap.embedded-viewer .gui-wrap {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+
+.wrap.embedded-viewer .gui-wrap > .main {
+  max-width: 100%;
+  max-height: 100%;
+  overflow: auto;
+  pointer-events: all;
+}
+
+.wrap.embedded-viewer canvas {
+  position: absolute;
+  inset: 0;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+
+
+
+
+
+/* Embedded viewer size */
+/* .wrap.embedded-viewer {
+  width: 360px;
+  height: 360px;
+  position: relative;
+  background: #000;
+  overflow: hidden;
+} */
+
+/* Fullscreen button */
+.fullscreen-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 10;
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 6px 8px;
+  cursor: pointer;
+}
+
+/* When browser fullscreen is active */
+.wrap:fullscreen {
+  width: 100vw;
+  height: 100vh;
+}
+
+/* Safari */
+.wrap:-webkit-full-screen {
+  width: 100vw;
+  height: 100vh;
+}
+
+
+.section-title {
+  font-family: 'Google Sans', sans-serif;
+  font-size: 32px;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.section-subtitle {
+  font-size: 16px;
+  color: #666;
+  margin-bottom: 24px;
+}
+
+
+.media-glb-row.expand-video {
+  grid-template-columns: 2fr 1fr;   /* 🔥 video bigger */
+}
+
+
+/* Clickable bar */
+.collapsible-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+
+  padding: 12px 16px;
+  border-radius: 10px;
+  background: #f5f5f5;
+
+  margin-bottom: 8px;
+}
+
+.collapsible-header:hover {
+  background: #eaeaea;
+}
+
+/* + / − icon */
+.toggle-icon {
+  font-size: 28px;
+  font-weight: 300;
+  transition: transform 0.25s ease;
+}
+
+/* Content collapsed by default */
+.collapsible-content {
+  overflow: hidden;
+  max-height: 0;
+  transition: max-height 0.35s ease;
+}
+
+/* Expanded state */
+.collapsible-content.expanded {
+  max-height: 2000px; /* large enough for media */
+}
+
+/* Rotate + to × */
+.collapsible-header.expanded .toggle-icon {
+  transform: rotate(45deg);
+}
+
+
+
+
+/* ===== Expandable color bar style ===== */
+
+.expand-bar {
+  margin: 12px 0;
+  border-radius: 10px;
+  background: #f4f7fb; /* 🔵 light blue-gray */
+}
+
+/* Remove default marker */
+.expand-summary {
+  list-style: none;
+}
+
+/* Header bar */
+.expand-summary {
+  cursor: pointer;
+  padding: 14px 18px;
+
+  font-family: 'Google Sans', sans-serif;
+  font-size: 18px;
+  font-weight: 600;
+
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  color: #222;
+}
+
+/* Hover effect */
+.expand-summary:hover {
+  background: #e9eef6;
+  border-radius: 10px;
+}
+
+/* Arrow */
+.expand-summary::before {
+  content: "▶";
+  font-size: 14px;
+  transition: transform 0.2s ease;
+}
+
+/* Open state */
+.expand-bar[open] .expand-summary::before {
+  transform: rotate(90deg);
+}
+
+/* Content area */
+.expand-content {
+  padding: 16px 18px 20px;
+}
+
+.expand-bar {
+  max-width: 900px;          /* ⬅️ control bar length */
+  margin: 24px auto 12px;    /* center horizontally */
+}
+
+
+/* One-row, four-column layout */
+.media-glb-row.four-col {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr); /* 4 equal columns */
+  gap: 20px;
+  align-items: stretch;
+}
+
+/* Make sure each panel fills its cell */
+.media-glb-row.four-col > * {
+  width: 100%;
+  height: 100%;
+}
+
+.glb-fullscreen-btn {
+  position: absolute;
+  bottom: 12px;              /* ⬇️ bottom */
+  left: 50%;                 /* ⬅️ center horizontally */
+  transform: translateX(-50%);
+
+  z-index: 20;
+
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+  border: none;
+  border-radius: 10px;
+
+  padding: 10px 14px;        /* larger tap target */
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.glb-fullscreen-btn:hover {
+  background: rgba(0, 0, 0, 0.85);
+}

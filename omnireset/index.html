@@ -1,0 +1,2691 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OmniReset</title>
+
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-2VH1BKBSE5"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-2VH1BKBSE5');
+  </script>
+  <link rel="icon" href="./figs/favicon.png" type="image/png" sizes="48x48">
+  <link rel="preconnect" href="https://omnireset-website.s3.us-west-004.backblazeb2.com">
+  <link rel="preconnect" href="https://f004.backblazeb2.com">
+  <link rel="preconnect" href="https://esm.sh" crossorigin>
+  <link rel="preload" as="video" href="https://omnireset-website.s3.us-west-004.backblazeb2.com/intro_supercut.mp4" type="video/mp4" fetchpriority="high">
+  <!-- Preload interactive demo assets so they're cached by the time Three.js needs them -->
+  <link rel="preload" as="fetch" href="https://omnireset-website.s3.us-west-004.backblazeb2.com/interactive_assets/env_warehouse.gltf" crossorigin fetchpriority="high">
+  <link rel="preload" as="fetch" href="https://omnireset-website.s3.us-west-004.backblazeb2.com/interactive_assets/drawer_bottom.glb" crossorigin fetchpriority="high">
+  <link rel="preload" as="fetch" href="https://omnireset-website.s3.us-west-004.backblazeb2.com/interactive_assets/drawer_box.glb" crossorigin fetchpriority="high">
+  <link rel="preload" as="fetch" href="https://omnireset-website.s3.us-west-004.backblazeb2.com/interactive_assets/sky.hdr" crossorigin fetchpriority="high">
+  <link rel="preload" as="fetch" href="https://omnireset-website.s3.us-west-004.backblazeb2.com/interactive_assets/UR5e.json" crossorigin fetchpriority="high">
+  <link rel="preload" as="fetch" href="proto/omnireset.js" crossorigin fetchpriority="high">
+  <link rel="stylesheet" href="style.css?v=38">
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+  <!-- Import map for main.js (Three + protobuf); must match main.js import specifiers -->
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://esm.sh/three@r170",
+        "three/addons/loaders/HDRLoader.js": "https://esm.sh/three@r170/examples/jsm/loaders/HDRLoader.js",
+        "three/addons/loaders/GLTFLoader.js": "https://esm.sh/three@r170/examples/jsm/loaders/GLTFLoader.js",
+        "three/addons/controls/OrbitControls.js": "https://esm.sh/three@r170/examples/jsm/controls/OrbitControls.js",
+        "protobufjs/minimal": "https://esm.sh/protobufjs@7.4.0/minimal"
+      }
+    }
+  </script>
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      }
+    };
+  </script>
+</head>
+
+<body>
+  <!-- Progress Sidebar -->
+  <nav class="progress-sidebar" aria-label="Page progress">
+    <div class="progress-track">
+      <div class="progress-line"></div>
+      <div class="progress-line-fill"></div>
+      <div class="progress-item" data-section="hero">
+        <a href="#">
+          <span class="progress-dot"></span>
+          <span class="progress-label">Intro</span>
+        </a>
+      </div>
+      <div class="progress-item" data-section="interactive-demo">
+        <a href="#interactive-demo">
+          <span class="progress-dot"></span>
+          <span class="progress-label">Try It Yourself</span>
+        </a>
+      </div>
+      <div class="progress-item" data-section="pipeline">
+        <a href="#pipeline">
+          <span class="progress-dot"></span>
+          <span class="progress-label">Pipeline</span>
+        </a>
+      </div>
+      <div class="progress-item" data-section="emergent-dexterity">
+        <a href="#emergent-dexterity">
+          <span class="progress-dot"></span>
+          <span class="progress-label">Emergent Dexterity</span>
+        </a>
+      </div>
+      <div class="progress-item" data-section="reset-distributions">
+        <a href="#reset-distributions">
+          <span class="progress-dot"></span>
+          <span class="progress-label">Reset Distributions</span>
+        </a>
+      </div>
+      <div class="progress-item" data-section="learning-over-time">
+        <a href="#learning-over-time">
+          <span class="progress-dot"></span>
+          <span class="progress-label">Learning Over Time</span>
+        </a>
+      </div>
+      <div class="progress-item" data-section="expert-policies">
+        <a href="#expert-policies">
+          <span class="progress-dot"></span>
+          <span class="progress-label">Scalable Simulation Training</span>
+        </a>
+      </div>
+      <div class="progress-item" data-section="results">
+        <a href="#results">
+          <span class="progress-dot"></span>
+          <span class="progress-label">Baseline Comparisons</span>
+        </a>
+      </div>
+      <div class="progress-item" data-section="evaluations">
+        <a href="#evaluations">
+          <span class="progress-dot"></span>
+          <span class="progress-label">Real-World Evaluations</span>
+        </a>
+      </div>
+      <!-- Commented out - gallery section hidden
+      <div class="progress-item" data-section="gallery">
+        <a href="#gallery">
+          <span class="progress-dot"></span>
+          <span class="progress-label">Gallery</span>
+        </a>
+      </div>
+      -->
+    </div>
+  </nav>
+
+  <div class="main-content">
+    <div class="hero-flow">
+      <div class="hero-orb" aria-hidden="true"></div>
+      <div class="hero-text">OmniReset</div>
+      <div class="sub-hero-text">Emergent Dexterity via Diverse Resets and Large-Scale Reinforcement Learning</div>
+
+      <div class="hero-video-wrap">
+        <video src="https://omnireset-website.s3.us-west-004.backblazeb2.com/intro_supercut.mp4" autoplay muted loop playsinline preload="auto"></video>
+      </div>
+
+      <div class="authors">
+        <a href="https://patrickyin.me/" target="_blank">Patrick Yin</a><sup>1*</sup>,
+        <a href="https://tyler-westenbroek.github.io/" target="_blank">Tyler Westenbroek</a><sup>1*</sup>,
+        <a href="https://zoctipus.github.io/" target="_blank">Zhengyu Zhang</a><sup>2</sup>,
+        <a href="https://jtran-uw.github.io/" target="_blank">Joshua Tran</a><sup>1</sup>,
+        Ignacio Dagnino<sup>1</sup>,<br>
+        Eeshani Shilamkar<sup>1</sup>,
+        Numfor Mbiziwo-Tiapo<sup>1</sup>,
+        <a href="https://simbag04.github.io/" target="_blank">Simran Bagaria</a><sup>3</sup>,
+        Xinlei Liu<sup>1</sup>,<br>
+        <a href="https://www.linkedin.com/in/galen-mullins-b077a66a/" target="_blank">Galen Mullins</a><sup>3</sup>,
+        <a href="https://www.microsoft.com/en-us/research/people/akolobov/" target="_blank">Andrey Kolobov</a><sup>3</sup>,
+        <a href="https://homes.cs.washington.edu/~abhgupta/" target="_blank">Abhishek Gupta</a><sup>1</sup><br>
+        <span class="author-note">*Equal contribution</span>
+        <span class="affiliation">
+          <sup>1</sup>University of Washington, <sup>2</sup>NVIDIA, <sup>3</sup>Microsoft Research
+        </span>
+      </div>
+
+      <div class="hero-actions">
+        <a class="cta primary" href="https://arxiv.org/abs/2603.15789" target="_blank">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"
+            style="vertical-align: -2px; margin-right: 6px;">
+            <path
+              d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 2l5 5h-5V4zM6 20V4h5v7h7v9H6zm2-6h8v2H8v-2zm0-4h4v2H8v-2zm0 8h8v2H8v-2z" />
+          </svg>
+          Read the paper
+        </a>
+        <a class="cta dark" href="https://github.com/UW-Lab/UWLab" target="_blank">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"
+            style="vertical-align: -3px; margin-right: 6px;">
+            <path
+              d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
+          </svg>
+          Code
+        </a>
+      </div>
+      <div class="venue-badge"><span>ICLR 2026</span></div>
+
+      <div class="hero-waves" aria-hidden="true">
+        <svg class="waves-svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+          viewBox="0 24 150 28" preserveAspectRatio="none" shape-rendering="auto">
+          <defs>
+            <path id="gentle-wave" d="M-160 44c30 0 58-18 88-18s 58 18 88 18 58-18 88-18 58 18 88 18 v44h-352z"></path>
+          </defs>
+          <g class="wave-parallax">
+            <use xlink:href="#gentle-wave" x="48" y="0" fill="rgba(212,148,10,0.25)"></use>
+            <use xlink:href="#gentle-wave" x="48" y="3" fill="rgba(147,51,234,0.2)"></use>
+            <use xlink:href="#gentle-wave" x="48" y="5" fill="rgba(59,130,246,0.18)"></use>
+            <use xlink:href="#gentle-wave" x="48" y="7" fill="rgba(37,99,235,0.25)"></use>
+          </g>
+        </svg>
+      </div>
+    </div>
+
+    <div class="tagline" id="interactive-demo">Try It Yourself! <span class="interactive-badge">Interactive</span></div>
+    <div class="card-surface reconstruction-split-section">
+
+      <script type="module" src="main.js?v=22"></script>
+
+      <div class="demo-tab-bar">
+        <button class="demo-tab active" data-task="peg">Peg</button>
+        <button class="demo-tab" data-task="leg">Leg</button>
+        <button class="demo-tab" data-task="drawer">Drawer</button>
+      </div>
+      <div class="demo-viewport">
+        <div id="interactive-demo-container"></div>
+        <div class="demo-overlay" id="demoOverlay">
+          <div class="demo-overlay-content">
+            <div class="demo-loading" id="demoLoading">
+              <div class="demo-spinner"></div>
+              <p class="demo-overlay-instructions">Loading simulation...</p>
+            </div>
+            <div class="demo-ready demo-ready--hidden" id="demoReady">
+              <p class="demo-overlay-instructions">Press <strong>&lsquo;Play&rsquo;</strong> to start a new rollout.</p>
+              <button class="demo-btn demo-btn-primary demo-overlay-play-btn" id="overlayPlayBtn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/><polygon points="10,8 16,12 10,16" fill="currentColor" stroke="none"/></svg>
+                Play
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="demo-controls demo-controls--hidden" id="demoControls">
+          <div class="demo-buttons">
+            <button id="playTrajectory" class="demo-btn demo-btn-primary">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/><polygon points="10,8 16,12 10,16" fill="currentColor" stroke="none"/></svg>
+              Reset
+            </button>
+            <button id="disturb" class="demo-btn demo-btn-secondary">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+              Disturb
+            </button>
+          </div>
+        </div>
+        <div class="demo-hint demo-hint--hidden" id="hintDisturb">Press <strong>&lsquo;Disturb&rsquo;</strong> to open the gripper and apply a force perturbation to the object.</div>
+        <div class="demo-hint demo-hint--hidden" id="hintDrag">Now <strong>drag</strong> and <strong>scroll</strong> to rotate and zoom.</div>
+        <div class="demo-hint demo-hint--hidden" id="hintReset">Press <strong>&lsquo;Reset&rsquo;</strong> to start a new rollout.</div>
+        <div class="demo-hint demo-hint--hidden" id="hintTask">Switch tasks using the <strong>tabs</strong> above!</div>
+      </div>
+      <p class="demo-credit">Interactive demo by <a href="https://jtran-uw.github.io/" target="_blank" rel="noopener noreferrer">Joshua Tran</a></p>
+    </div>
+
+    <div class="tagline" id="pipeline">The OmniReset Pipeline</div>
+    <div class="card-surface pipeline-section-box">
+      <p class="real-world-common-caption real-world-caption-top">OmniReset <b>overcomes the exploration bottleneck</b> by automatically generating diverse reset distributions and scaling up RL training. The resulting policies are distilled to RGB and transferred to the real world <b>zero-shot</b>.</p>
+      <div class="pipeline-grid">
+        <div class="pipeline-card">
+          <div class="pipeline-step">Step 1 — Generate Diverse Resets</div>
+          <div class="real-world-video-frame">
+            <video data-src="https://omnireset-website.s3.us-west-004.backblazeb2.com/reset_videos/ObjectAnywhereEEGrasped_speedup.mp4" autoplay muted loop playsinline
+              poster="figs/posters/reset_videos__ObjectAnywhereEEGrasped_speedup.jpg" preload="none"></video>
+            <button type="button" class="real-world-fs-btn" aria-label="Fullscreen video" title="Fullscreen">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+            </button>
+          </div>
+          <p>Automatically generate diverse <b>reset states</b> for PPO.</p>
+        </div>
+        <div class="pipeline-card">
+          <div class="pipeline-step">Step 2 — Large-Scale State-Based RL Training</div>
+          <div class="real-world-video-frame">
+            <video data-src="https://omnireset-website.s3.us-west-004.backblazeb2.com/RL+Training/64envs_leg.mp4" autoplay muted loop playsinline
+              poster="figs/posters/RL_Training__64envs_leg.jpg" preload="none"></video>
+            <button type="button" class="real-world-fs-btn" aria-label="Fullscreen video" title="Fullscreen">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+            </button>
+          </div>
+          <p>Scale <b>PPO to 64K+ environments</b>.</p>
+        </div>
+        <div class="pipeline-card">
+          <div class="pipeline-step">Step 3 — Distill to Perception</div>
+          <div class="real-world-video-frame">
+            <video data-src="https://omnireset-website.s3.us-west-004.backblazeb2.com/sim_distillation_videos/policy_cameras_leg_cut.mp4" autoplay muted loop playsinline poster="figs/posters/sim_distillation_videos__policy_cameras_leg.jpg" preload="none"></video>
+            <button type="button" class="real-world-fs-btn" aria-label="Fullscreen video" title="Fullscreen">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+            </button>
+          </div>
+          <p>Distill to <b>RGB</b> with extensive visual randomizations.</p>
+        </div>
+        <div class="pipeline-card">
+          <div class="pipeline-step">Step 4 — Deploy</div>
+          <div class="real-world-video-frame">
+            <video data-src="https://omnireset-website.s3.us-west-004.backblazeb2.com/cherry_pick/real_leg_method.mp4" autoplay muted loop playsinline preload="none"></video>
+            <button type="button" class="real-world-fs-btn" aria-label="Fullscreen video" title="Fullscreen">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+            </button>
+          </div>
+          <p><b>Zero-shot</b> sim2real transfer from RGB.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="tagline" id="emergent-dexterity">Emergent Dexterity</div>
+    <div class="emergent-dexterity-stack">
+      <div class="card-surface emergent-dexterity-block">
+        <h3 class="emergent-dexterity-block-title">Robustness and Emergent Retrying Behavior</h3>
+        <p class="real-world-common-caption real-world-caption-top">OmniReset policies are robust to perturbations and succeed across the entire workspace. OmniReset learns robust policies over ranges of initial conditions <b>&gt;300x wider</b> than baselines (see <a href="#results">comparisons below</a>).</p>
+        <div class="emergent-dexterity-grid emergent-dexterity-grid--two">
+          <div class="emergent-dexterity-cell">
+            <div class="emergent-dexterity-video-wrap">
+              <div class="real-world-video-frame">
+                <video data-src="https://f004.backblazeb2.com/file/omnireset-website/cherry_pick/real_perturb.mp4" autoplay muted loop playsinline preload="none"></video>
+                <button type="button" class="real-world-fs-btn" aria-label="Fullscreen video" title="Fullscreen">
+                  <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+                </button>
+              </div>
+            </div>
+            <p class="emergent-dexterity-caption">Robustness to perturbations</p>
+          </div>
+          <div class="emergent-dexterity-cell">
+            <div class="emergent-dexterity-video-wrap">
+              <div class="real-world-video-frame">
+                <video data-src="https://omnireset-website.s3.us-west-004.backblazeb2.com/cherry_pick/hard_ic.mp4" autoplay muted loop playsinline preload="none"></video>
+                <button type="button" class="real-world-fs-btn" aria-label="Fullscreen video" title="Fullscreen">
+                  <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+                </button>
+              </div>
+            </div>
+            <p class="emergent-dexterity-caption">Difficult initial conditions at the edges of the workspace</p>
+          </div>
+        </div>
+      </div>
+      <div class="card-surface emergent-dexterity-block">
+        <h3 class="emergent-dexterity-block-title">Non-Prehensile Behaviors</h3>
+        <p class="real-world-common-caption real-world-caption-top">OmniReset discovers non-prehensile skills that exploit environment dynamics. Watch the robot reorient the peg using the hole!</p>
+        <div class="emergent-dexterity-grid emergent-dexterity-grid--two">
+          <div class="emergent-dexterity-cell">
+            <div class="emergent-dexterity-video-wrap">
+              <div class="real-world-video-frame">
+                <video data-src="https://omnireset-website.s3.us-west-004.backblazeb2.com/cherry_pick/sim_peg_supercut_reorient.mp4" autoplay muted loop playsinline preload="none"></video>
+                <button type="button" class="real-world-fs-btn" aria-label="Fullscreen video" title="Fullscreen">
+                  <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+          <div class="emergent-dexterity-cell">
+            <div class="emergent-dexterity-video-wrap">
+              <div class="real-world-video-frame">
+                <video data-src="https://omnireset-website.s3.us-west-004.backblazeb2.com/cherry_pick/real_nonprehensile.mp4" autoplay muted loop playsinline preload="none"></video>
+                <button type="button" class="real-world-fs-btn" aria-label="Fullscreen video" title="Fullscreen">
+                  <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card-surface emergent-dexterity-block">
+        <h3 class="emergent-dexterity-block-title">Diverse Long-Horizon Stitching</h3>
+        <p class="real-world-common-caption real-world-caption-top">OmniReset stitches together diverse, emergent skills into long-horizon behaviors, <b>with no task-specific priors</b>.</p>
+        <div class="emergent-dexterity-grid emergent-dexterity-grid--three">
+          <div class="emergent-dexterity-cell">
+            <div class="emergent-dexterity-video-wrap">
+              <div class="real-world-video-frame">
+                <video data-src="https://omnireset-website.s3.us-west-004.backblazeb2.com/cherry_pick/drawer_stitching.mp4" autoplay muted loop playsinline preload="none"></video>
+                <button type="button" class="real-world-fs-btn" aria-label="Fullscreen video" title="Fullscreen">
+                  <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+                </button>
+              </div>
+            </div>
+            <p class="emergent-dexterity-caption">avoid obstacle &rarr; flip &rarr; push &rarr; wiggle in</p>
+          </div>
+          <div class="emergent-dexterity-cell">
+            <div class="emergent-dexterity-video-wrap">
+              <div class="real-world-video-frame">
+                <video data-src="https://omnireset-website.s3.us-west-004.backblazeb2.com/cherry_pick/peg_stitching.mp4" autoplay muted loop playsinline preload="none"></video>
+                <button type="button" class="real-world-fs-btn" aria-label="Fullscreen video" title="Fullscreen">
+                  <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+                </button>
+              </div>
+            </div>
+            <p class="emergent-dexterity-caption">reach &rarr; flip &rarr; insert</p>
+          </div>
+          <div class="emergent-dexterity-cell">
+            <div class="emergent-dexterity-video-wrap">
+              <div class="real-world-video-frame">
+                <video data-src="https://omnireset-website.s3.us-west-004.backblazeb2.com/cherry_pick/leg_stitching.mp4" autoplay muted loop playsinline preload="none"></video>
+                <button type="button" class="real-world-fs-btn" aria-label="Fullscreen video" title="Fullscreen">
+                  <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+                </button>
+              </div>
+            </div>
+            <p class="emergent-dexterity-caption">reach &rarr; pick &rarr; insert &rarr; release &rarr; twist</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+
+    <div class="tagline" id="reset-distributions">Digging into the Reset Distributions</div>
+    <div class="reset-distribution-stack">
+      <div class="card-surface reset-distribution-block">
+        <p class="real-world-common-caption real-world-caption-top">OmniReset aims to cover all <b>contact-rich states</b> the robot might encounter and all <b>potential paths to the goal</b>. Large-scale RL (<b>64K+ environments</b>) then sorts through these options to find successful behaviors for each task.</p>
+        <p class="real-world-common-caption reset-distribution-intro-follow">The user only specifies the <b>pose of the object at success</b>. From that, we automatically generate the following distributions to cover all reasonable robot-object configurations.</p>
+        <div class="reset-distribution-grid">
+          <div class="reset-distribution-cell">
+            <h4 class="reset-distribution-cell-title">Near Goal</h4>
+            <div class="reset-distribution-video-wrap">
+              <div class="real-world-video-frame">
+                <video
+                  data-src="https://omnireset-website.s3.us-west-004.backblazeb2.com/reset_videos/ObjectPartiallyAssembledEEGrasped_speedup.mp4"
+                  autoplay muted loop playsinline poster="figs/posters/reset_videos__ObjectPartiallyAssembledEEGrasped_speedup.jpg" preload="none"></video>
+                <button type="button" class="real-world-fs-btn" aria-label="Fullscreen video" title="Fullscreen">
+                  <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+                </button>
+              </div>
+            </div>
+            <p class="reset-distribution-caption">The object near the goal with the gripper close to the object.</p>
+          </div>
+          <div class="reset-distribution-cell">
+            <h4 class="reset-distribution-cell-title">Grasped</h4>
+            <div class="reset-distribution-video-wrap">
+              <div class="real-world-video-frame">
+                <video
+                  data-src="https://omnireset-website.s3.us-west-004.backblazeb2.com/reset_videos/ObjectAnywhereEEGrasped_speedup.mp4"
+                  autoplay muted loop playsinline poster="figs/posters/reset_videos__ObjectAnywhereEEGrasped_speedup.jpg" preload="none"></video>
+                <button type="button" class="real-world-fs-btn" aria-label="Fullscreen video" title="Fullscreen">
+                  <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+                </button>
+              </div>
+            </div>
+            <p class="reset-distribution-caption">The robot gripper grasping the object.</p>
+          </div>
+          <div class="reset-distribution-cell">
+            <h4 class="reset-distribution-cell-title">Near Object</h4>
+            <div class="reset-distribution-video-wrap">
+              <div class="real-world-video-frame">
+                <video
+                  data-src="https://omnireset-website.s3.us-west-004.backblazeb2.com/reset_videos/ObjectRestingEEGrasped_speedup.mp4"
+                  autoplay muted loop playsinline poster="figs/posters/reset_videos__ObjectRestingEEGrasped_speedup.jpg" preload="none"></video>
+                <button type="button" class="real-world-fs-btn" aria-label="Fullscreen video" title="Fullscreen">
+                  <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+                </button>
+              </div>
+            </div>
+            <p class="reset-distribution-caption">The robot gripper close to the object.</p>
+          </div>
+          <div class="reset-distribution-cell">
+            <h4 class="reset-distribution-cell-title">Reaching</h4>
+            <div class="reset-distribution-video-wrap">
+              <div class="real-world-video-frame">
+                <video
+                  data-src="https://omnireset-website.s3.us-west-004.backblazeb2.com/reset_videos/ObjectAnywhereEEAnywhere_speedup.mp4"
+                  autoplay muted loop playsinline poster="figs/posters/reset_videos__ObjectAnywhereEEAnywhere_speedup.jpg" preload="none"></video>
+                <button type="button" class="real-world-fs-btn" aria-label="Fullscreen video" title="Fullscreen">
+                  <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+                </button>
+              </div>
+            </div>
+            <p class="reset-distribution-caption">The robot gripper randomly positioned.</p>
+          </div>
+        </div>
+      </div>
+      <div class="card-surface reset-distribution-block reset-distribution-block--leg-zoom">
+        <p class="real-world-common-caption real-world-caption-top">Our reset distributions zoomed in on leg to show diversity of object-robot configurations.</p>
+        <div class="reset-distribution-grid reset-distribution-grid--leg-zoom">
+          <div class="reset-distribution-cell">
+            <h4 class="reset-distribution-cell-title">Near Goal</h4>
+            <div class="reset-distribution-video-wrap">
+              <div class="real-world-video-frame">
+                <video
+                  data-src="https://omnireset-website.s3.us-west-004.backblazeb2.com/reset_videos/ObjectPartiallyAssembledEEGrasped_fixed.mp4"
+                  autoplay muted loop playsinline poster="figs/posters/reset_videos__ObjectPartiallyAssembledEEGrasped_fixed.jpg" preload="none"></video>
+                <button type="button" class="real-world-fs-btn" aria-label="Fullscreen video" title="Fullscreen">
+                  <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+          <div class="reset-distribution-cell">
+            <h4 class="reset-distribution-cell-title">Grasped</h4>
+            <div class="reset-distribution-video-wrap">
+              <div class="real-world-video-frame">
+                <video
+                  data-src="https://omnireset-website.s3.us-west-004.backblazeb2.com/reset_videos/ObjectAnywhereEEGrasped_fixed.mp4"
+                  autoplay muted loop playsinline poster="figs/posters/reset_videos__ObjectAnywhereEEGrasped_fixed.jpg" preload="none"></video>
+                <button type="button" class="real-world-fs-btn" aria-label="Fullscreen video" title="Fullscreen">
+                  <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- <div class="tagline">Real vs. Sim</div>
+    <section class="slider-section card-surface" id="slider-comparison">
+      <div class="section-heading">Interactive Slider Comparison</div>
+      <p class="section-lead">Drag to reveal sim vs real. Use arrows to switch tasks.</p>
+      <div class="slider-task-selector">
+        <button class="slider-nav-btn" id="slider-prev">‹</button>
+        <span class="slider-task-name" id="slider-task-name">Food Bussing</span>
+        <button class="slider-nav-btn" id="slider-next">›</button>
+      </div>
+      <div class="slider-wrapper">
+        <video class="slider-video" id="slider-sim-video" src="./assets/videos/sim_rollouts/fruitbus.mp4" autoplay muted loop playsinline></video>
+        <div class="slider-overlay">
+          <video class="slider-video" id="slider-real-video" src="./assets/videos/real_rollouts/fruitbus.mp4" autoplay muted loop playsinline></video>
+        </div>
+        <div class="slider-handle"></div>
+        <input type="range" class="slider-input" min="0" max="100" value="50" aria-label="Reveal real or simulated video">
+        <div class="slider-labels">
+          <span class="slider-label-real">Real</span>
+          <span class="slider-label-sim">Sim</span>
+        </div>
+      </div>
+      <p class="figure-caption slider-caption"><b>PolaRiS</b> enables zero-shot evaluation in unseen simulation environments that correlates strongly with real-world performance.</p>
+    </section> -->
+
+    <div class="tagline" id="learning-over-time">Visualizing Learning Over Time</div>
+    <div class="card-surface learning-over-time-box">
+      <p class="learning-over-time-intro" style="text-align:center;">OmniReset requires <b>no curricula or reward shaping</b>, just diverse resets and large-scale compute. PPO naturally learns backwards from near-goal states to the full workspace.</p>
+      <div class="learning-over-time-video-wrap">
+        <video
+          src="https://omnireset-website.s3.us-west-004.backblazeb2.com/progress/Progression+simple.mp4"
+          controls playsinline poster="figs/posters/progress__Progression_simple.jpg" preload="metadata"></video>
+      </div>
+    </div>
+
+    <div class="tagline" id="expert-policies">Scalable Simulation Training</div>
+    <div class="card-surface expert-policies-section-box">
+      <p class="real-world-common-caption real-world-caption-top">OmniReset scales gracefully to a large number of tasks.</p>
+      <div class="expert-policies-grid">
+        <div class="expert-policy-card">
+          <h4 class="expert-policy-title">Leg Twisting</h4>
+          <div class="real-world-video-frame">
+            <video data-src="https://omnireset-website.s3.us-west-004.backblazeb2.com/sim_eval_videos/leg_cut.mp4" autoplay muted loop playsinline poster="figs/posters/sim_eval_videos__leg_cut.jpg" preload="none"></video>
+            <button type="button" class="real-world-fs-btn" aria-label="Fullscreen video" title="Fullscreen">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+            </button>
+          </div>
+          <p class="expert-policy-caption">Screw the leg into the table.</p>
+        </div>
+        <div class="expert-policy-card">
+          <h4 class="expert-policy-title">Drawer Assembly</h4>
+          <div class="real-world-video-frame">
+            <video data-src="https://omnireset-website.s3.us-west-004.backblazeb2.com/sim_eval_videos/drawer_cut.mp4" autoplay muted loop playsinline poster="figs/posters/sim_eval_videos__drawer_cut.jpg" preload="none"></video>
+            <button type="button" class="real-world-fs-btn" aria-label="Fullscreen video" title="Fullscreen">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+            </button>
+          </div>
+          <p class="expert-policy-caption">Insert the drawer into the drawer box.</p>
+        </div>
+        <div class="expert-policy-card">
+          <h4 class="expert-policy-title">Peg Insertion</h4>
+          <div class="real-world-video-frame">
+            <video data-src="https://omnireset-website.s3.us-west-004.backblazeb2.com/sim_eval_videos/peg_cut.mp4" autoplay muted loop playsinline poster="figs/posters/sim_eval_videos__peg_cut.jpg" preload="none"></video>
+            <button type="button" class="real-world-fs-btn" aria-label="Fullscreen video" title="Fullscreen">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+            </button>
+          </div>
+          <p class="expert-policy-caption">Insert the peg in the hole.</p>
+        </div>
+        <div class="expert-policy-card">
+          <h4 class="expert-policy-title">Rectangle on Wall</h4>
+          <div class="real-world-video-frame">
+            <video data-src="https://omnireset-website.s3.us-west-004.backblazeb2.com/sim_eval_videos/rectangle_cut.mp4" autoplay muted loop playsinline poster="figs/posters/sim_eval_videos__rectangle_cut.jpg" preload="none"></video>
+            <button type="button" class="real-world-fs-btn" aria-label="Fullscreen video" title="Fullscreen">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+            </button>
+          </div>
+          <p class="expert-policy-caption">Reorient the rectangular block to the target position on the wall.</p>
+        </div>
+        <div class="expert-policy-card">
+          <h4 class="expert-policy-title">Cube Stacking</h4>
+          <div class="real-world-video-frame">
+            <video data-src="https://omnireset-website.s3.us-west-004.backblazeb2.com/sim_eval_videos/cube_stacking_cut.mp4" autoplay muted loop playsinline poster="figs/posters/sim_eval_videos__cube_stacking_cut.jpg" preload="none"></video>
+            <button type="button" class="real-world-fs-btn" aria-label="Fullscreen video" title="Fullscreen">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+            </button>
+          </div>
+          <p class="expert-policy-caption">Stack the cubes on top of each other.</p>
+        </div>
+        <div class="expert-policy-card">
+          <h4 class="expert-policy-title">Birthday Party</h4>
+          <div class="real-world-video-frame">
+            <video data-src="https://omnireset-website.s3.us-west-004.backblazeb2.com/sim_eval_videos/cupcake_cut.mp4" autoplay muted loop playsinline poster="figs/posters/sim_eval_videos__cupcake_cut.jpg" preload="none"></video>
+            <button type="button" class="real-world-fs-btn" aria-label="Fullscreen video" title="Fullscreen">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+            </button>
+          </div>
+          <p class="expert-policy-caption">Pick up the cupcake and place it on the plate.</p>
+        </div>
+        <div class="expert-policy-card">
+          <h4 class="expert-policy-title">Leg Twisting (×4)</h4>
+          <div class="real-world-video-frame">
+            <video data-src="https://omnireset-website.s3.us-west-004.backblazeb2.com/sim_eval_videos/4leg_cut.mp4" autoplay muted loop playsinline poster="figs/posters/sim_eval_videos__4leg_cut.jpg" preload="none"></video>
+            <button type="button" class="real-world-fs-btn" aria-label="Fullscreen video" title="Fullscreen">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+            </button>
+          </div>
+          <p class="expert-policy-caption">Demo only. Runs the leg twisting policy four times from a fixed initial state (no large distribution coverage).</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="tagline" id="sim2real">Sim2Real Transfer</div>
+    <div class="card-surface uncut-evaluations-box">
+      <p class="uncut-evaluations-subtitle">OmniReset policies distilled to RGB with zero-shot sim2real transfer.</p>
+      <div class="eval-tab-bar" id="s2r-tab-bar">
+        <button class="eval-tab active" data-s2r-tab="peg">Peg Insertion</button>
+        <button class="eval-tab" data-s2r-tab="leg">Table Assembly</button>
+        <button class="eval-tab" data-s2r-tab="drawer">Drawer Assembly</button>
+      </div>
+
+      <div class="eval-tab-panel active" id="s2r-panel-peg">
+        <div class="robustness-header-row">
+          <div class="real-world-grid-header sim-col">Simulation</div>
+          <div class="real-world-grid-header real-col">Real World</div>
+        </div>
+        <div class="real-world-grid-row">
+          <div class="real-world-grid-cell">
+            <div class="real-world-video-frame">
+              <video data-src="https://omnireset-website.s3.us-west-004.backblazeb2.com/sim_eval_videos/peg_cut.mp4" autoplay muted loop playsinline poster="figs/posters/sim_eval_videos__peg_cut.jpg" preload="none"></video>
+              <button type="button" class="real-world-fs-btn" aria-label="Fullscreen video" title="Fullscreen">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+              </button>
+            </div>
+          </div>
+          <div class="real-world-grid-cell">
+            <div class="real-world-video-frame">
+              <video data-src="https://omnireset-website.s3.us-west-004.backblazeb2.com/real_eval_videos/peg/3_16_peg_eval_continual_success.mp4" autoplay muted loop playsinline poster="figs/posters/real_eval_videos__peg__3_16_peg_eval_continual_success.jpg" preload="none"></video>
+              <button type="button" class="real-world-fs-btn" aria-label="Fullscreen video" title="Fullscreen">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="eval-tab-panel" id="s2r-panel-leg">
+        <div class="robustness-header-row">
+          <div class="real-world-grid-header sim-col">Simulation</div>
+          <div class="real-world-grid-header real-col">Real World</div>
+        </div>
+        <div class="real-world-grid-row">
+          <div class="real-world-grid-cell">
+            <div class="real-world-video-frame">
+              <video data-src="https://omnireset-website.s3.us-west-004.backblazeb2.com/sim_eval_videos/leg_cut.mp4" autoplay muted loop playsinline poster="figs/posters/sim_eval_videos__leg_cut.jpg" preload="none"></video>
+              <button type="button" class="real-world-fs-btn" aria-label="Fullscreen video" title="Fullscreen">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+              </button>
+            </div>
+          </div>
+          <div class="real-world-grid-cell">
+            <div class="real-world-video-frame">
+              <video data-src="https://omnireset-website.s3.us-west-004.backblazeb2.com/real_eval_videos/leg/3_16_leg_eval_continual_success.mp4" autoplay muted loop playsinline poster="figs/posters/real_eval_videos__leg__3_16_leg_eval_continual_success.jpg" preload="none"></video>
+              <button type="button" class="real-world-fs-btn" aria-label="Fullscreen video" title="Fullscreen">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="eval-tab-panel" id="s2r-panel-drawer">
+        <div class="robustness-header-row">
+          <div class="real-world-grid-header sim-col">Simulation</div>
+          <div class="real-world-grid-header real-col">Real World</div>
+        </div>
+        <div class="real-world-grid-row">
+          <div class="real-world-grid-cell">
+            <div class="real-world-video-frame">
+              <video data-src="https://omnireset-website.s3.us-west-004.backblazeb2.com/sim_eval_videos/drawer_cut.mp4" autoplay muted loop playsinline poster="figs/posters/sim_eval_videos__drawer_cut.jpg" preload="none"></video>
+              <button type="button" class="real-world-fs-btn" aria-label="Fullscreen video" title="Fullscreen">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+              </button>
+            </div>
+          </div>
+          <div class="real-world-grid-cell">
+            <div class="real-world-video-frame">
+              <video data-src="https://omnireset-website.s3.us-west-004.backblazeb2.com/real_eval_videos/drawer/3_16_drawer_eval_continual_success.mp4" autoplay muted loop playsinline poster="figs/posters/real_eval_videos__drawer__3_16_drawer_eval_continual_success.jpg" preload="none"></video>
+              <button type="button" class="real-world-fs-btn" aria-label="Fullscreen video" title="Fullscreen">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tagline" id="results">Baseline Comparisons</div>
+    <div class="card-surface scatter-card reset-distributions-plots">
+      <div class="reset-plot-item">
+        <p class="reset-plot-intro" style="text-align:center;">We evaluate on <b>easy</b> (restricted initial conditions) and <b>hard</b> (full workspace) variants of each task. Baselines rarely succeed on hard settings. The scatter plot shows successful initial conditions for OmniReset (left) vs. the strongest baseline, <b>Demo Curriculum</b> (right).</p>
+        <img src="https://f004.backblazeb2.com/file/omnireset-website/Plots/baseline_scatter_new.png" alt="Baselines scatter plot" class="reset-plot-img" />
+      </div>
+      <div class="reset-plot-item">
+        <p class="reset-plot-intro">Here we plot learning curves for different methods across different variations of the task. OmniReset consistently achieves high success rates where baselines struggle to make progress in learning.</p>
+        <img src="https://omnireset-website.s3.us-west-004.backblazeb2.com/Plots/baselines_3x3_grid-1.png" alt="Baselines 3x3 grid" class="reset-plot-img" />
+      </div>
+    </div>
+
+    <div class="tagline" id="evaluations">Real-World Evaluations</div>
+    <div class="card-surface uncut-evaluations-box">
+      <p class="uncut-evaluations-subtitle">The three stacked views on the right are <b>policy inputs</b>; the main view is for visualization only.</p>
+      <div class="eval-tab-bar">
+        <button class="eval-tab active" data-eval-tab="highlights">Highlights</button>
+        <button class="eval-tab" data-eval-tab="perturbations">Perturbations</button>
+        <button class="eval-tab" data-eval-tab="randomized">Randomized Targets</button>
+        <button class="eval-tab" data-eval-tab="failures">Failures</button>
+        <button class="eval-tab" data-eval-tab="uncut">Full</button>
+        
+      </div>
+
+      <div class="eval-tab-panel active" id="eval-panel-highlights">
+        <p class="uncut-evaluations-subtitle">The most impressive moments from our evaluations, supercut.</p>
+        <div class="uncut-evaluations-grid uncut-evaluations-grid--hero-first">
+          <div class="uncut-evaluations-cell">
+            <h4 class="uncut-evaluations-title">Peg insertion</h4>
+            <div class="uncut-evaluations-video-wrap">
+              <video
+                data-src="https://omnireset-website.s3.us-west-004.backblazeb2.com/real_eval_videos/peg/3_16_peg_eval_highlights.mp4"
+                controls playsinline poster="figs/posters/real_eval_videos__peg__3_16_peg_eval_highlights.jpg" preload="none"></video>
+            </div>
+          </div>
+          <div class="uncut-evaluations-cell">
+            <h4 class="uncut-evaluations-title">Table assembly</h4>
+            <div class="uncut-evaluations-video-wrap">
+              <video
+                data-src="https://omnireset-website.s3.us-west-004.backblazeb2.com/real_eval_videos/leg/3_16_leg_eval_highlights.mp4"
+                controls playsinline poster="figs/posters/real_eval_videos__leg__3_16_leg_eval_highlights.jpg" preload="none"></video>
+            </div>
+          </div>
+          <div class="uncut-evaluations-cell">
+            <h4 class="uncut-evaluations-title">Drawer assembly</h4>
+            <div class="uncut-evaluations-video-wrap">
+              <video
+                data-src="https://omnireset-website.s3.us-west-004.backblazeb2.com/real_eval_videos/drawer/3_16_drawer_eval_highlights.mp4"
+                controls playsinline poster="figs/posters/real_eval_videos__drawer__3_16_drawer_eval_highlights.jpg" preload="none"></video>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="eval-tab-panel" id="eval-panel-perturbations">
+        <p class="uncut-evaluations-subtitle">Policies recover from perturbations and retry after mistakes.</p>
+        <div class="uncut-evaluations-grid uncut-evaluations-grid--rows">
+          <div class="uncut-evaluations-cell">
+            <h4 class="uncut-evaluations-title">Peg Insertion</h4>
+            <div class="uncut-evaluations-video-wrap">
+              <video data-src="https://omnireset-website.s3.us-west-004.backblazeb2.com/real_eval_videos/peg/3_16_peg_eval_perturb_highlights.mp4" controls playsinline poster="figs/posters/real_eval_videos__peg__3_16_peg_eval_perturb_highlights.jpg" preload="none"></video>
+            </div>
+          </div>
+          <div class="uncut-evaluations-cell">
+            <h4 class="uncut-evaluations-title">Table Assembly</h4>
+            <div class="uncut-evaluations-video-wrap">
+              <video data-src="https://omnireset-website.s3.us-west-004.backblazeb2.com/real_eval_videos/leg/3_16_leg_eval_perturb_highlights.mp4" controls playsinline poster="figs/posters/real_eval_videos__leg__3_16_leg_eval_perturb_highlights.jpg" preload="none"></video>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="eval-tab-panel" id="eval-panel-randomized">
+        <p class="uncut-evaluations-subtitle">Policies succeed under randomized target positions.</p>
+        <div class="uncut-evaluations-grid uncut-evaluations-grid--rows">
+          <div class="uncut-evaluations-cell">
+            <h4 class="uncut-evaluations-title">Peg Insertion</h4>
+            <div class="uncut-evaluations-video-wrap">
+              <video data-src="https://omnireset-website.s3.us-west-004.backblazeb2.com/real_eval_videos/peg/3_16_peg_eval_randomize.mp4" controls playsinline poster="figs/posters/real_eval_videos__peg__3_16_peg_eval_randomize.jpg" preload="none"></video>
+            </div>
+          </div>
+          <div class="uncut-evaluations-cell">
+            <h4 class="uncut-evaluations-title">Table Assembly</h4>
+            <div class="uncut-evaluations-video-wrap">
+              <video data-src="https://omnireset-website.s3.us-west-004.backblazeb2.com/real_eval_videos/leg/3_16_leg_eval_randomize.mp4" controls playsinline poster="figs/posters/real_eval_videos__leg__3_16_leg_eval_randomize.jpg" preload="none"></video>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="eval-tab-panel" id="eval-panel-failures">
+        <p class="uncut-evaluations-subtitle">Policy failures supercut from evaluations.</p>
+        <div class="uncut-evaluations-grid uncut-evaluations-grid--hero-first">
+          <div class="uncut-evaluations-cell">
+            <h4 class="uncut-evaluations-title">Peg insertion</h4>
+            <div class="uncut-evaluations-video-wrap">
+              <video
+                data-src="https://omnireset-website.s3.us-west-004.backblazeb2.com/real_eval_videos/peg/3_16_peg_failures.mp4"
+                controls playsinline poster="figs/posters/real_eval_videos__peg__3_16_peg_failures.jpg" preload="none"></video>
+            </div>
+          </div>
+          <div class="uncut-evaluations-cell">
+            <h4 class="uncut-evaluations-title">Table assembly</h4>
+            <div class="uncut-evaluations-video-wrap">
+              <video
+                data-src="https://omnireset-website.s3.us-west-004.backblazeb2.com/real_eval_videos/leg/3_16_leg_failures.mp4"
+                controls playsinline poster="figs/posters/real_eval_videos__leg__3_16_leg_failures.jpg" preload="none"></video>
+            </div>
+          </div>
+          <div class="uncut-evaluations-cell">
+            <h4 class="uncut-evaluations-title">Drawer assembly</h4>
+            <div class="uncut-evaluations-video-wrap">
+              <video
+                data-src="https://omnireset-website.s3.us-west-004.backblazeb2.com/real_eval_videos/drawer/3_16_drawer_failures.mp4"
+                controls playsinline poster="figs/posters/real_eval_videos__drawer__3_16_drawer_failures.jpg" preload="none"></video>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="eval-tab-panel" id="eval-panel-uncut">
+        <p class="uncut-evaluations-subtitle">Full, uncut, continuous evaluations.</p>
+        <div class="uncut-evaluations-grid uncut-evaluations-grid--hero-first">
+          <div class="uncut-evaluations-cell">
+            <h4 class="uncut-evaluations-title">Peg insertion</h4>
+            <div class="uncut-evaluations-video-wrap">
+              <video
+                data-src="https://omnireset-website.s3.us-west-004.backblazeb2.com/real_eval_videos/peg/full/3_16_peg_eval_full.mp4"
+                controls playsinline poster="figs/posters/real_eval_videos__peg__full__3_16_peg_eval_full.jpg" preload="none"></video>
+            </div>
+          </div>
+          <div class="uncut-evaluations-cell">
+            <h4 class="uncut-evaluations-title">Table assembly</h4>
+            <div class="uncut-evaluations-video-wrap">
+              <video
+                data-src="https://omnireset-website.s3.us-west-004.backblazeb2.com/real_eval_videos/leg/full/3_16_leg_eval_full.mp4"
+                controls playsinline poster="figs/posters/real_eval_videos__leg__full__3_16_leg_eval_full.jpg" preload="none"></video>
+            </div>
+          </div>
+          <div class="uncut-evaluations-cell">
+            <h4 class="uncut-evaluations-title">Drawer assembly</h4>
+            <div class="uncut-evaluations-video-wrap">
+              <video
+                data-src="https://omnireset-website.s3.us-west-004.backblazeb2.com/real_eval_videos/drawer/3_16_drawer_eval_full.mp4"
+                controls playsinline poster="figs/posters/real_eval_videos__drawer__3_16_drawer_eval_full.jpg" preload="none"></video>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="tagline" id="bibtex">BibTeX</div>
+    <div class="bibtex-code">
+      <div class="bibtex-title">Reference</div>
+      <pre><code>@inproceedings{yin2026emergent,
+  title={Emergent Dexterity via Diverse Resets and Large-Scale Reinforcement Learning},
+  author={Patrick Yin and Tyler Westenbroek and Zhengyu Zhang and Joshua Tran and Ignacio Dagnino and Eeshani Shilamkar and Numfor Mbiziwo-Tiapo and Simran Bagaria and Xinlei Liu and Galen Mullins and Andrey Kolobov and Abhishek Gupta},
+  booktitle={The Fourteenth International Conference on Learning Representations},
+  year={2026},
+  url={https://arxiv.org/abs/2603.15789},
+}</code></pre>
+    </div>
+  </div>
+
+  <div class="footer">
+    © OmniReset team. Website template adapted from <a href="https://polaris-evals.github.io/"
+      target="_blank">PolaRiS</a>.
+  </div>
+
+  <script>
+    // Sequential video loading + viewport-based playback.
+    // Videos load in DOM order (2 at a time) so top-of-page content is ready first.
+    // Playback starts/stops based on viewport proximity, independent of loading.
+    document.addEventListener('DOMContentLoaded', () => {
+      const allLazy = [...document.querySelectorAll('video[data-src]')];
+      const autoplayVids = [];
+      const controlsVids = [];
+      allLazy.forEach(v => {
+        if (v.hasAttribute('autoplay')) {
+          v.removeAttribute('autoplay');
+          autoplayVids.push(v);
+        } else {
+          controlsVids.push(v);
+        }
+      });
+
+      function loadSrc(v) {
+        if (!v.getAttribute('src') && v.dataset.src) {
+          v.src = v.dataset.src;
+          v.preload = 'auto';
+          return true;
+        }
+        return false;
+      }
+
+      // --- Sequential preload queue (DOM order, 2 concurrent) ---
+      const queue = allLazy.slice();
+      const MAX_CONCURRENT = 2;
+      let active = 0;
+
+      function pumpQueue() {
+        while (active < MAX_CONCURRENT && queue.length > 0) {
+          const v = queue.shift();
+          if (v.getAttribute('src') || !v.dataset.src) { continue; }
+          active++;
+          v.src = v.dataset.src;
+          v.preload = 'auto';
+          let settled = false;
+          const settle = () => {
+            if (settled) return;
+            settled = true;
+            active--;
+            pumpQueue();
+          };
+          v.addEventListener('canplay', settle, { once: true });
+          v.addEventListener('error', settle, { once: true });
+          setTimeout(settle, 8000);
+        }
+      }
+
+      // Controls videos (user-initiated playback) can observe immediately since
+      // they don't auto-download aggressively and won't compete for bandwidth.
+      const controlsObserver = new IntersectionObserver((entries) => {
+        entries.forEach(({ target: v, isIntersecting }) => {
+          if (isIntersecting) loadSrc(v);
+        });
+      }, { rootMargin: '100% 0px' });
+
+      controlsVids.forEach(v => controlsObserver.observe(v));
+
+      // Wait for interactive demo to finish loading before starting autoplay
+      // video downloads and observers. This ensures sim assets get full bandwidth first.
+      let queueStarted = false;
+      function startQueue() {
+        if (queueStarted) return;
+        queueStarted = true;
+        pumpQueue();
+
+        // --- Viewport play/pause (autoplay videos) ---
+        const playObserver = new IntersectionObserver((entries) => {
+          entries.forEach(({ target: v, isIntersecting }) => {
+            if (isIntersecting) { loadSrc(v); v.play().catch(() => {}); }
+            else { v.pause(); }
+          });
+        }, { rootMargin: '50% 0px' });
+
+        autoplayVids.forEach(v => playObserver.observe(v));
+      }
+      window.addEventListener('demo-ready', startQueue, { once: true });
+      setTimeout(startQueue, 8000);
+    });
+
+    // Overlay dismiss + play is handled by main.js (module) which has direct access to playTrajectory()
+
+    // Fullscreen button on real-world results / robustness videos
+    document.addEventListener('DOMContentLoaded', () => {
+      function enterFullscreenVideo(video) {
+        if (!video) return;
+        if (!video.getAttribute('src') && video.dataset.src) {
+          video.src = video.dataset.src;
+        }
+        const playPromise = video.play();
+        if (playPromise && typeof playPromise.catch === 'function') playPromise.catch(() => {});
+        if (video.requestFullscreen) {
+          video.requestFullscreen().catch(() => {});
+        } else if (video.webkitRequestFullscreen) {
+          video.webkitRequestFullscreen();
+        } else if (video.webkitEnterFullscreen) {
+          video.webkitEnterFullscreen();
+        }
+      }
+      document.querySelectorAll('.real-world-fs-btn').forEach((btn) => {
+        btn.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          const video = btn.closest('.real-world-video-frame')?.querySelector('video');
+          enterFullscreenVideo(video);
+        });
+      });
+    });
+
+    // Evaluation tabs (Highlights / Failures / Uncut)
+    document.addEventListener('DOMContentLoaded', () => {
+      const evalBox = document.getElementById('evaluations')?.nextElementSibling;
+      if (evalBox) {
+        const tabs = evalBox.querySelectorAll('.eval-tab[data-eval-tab]');
+        const panels = evalBox.querySelectorAll('.eval-tab-panel[id^="eval-panel-"]');
+        tabs.forEach(tab => {
+          tab.addEventListener('click', () => {
+            tabs.forEach(t => t.classList.remove('active'));
+            panels.forEach(p => {
+              p.classList.remove('active');
+              p.querySelectorAll('video').forEach(v => v.pause());
+            });
+            tab.classList.add('active');
+            const panel = document.getElementById('eval-panel-' + tab.dataset.evalTab);
+            if (panel) panel.classList.add('active');
+          });
+        });
+      }
+    });
+
+    // Sim2Real transfer tabs
+    document.addEventListener('DOMContentLoaded', () => {
+      const tabBar = document.getElementById('s2r-tab-bar');
+      if (!tabBar) return;
+      const container = tabBar.closest('.uncut-evaluations-box');
+      const tabs = tabBar.querySelectorAll('.eval-tab[data-s2r-tab]');
+      const panels = container.querySelectorAll('.eval-tab-panel[id^="s2r-panel-"]');
+      tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+          tabs.forEach(t => t.classList.remove('active'));
+          panels.forEach(p => {
+            p.classList.remove('active');
+            p.querySelectorAll('video').forEach(v => v.pause());
+          });
+          tab.classList.add('active');
+          const panel = document.getElementById('s2r-panel-' + tab.dataset.s2rTab);
+          if (panel) panel.classList.add('active');
+        });
+      });
+    });
+
+    // Progress Sidebar
+    document.addEventListener('DOMContentLoaded', () => {
+      const progressItems = document.querySelectorAll('.progress-item');
+      const progressLineFill = document.querySelector('.progress-line-fill');
+      const progressTrack = document.querySelector('.progress-track');
+
+      // Build sections array from progress items to ensure they match
+      const sections = [];
+      progressItems.forEach(item => {
+        const id = item.dataset.section;
+        let el;
+        if (id === 'hero') {
+          el = document.querySelector('.hero-flow');
+        } else {
+          el = document.getElementById(id);
+        }
+        if (el) {
+          sections.push({ id, el });
+        }
+      });
+
+      const updateProgress = () => {
+        if (sections.length === 0) return;
+
+        const viewportHeight = window.innerHeight;
+        const activationThreshold = viewportHeight * 0.35;
+
+        // Find active section index
+        let activeIdx = 0;
+        for (let idx = 0; idx < sections.length; idx++) {
+          const rect = sections[idx].el.getBoundingClientRect();
+          if (rect.top <= activationThreshold) {
+            activeIdx = idx;
+          } else {
+            break;
+          }
+        }
+
+        // Update progress line fill based on active section
+        if (progressLineFill && progressTrack) {
+          const trackHeight = progressTrack.offsetHeight;
+          const maxFillHeight = trackHeight - 44; // Account for top/bottom padding
+          const fillHeight = (activeIdx / Math.max(sections.length - 1, 1)) * maxFillHeight;
+          progressLineFill.style.height = `${Math.min(Math.max(fillHeight, 0), maxFillHeight)}px`;
+        }
+
+        // Update dot states
+        progressItems.forEach(item => {
+          const sectionId = item.dataset.section;
+          const sectionIdx = sections.findIndex(s => s.id === sectionId);
+
+          item.classList.remove('active', 'passed');
+          if (sectionIdx === activeIdx) {
+            item.classList.add('active');
+          } else if (sectionIdx >= 0 && sectionIdx < activeIdx) {
+            item.classList.add('passed');
+          }
+        });
+      };
+
+      window.addEventListener('scroll', updateProgress, { passive: true });
+      updateProgress();
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const sliderSection = document.getElementById('slider-comparison');
+      if (!sliderSection) return;
+
+      const range = sliderSection.querySelector('.slider-input');
+      const overlay = sliderSection.querySelector('.slider-overlay');
+      const handle = sliderSection.querySelector('.slider-handle');
+      const simVideo = document.getElementById('slider-sim-video');
+      const realVideo = document.getElementById('slider-real-video');
+      const taskName = document.getElementById('slider-task-name');
+      const prevBtn = document.getElementById('slider-prev');
+      const nextBtn = document.getElementById('slider-next');
+
+      const videoPairs = [
+        { task: 'Food Bussing', sim: './assets/videos/sim_rollouts/fruitbus.mp4', real: './assets/videos/real_rollouts/fruitbus.mp4' },
+        { task: 'Block Stacking', sim: './assets/videos/sim_rollouts/stack.mp4', real: './assets/videos/real_rollouts/stack.mp4' },
+        { task: 'Pan Cleaning', sim: './assets/videos/sim_rollouts/panclean.mp4', real: './assets/videos/real_rollouts/panclean.mp4' },
+        { task: 'Move Latte Cup', sim: './assets/videos/sim_rollouts/latte-cup.mp4', real: './assets/videos/real_rollouts/lattecup.mp4' },
+        { task: 'Organize Tools', sim: './assets/videos/sim_rollouts/organize-tools.mp4', real: './assets/videos/real_rollouts/scissor.mp4' },
+        { task: 'Tape Into Container', sim: './assets/videos/sim_rollouts/tape-into-container.mp4', real: './assets/videos/real_rollouts/tape.mp4' },
+      ];
+
+      let currentIdx = 0;
+
+      const updateVideos = () => {
+        const pair = videoPairs[currentIdx];
+        simVideo.src = pair.sim;
+        realVideo.src = pair.real;
+        taskName.textContent = pair.task;
+        simVideo.play();
+        realVideo.play();
+      };
+
+      prevBtn?.addEventListener('click', () => {
+        currentIdx = (currentIdx - 1 + videoPairs.length) % videoPairs.length;
+        updateVideos();
+      });
+
+      nextBtn?.addEventListener('click', () => {
+        currentIdx = (currentIdx + 1) % videoPairs.length;
+        updateVideos();
+      });
+
+      const updateSlider = (value) => {
+        const clamped = Math.max(0, Math.min(100, value));
+        overlay.style.width = clamped + '%';
+        handle.style.left = clamped + '%';
+        // Keep overlay video at full wrapper width
+        const wrapperWidth = sliderSection.querySelector('.slider-wrapper').offsetWidth;
+        realVideo.style.width = wrapperWidth + 'px';
+      };
+
+      range?.addEventListener('input', (e) => updateSlider(Number(e.target.value)));
+      range?.addEventListener('change', (e) => updateSlider(Number(e.target.value)));
+
+      // Set initial width after videos load
+      const initSlider = () => updateSlider(Number(range?.value || 50));
+      initSlider();
+      realVideo.addEventListener('loadedmetadata', initSlider);
+      simVideo.addEventListener('loadedmetadata', initSlider);
+
+      // Update on resize
+      window.addEventListener('resize', initSlider);
+    });
+
+    // Mobile detection helper
+    function isMobileDevice() {
+      return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+        (window.matchMedia && window.matchMedia('(max-width: 768px)').matches) ||
+        ('ontouchstart' in window && navigator.maxTouchPoints > 2);
+    }
+
+    // Gaussian Splat iframe - lazy loading with scene switcher
+    document.addEventListener('DOMContentLoaded', () => {
+      const iframe = document.getElementById('gsplatIframe');
+      const loading = document.getElementById('gsplatIframeLoading');
+      const progress = document.getElementById('gsplatIframeProgress');
+      const loadingText = loading?.querySelector('.gsplat-loading-text');
+      const desktopViewer = document.getElementById('gsplatDesktopViewer');
+      const mobileViewer = document.getElementById('gsplatMobileViewer');
+      const viewerHint = document.getElementById('gsplatViewerHint');
+      const select = document.getElementById('gsplatSelect');
+
+      // Scene configurations
+      const scenes = {
+        workbench: { label: 'Workbench', file: './assets/splats/workbench.html.gz' },
+        splat_stove: { label: 'Stove', file: './assets/splats/splat_stove.html.gz' },
+        splat_lobbydesk: { label: 'Lobby Desk', file: './assets/splats/splat_lobbydesk.html.gz' }
+      };
+
+      // Track current blob URL for cleanup
+      let currentBlobUrl = null;
+      let isLoading = false;
+      let currentSceneKey = null;
+
+      // Mobile fallback: show unsupported message instead of WebGL viewer
+      if (isMobileDevice()) {
+        if (desktopViewer) desktopViewer.style.display = 'none';
+        if (mobileViewer) mobileViewer.style.display = 'flex';
+        if (viewerHint) viewerHint.style.display = 'none';
+        return; // Skip loading the heavy WebGL viewer
+      }
+
+      if (!iframe || !loading || !select) return;
+
+      // Cleanup function to free resources
+      const cleanup = () => {
+        // Clear onload handler to prevent it firing during cleanup
+        iframe.onload = null;
+        // Revoke previous blob URL to free memory
+        if (currentBlobUrl) {
+          URL.revokeObjectURL(currentBlobUrl);
+          currentBlobUrl = null;
+        }
+        // Clear iframe to release WebGL context and memory
+        iframe.src = 'about:blank';
+      };
+
+      // Load a specific scene
+      const loadScene = async (sceneKey) => {
+        const scene = scenes[sceneKey];
+        if (!scene || isLoading) return;
+
+        isLoading = true;
+        select.disabled = true;
+        currentSceneKey = sceneKey;
+
+        // Show loading state in dropdown
+        const originalText = select.options[select.selectedIndex].text;
+        select.options[select.selectedIndex].text = 'Loading...';
+
+        // Cleanup previous scene
+        cleanup();
+
+        // Show loading
+        loading.classList.remove('hidden');
+        progress.style.width = '0%';
+        loadingText.textContent = 'Downloading viewer...';
+
+        try {
+          const response = await fetch(scene.file);
+          if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+          const contentLength = response.headers.get('content-length');
+          const total = contentLength ? parseInt(contentLength, 10) : 0;
+          let loaded = 0;
+
+          const reader = response.body.getReader();
+          const chunks = [];
+
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            chunks.push(value);
+            loaded += value.length;
+            if (total > 0) {
+              const pct = Math.round((loaded / total) * 70);
+              progress.style.width = pct + '%';
+              loadingText.textContent = `Downloading... ${Math.round(loaded / 1024 / 1024)}MB`;
+            }
+          }
+
+          const compressedData = new Uint8Array(loaded);
+          let offset = 0;
+          for (const chunk of chunks) {
+            compressedData.set(chunk, offset);
+            offset += chunk.length;
+          }
+
+          loadingText.textContent = 'Decompressing...';
+          progress.style.width = '75%';
+
+          const ds = new DecompressionStream('gzip');
+          const decompressedStream = new Blob([compressedData]).stream().pipeThrough(ds);
+          const decompressedArrayBuffer = await new Response(decompressedStream).arrayBuffer();
+
+          progress.style.width = '85%';
+          loadingText.textContent = 'Preparing viewer...';
+
+          let htmlText = new TextDecoder().decode(decompressedArrayBuffer);
+          const realBaseUrl = new URL(scene.file.replace('.gz', ''), window.location.href).href;
+
+          // Inject script to patch URL constructor for blob context
+          const patchScript = `<script>
+(function() {
+  const fakeHref = "${realBaseUrl}";
+  const OrigURL = window.URL;
+  window.URL = function(url, base) {
+    if (base !== undefined && typeof base === 'string' && base.startsWith('blob:')) {
+      base = fakeHref;
+    }
+    return new OrigURL(url, base);
+  };
+  window.URL.prototype = OrigURL.prototype;
+  Object.setPrototypeOf(window.URL, OrigURL);
+  window.URL.createObjectURL = OrigURL.createObjectURL;
+  window.URL.revokeObjectURL = OrigURL.revokeObjectURL;
+  window.URL.canParse = OrigURL.canParse;
+})();
+<\/script>`;
+
+          htmlText = htmlText.replace('<head>', '<head>' + patchScript);
+
+          progress.style.width = '90%';
+          loadingText.textContent = 'Loading viewer...';
+
+          const htmlBlob = new Blob([htmlText], { type: 'text/html' });
+          currentBlobUrl = URL.createObjectURL(htmlBlob);
+
+          iframe.onload = () => {
+            progress.style.width = '100%';
+            setTimeout(() => {
+              loading.classList.add('hidden');
+              isLoading = false;
+              select.disabled = false;
+              // Restore original text
+              select.options[select.selectedIndex].text = scene.label;
+            }, 300);
+          };
+          iframe.src = currentBlobUrl;
+
+        } catch (err) {
+          console.error('Failed to load splat viewer:', err);
+          loadingText.textContent = 'Error: ' + err.message;
+          isLoading = false;
+          select.disabled = false;
+          // Restore original text
+          select.options[select.selectedIndex].text = scene.label;
+        }
+      };
+
+      // Handle scene selection
+      select.addEventListener('change', (e) => {
+        const sceneKey = e.target.value;
+        if (sceneKey) {
+          loadScene(sceneKey);
+        }
+      });
+
+      // Load default scene (workbench)
+      loadScene('workbench');
+    });
+
+    // TRELLIS mesh switcher
+    document.addEventListener('DOMContentLoaded', () => {
+      const select = document.getElementById('meshSelect');
+      const raw = document.getElementById('meshRaw');
+      const activeName = document.getElementById('meshActiveName');
+      const video = document.getElementById('meshVideo');
+      const note = document.getElementById('meshVideoNote');
+
+      const meshes = {
+        coke: { label: 'Coke', file: 'mesh_coke.glb', video: 'coke.mp4' },
+        cleaner: { label: 'Cleaner', file: 'mesh_cleaner.glb', video: 'cleaner.mp4' },
+        electricdrill: { label: 'Electric Drill', file: 'mesh_electricdrill.glb', video: 'electricdrill.mp4' },
+        pot: { label: 'Pot', file: 'mesh_pot.glb', video: 'pot.mp4' },
+        scissor: { label: 'Scissor', file: 'mesh_scissor.glb', video: 'scissor.mp4' },
+        spoon: { label: 'Spoon', file: 'mesh_spoon.glb', video: 'spoon.mp4' }
+      };
+
+      // Adjust video height to maintain aspect ratio and sync mesh viewer height
+      const adjustVideoHeight = () => {
+        if (video && video.videoWidth && video.videoHeight) {
+          const aspectRatio = video.videoHeight / video.videoWidth;
+          const containerWidth = video.offsetWidth || video.parentElement.offsetWidth;
+          if (containerWidth > 0) {
+            const calculatedHeight = containerWidth * aspectRatio;
+            video.style.height = `${calculatedHeight}px`;
+            // Sync mesh viewer to same height
+            if (raw) {
+              const meshViewer = raw;
+              meshViewer.style.height = `${calculatedHeight}px`;
+              meshViewer.style.minHeight = `${calculatedHeight}px`;
+            }
+          }
+        }
+      };
+
+      // Add window resize listener once
+      window.addEventListener('resize', adjustVideoHeight);
+
+      const setMesh = (key) => {
+        const entry = meshes[key];
+        if (!entry || !raw) return;
+        const src = `./assets/trellis/${entry.file}`;
+        raw.setAttribute('src', src);
+        raw.setAttribute('camera-orbit', 'auto auto 600%');
+        raw.setAttribute('min-camera-orbit', 'auto auto 200%');
+        raw.setAttribute('max-camera-orbit', 'auto auto 1000%');
+        raw.setAttribute('field-of-view', '85deg');
+        if (activeName) activeName.textContent = entry.label;
+        if (video) {
+          if (entry.video) {
+            video.src = `./assets/videos/objects/${entry.video}`;
+            video.classList.remove('hidden');
+            video.load();
+            video.addEventListener('loadedmetadata', adjustVideoHeight);
+            // Also check if metadata is already available
+            if (video.readyState >= 1) {
+              setTimeout(adjustVideoHeight, 100);
+            }
+
+            video.play().catch(() => { });
+            if (note) note.textContent = '';
+          } else {
+            video.pause();
+            video.removeAttribute('src');
+            video.classList.add('hidden');
+            video.style.height = ''; // Reset height
+            if (raw) {
+              raw.style.height = '';
+              raw.style.minHeight = '';
+            }
+            if (note) note.textContent = 'No scan video available for this object.';
+          }
+        }
+      };
+
+      select?.addEventListener('change', (e) => setMesh(e.target.value));
+      setMesh(select?.value || 'cleaner');
+    });
+
+    // COMMENTED OUT: Original Gaussian Splat Viewer using @mkkellogg/gaussian-splats-3d
+    /*
+    (async function() {
+      const gsplatSelect = document.getElementById('gsplatSelect');
+      const gsplatActiveName = document.getElementById('gsplatActiveName');
+      const gsplatContainer = document.getElementById('gsplatContainer');
+      const gsplatLoading = document.getElementById('gsplatLoading');
+
+      if (!gsplatContainer) return;
+
+      // Scene configurations - customize camera for each scene
+      const scenes = {
+        stovetop: {
+          label: 'Stovetop',
+          file: './assets/splats/stovetop.splat',
+          // Camera settings
+          cameraUp: [0, -1, 0],                    // Up direction
+          cameraPosition: [3, -3, 8],              // Camera position [x, y, z]
+          cameraLookAt: [0, 0, 0],                 // Look at point [x, y, z]
+          // Scene transform (optional)
+          position: [0, 0, 0],                     // Scene offset [x, y, z]
+          rotation: [ 0, 0.7071068, -0.7071068, 0 ],                  // Rotation quaternion [x, y, z, w]
+          // rotation: [0, 0, 0, 1],                  // Rotation quaternion [x, y, z, w]
+          scale: [1, 1, 1]                         // Scale [x, y, z]
+        },
+        kitchen_tabletop: {
+          label: 'Kitchen Tabletop',
+          file: './assets/splats/kitchen_table.splat',
+          cameraUp: [0, 1, 0],
+          cameraPosition: [2, 2, 2],
+          cameraLookAt: [0, 0, 0],
+          position: [0, 0, 0],
+          rotation: [ -0.7071068, 0, 0, 0.7071068 ],
+          scale: [1, 1, 1]
+        }
+        // Add more scenes here:
+        // kitchen: {
+        //   label: 'Kitchen',
+        //   file: './assets/splats/kitchen.ply',
+        //   cameraUp: [0, 1, 0],
+        //   cameraPosition: [2, 1, 4],
+        //   cameraLookAt: [0, 0, 0],
+        //   position: [0, 0, 0],
+        //   rotation: [0, 0, 0, 1],
+        //   scale: [1, 1, 1]
+        // }
+      };
+
+      let viewer = null;
+      let GaussianSplats3D = null;
+
+      const loadScene = async (sceneKey) => {
+        const scene = scenes[sceneKey];
+        if (!scene) return;
+
+        const gsplatLoadingText = gsplatLoading.querySelector('.gsplat-loading-text');
+        const gsplatProgressFill = document.getElementById('gsplatProgressFill');
+        gsplatLoadingText.textContent = 'Initializing viewer...';
+        gsplatProgressFill.style.width = '0%';
+        gsplatLoading.classList.remove('hidden');
+
+        // Clean up previous viewer
+        if (viewer) {
+          try {
+            viewer.dispose();
+          } catch (e) {
+            console.warn('Viewer dispose error:', e);
+          }
+          viewer = null;
+        }
+        // Remove any existing canvases
+        gsplatContainer.querySelectorAll('canvas').forEach(c => c.remove());
+
+        try {
+          // Import library if not loaded
+          if (!GaussianSplats3D) {
+            GaussianSplats3D = await import('https://cdn.jsdelivr.net/npm/@mkkellogg/gaussian-splats-3d@0.4.6/build/gaussian-splats-3d.module.min.js');
+          }
+
+          // Create viewer with scene-specific camera settings
+          viewer = new GaussianSplats3D.Viewer({
+            cameraUp: scene.cameraUp || [0, -1, 0],
+            initialCameraPosition: scene.cameraPosition || [0, -2, 6],
+            initialCameraLookAt: scene.cameraLookAt || [0, 0, 0],
+            rootElement: gsplatContainer,
+            sharedMemoryForWorkers: false,
+            dynamicScene: false,
+            selfDrivenMode: true
+          });
+
+          gsplatLoadingText.textContent = 'Loading splats...';
+
+          // Load the scene with transform settings
+          await viewer.addSplatScene(scene.file, {
+            splatAlphaRemovalThreshold: 5,
+            showLoadingUI: false,
+            progressiveLoad: false,
+            position: scene.position || [0, 0, 0],
+            rotation: scene.rotation || [0, 0, 0, 1],
+            scale: scene.scale || [1, 1, 1],
+            onProgress: (percent, message) => {
+              gsplatProgressFill.style.width = Math.round(percent) + '%';
+              gsplatLoadingText.textContent = message || `Loading... ${Math.round(percent)}%`;
+            }
+          });
+
+          viewer.start();
+          gsplatLoading.classList.add('hidden');
+          if (gsplatActiveName) gsplatActiveName.textContent = scene.label + ' (loaded)';
+
+        } catch (error) {
+          console.error('Viewer error:', error);
+          gsplatLoadingText.textContent = 'Error: ' + error.message;
+          gsplatProgressFill.style.width = '0%';
+        }
+      };
+
+      // Handle scene selection
+      gsplatSelect?.addEventListener('change', (e) => {
+        loadScene(e.target.value);
+      });
+
+      // Load initial scene
+      loadScene(gsplatSelect?.value || 'splat');
+    })();
+    */
+
+    // Simple interactive scatter backed by exported data (PolaRiS only)
+    document.addEventListener('DOMContentLoaded', () => {
+      const svg = document.getElementById('corr-scatter');
+      const statusEl = document.getElementById('scatter-status');
+      const benchmarkLegend = document.getElementById('benchmark-legend');
+      const taskLegend = document.getElementById('task-legend');
+      const policyLegend = document.getElementById('policy-legend');
+      if (!svg) return;
+
+      const margin = { top: 20, right: 20, bottom: 40, left: 50 };
+      const width = 400 - margin.left - margin.right;
+      const height = 320 - margin.top - margin.bottom;
+      const min = 0;
+      const max = 1;
+
+      const createEl = (tag, attrs) => {
+        const el = document.createElementNS('http://www.w3.org/2000/svg', tag);
+        Object.entries(attrs).forEach(([k, v]) => el.setAttribute(k, v));
+        return el;
+      };
+
+      const renderScatter = (data) => {
+        // Clear
+        while (svg.firstChild) svg.removeChild(svg.firstChild);
+
+        const g = createEl('g', { transform: `translate(${margin.left},${margin.top})` });
+        svg.appendChild(g);
+
+        const scaleX = (v) => (v - min) / (max - min) * width;
+        const scaleY = (v) => height - (v - min) / (max - min) * height;
+
+        // Grid lines
+        const gridCount = 5;
+        for (let i = 1; i < gridCount; i++) {
+          const gx = (i / gridCount) * width;
+          const gy = (i / gridCount) * height;
+          g.appendChild(createEl('line', { x1: gx, y1: 0, x2: gx, y2: height, stroke: 'rgba(0,0,0,0.06)', 'stroke-width': 1, 'stroke-dasharray': '4 4' }));
+          g.appendChild(createEl('line', { x1: 0, y1: gy, x2: width, y2: gy, stroke: 'rgba(0,0,0,0.06)', 'stroke-width': 1, 'stroke-dasharray': '4 4' }));
+        }
+
+        // Axes lines
+        g.appendChild(createEl('line', { x1: 0, y1: height, x2: width, y2: height, stroke: '#9ca3af', 'stroke-width': 2 }));
+        g.appendChild(createEl('line', { x1: 0, y1: 0, x2: 0, y2: height, stroke: '#9ca3af', 'stroke-width': 2 }));
+
+        // Axis labels
+        const xLabel = createEl('text', { x: width / 2, y: height + 32, 'text-anchor': 'middle', fill: '#4a4a4a', 'font-size': '11', 'font-weight': '500' });
+        xLabel.textContent = 'Simulation Success Rate';
+        g.appendChild(xLabel);
+        const yLabel = createEl('text', { x: -36, y: height / 2, 'text-anchor': 'middle', fill: '#4a4a4a', 'font-size': '11', 'font-weight': '500', transform: `rotate(-90 -36 ${height / 2})` });
+        yLabel.textContent = 'Real-World Success Rate';
+        g.appendChild(yLabel);
+
+        // Diagonal reference
+        g.appendChild(createEl('line', { x1: 0, y1: height, x2: width, y2: 0, stroke: 'rgba(212,148,10,0.4)', 'stroke-dasharray': '8 6', 'stroke-width': 2, 'stroke-opacity': 1 }));
+
+        // Tooltip
+        const tooltip = document.createElement('div');
+        tooltip.className = 'scatter-tooltip';
+        document.body.appendChild(tooltip);
+
+        // Policy name mapping for display
+        const policyDisplayName = {
+          'paligemma_binning_droid_jointpos': 'PaliGemma',
+          'pi05_droid_jointpos': 'π₀.₅',
+          'pi0_droid_jointpos': 'π₀',
+          'pi0_droid_jointpos_100k': 'π₀ (100k)',
+          'pi0_fast_droid_jointpos': 'π₀-fast',
+        };
+
+        // Map marker codes from JSON to shape names
+        const markerToShape = {
+          'o': 'circle',
+          's': 'square',
+          '^': 'triangle',
+          'D': 'diamond',
+          'd': 'diamond',
+          '*': 'star',
+          'v': 'triangle-down',
+          'p': 'pentagon',
+          'h': 'circle',  // hexagon fallback
+          'H': 'circle',  // hexagon fallback
+        };
+
+        // Collect all points for animation
+        const scatterPoints = [];
+        data.forEach((d, index) => {
+          const cx = scaleX(d.sim);
+          const cy = scaleY(d.real);
+          // Use color from data for PolaRiS, use blue for LIBERO
+          const isPolaris = d.source === 'polaris';
+          const fill = isPolaris ? (d.color || '#c026d3') : '#eab308';
+          // Use marker from data, map to shape name
+          const shape = markerToShape[d.marker] || d.marker || 'circle';
+          const size = 6;
+
+          let node;
+          const fillColor = fill;
+          const fillOpacity = isPolaris ? 0.9 : 0.5;
+
+          if (shape === 'circle') {
+            node = createEl('circle', {
+              cx, cy, r: size,
+              fill: fillColor, 'fill-opacity': fillOpacity
+            });
+          } else if (shape === 'square') {
+            node = createEl('rect', {
+              x: cx - size, y: cy - size,
+              width: size * 2, height: size * 2,
+              fill: fillColor, 'fill-opacity': fillOpacity
+            });
+          } else if (shape === 'diamond') {
+            const pts = `${cx},${cy - size * 1.2} ${cx + size},${cy} ${cx},${cy + size * 1.2} ${cx - size},${cy}`;
+            node = createEl('polygon', {
+              points: pts,
+              fill: fillColor, 'fill-opacity': fillOpacity
+            });
+          } else if (shape === 'triangle') {
+            const pts = `${cx},${cy - size * 1.1} ${cx + size},${cy + size * 0.8} ${cx - size},${cy + size * 0.8}`;
+            node = createEl('polygon', {
+              points: pts,
+              fill: fillColor, 'fill-opacity': fillOpacity
+            });
+          } else if (shape === 'star') {
+            // 5-point star
+            const outerR = size * 1.1;
+            const innerR = size * 0.5;
+            let pts = '';
+            for (let i = 0; i < 10; i++) {
+              const r = i % 2 === 0 ? outerR : innerR;
+              const angle = (Math.PI / 2) + (i * Math.PI / 5);
+              pts += `${cx + r * Math.cos(angle)},${cy - r * Math.sin(angle)} `;
+            }
+            node = createEl('polygon', {
+              points: pts.trim(),
+              fill: fillColor, 'fill-opacity': fillOpacity
+            });
+          } else if (shape === 'triangle-down') {
+            const pts = `${cx},${cy + size * 1.1} ${cx + size},${cy - size * 0.8} ${cx - size},${cy - size * 0.8}`;
+            node = createEl('polygon', {
+              points: pts,
+              fill: fillColor, 'fill-opacity': fillOpacity
+            });
+          } else if (shape === 'pentagon') {
+            // 5-sided polygon
+            let pts = '';
+            for (let i = 0; i < 5; i++) {
+              const angle = (Math.PI / 2) + (i * 2 * Math.PI / 5);
+              pts += `${cx + size * Math.cos(angle)},${cy - size * Math.sin(angle)} `;
+            }
+            node = createEl('polygon', {
+              points: pts.trim(),
+              fill: fillColor, 'fill-opacity': fillOpacity
+            });
+          } else {
+            // Default to circle for unknown shapes
+            node = createEl('circle', {
+              cx, cy, r: size,
+              fill: fillColor, 'fill-opacity': fillOpacity
+            });
+          }
+
+          // Add animation class with staggered delay for scatter effect
+          node.classList.add('scatter-point-animated');
+          node.style.animationDelay = `${index * 15 + Math.random() * 50}ms`;
+          scatterPoints.push(node);
+
+          node.style.cursor = 'pointer';
+          node.addEventListener('mouseenter', (e) => {
+            tooltip.style.opacity = '1';
+            const displayName = policyDisplayName[d.policy] || d.policy || d.name;
+            tooltip.innerHTML = `<strong>${displayName}</strong><br>Task: ${d.environment || 'N/A'}<br>Sim: ${Math.round(d.sim * 100)}% · Real: ${Math.round(d.real * 100)}%`;
+            tooltip.style.left = `${e.pageX + 12}px`;
+            tooltip.style.top = `${e.pageY + 12}px`;
+          });
+          node.addEventListener('mouseleave', () => {
+            tooltip.style.opacity = '0';
+          });
+          node.addEventListener('mousemove', (e) => {
+            tooltip.style.left = `${e.pageX + 12}px`;
+            tooltip.style.top = `${e.pageY + 12}px`;
+          });
+          g.appendChild(node);
+        });
+
+        // Build dynamic legends from data
+        // Collect unique environments with their colors (from polaris data)
+        const envColorMap = {};
+        const policyMarkerMap = {};
+        data.forEach(d => {
+          if (d.source === 'polaris' && d.environment && d.color) {
+            if (!envColorMap[d.environment]) envColorMap[d.environment] = d.color;
+          }
+          if (d.policy && d.marker) {
+            if (!policyMarkerMap[d.policy]) policyMarkerMap[d.policy] = d.marker;
+          }
+        });
+
+        // Helper to calculate luminance from hex color (for sorting dark to light)
+        const getLuminance = (hex) => {
+          const c = hex.replace('#', '');
+          const r = parseInt(c.substr(0, 2), 16) / 255;
+          const g = parseInt(c.substr(2, 2), 16) / 255;
+          const b = parseInt(c.substr(4, 2), 16) / 255;
+          return 0.299 * r + 0.587 * g + 0.114 * b;
+        };
+
+        // Benchmark legend (first)
+        if (benchmarkLegend) {
+          benchmarkLegend.innerHTML = '<strong style="margin-right: 12px; color: #1a1a1a;">Benchmark:</strong>';
+          const polItem = document.createElement('span');
+          polItem.className = 'legend-item';
+          polItem.innerHTML = `<span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#c026d3;opacity:0.9;margin-right:6px;vertical-align:middle;"></span>PolaRiS`;
+          benchmarkLegend.appendChild(polItem);
+          const libItem = document.createElement('span');
+          libItem.className = 'legend-item';
+          libItem.innerHTML = `<span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#eab308;opacity:0.5;margin-right:6px;vertical-align:middle;"></span>LIBERO`;
+          benchmarkLegend.appendChild(libItem);
+        }
+
+        // Task legend (colors) - sorted dark to light
+        if (taskLegend) {
+          taskLegend.innerHTML = '<strong style="margin-right: 12px; color: #1a1a1a;">Tasks:</strong>';
+          const sortedEnvs = Object.entries(envColorMap).sort((a, b) => getLuminance(a[1]) - getLuminance(b[1]));
+          sortedEnvs.forEach(([env, color]) => {
+            const item = document.createElement('span');
+            item.className = 'legend-item';
+            item.innerHTML = `<span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:${color};margin-right:6px;vertical-align:middle;"></span>${env}`;
+            taskLegend.appendChild(item);
+          });
+        }
+
+        // Policies legend (shapes)
+        if (policyLegend) {
+          policyLegend.innerHTML = '<strong style="margin-right: 12px; color: #1a1a1a;">Policies:</strong>';
+          const shapesSVG = {
+            'o': `<svg width="12" height="12" viewBox="0 0 12 12" style="vertical-align:middle;margin-right:5px;"><circle cx="6" cy="6" r="4" fill="#1a1a1a"/></svg>`,
+            's': `<svg width="12" height="12" viewBox="0 0 12 12" style="vertical-align:middle;margin-right:5px;"><rect x="2" y="2" width="8" height="8" fill="#1a1a1a"/></svg>`,
+            'D': `<svg width="12" height="12" viewBox="0 0 12 12" style="vertical-align:middle;margin-right:5px;"><polygon points="6,1 11,6 6,11 1,6" fill="#1a1a1a"/></svg>`,
+            '^': `<svg width="12" height="12" viewBox="0 0 12 12" style="vertical-align:middle;margin-right:5px;"><polygon points="6,2 11,10 1,10" fill="#1a1a1a"/></svg>`,
+            '*': `<svg width="12" height="12" viewBox="0 0 12 12" style="vertical-align:middle;margin-right:5px;"><polygon points="6,1 7.2,4.2 11,4.2 8,6.8 9.2,11 6,8.5 2.8,11 4,6.8 1,4.2 4.8,4.2" fill="#1a1a1a"/></svg>`,
+            'v': `<svg width="12" height="12" viewBox="0 0 12 12" style="vertical-align:middle;margin-right:5px;"><polygon points="6,10 11,2 1,2" fill="#1a1a1a"/></svg>`,
+            'p': `<svg width="12" height="12" viewBox="0 0 12 12" style="vertical-align:middle;margin-right:5px;"><circle cx="6" cy="6" r="4" fill="#1a1a1a"/></svg>`,
+            'circle': `<svg width="12" height="12" viewBox="0 0 12 12" style="vertical-align:middle;margin-right:5px;"><circle cx="6" cy="6" r="4" fill="#1a1a1a"/></svg>`,
+            'square': `<svg width="12" height="12" viewBox="0 0 12 12" style="vertical-align:middle;margin-right:5px;"><rect x="2" y="2" width="8" height="8" fill="#1a1a1a"/></svg>`,
+            'diamond': `<svg width="12" height="12" viewBox="0 0 12 12" style="vertical-align:middle;margin-right:5px;"><polygon points="6,1 11,6 6,11 1,6" fill="#1a1a1a"/></svg>`,
+            'triangle': `<svg width="12" height="12" viewBox="0 0 12 12" style="vertical-align:middle;margin-right:5px;"><polygon points="6,2 11,10 1,10" fill="#1a1a1a"/></svg>`,
+            'star': `<svg width="12" height="12" viewBox="0 0 12 12" style="vertical-align:middle;margin-right:5px;"><polygon points="6,1 7.2,4.2 11,4.2 8,6.8 9.2,11 6,8.5 2.8,11 4,6.8 1,4.2 4.8,4.2" fill="#1a1a1a"/></svg>`,
+          };
+          Object.entries(policyMarkerMap).forEach(([policy, marker]) => {
+            const item = document.createElement('span');
+            item.className = 'legend-item';
+            const svg = shapesSVG[marker] || shapesSVG['o'];
+            item.innerHTML = `${svg}${policyDisplayName[policy] || policy}`;
+            policyLegend.appendChild(item);
+          });
+        }
+
+        // Set up IntersectionObserver to trigger scatter animation on first view
+        const scatterObserver = new IntersectionObserver((entries) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              scatterPoints.forEach(point => {
+                point.classList.add('animate');
+              });
+              scatterObserver.disconnect();
+            }
+          });
+        }, { threshold: 0.2 });
+        scatterObserver.observe(svg);
+      };
+
+      fetch('./assets/data/main_correlation_data.json')
+        .then((res) => {
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          return res.json();
+        })
+        .then((jsonData) => {
+          // Show both PolaRiS and LIBERO points in scatter
+          const polarisPoints = (jsonData.polaris_points || []).map(r => ({
+            ...r,
+            source: 'polaris',
+            sim: Number(r.sim),
+            real: Number(r.real)
+          }));
+          const liberoPoints = (jsonData.libero_points || []).map(r => ({
+            ...r,
+            source: 'libero',
+            sim: Number(r.sim),
+            real: Number(r.real)
+          }));
+          const data = [...polarisPoints, ...liberoPoints];
+          if (data.length === 0) {
+            if (statusEl) statusEl.textContent = 'No correlation data available.';
+            return;
+          }
+          renderScatter(data);
+          if (statusEl) statusEl.textContent = '';
+
+        })
+        .catch((err) => {
+          console.warn('Correlation data load failed; showing demo data', err);
+          if (statusEl) statusEl.textContent = 'Showing demo points (data file missing).';
+          const demo = [];
+          for (let i = 0; i < 10; i++) {
+            const sim = 0.6 + Math.random() * 0.3;
+            const real = Math.min(1, Math.max(0, sim + (Math.random() * 0.1 - 0.05)));
+            demo.push({ name: `POLARIS ${i + 1}`, sim, real, source: 'polaris' });
+          }
+          for (let i = 0; i < 10; i++) {
+            demo.push({ name: `LIBERO ${i + 1}`, sim: Math.random(), real: Math.random(), source: 'libero' });
+          }
+          renderScatter(demo);
+        });
+
+      // Fetch and render comparison bar chart from separate JSON
+      fetch('./assets/data/main_barplots_metrics.json')
+        .then((res) => {
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          return res.json();
+        })
+        .then((metricsData) => {
+          renderComparisonBar(metricsData);
+        })
+        .catch((err) => {
+          console.warn('Barplot metrics load failed', err);
+        });
+
+      // Render comparison bar chart (Pearson r and MMRV)
+      const renderComparisonBar = (metrics) => {
+        const barSvg = document.getElementById('comparison-bar');
+        if (!barSvg || !metrics) return;
+
+        while (barSvg.firstChild) barSvg.removeChild(barSvg.firstChild);
+
+        // Collect bars for animation
+        const animatedBars = [];
+
+        // Dimensions to match correlation scatter height
+        const margin = { top: 20, right: 30, bottom: 50, left: 50 };
+        const w = 500 - margin.left - margin.right;
+        const h = 320 - margin.top - margin.bottom;
+
+        const g = createEl('g', { transform: `translate(${margin.left},${margin.top})` });
+        barSvg.appendChild(g);
+
+        // Convert metrics object to array
+        const benchmarks = Object.entries(metrics)
+          .map(([name, values]) => ({
+            name,
+            pearson: values.pearson,
+            mmrv: values.mmrv
+          }));
+
+        // Colors for each benchmark - distinct colors (LIBERO 10k matches correlation scatter)
+        // Using colorblind-friendly palette: yellow for LIBERO 10k (distinct from purple)
+        const benchmarkColors = {
+          'PolaRiS': '#c026d3',
+          'Ctrl-World': '#3b82f6',
+          'LIBERO 1k': '#f87171',
+          'LIBERO 10k': '#eab308',
+          'LIBERO 50k': '#10b981',
+          'MSE (Train)': '#ef4444',
+          'MSE (Val)': '#f97316'
+        };
+
+        // Two groups: Pearson r (higher is better), MMRV (lower is better)
+        const groups = ['Pearson r ↑', 'MMRV ↓'];
+        const groupWidth = w / 2;
+        const numBars = benchmarks.length;
+        const barWidth = 22;
+        const barGap = 4;
+        const totalBarSpace = numBars * barWidth + (numBars - 1) * barGap;
+
+        // Scales - extended pearsonMin to leave room for negative value labels
+        const pearsonMin = -0.8;
+        const pearsonMax = 1;
+        const mmrvMax = 0.5;
+
+        // Background grid
+        for (let i = 1; i < 5; i++) {
+          const gy = (i / 5) * h;
+          g.appendChild(createEl('line', { x1: 0, y1: gy, x2: w, y2: gy, stroke: 'rgba(0,0,0,0.06)', 'stroke-width': 1, 'stroke-dasharray': '4 4' }));
+        }
+
+        // Axes
+        g.appendChild(createEl('line', { x1: 0, y1: h, x2: w, y2: h, stroke: '#9ca3af', 'stroke-width': 2 }));
+        g.appendChild(createEl('line', { x1: 0, y1: 0, x2: 0, y2: h, stroke: '#9ca3af', 'stroke-width': 2 }));
+
+        groups.forEach((label, gi) => {
+          const groupCenterX = gi * groupWidth + groupWidth / 2;
+          const groupStartX = groupCenterX - totalBarSpace / 2;
+
+          // Group label
+          const labelEl = createEl('text', {
+            x: groupCenterX, y: h + 28,
+            'text-anchor': 'middle',
+            fill: '#4a4a4a',
+            'font-size': '12',
+            'font-weight': '500'
+          });
+          labelEl.textContent = label;
+          g.appendChild(labelEl);
+
+          // Zero line for Pearson r (first group)
+          if (gi === 0) {
+            const range = pearsonMax - pearsonMin;
+            const zeroY = h - ((0 - pearsonMin) / range) * h;
+            g.appendChild(createEl('line', {
+              x1: groupStartX - 8,
+              y1: zeroY,
+              x2: groupStartX + totalBarSpace + 8,
+              y2: zeroY,
+              stroke: '#6b7280',
+              'stroke-width': 1.5,
+              'stroke-dasharray': '4 3'
+            }));
+            // Zero label
+            const zeroLabel = createEl('text', {
+              x: groupStartX - 12,
+              y: zeroY + 4,
+              'text-anchor': 'end',
+              fill: '#6b7280',
+              'font-size': '9'
+            });
+            zeroLabel.textContent = '0';
+            g.appendChild(zeroLabel);
+          }
+
+          benchmarks.forEach((benchmark, bi) => {
+            let val, maxVal, minVal;
+            if (gi === 0) {
+              val = benchmark.pearson;
+              maxVal = pearsonMax;
+              minVal = pearsonMin;
+            } else {
+              val = benchmark.mmrv;
+              maxVal = mmrvMax;
+              minVal = 0;
+            }
+
+            const barX = groupStartX + bi * (barWidth + barGap);
+            const color = benchmarkColors[benchmark.name] || '#888';
+
+            // Calculate bar position
+            const range = maxVal - minVal;
+            const zeroY = h - ((0 - minVal) / range) * h;
+            const valY = h - ((val - minVal) / range) * h;
+
+            let barY, barH;
+            if (val >= 0) {
+              barY = valY;
+              barH = zeroY - valY;
+            } else {
+              barY = zeroY;
+              barH = valY - zeroY;
+            }
+
+            const bar = createEl('rect', {
+              x: barX,
+              y: barY,
+              width: barWidth,
+              height: Math.max(barH, 2),
+              fill: color,
+              rx: 3
+            });
+            // Add animation class with transform-origin based on value direction
+            bar.classList.add('bar-animated');
+            bar.style.transformOrigin = val >= 0 ? 'bottom center' : 'top center';
+            bar.style.animationDelay = `${(gi * benchmarks.length + bi) * 50}ms`;
+            animatedBars.push(bar);
+            g.appendChild(bar);
+
+            // Value label - position based on positive/negative
+            // For negative: barY + barH is the bottom of the bar
+            const labelY = val >= 0 ? valY - 8 : barY + barH + 14;
+            const valLabel = createEl('text', {
+              x: barX + barWidth / 2,
+              y: labelY,
+              'text-anchor': 'middle',
+              fill: color,
+              'font-size': '9',
+              'font-weight': '600'
+            });
+            valLabel.textContent = val.toFixed(2);
+            // Also animate value labels
+            valLabel.style.opacity = '0';
+            valLabel.classList.add('bar-label-animated');
+            valLabel.style.animationDelay = `${(gi * benchmarks.length + bi) * 50 + 300}ms`;
+            animatedBars.push(valLabel);
+            g.appendChild(valLabel);
+          });
+        });
+
+        // Set up IntersectionObserver to trigger bar animation on first view
+        const barObserver = new IntersectionObserver((entries) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              animatedBars.forEach(el => {
+                el.classList.add('animate');
+              });
+              barObserver.disconnect();
+            }
+          });
+        }, { threshold: 0.2 });
+        barObserver.observe(barSvg);
+
+        // Update benchmark legend (italic = shown in correlation plot)
+        if (benchmarkLegend) {
+          const shownInCorrelation = ['PolaRiS', 'LIBERO 10k'];
+          benchmarkLegend.innerHTML = '';
+          benchmarks.forEach((benchmark) => {
+            const color = benchmarkColors[benchmark.name] || '#888';
+            const inCorrelation = shownInCorrelation.includes(benchmark.name);
+            const item = document.createElement('span');
+            item.className = 'legend-item';
+            item.innerHTML = `<span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:${color};margin-right:6px;vertical-align:middle;"></span><span style="font-style:${inCorrelation ? 'italic' : 'normal'}">${benchmark.name}</span>`;
+            benchmarkLegend.appendChild(item);
+          });
+          // Add note about italic entries
+          const note = document.createElement('span');
+          note.className = 'legend-item';
+          note.style.cssText = 'font-size:11px;color:#6b7280;margin-left:8px;';
+          note.textContent = '(italic = in correlation plot)';
+          benchmarkLegend.appendChild(note);
+        }
+      };
+    });
+
+    // Co-training data mix bar plot
+    document.addEventListener('DOMContentLoaded', () => {
+      const svg = document.getElementById('cotrain-bar');
+      if (!svg) return;
+
+      const createEl = (tag, attrs) => {
+        const el = document.createElementNS('http://www.w3.org/2000/svg', tag);
+        Object.entries(attrs).forEach(([k, v]) => el.setAttribute(k, v));
+        return el;
+      };
+
+      const renderCotrainBar = (metrics) => {
+        while (svg.firstChild) svg.removeChild(svg.firstChild);
+
+        // Collect bars for animation
+        const animatedBars = [];
+
+        const margin = { top: 20, right: 20, bottom: 70, left: 50 };
+        const w = 400 - margin.left - margin.right;
+        const h = 310 - margin.top - margin.bottom;
+
+        const g = createEl('g', { transform: `translate(${margin.left},${margin.top})` });
+        svg.appendChild(g);
+
+        // Use OOD Zeroshot and OOD Cotrained
+        const conditions = [
+          { label: 'Zeroshot', pearson: metrics['OOD Zeroshot'].pearson, mmrv: metrics['OOD Zeroshot'].mmrv, color: '#9ca3af' },
+          { label: 'Cotrained', pearson: metrics['OOD Cotrained'].pearson, mmrv: metrics['OOD Cotrained'].mmrv, color: '#c026d3' }
+        ];
+
+        const groups = ['Pearson r ↑', 'MMRV ↓'];
+        const groupWidth = w / 2;
+        const barWidth = 50;
+        const barGap = 12;
+
+        // Grid
+        for (let i = 1; i <= 4; i++) {
+          const gy = (i / 5) * h;
+          g.appendChild(createEl('line', { x1: 0, y1: gy, x2: w, y2: gy, stroke: 'rgba(0,0,0,0.06)', 'stroke-width': 1, 'stroke-dasharray': '4 4' }));
+        }
+
+        // Axes
+        g.appendChild(createEl('line', { x1: 0, y1: h, x2: w, y2: h, stroke: '#9ca3af', 'stroke-width': 2 }));
+        g.appendChild(createEl('line', { x1: 0, y1: 0, x2: 0, y2: h, stroke: '#9ca3af', 'stroke-width': 2 }));
+
+        groups.forEach((groupLabel, gi) => {
+          const groupCenterX = gi * groupWidth + groupWidth / 2;
+          const totalBarSpace = conditions.length * barWidth + (conditions.length - 1) * barGap;
+          const groupStartX = groupCenterX - totalBarSpace / 2;
+
+          // Group label
+          const labelEl = createEl('text', {
+            x: groupCenterX, y: h + 30,
+            'text-anchor': 'middle',
+            fill: '#4a4a4a',
+            'font-size': '11',
+            'font-weight': '500'
+          });
+          labelEl.textContent = groupLabel;
+          g.appendChild(labelEl);
+
+          conditions.forEach((cond, ci) => {
+            const val = gi === 0 ? cond.pearson : cond.mmrv;
+            const maxVal = gi === 0 ? 1 : 0.5;
+            const barX = groupStartX + ci * (barWidth + barGap);
+            const barH = (val / maxVal) * h;
+
+            // Bar
+            const bar = createEl('rect', {
+              x: barX,
+              y: h - barH,
+              width: barWidth,
+              height: Math.max(barH, 2),
+              fill: cond.color,
+              rx: 4
+            });
+            // Add animation class
+            bar.classList.add('bar-animated');
+            bar.style.animationDelay = `${(gi * conditions.length + ci) * 80}ms`;
+            animatedBars.push(bar);
+            g.appendChild(bar);
+
+            // Value label
+            const valLabel = createEl('text', {
+              x: barX + barWidth / 2,
+              y: h - barH - 6,
+              'text-anchor': 'middle',
+              fill: cond.color,
+              'font-size': '11',
+              'font-weight': '600'
+            });
+            valLabel.textContent = val.toFixed(2);
+            // Also animate value labels
+            valLabel.style.opacity = '0';
+            valLabel.classList.add('bar-label-animated');
+            valLabel.style.animationDelay = `${(gi * conditions.length + ci) * 80 + 300}ms`;
+            animatedBars.push(valLabel);
+            g.appendChild(valLabel);
+          });
+        });
+
+        // Legend
+        const legendY = h + 42;
+        conditions.forEach((cond, i) => {
+          const legendX = w / 2 - 60 + i * 80;
+          g.appendChild(createEl('rect', {
+            x: legendX, y: legendY, width: 12, height: 12,
+            fill: cond.color, rx: 2
+          }));
+          const legendLabel = createEl('text', {
+            x: legendX + 18, y: legendY + 10,
+            fill: '#4a4a4a', 'font-size': '11'
+          });
+          legendLabel.textContent = cond.label;
+          g.appendChild(legendLabel);
+        });
+
+        // Set up IntersectionObserver to trigger bar animation on first view
+        const cotrainObserver = new IntersectionObserver((entries) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              animatedBars.forEach(el => {
+                el.classList.add('animate');
+              });
+              cotrainObserver.disconnect();
+            }
+          });
+        }, { threshold: 0.2 });
+        cotrainObserver.observe(svg);
+      };
+
+      fetch('./assets/data/data_mix_metrics.json')
+        .then((res) => {
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          return res.json();
+        })
+        .then((metrics) => {
+          renderCotrainBar(metrics);
+        })
+        .catch((err) => {
+          console.warn('Co-training metrics load failed', err);
+        });
+    });
+
+    // Interactive bar plot (sim vs real per policy)
+    document.addEventListener('DOMContentLoaded', () => {
+      const svg = document.getElementById('bar-plot');
+      const statusEl = document.getElementById('bar-status');
+      const envSelect = document.getElementById('bar-env-select');
+      if (!svg) return;
+
+      const colors = {
+        sim: '#9333ea',
+        real: '#d4940a',
+        axis: '#9ca3af',
+        grid: 'rgba(0,0,0,0.06)'
+      };
+
+      const policyDisplayName = {
+        'paligemma_binning_droid_jointpos': 'PaliGemma',
+        'pi05_droid_jointpos': 'π₀.₅',
+        'pi0_droid_jointpos': 'π₀',
+        'pi0_droid_jointpos_100k': 'π₀ (100k)',
+        'pi0_fast_droid_jointpos': 'π₀-fast',
+      };
+
+      const margin = { top: 20, right: 20, bottom: 80, left: 60 };
+      const width = 700 - margin.left - margin.right;
+      const height = 360 - margin.top - margin.bottom;
+
+      const createEl = (tag, attrs) => {
+        const el = document.createElementNS('http://www.w3.org/2000/svg', tag);
+        Object.entries(attrs).forEach(([k, v]) => el.setAttribute(k, v));
+        return el;
+      };
+
+      let allData = [];
+      let tooltip = null;
+
+      let barPlotHasAnimated = false;
+      const renderBars = (records, filterEnv = 'all') => {
+        while (svg.firstChild) svg.removeChild(svg.firstChild);
+
+        // Collect bars for animation
+        const animatedBars = [];
+
+        // Filter by environment if needed
+        let filtered = records.filter(r => r.source === 'polaris');
+        if (filterEnv !== 'all') {
+          filtered = filtered.filter(r => r.environment === filterEnv);
+        }
+
+        // Group by policy and average if showing all environments
+        const byPolicy = {};
+        filtered.forEach(r => {
+          const pol = r.policy;
+          if (!byPolicy[pol]) byPolicy[pol] = { sims: [], reals: [] };
+          byPolicy[pol].sims.push(r.sim);
+          byPolicy[pol].reals.push(r.real);
+        });
+
+        const policyData = Object.entries(byPolicy).map(([policy, vals]) => ({
+          policy,
+          displayName: policyDisplayName[policy] || policy,
+          sim: vals.sims.reduce((a, b) => a + b, 0) / vals.sims.length,
+          real: vals.reals.reduce((a, b) => a + b, 0) / vals.reals.length
+        }));
+
+        // Sort by real performance
+        policyData.sort((a, b) => b.real - a.real);
+
+        const defs = createEl('defs', {});
+        svg.appendChild(defs);
+
+        const g = createEl('g', { transform: `translate(${margin.left},${margin.top})` });
+        svg.appendChild(g);
+
+        const maxVal = 1;
+        const xBand = (idx) => (idx * (width / policyData.length)) + 0.1 * (width / policyData.length);
+        const bandWidth = 0.8 * (width / policyData.length);
+        const scaleY = (v) => height - (v / maxVal) * height;
+
+        // Grid lines
+        const gridCount = 5;
+        for (let i = 0; i <= gridCount; i++) {
+          const y = (i / gridCount) * height;
+          g.appendChild(createEl('line', { x1: 0, y1: y, x2: width, y2: y, stroke: colors.grid, 'stroke-width': 1, 'stroke-dasharray': '4 4' }));
+        }
+
+        // Axes
+        g.appendChild(createEl('line', { x1: 0, y1: height, x2: width, y2: height, stroke: colors.axis, 'stroke-width': 2 }));
+        g.appendChild(createEl('line', { x1: 0, y1: 0, x2: 0, y2: height, stroke: colors.axis, 'stroke-width': 2 }));
+
+        // Tooltip
+        if (!tooltip) {
+          tooltip = document.createElement('div');
+          tooltip.className = 'scatter-tooltip';
+          document.body.appendChild(tooltip);
+        }
+
+        policyData.forEach((r, idx) => {
+          const baseX = xBand(idx);
+          const simH = height - scaleY(r.sim);
+          const realH = height - scaleY(r.real);
+          const barW = bandWidth / 2.4;
+
+          const simRect = createEl('rect', {
+            x: baseX,
+            y: scaleY(r.sim),
+            width: barW,
+            height: Math.max(simH, 1),
+            fill: colors.sim,
+            'fill-opacity': 0.9,
+            rx: 4
+          });
+          const realRect = createEl('rect', {
+            x: baseX + barW + 6,
+            y: scaleY(r.real),
+            width: barW,
+            height: Math.max(realH, 1),
+            fill: colors.real,
+            'fill-opacity': 0.9,
+            rx: 4
+          });
+
+          [simRect, realRect].forEach((node, i) => {
+            // Add animation class
+            node.classList.add('bar-animated');
+            node.style.animationDelay = `${(idx * 2 + i) * 60}ms`;
+            animatedBars.push(node);
+
+            node.style.cursor = 'pointer';
+            node.addEventListener('mouseenter', (e) => {
+              tooltip.style.opacity = '1';
+              const label = i === 0 ? 'Sim' : 'Real';
+              const val = i === 0 ? r.sim : r.real;
+              tooltip.innerHTML = `<strong>${r.displayName}</strong><br>${label}: ${Math.round(val * 100)}%`;
+              tooltip.style.left = `${e.pageX + 10}px`;
+              tooltip.style.top = `${e.pageY + 10}px`;
+            });
+            node.addEventListener('mouseleave', () => {
+              tooltip.style.opacity = '0';
+            });
+            node.addEventListener('mousemove', (e) => {
+              tooltip.style.left = `${e.pageX + 10}px`;
+              tooltip.style.top = `${e.pageY + 10}px`;
+            });
+          });
+
+          g.appendChild(simRect);
+          g.appendChild(realRect);
+
+          // x labels
+          const lbl = createEl('text', {
+            x: baseX + barW + 3,
+            y: height + 20,
+            'text-anchor': 'middle',
+            fill: '#1a1a1a',
+            'font-size': '12',
+            'font-weight': '500'
+          });
+          lbl.textContent = r.displayName;
+          g.appendChild(lbl);
+        });
+
+        // y-axis ticks/labels
+        for (let i = 0; i <= gridCount; i++) {
+          const val = (i / gridCount) * maxVal;
+          const y = height - (val / maxVal) * height;
+          const t = createEl('text', { x: -10, y: y + 4, 'text-anchor': 'end', fill: '#4a4a4a', 'font-size': '11' });
+          t.textContent = `${Math.round(val * 100)}%`;
+          g.appendChild(t);
+        }
+
+        // Legend
+        const legendY = height + 50;
+        const simLegend = createEl('rect', { x: width / 2 - 80, y: legendY, width: 14, height: 14, fill: colors.sim, rx: 2 });
+        const simLabel = createEl('text', { x: width / 2 - 60, y: legendY + 11, fill: '#4a4a4a', 'font-size': '12' });
+        simLabel.textContent = 'Sim';
+        const realLegend = createEl('rect', { x: width / 2 + 20, y: legendY, width: 14, height: 14, fill: colors.real, rx: 2 });
+        const realLabel = createEl('text', { x: width / 2 + 40, y: legendY + 11, fill: '#4a4a4a', 'font-size': '12' });
+        realLabel.textContent = 'Real';
+        g.appendChild(simLegend);
+        g.appendChild(simLabel);
+        g.appendChild(realLegend);
+        g.appendChild(realLabel);
+
+        // Set up animation - if filter changed (already seen), animate immediately
+        if (barPlotHasAnimated) {
+          animatedBars.forEach(el => el.classList.add('animate'));
+        } else {
+          // First time: use IntersectionObserver
+          const barPlotObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+              if (entry.isIntersecting) {
+                animatedBars.forEach(el => el.classList.add('animate'));
+                barPlotHasAnimated = true;
+                barPlotObserver.disconnect();
+              }
+            });
+          }, { threshold: 0.2 });
+          barPlotObserver.observe(svg);
+        }
+
+        if (statusEl) statusEl.textContent = '';
+      };
+
+      fetch('./assets/data/main_correlation_data.json')
+        .then((res) => {
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          return res.json();
+        })
+        .then((jsonData) => {
+          // New structure: { metrics, polaris_points, libero_points }
+          const polarisPoints = (jsonData.polaris_points || []).map(r => ({
+            ...r,
+            source: 'polaris',
+            sim: Number(r.sim),
+            real: Number(r.real)
+          }));
+          const liberoPoints = (jsonData.libero_points || []).map(r => ({
+            ...r,
+            source: 'libero',
+            sim: Number(r.sim),
+            real: Number(r.real)
+          }));
+          const records = [...polarisPoints, ...liberoPoints];
+          if (records.length === 0) {
+            if (statusEl) statusEl.textContent = 'No data available.';
+            return;
+          }
+          allData = records;
+
+          // Populate environment dropdown
+          const envs = Array.from(new Set(records.filter(r => r.source === 'polaris').map(r => r.environment)));
+          envs.forEach(env => {
+            const opt = document.createElement('option');
+            opt.value = env;
+            opt.textContent = env;
+            envSelect.appendChild(opt);
+          });
+
+          envSelect.addEventListener('change', () => {
+            renderBars(allData, envSelect.value);
+          });
+
+          renderBars(allData, 'all');
+        })
+        .catch((err) => {
+          console.warn('Data load failed', err);
+          if (statusEl) statusEl.textContent = 'Failed to load data.';
+        });
+    });
+
+    // Policy evaluation comparison (sim vs real per env)
+    document.addEventListener('DOMContentLoaded', () => {
+      const container = document.getElementById('policy-list');
+      const statusEl = document.getElementById('policy-status');
+      if (!container) return;
+
+      const renderPolicies = (records) => {
+        container.innerHTML = '';
+        const byPolicy = {};
+        records.forEach((r) => {
+          const pol = r.policy || 'Unknown';
+          if (!byPolicy[pol]) byPolicy[pol] = [];
+          byPolicy[pol].push(r);
+        });
+
+        Object.entries(byPolicy).forEach(([pol, rows]) => {
+          const item = document.createElement('div');
+          item.className = 'policy-item';
+
+          const title = document.createElement('div');
+          title.className = 'policy-title';
+          title.textContent = pol;
+          item.appendChild(title);
+
+          const table = document.createElement('table');
+          table.className = 'policy-table';
+          const thead = document.createElement('thead');
+          thead.innerHTML = '<tr><th>Env</th><th>Sim</th><th>Real</th></tr>';
+          table.appendChild(thead);
+          const tbody = document.createElement('tbody');
+          rows.forEach((r) => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+              <td>${r.environment || ''}</td>
+              <td class="value-sim">${Math.round(r.sim * 100)}%</td>
+              <td class="value-real">${Math.round(r.real * 100)}%</td>
+            `;
+            tbody.appendChild(tr);
+          });
+          table.appendChild(tbody);
+          item.appendChild(table);
+          container.appendChild(item);
+        });
+        if (statusEl) statusEl.textContent = '';
+      };
+
+      fetch('./assets/data/policy_eval.json')
+        .then((res) => {
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          return res.json();
+        })
+        .then((records) => {
+          if (!Array.isArray(records) || records.length === 0) {
+            if (statusEl) statusEl.textContent = 'No policy data available.';
+            return;
+          }
+          const data = records.map((r) => ({
+            policy: r.policy || '',
+            environment: r.environment || '',
+            sim: Number(r.sim),
+            real: Number(r.real)
+          }));
+          renderPolicies(data);
+        })
+        .catch((err) => {
+          console.warn('Policy data load failed; showing demo data', err);
+          if (statusEl) statusEl.textContent = '';
+          const policies = [
+            'paligemma_binning_droid_jointpos',
+            'pi05_droid_jointpos',
+            'pi0_droid_jointpos',
+            'pi0_droid_jointpos_100k',
+            'pi0_fast_droid_jointpos'
+          ];
+          const envs = ['Kitchen', 'Counter', 'Stovetop'];
+          const demo = [];
+          policies.forEach((p) => {
+            envs.forEach((env) => {
+              demo.push({
+                policy: p,
+                environment: env,
+                sim: 0.6 + Math.random() * 0.3,
+                real: 0.5 + Math.random() * 0.35
+              });
+            });
+          });
+          renderPolicies(demo);
+        });
+    });
+
+    // Policy evaluation videos
+    document.addEventListener('DOMContentLoaded', () => {
+      const grid = document.getElementById('policy-video-grid');
+      const statusEl = document.getElementById('policy-video-status');
+      if (!grid) return;
+
+      const renderVideos = (records) => {
+        let idx = 0;
+
+        let currentSim = 'polaris'; // 'polaris' or 'ctrlworld'
+
+        const show = (dir) => {
+          if (!records.length) return;
+          const r = records[idx];
+          grid.innerHTML = '';
+          const card = document.createElement('div');
+          card.className = 'policy-video-item';
+          if (dir === 'next') card.classList.add('slide-in-right');
+          if (dir === 'prev') card.classList.add('slide-in-left');
+          card.addEventListener('animationend', () => {
+            card.classList.remove('slide-in-right', 'slide-in-left');
+          }, { once: true });
+          const pair = document.createElement('div');
+          pair.className = 'policy-video-pair';
+
+          const addVid = (src, label) => {
+            const wrap = document.createElement('div');
+            wrap.className = 'policy-video-wrap';
+            const v = document.createElement('video');
+            v.src = src;
+            v.autoplay = true;
+            v.loop = true;
+            v.muted = true;
+            v.playsInline = true;
+            wrap.appendChild(v);
+            const lbl = document.createElement('div');
+            lbl.className = 'policy-video-label';
+            lbl.textContent = label;
+            wrap.appendChild(lbl);
+            return wrap;
+          };
+
+          // Always show real first
+          if (r.realVideo) pair.appendChild(addVid(r.realVideo, 'Real'));
+
+          if (currentSim === 'polaris' && r.simVideo) {
+            pair.appendChild(addVid(r.simVideo, 'PolaRiS'));
+          } else if (currentSim === 'ctrlworld' && r.ctrlWorldVideo) {
+            pair.appendChild(addVid(r.ctrlWorldVideo, 'Ctrl-World'));
+          }
+
+          card.appendChild(pair);
+
+          // Task name centered below videos
+          const taskLabel = document.createElement('div');
+          taskLabel.className = 'policy-video-task';
+          taskLabel.innerHTML = `${r.environment || ''} <br><span style="font-weight:400; font-size: 0.9em; color: var(--text-muted);">Policy: $\\pi_{0.5}$ (Joint Pos)</span>`;
+          card.appendChild(taskLabel);
+
+          if (window.MathJax && window.MathJax.typesetPromise) {
+            window.MathJax.typesetPromise([taskLabel]);
+          }
+          grid.appendChild(card);
+        };
+
+        // Create Header Controls with Toggle
+        const headerControls = document.createElement('div');
+        headerControls.style.display = 'flex';
+        headerControls.style.justifyContent = 'center';
+        headerControls.style.marginBottom = '20px';
+        headerControls.style.gap = '16px';
+        headerControls.innerHTML = `
+          <div class="toggle-group" style="background: var(--bg-elevated); padding: 4px; border-radius: 8px; border: 1px solid var(--border-subtle); display: inline-flex;">
+            <button id="btn-polaris" class="toggle-btn active" style="padding: 6px 16px; border-radius: 6px; border: none; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.1); font-weight: 500; font-size: 13px; color: var(--text-primary); cursor: pointer; transition: all 0.2s;">PolaRiS</button>
+            <button id="btn-ctrlworld" class="toggle-btn" style="padding: 6px 16px; border-radius: 6px; border: none; background: transparent; font-weight: 500; font-size: 13px; color: var(--text-muted); cursor: pointer; transition: all 0.2s;">Ctrl-World</button>
+          </div>
+        `;
+
+        // Insert toggle before grid
+        grid.parentElement.insertBefore(headerControls, grid);
+
+        // Toggle Logic
+        const btnPolaris = headerControls.querySelector('#btn-polaris');
+        const btnCtrl = headerControls.querySelector('#btn-ctrlworld');
+
+        const updateToggle = (mode) => {
+          currentSim = mode;
+          if (mode === 'polaris') {
+            btnPolaris.classList.add('active');
+            btnPolaris.style.background = '#fff';
+            btnPolaris.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)';
+            btnPolaris.style.color = 'var(--text-primary)';
+
+            btnCtrl.classList.remove('active');
+            btnCtrl.style.background = 'transparent';
+            btnCtrl.style.boxShadow = 'none';
+            btnCtrl.style.color = 'var(--text-muted)';
+          } else {
+            btnCtrl.classList.add('active');
+            btnCtrl.style.background = '#fff';
+            btnCtrl.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)';
+            btnCtrl.style.color = 'var(--text-primary)';
+
+            btnPolaris.classList.remove('active');
+            btnPolaris.style.background = 'transparent';
+            btnPolaris.style.boxShadow = 'none';
+            btnPolaris.style.color = 'var(--text-muted)';
+          }
+          show();
+        };
+
+        btnPolaris.addEventListener('click', () => updateToggle('polaris'));
+        btnCtrl.addEventListener('click', () => updateToggle('ctrlworld'));
+
+        const controls = document.createElement('div');
+        controls.className = 'policy-video-controls';
+        const btnPrev = document.createElement('button');
+        btnPrev.className = 'gallery-nav left';
+        btnPrev.textContent = '‹';
+        const btnNext = document.createElement('button');
+        btnNext.className = 'gallery-nav right';
+        btnNext.textContent = '›';
+        controls.appendChild(btnPrev);
+        controls.appendChild(btnNext);
+        grid.parentElement.insertBefore(controls, grid.nextSibling);
+
+        btnPrev.addEventListener('click', () => {
+          idx = (idx - 1 + records.length) % records.length;
+          show('prev');
+        });
+        btnNext.addEventListener('click', () => {
+          idx = (idx + 1) % records.length;
+          show('next');
+        });
+
+        show();
+        if (statusEl) statusEl.textContent = '';
+      };
+
+      fetch('./assets/data/policy_videos.json')
+        .then((res) => {
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          return res.json();
+        })
+        .then((records) => {
+          if (!Array.isArray(records) || records.length === 0) {
+            if (statusEl) statusEl.textContent = 'No video data available.';
+            return;
+          }
+          renderVideos(records);
+        })
+        .catch((err) => {
+          console.warn('Policy video data load failed; showing demo videos', err);
+          if (statusEl) statusEl.textContent = '';
+          const demo = [
+            { policy: 'pi05_constrain-1k', realPolicy: 'pi05_joint_pos', environment: 'FruitBus', simVideo: './assets/videos/sim_rollouts/fruitbus.mp4', realVideo: './assets/videos/real_rollouts/fruitbus.mp4' },
+            { policy: 'pi05_constrain-1k', realPolicy: 'pi05_joint_pos', environment: 'Stack', simVideo: './assets/videos/sim_rollouts/stack.mp4', realVideo: './assets/videos/real_rollouts/stack.mp4' },
+            { policy: 'pi05_constrain-1k', realPolicy: 'pi05_joint_pos', environment: 'PanClean', simVideo: './assets/videos/sim_rollouts/panclean.mp4', realVideo: './assets/videos/real_rollouts/panclean.mp4' }
+          ];
+          renderVideos(demo);
+        });
+    });
+  </script>
+</body>
+
+</html>

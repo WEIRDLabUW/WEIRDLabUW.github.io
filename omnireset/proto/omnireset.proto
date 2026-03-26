@@ -1,0 +1,40 @@
+syntax = "proto3";
+
+package omnireset;
+
+// Client -> Server (first message or later commands)
+message PlayRequest {
+  string task = 1;
+}
+
+message Disturb {}
+
+message Stop {}
+
+message ClientToServer {
+  oneof msg {
+    PlayRequest play_request = 1;
+    Disturb disturb = 2;
+    Stop stop = 3;
+  }
+}
+
+// Server -> Client (state stream and control)
+// State: 119 floats in STATE_KEYS order (15 arm links * 7 + ins * 7 + rec * 7)
+message State {
+  repeated float values = 1;
+}
+
+message ErrorMsg {
+  string message = 1;
+}
+
+message Complete {}
+
+message ServerToClient {
+  oneof msg {
+    State state = 1;
+    ErrorMsg error_msg = 2;
+    Complete complete = 3;
+  }
+}

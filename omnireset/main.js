@@ -357,33 +357,56 @@ class Asset {
     constructor(state_keys) {
         this.state_keys = state_keys;
         this.state = null;
-        this.current_setpoint = null;
-        this.last_setpoint = null;
+        /** @type {number[]|null} */
+        this._blendFrom = null;
+        /** @type {number[]|null} */
+        this._blendTo = null;
+        this._blendStartMs = 0;
+        /** Wall-clock span over which we lerp from _blendFrom to _blendTo (matches network pose period). */
+        this._blendDurationMs = 1000 / 60;
+    }
+
+    setBlendDurationMs(ms) {
+        if (ms > 0) this._blendDurationMs = ms;
     }
 
     reset(initial_state_row) {
-        this.state = this.parseTrajectoryRowForSetpoint(initial_state_row);
-        this.current_setpoint = this.state;
-        this.last_setpoint = this.state;
-    }
-
-    update(dt) {
-        if (this.state == null) return;
-        if (this.current_setpoint == null || this.last_setpoint == null) return;
-
-        // Smoothly interpolate state towards current_setpoint
-        for (let i = 0; i < this.state.length; i++) {
-            this.state[i] = this.state[i] + (this.current_setpoint[i] - this.last_setpoint[i]) * dt;
+        const parsed = this.parseTrajectoryRowForSetpoint(initial_state_row);
+        if (parsed == null) {
+            console.log('Asset reset: invalid initial row');
+            return;
         }
+        this.state = parsed.slice();
+        this._blendFrom = this.state.slice();
+        this._blendTo = this.state.slice();
+        this._blendStartMs = performance.now();
     }
+
+    /** Lerp displayed state toward latest network setpoint (call at DISPLAY_UPDATE_HZ). */
+    refreshInterpolatedState() {
+        if (this.state == null || this._blendFrom == null || this._blendTo == null) return;
+        const now = performance.now();
+        const u = Math.min(1, Math.max(0, (now - this._blendStartMs) / this._blendDurationMs));
+        const n = this.state.length;
+        for (let i = 0; i < n; i++) {
+            this.state[i] = this._blendFrom[i] + u * (this._blendTo[i] - this._blendFrom[i]);
+        }
+        this._normalizeQuaternionsInState();
+    }
+
+    /** Override in subclasses that store quaternions in flat state. */
+    _normalizeQuaternionsInState() {}
 
     commandNewSetpoint(new_setpoint) {
-        if (this.state == null) return;
+        if (this.state == null) {
+            console.log('Asset not initialized yet.');
+            return;
+        }
         const parsed = this.parseTrajectoryRowForSetpoint(new_setpoint);
         if (parsed == null) return;
-        this.state = parsed.slice();
-        this.current_setpoint = this.state;
-        this.last_setpoint = this.state;
+        this._blendFrom = this.state.slice();
+        this._blendTo = parsed;
+        this._blendStartMs = performance.now();
     }
 
     parseTrajectoryRowForSetpoint(row) {
@@ -428,6 +451,17 @@ function getPbTypes() {
     return _pbTypes;
 }
 
+function _normalizeQuatBlock(state, base) {
+    let qw = state[base + 3], qx = state[base + 4], qy = state[base + 5], qz = state[base + 6];
+    const len = Math.hypot(qw, qx, qy, qz);
+    if (len < 1e-10) return;
+    const s = 1 / len;
+    state[base + 3] = qw * s;
+    state[base + 4] = qx * s;
+    state[base + 5] = qy * s;
+    state[base + 6] = qz * s;
+}
+
 function sendPbStop(ws) {
     if (!ws || ws.readyState !== WebSocket.OPEN) return;
     try {
@@ -442,8 +476,15 @@ class UR5eRobot extends Asset {
         super(ARM_LINK_STATE_KEYS);
     }
 
-    update(dt) {
-        super.update(dt);
+    _normalizeQuaternionsInState() {
+        if (this.state == null) return;
+        for (let i = 0; i < ARM_LINK_NAMES.length; i++) {
+            _normalizeQuatBlock(this.state, i * 7);
+        }
+    }
+
+    update() {
+        this.refreshInterpolatedState();
         if (this.state == null) return;
         for (let i = 0; i < ARM_LINK_NAMES.length; i++) {
             const obj = sceneRoot.getObjectByName(ARM_LINK_NAMES[i]);
@@ -477,6 +518,11 @@ class InsertiveObject extends Asset {
         super(InsertiveObject.STATE_KEYS);
     }
 
+    _normalizeQuaternionsInState() {
+        if (this.state == null) return;
+        _normalizeQuatBlock(this.state, 0);
+    }
+
     parseTrajectoryRowForSetpoint(row) {
         const setpoint = [];
         for (let i = 0; i < this.state_keys.length; i++) {
@@ -486,8 +532,8 @@ class InsertiveObject extends Asset {
         return setpoint;
     }
 
-    update(dt) {
-        super.update(dt);
+    update() {
+        this.refreshInterpolatedState();
         if (this.state == null) return;
         const insertive_object = sceneRoot.getObjectByName("InsertiveObject");
         if (insertive_object == null) return;
@@ -514,6 +560,11 @@ class ReceptiveObject extends Asset {
         super(ReceptiveObject.STATE_KEYS);
     }
 
+    _normalizeQuaternionsInState() {
+        if (this.state == null) return;
+        _normalizeQuatBlock(this.state, 0);
+    }
+
     parseTrajectoryRowForSetpoint(row) {
         const setpoint = [];
         for (let i = 0; i < this.state_keys.length; i++) {
@@ -523,8 +574,8 @@ class ReceptiveObject extends Asset {
         return setpoint;
     }
 
-    update(dt) {
-        super.update(dt);
+    update() {
+        this.refreshInterpolatedState();
         if (this.state == null) return;
         const receptive_object = sceneRoot.getObjectByName("ReceptiveObject");
         if (receptive_object == null) return;
@@ -544,10 +595,11 @@ class ReceptiveObject extends Asset {
     }
 }
 
-// Streaming sends one state per physics step: 120 Hz.
-const STATE_REFRESH_MS = 5.0;
-const STREAMING_HZ = 120;
+// Network pose cadence ~60 Hz; display interpolates at 120 Hz over one network period.
+const STREAMING_HZ = 60;
 const STREAMING_SETPOINT_INTERVAL_MS = 1000 / STREAMING_HZ;
+const DISPLAY_UPDATE_HZ = 120;
+const DISPLAY_INTERVAL_MS = 1000 / DISPLAY_UPDATE_HZ;
 
 class Env {
     constructor() {
@@ -568,14 +620,15 @@ class Env {
         this.env_initialized = true;
 
         this.assets.forEach(asset => {
+            asset.setBlendDurationMs(this.setpoint_interval_ms);
             asset.reset(initial_state_row);
         });
     }
 
-    update(dt) {
+    update() {
         if (this.env_initialized) {
             this.assets.forEach(asset => {
-                asset.update(dt);
+                asset.update();
             });
         }
     }
@@ -583,6 +636,7 @@ class Env {
     commandSetpoints(new_setpoint) {
         if (this.env_initialized) {
             this.assets.forEach(asset => {
+                asset.setBlendDurationMs(this.setpoint_interval_ms);
                 asset.commandNewSetpoint(new_setpoint);
             });
         }
@@ -656,6 +710,7 @@ async function playTrajectory() {
                 for (let i = 0; i < STATE_KEYS.length; i++) {
                     row[STATE_KEYS[i]] = i < vals.length ? vals[i] : 0;
                 }
+                if (serverMsg.state.newEpisode) row._newEpisode = true;
             } else {
                 return;
             }
@@ -668,7 +723,9 @@ async function playTrajectory() {
                 env.stop();
                 return;
             }
-            if (first) {
+            const newEpisode = row && row._newEpisode;
+            if (newEpisode) delete row._newEpisode;
+            if (first || newEpisode) {
                 if (row && typeof row === 'object' && 'shoulder_link_x' in row) {
                     env.reset(row);
                     insertiveContainer.visible = true;
@@ -787,19 +844,20 @@ const _worldPosRobot = new THREE.Vector3();
 const _worldPosInsertive = new THREE.Vector3();
 let _logWorldPosCounter = 0;
 
-// Refresh state (interpolation toward setpoints); DT matches setpoint rate (120 Hz streaming)
+// Interpolation tick at 120 Hz; each ~60 Hz websocket sample defines a linear blend over STREAMING_SETPOINT_INTERVAL_MS.
 setInterval(() => {
     if (env.isInitialized()) {
         try {
-            const dt = STATE_REFRESH_MS / env.setpoint_interval_ms;
-            env.update(dt);
-        } catch (e) {}
+            env.update();
+        } catch (e) {
+            console.error('env.update exception', e);
+        }
         if (++_logWorldPosCounter % 20 === 0) {
             const robotBase = sceneRoot.getObjectByName("base_link");
             const insertiveObject = sceneRoot.getObjectByName("InsertiveObject");
         }
     }
-}, STATE_REFRESH_MS);
+}, DISPLAY_INTERVAL_MS);
 
 function animate() {
     controls.update();

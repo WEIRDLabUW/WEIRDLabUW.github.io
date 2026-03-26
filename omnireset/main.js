@@ -678,6 +678,7 @@ async function playTrajectory() {
         playWebSocket = null;
     }
     env.stop();
+    startRendering();
     await ensureEnvReady();
     const pb = getPbTypes();
     env.setSetpointIntervalMs(STREAMING_SETPOINT_INTERVAL_MS);
@@ -721,6 +722,8 @@ async function playTrajectory() {
             if (row && row.error) return;
             if (row && row.complete) {
                 env.stop();
+                ws.close();
+                stopRendering();
                 return;
             }
             const newEpisode = row && row._newEpisode;
@@ -859,9 +862,34 @@ setInterval(() => {
     }
 }, DISPLAY_INTERVAL_MS);
 
+let renderingActive = false;
+
 function animate() {
     controls.update();
     renderer.render( scene, camera );
 }
-renderer.setAnimationLoop( animate );
+
+function startRendering() {
+    if (!renderingActive) {
+        renderingActive = true;
+        renderer.setAnimationLoop(animate);
+    }
+}
+
+function stopRendering() {
+    if (renderingActive) {
+        renderingActive = false;
+        renderer.setAnimationLoop(null);
+        renderer.render(scene, camera);
+    }
+}
+
+// Render on-demand when user orbits/zooms while animation loop is paused
+controls.addEventListener('change', () => {
+    if (!renderingActive) {
+        renderer.render(scene, camera);
+    }
+});
+
+startRendering();
 window.dispatchEvent(new Event('demo-ready'));

@@ -722,6 +722,7 @@ async function playTrajectory() {
             if (row && row.error) return;
             if (row && row.complete) {
                 env.stop();
+                playWebSocket = null;
                 ws.close();
                 stopRendering();
                 return;
@@ -742,7 +743,11 @@ async function playTrajectory() {
     };
     ws.onclose = () => {
         first = true;
-        if (playWebSocket === ws) playWebSocket = null;
+        if (playWebSocket === ws) {
+            playWebSocket = null;
+            env.stop();
+            stopRendering();
+        }
     };
     ws.onerror = () => {
         if (playWebSocket === ws) playWebSocket = null;
@@ -892,4 +897,35 @@ controls.addEventListener('change', () => {
 });
 
 startRendering();
+
+function teardownActiveSession() {
+    if (playWebSocket) {
+        sendPbStop(playWebSocket);
+        const ws = playWebSocket;
+        playWebSocket = null;
+        ws.close();
+    }
+    env.stop();
+    stopRendering();
+    const overlay = document.getElementById('demoOverlay');
+    const demoControls = document.getElementById('demoControls');
+    if (overlay) overlay.classList.remove('hidden');
+    if (demoControls) demoControls.classList.add('demo-controls--hidden');
+}
+
+document.addEventListener('visibilitychange', () => {
+    if (document.hidden && playWebSocket) {
+        teardownActiveSession();
+    }
+});
+
+const demoViewportObserver = new IntersectionObserver((entries) => {
+    entries.forEach(({ isIntersecting }) => {
+        if (!isIntersecting && playWebSocket) {
+            teardownActiveSession();
+        }
+    });
+}, { threshold: 0 });
+demoViewportObserver.observe(container);
+
 window.dispatchEvent(new Event('demo-ready'));

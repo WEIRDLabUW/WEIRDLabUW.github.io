@@ -184,11 +184,11 @@
             transition: opacity 0.2s, transform 0.2s;
             background: var(--ink);
             color: var(--bg);
-            padding: 3px 8px;
+            padding: 3px 10px;
+            border-radius: 999px;
             pointer-events: none;
         }
-        .spine-stop:hover .lbl,
-        .spine-stop.active .lbl { opacity: 1; transform: translateY(0); }
+        .spine-stop:hover .lbl { opacity: 1; transform: translateY(0); }
         .spine-stop:hover .dot { transform: scale(1.3); border-color: var(--em); }
         .spine-stop.passed .dot { background: var(--walnut); border-color: var(--walnut); }
         .spine-stop.active .dot {
@@ -217,6 +217,20 @@
             opacity: 0.55;
             cursor: default;
             border-radius: 999px;
+            transition: all 0.18s ease;
+        }
+        a.chip {
+            opacity: 1;
+            cursor: pointer;
+            border-color: var(--em);
+            color: var(--em);
+        }
+        a.chip:hover {
+            background: var(--em);
+            color: #fff;
+            border-color: var(--em);
+            transform: translateY(-1px);
+            box-shadow: 0 3px 8px rgba(42, 93, 64, 0.25);
         }
         @media (max-width: 760px) {
             .spine-stop .lbl { display: none; }
@@ -358,6 +372,17 @@
         .hero-quick-links .qlink:hover { background: var(--ink); color: var(--bg); }
         .hero-quick-links .qlink.primary { background: var(--em); color: #fff; border-color: var(--em); }
         .hero-quick-links .qlink.primary:hover { background: var(--em-deep); border-color: var(--em-deep); }
+        .hero-quick-links .qlink.link-accent {
+            border-color: var(--em);
+            color: var(--em);
+        }
+        .hero-quick-links .qlink.link-accent:hover {
+            background: var(--em);
+            color: #fff;
+            border-color: var(--em);
+            box-shadow: 0 3px 8px rgba(42, 93, 64, 0.28);
+            transform: translateY(-1px);
+        }
         .hero-quick-links .qlink-aside {
             color: var(--ink-muted);
             font-size: 0.72rem;
@@ -371,7 +396,7 @@
 
         /* ════════════════ SECTION HEADER (architectural detail) ════════════════ */
         .page-section {
-            padding: 80px 0 8px;
+            padding: 44px 0 4px;
             scroll-margin-top: calc(var(--spine-h) + 8px);
         }
         .page-section:first-of-type { padding-top: 48px; }
@@ -487,6 +512,28 @@
         }
         .pull-quote em { color: var(--em); font-weight: 600; }
 
+        .fig-caption-text {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.78rem;
+            color: var(--ink-muted);
+            text-align: center;
+            margin: 14px auto 0;
+            line-height: 1.65;
+            letter-spacing: 0.02em;
+            text-wrap: balance;
+        }
+        .fig-caption-text em { color: var(--ink-soft); font-style: italic; }
+        .slider-hint {
+            margin: 14px 0 6px;
+            text-align: center;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.72rem;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: var(--ink-muted);
+            opacity: 0.85;
+        }
+
         /* ════════════════ FIGURES (floating concrete planes) ════════════════ */
         .polaroid {
             display: block;
@@ -560,12 +607,12 @@
             font-family: 'JetBrains Mono', monospace;
             font-size: 0.78rem;
             color: var(--ink-muted);
-            text-align: left;
+            text-align: center;
             margin: 14px auto 0;
             line-height: 1.65;
             padding: 0;
-            max-width: 760px;
             letter-spacing: 0.02em;
+            text-wrap: balance;
         }
         .polaroid figcaption strong { color: var(--ink); font-weight: 700; }
         .polaroid figcaption em { color: var(--ink-soft); font-style: italic; }
@@ -902,12 +949,13 @@
             font-family: 'JetBrains Mono', monospace;
             font-size: 0.76rem;
             color: rgba(227, 236, 230, 0.75);
-            text-align: left;
-            margin: 14px 0 0;
+            text-align: center;
+            margin: 14px auto 0;
             padding-top: 12px;
             border-top: 1px solid rgba(255,255,255,0.1);
             line-height: 1.65;
             letter-spacing: 0.02em;
+            text-wrap: wrap;
         }
         .emerald-card .cap-on-card em { color: rgba(227, 236, 230, 0.95); font-style: italic; }
         .emerald-card .cap-on-card strong { color: #fff; }
@@ -1090,12 +1138,10 @@
             font-variation-settings: 'opsz' 36;
             font-style: italic;
             font-weight: 400;
-            font-size: 1.18rem;
+            font-size: 1.55rem;
             color: var(--em-glow);
-            margin: 0 0 18px;
-            padding-bottom: 14px;
-            border-bottom: 1px solid rgba(227, 236, 230, 0.10);
-            line-height: 1.4;
+            margin: -18px 0 14px;
+            line-height: 1.35;
         }
 
         /* KEY INSIGHT (light callout — concrete with green band) */
@@ -1285,18 +1331,19 @@
         <div class="spine-track" id="spine-track">
             <div class="spine-bar"></div>
             <div class="spine-cursor" id="spine-cursor"></div>
-            <a class="spine-stop" href="#sec-tldr"        style="--p:5%"><span class="dot"></span><span class="lbl">TL;DR</span></a>
-            <a class="spine-stop" href="#sec-motivation"  style="--p:17%"><span class="dot"></span><span class="lbl">Motivation</span></a>
-            <a class="spine-stop" href="#sec-method"      style="--p:29%"><span class="dot"></span><span class="lbl">Method</span></a>
-            <a class="spine-stop" href="#sec-interactive" style="--p:42%"><span class="dot"></span><span class="lbl">Interactive</span></a>
-            <a class="spine-stop" href="#sec-sim"         style="--p:55%"><span class="dot"></span><span class="lbl">Sim Results</span></a>
-            <a class="spine-stop" href="#sec-real"        style="--p:68%"><span class="dot"></span><span class="lbl">Real-World</span></a>
-            <a class="spine-stop" href="#sec-qualitative" style="--p:83%"><span class="dot"></span><span class="lbl">What TMRL Learns</span></a>
-            <a class="spine-stop" href="#sec-bibtex"      style="--p:95%"><span class="dot"></span><span class="lbl">BibTeX</span></a>
+            <a class="spine-stop" href="#sec-tldr"        style="--p:0%"><span class="dot"></span><span class="lbl">TL;DR</span></a>
+            <a class="spine-stop" href="#sec-motivation"  style="--p:14.3%"><span class="dot"></span><span class="lbl">Motivation</span></a>
+            <a class="spine-stop" href="#sec-method"      style="--p:28.6%"><span class="dot"></span><span class="lbl">Method</span></a>
+            <a class="spine-stop" href="#sec-interactive" style="--p:42.9%"><span class="dot"></span><span class="lbl">Interactive</span></a>
+            <a class="spine-stop" href="#sec-sim"         style="--p:57.1%"><span class="dot"></span><span class="lbl">Sim Results</span></a>
+            <a class="spine-stop" href="#sec-real"        style="--p:71.4%"><span class="dot"></span><span class="lbl">Real-World</span></a>
+            <a class="spine-stop" href="#sec-qualitative" style="--p:85.7%"><span class="dot"></span><span class="lbl">What TMRL Learns</span></a>
+            <a class="spine-stop" href="#sec-bibtex"      style="--p:100%"><span class="dot"></span><span class="lbl">BibTeX</span></a>
         </div>
         <div class="spine-actions">
-            <span class="chip"><i class="ai ai-arxiv"></i> arXiv</span>
-            <span class="chip"><i class="fab fa-github"></i> code</span>
+            <a class="chip" href="https://arxiv.org/abs/2605.12236" target="_blank"><i class="ai ai-arxiv"></i> arXiv</a>
+            <a class="chip" href="static/tmrl.pdf" target="_blank"><i class="fas fa-file-pdf"></i> PDF</a>
+            <!-- <span class="chip"><i class="fab fa-github"></i> code</span> -->
         </div>
     </div>
 </nav>
@@ -1327,8 +1374,9 @@
 
     <div class="hero-quick-links">
         <a class="qlink primary" href="#" onclick="openVideoLb(); return false;">▶ Full teaser</a>
-        <a class="qlink" href="#sec-tldr">↓ Overview</a>
-        <span class="qlink-aside">arXiv & code coming soon</span>
+        <a class="qlink link-accent" href="https://arxiv.org/abs/2605.12236" target="_blank"><i class="ai ai-arxiv"></i> arXiv ↗</a>
+        <a class="qlink link-accent" href="static/tmrl.pdf" target="_blank"><i class="fas fa-file-pdf"></i> PDF ↗</a>
+        <span class="qlink-aside">code coming soon</span>
     </div>
 </header>
 
@@ -1348,7 +1396,7 @@
 
         <article class="emerald-card">
             <h4 class="card-title">Results</h4>
-            <p>Real-world fine-tuning of &pi;<sub>0</sub> to near-perfect success on three robot tasks: <strong>under an hour on WidowX</strong>, under four on Franka. Outperforming state-of-the-art baselines in simulation.</p>
+            <p> Outperforming baselines in simulation and <strong>real-world fine-tuning of &pi;<sub>0</sub> to near-perfect success on three tasks</strong>: under an hour on WidowX, under four on Franka.</p>
         </article>
     </div>
 </section>
@@ -1362,23 +1410,21 @@
     </header>
 
     <p class="body-text">
-        Robots trained by imitation copy demonstrations narrowly &mdash; in sparsely covered contexts the conditional support collapses to near-zero probability on optimal actions, so online rollouts yield no reward signal and RL fine-tuning stalls. <strong>We propose to inject forward-diffusion noise into policy inputs at pre-training, smoothly interpolating between the conditional <em>p</em>(<i>a</i>&thinsp;|&thinsp;<i>c</i>) and marginal <em>p</em>(<i>a</i>) action distributions &mdash; broadening action coverage so RL can find solutions beyond the demonstrations.</strong>
+        Robots trained by imitation copy demonstrations narrowly &mdash; in sparsely covered contexts the conditional support collapses to near-zero probability on optimal actions, so online rollouts yield no reward signal and RL fine-tuning stalls. <strong>We propose injecting forward-diffusion noise into policy inputs during pre-training, so the policy learns the full spectrum of distributions between the conditional <em>p</em>(<i>a</i>&thinsp;|&thinsp;<i>c</i>) and marginal <em>p</em>(<i>a</i>).</strong>
     </p>
 
     <p class="body-text">
         On a 2D pointmaze from <a href="https://seohong.me/projects/ogbench/" target="_blank">OGBench</a>, we train two policies &mdash; one approximating <em>p</em>(<i>a</i>&thinsp;|&thinsp;<i>c</i>), the other <em>p</em>(<i>a</i>) &mdash; where <i>c</i> is the goal position. Both train on <code>pointmaze-large</code> and evaluate on the larger <code>pointmaze-giant</code> environment, with an unseen goal location (<strong style="color:#c08800;">agent in yellow</strong>, <strong style="color:#c44b66;">goal in pink</strong>).
     </p>
 
-    <p class="cap" style="margin: 18px 0 0; text-align:left;">Watch the OOD goal: <em>left,</em> <em>p</em>(<i>a</i>&thinsp;|&thinsp;<i>c</i>) collapses and drifts away. <em>Right,</em> <em>p</em>(<i>a</i>) covers broadly enough to reach.</p>
-
-    <div class="polaroid-row" style="margin-top: 6px;">
-        <figure class="polaroid">
+    <div class="polaroid-row tight-row" style="margin-top: 18px; margin-bottom: 0;">
+        <figure class="polaroid" style="margin-bottom: 0;">
             <video class="static-vid" autoplay loop muted playsinline>
                 <source src="static/videos/bc_pointmaze.mp4" type="video/mp4">
             </video>
             <figcaption><strong>p(a&thinsp;|&thinsp;c) · BC</strong></figcaption>
         </figure>
-        <figure class="polaroid">
+        <figure class="polaroid" style="margin-bottom: 0;">
             <video class="static-vid" autoplay loop muted playsinline>
                 <source src="static/videos/csp_pointmaze.mp4" type="video/mp4">
             </video>
@@ -1386,9 +1432,13 @@
         </figure>
     </div>
 
-    <blockquote class="pull-quote">
-        The conditional collapses on optimal actions; the marginal covers them only with low likelihood. Thus motivating a policy that can <em>interpolate</em> between the two &mdash; and a mechanism to learn <em>where</em> on that interpolation to operate.
-    </blockquote>
+    <p class="fig-caption-text" style="margin-top: 6px;">
+        <em>Left,</em> the conditional <em>p</em>(<i>a</i>&thinsp;|&thinsp;<i>c</i>) collapses and drifts the agent away from the goal. <em>Right,</em> the marginal <em>p</em>(<i>a</i>) covers broadly enough to reach it, but assigns goal-reaching behaviors only low likelihood.
+    </p>
+
+    <p class="body-text" style="margin-top: 22px;">
+        This motivates a policy that can <em>interpolate</em> between the two &mdash; and a mechanism to learn <em>where</em> on that interpolation to operate.
+    </p>
 </section>
 
 <!-- ════════════════ METHOD ════════════════ -->
@@ -1404,7 +1454,7 @@
             <img src="static/figures/method.png" alt="TMRL method overview">
         </a>
         <figcaption>
-            <strong>Fig.&nbsp;1.</strong> <em>Left &mdash; CSP (pre-training):</em> one policy p<sub>θ</sub> trained across all &sigma; by corrupting context <i>c</i> with q<sub>σ</sub> &mdash; precise imitation at &sigma;&thinsp;=&thinsp;0, broad coverage at &sigma;&thinsp;=&thinsp;T. <em>Right &mdash; TMRL (fine-tuning):</em> the high-level policy &pi;<sub>HL</sub>(<i>z</i>,&thinsp;&sigma;&thinsp;|&thinsp;<i>s</i>) learns to modulate &sigma; per action chunk to maximize reward.
+            <strong>CSP pre-training and TMRL fine-tuning.</strong> <em>Left &mdash; CSP (pre-training):</em> one policy p<sub>θ</sub> trained across all &sigma; by corrupting context <i>c</i> with q<sub>σ</sub>, the forward-diffusion noising kernel &mdash; precise imitation at &sigma;&thinsp;=&thinsp;0, broad coverage at &sigma;&thinsp;=&thinsp;T. <em>Right &mdash; TMRL (fine-tuning):</em> the high-level policy &pi;<sub>HL</sub>(<i>z</i>,&thinsp;&sigma;&thinsp;|&thinsp;<i>s</i>) learns to modulate &sigma; per action chunk to maximize reward.
         </figcaption>
     </figure>
 
@@ -1414,7 +1464,7 @@
     </p>
 
     <div class="emerald-card pcd-strip">
-        <h4 class="card-tag">1 &middot; Reference rollout</h4>
+        <h4 class="card-tag">1 &middot; Rollout</h4>
         <div class="ref-rollout">
             <video class="static-vid" autoplay loop muted playsinline>
                 <source src="static/videos/dexgrasp_drill.mp4" type="video/mp4">
@@ -1429,13 +1479,13 @@
 
         <h4 class="card-tag">2 &middot; Context-smoothed pointcloud</h4>
         <div class="pcd-grid">
-            <figure class="pcd-cell"><img src="static/videos/pcd_drill4.gif" alt="t=0 clean pointcloud"><figcaption class="step">t&thinsp;=&thinsp;0 · clean</figcaption></figure>
-            <figure class="pcd-cell"><img src="static/videos/pcd_drill3.gif" alt="t=0.001 pointcloud"><figcaption class="step">t&thinsp;=&thinsp;0.001</figcaption></figure>
-            <figure class="pcd-cell"><img src="static/videos/pcd_drill2.gif" alt="t=0.01 pointcloud"><figcaption class="step">t&thinsp;=&thinsp;0.01</figcaption></figure>
-            <figure class="pcd-cell"><img src="static/videos/pcd_drill1.gif" alt="t=0.1 pointcloud"><figcaption class="step">t&thinsp;=&thinsp;0.1</figcaption></figure>
+            <figure class="pcd-cell"><img src="static/videos/pcd_drill4.gif" alt="σ=0 clean pointcloud"><figcaption class="step">σ&thinsp;=&thinsp;0 · clean</figcaption></figure>
+            <figure class="pcd-cell"><img src="static/videos/pcd_drill3.gif" alt="σ=0.001 pointcloud"><figcaption class="step">σ&thinsp;=&thinsp;0.001</figcaption></figure>
+            <figure class="pcd-cell"><img src="static/videos/pcd_drill2.gif" alt="σ=0.01 pointcloud"><figcaption class="step">σ&thinsp;=&thinsp;0.01</figcaption></figure>
+            <figure class="pcd-cell"><img src="static/videos/pcd_drill1.gif" alt="σ=0.1 pointcloud"><figcaption class="step">σ&thinsp;=&thinsp;0.1</figcaption></figure>
         </div>
 
-        <p class="cap-on-card"><em>Top:</em> <strong>TMRL on a held-out drill</strong> (context <i>c</i> = pointcloud). <em>Bottom:</em> <i>q</i><sub>&sigma;</sub> removes structure as <em>t</em> rises &mdash; aliasing the OOD object back to in-distribution shapes the policy has seen during training.</p>
+        <p class="cap-on-card"><em>Top:</em> <strong>TMRL on a held-out drill</strong> (context <i>c</i> = pointcloud). <em>Bottom:</em> <i>q</i><sub>&sigma;</sub> removes structure as &sigma; rises &mdash; aliasing the OOD object back to in-distribution shapes the policy has seen during training.</p>
     </div>
 </section>
 
@@ -1450,8 +1500,6 @@
     <p class="body-text">
         <strong>CSP</strong> trains one policy across all &sigma; by corrupting the context <i>c</i> (here, the cube goal position) with <em>q<sub>σ</sub></em>(<span style="text-decoration:overline">c</span>&thinsp;|&thinsp;<i>c</i>). The endpoints anchor the spectrum: &sigma;&thinsp;=&thinsp;0 recovers <em>p</em>(<i>a</i>&thinsp;|&thinsp;<i>c</i>), &sigma;&thinsp;=&thinsp;<em>T</em> recovers <em>p</em>(<i>a</i>).</strong>
     </p>
-    <p class="cap" style="text-align:left; margin: 14px 0 0;">Drag &sigma; below to see how the policy&rsquo;s rollouts spread as the context input is more aggressively noised.</p>
-
     <div id="sweep-tabs" class="tab-row" style="margin-top:24px;"></div>
     <code id="sweep-instruction" class="instruction-box" style="display:none;"></code>
 
@@ -1476,6 +1524,10 @@
         </div>
     </div>
 
+    <p class="fig-caption-text" style="margin-top: 12px; max-width: none; text-align: center; white-space: nowrap;">
+        Drag the slider to see how the policy&rsquo;s rollouts spread as the context (goal position) becomes more corrupted.
+    </p>
+
 </section>
 
 <!-- ════════════════ SIMULATION ════════════════ -->
@@ -1488,14 +1540,14 @@
 
     <h3 class="sub-head">Action coverage before RL: Success@K</h3>
     <p class="body-text">
-        <strong>Success@K</strong> &mdash; the fraction of out-of-distribution states where at least one of <em>K</em> base-policy rollouts succeeds. On <code>pointmaze-giant</code> and <code>cube-single</code>, CSP exceeds PostBC and BC at every <em>K</em>, with the gap widest on <code>cube-single</code> where both baselines remain at zero.
+        <strong>Success@K</strong> &mdash; the fraction of out-of-distribution states where <strong>at least one</strong> of <em>K</em> base-policy rollouts succeeds. On two tasks, CSP outperforms PostBC and BC for all <em>K</em>, with the gap widest on <code>cube-single</code> where both baselines remain at zero.
     </p>
 
     <figure class="polaroid wide-polaroid" style="max-width:82%; margin: 18px auto 0;">
         <a href="#" data-lb="static/figures/success_at_k.png">
             <img src="static/figures/success_at_k.png" alt="Success@K comparison">
         </a>
-        <figcaption><strong>CSP provides coverage before RL.</strong> BC and PostBC stay near zero on <code>cube-single</code>; CSP rises with <em>K</em>.</figcaption>
+        <figcaption><strong>CSP widens action coverage before RL.</strong> On <code>cube-single</code>, BC and PostBC stay near zero while CSP rises with <em>K</em>.</figcaption>
     </figure>
 
     <h3 class="sub-head" style="margin-top:32px;">RL sample efficiency</h3>
@@ -1507,7 +1559,7 @@
         <a href="#" data-lb="static/figures/sim_results.png">
             <img src="static/figures/sim_results.png" alt="Simulation RL results">
         </a>
-        <figcaption><strong>Simulation RL success rates.</strong> TMRL approaches 100% across all four tasks; only TMRL reaches non-trivial success on the long-horizon <code>libero-90</code>.</figcaption>
+        <figcaption style="text-wrap: wrap;"><strong>TMRL beats baselines across four simulation tasks.</strong> TMRL approaches 100% across all four tasks; only TMRL reaches non-trivial success on the <code>libero-90</code> task.</figcaption>
     </figure>
 </section>
 
@@ -1530,7 +1582,7 @@
         <video class="static-vid" autoplay loop muted playsinline>
             <source src="static/videos/csp_vla.mp4" type="video/mp4">
         </video>
-        <figcaption><strong>CSP for VLAs.</strong> Noise the VLM embedding context with q<sub>σ</sub> to allow &pi;<sub>0</sub> to sample across the conditional → marginal spectrum.</figcaption>
+        <figcaption><strong>Applying CSP to a VLA.</strong> Noise the VLM embedding context with q<sub>σ</sub> to allow &pi;<sub>0</sub> to sample across the conditional → marginal spectrum.</figcaption>
     </figure>
 
     <p class="body-text" style="margin-top:18px;">
@@ -1543,7 +1595,7 @@
         <a href="#" data-lb="static/figures/real_results.png">
             <img src="static/figures/real_results.png" alt="Real-world RL fine-tuning results">
         </a>
-        <figcaption><strong>Learning curves.</strong> Base &pi;<sub>0</sub> stalls &mdash; its action support is too narrow for any rollout to succeed. CSP widens that support; TMRL leverages it to reach near-perfect success on all three tasks.</figcaption>
+        <figcaption><strong>TMRL reaches near-perfect success on real-robot tasks in under an hour.</strong> Base &pi;<sub>0</sub> stalls &mdash; its action support is too narrow for any rollout to succeed. CSP widens that support; TMRL leverages it to reach near-perfect success on all three tasks.</figcaption>
     </figure>
 
     <h3 class="sub-head" style="margin-top:32px;">Per-task rollouts</h3>
@@ -1552,7 +1604,7 @@
     </p>
 
     <div class="rw-tabs">
-        <button class="rw-tab active" data-task="droid_button" onclick="rwSetTask(this)">Button Press</button>
+        <button class="rw-tab active" data-task="droid_button" onclick="rwSetTask(this)">Button-Press</button>
         <button class="rw-tab" data-task="widowx_shrimp" onclick="rwSetTask(this)">Shrimp-in-Drawer</button>
         <button class="rw-tab" data-task="widowx_sausage" onclick="rwSetTask(this)">Sausage-in-Pot</button>
     </div>
@@ -1570,7 +1622,7 @@
 
     <h3 class="sub-head" style="margin-top:24px;">Real-world RL learning curve</h3>
     <div class="learning-wrap">
-        <div class="learning-title" id="rw-learning-title">Button Press</div>
+        <div class="learning-title" id="rw-learning-title">Button-Press</div>
         <div style="background:#000; line-height:0;">
             <video id="rw-learning-video" autoplay loop muted playsinline controls style="width:100%; display:block;">
                 <source src="static/videos/droid_learning.mp4" type="video/mp4">
@@ -1587,7 +1639,7 @@
     </header>
 
     <p class="body-text">
-        &pi;<sub>HL</sub> treats the diffusion timestep <i>t̃</i> as an adaptive coverage control, choosing it per action chunk. Below, the converged TMRL policy on WidowX <code>shrimp-in-drawer</code> learns to use <strong><i>t̃</i> low through the precision-critical pick</strong> (precise imitation) and higher during reaching and placing.
+        &pi;<sub>HL</sub> treats the diffusion timestep &sigma; as an adaptive coverage control, choosing it per action chunk. Below, the converged TMRL policy on <code>shrimp-in-drawer</code> learns to <strong>keep &sigma; low through the precision-critical pick</strong> and higher during reaching and placing.
     </p>
 
     <div class="emerald-card tm-anim-card">
@@ -1604,7 +1656,7 @@
                 </button>
             </div>
             <div class="tm-chart-area">
-                <div id="tm-tval">t̃ = 0.01</div>
+                <div id="tm-tval">σ = 0.01</div>
                 <svg id="tm-chart" viewBox="0 0 560 170" preserveAspectRatio="xMidYMid meet"></svg>
             </div>
         </div>
@@ -1669,7 +1721,8 @@
 <!-- ════════════════ SWEEP JS ════════════════ -->
 <script>
 (function(){
-    var NL = ['0.00','0.25','0.50','0.75','1.00'];
+    var NL = ['0','T-4','T-2','3T-4','T'];
+    var DISP = ['0','T/4','T/2','3T/4','T'];
     var DL = ['(conditional)','','','','(marginal)'];
     var SPECS = [], INSTR = {}, _task = '', _idx = 0;
     var RIDS = [0,1,2,3,4];
@@ -1699,7 +1752,7 @@
     function setUI(){
         var nl=NL[_idx]; var pct=(_idx/4)*100;
         document.getElementById('sweep-thumb').style.left=pct+'%';
-        document.getElementById('sweep-sigma-val').textContent=parseFloat(nl).toFixed(2);
+        document.getElementById('sweep-sigma-val').textContent=DISP[_idx];
         var lbl=document.getElementById('sweep-sigma-lbl'); if(lbl) lbl.textContent=DL[_idx]?DL[_idx]:'';
     }
     var _tok=0;
@@ -1767,7 +1820,7 @@
 <script>
 (function(){
     var _task='droid_button';
-    var LABELS={widowx_sausage:'Sausage-in-Pot',widowx_shrimp:'Shrimp-in-Drawer',droid_button:'Button Press'};
+    var LABELS={widowx_sausage:'Sausage-in-Pot',widowx_shrimp:'Shrimp-in-Drawer',droid_button:'Button-Press'};
     var LVIDS={widowx_sausage:'static/videos/widowx_sausage_learning.mp4',widowx_shrimp:'static/videos/widowx_shrimp_learning.mp4',droid_button:'static/videos/droid_learning.mp4'};
     function p3(n){return String(n).padStart(3,'0');}
     function mkCell(src){
@@ -1852,13 +1905,13 @@
         var rightX = SVG_W - PAD.right + 14;
         var yTop = yPos(1);
         svg.insertAdjacentHTML('beforeend',
-            '<text x="'+rightX+'" y="'+(yTop-2)+'" fill="#f0a060" font-size="11" font-family="JetBrains Mono,monospace" font-weight="600">t̃ = 1  ·  marginal</text>');
+            '<text x="'+rightX+'" y="'+(yTop-2)+'" fill="#f0a060" font-size="11" font-family="JetBrains Mono,monospace" font-weight="600">σ = 1  ·  marginal</text>');
         svg.insertAdjacentHTML('beforeend',
             '<text x="'+rightX+'" y="'+(yTop+11)+'" fill="rgba(240,160,96,0.7)" font-size="9.5" font-family="JetBrains Mono,monospace" font-style="italic">broad coverage</text>');
 
         var yBot = yPos(0);
         svg.insertAdjacentHTML('beforeend',
-            '<text x="'+rightX+'" y="'+(yBot-3)+'" fill="#5dcfa8" font-size="11" font-family="JetBrains Mono,monospace" font-weight="600">t̃ = 0  ·  conditional</text>');
+            '<text x="'+rightX+'" y="'+(yBot-3)+'" fill="#5dcfa8" font-size="11" font-family="JetBrains Mono,monospace" font-weight="600">σ = 0  ·  conditional</text>');
         svg.insertAdjacentHTML('beforeend',
             '<text x="'+rightX+'" y="'+(yBot+10)+'" fill="rgba(93,207,168,0.8)" font-size="9.5" font-family="JetBrains Mono,monospace" font-style="italic">precise imitation</text>');
 
@@ -1907,7 +1960,7 @@
             }, 130);
         }
         var tval = document.getElementById('tm-tval');
-        if(tval) tval.textContent = 't̃ = ' + t.toFixed(2);
+        if(tval) tval.textContent = 'σ = ' + t.toFixed(2);
 
         var cursor = document.getElementById('tm-cursor');
         var vline = document.getElementById('tm-vline');

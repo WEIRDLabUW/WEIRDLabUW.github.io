@@ -336,17 +336,23 @@
         }
 
         /* Teaser video: cap height so video fully visible on landing */
-        .teaser-polaroid { margin: 14px 0 12px; }
-        .teaser-polaroid > video {
-            width: auto;
-            max-width: 100%;
-            max-height: calc(100vh - 340px);
-            min-height: 280px;
-            margin: 0 auto;
+        .teaser-polaroid {
+            margin: 14px auto 12px;
+            overflow: hidden;
+            border-radius: 14px;
+            aspect-ratio: 1118 / 720;
+            width: 100%, 
             display: block;
         }
+        .teaser-polaroid > video {
+            width: 100%;
+            height: 100%;
+            display: block;
+            background: transparent;
+            object-fit: cover;
+        }
         @media (max-width: 760px) {
-            .teaser-polaroid > video { max-height: calc(100vh - 300px); }
+            .teaser-polaroid { width: min(100%, calc((100vh - 200px) * 16 / 9)); }
         }
 
         /* HERO QUICK LINKS — square-edged, like building signage */

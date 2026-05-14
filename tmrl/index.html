@@ -340,8 +340,8 @@
             margin: 14px auto 12px;
             overflow: hidden;
             border-radius: 14px;
-            aspect-ratio: 1118 / 720;
-            width: 100%, 
+            aspect-ratio: 1280 / 720;
+            width: 100%;
             display: block;
         }
         .teaser-polaroid > video {
@@ -349,7 +349,7 @@
             height: 100%;
             display: block;
             background: transparent;
-            object-fit: cover;
+            object-fit: contain;
         }
         @media (max-width: 760px) {
             .teaser-polaroid { width: min(100%, calc((100vh - 200px) * 16 / 9)); }

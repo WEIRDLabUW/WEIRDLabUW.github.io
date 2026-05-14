@@ -1397,7 +1397,7 @@
     <div class="card-grid card-grid-tldr">
         <article class="emerald-card emerald-card-wide">
             <h4 class="card-title">Our method</h4>
-            <p><strong>Context-Smoothed Pre-training (CSP)</strong> applies a diffusion-style forward-noising schedule to policy <em>inputs</em>, producing a continuous spectrum from precise imitation to broad coverage. <strong>Timestep-Modulated RL (TMRL)</strong> then trains a high-level policy &pi;<sub>HL</sub>(<i>z</i>,&thinsp;σ&thinsp;|&thinsp;<i>s</i>) to select σ per action chunk.</p>
+            <p><strong>Context-Smoothed Pre-training (CSP)</strong> trains a policy across all noise levels of a diffusion-style forward schedule, spanning the spectrum from precise imitation to broad coverage. <strong>Timestep-Modulated RL (TMRL)</strong> then trains a high-level policy to select the noise level per action chunk.</p>
         </article>
 
         <article class="emerald-card">

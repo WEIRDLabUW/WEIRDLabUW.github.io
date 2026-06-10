@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>SCORE: Support-Constrained Off-Domain Real-world Exploration</title>
+    <meta name="description" content="Support-Constrained RL Enables Real-World Policy Improvement without Real-World Experience">
+
+    <link rel="preload" as="video" href="static/videos/SCOREv6.mp4" type="video/mp4" fetchpriority="high">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;0,9..144,900;1,9..144,400;1,9..144,500;1,9..144,700;1,9..144,900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+
+    <link rel="stylesheet" href="static/style.css?v=20260604h">
+</head>
+<body>
+
+<!-- ════════════════ σ-SPINE ════════════════ -->
+<nav class="sigma-spine" id="sigma-spine">
+    <div class="spine-inner">
+        <div class="spine-brand" title="Back to top" onclick="window.scrollTo({top:0,behavior:'smooth'});" style="cursor:pointer;">
+            <span class="brand-mark">SCORE</span>
+        </div>
+        <div class="spine-track" id="spine-track">
+            <div class="spine-bar"></div>
+            <div class="spine-cursor" id="spine-cursor"></div>
+            <a class="spine-stop" href="#sec-problem"   style="--p:0%"   ><span class="dot"></span><span class="lbl">Problem</span></a>
+            <a class="spine-stop" href="#sec-method"    style="--p:25%"  ><span class="dot"></span><span class="lbl">Method</span></a>
+            <a class="spine-stop" href="#sec-real"      style="--p:50%"  ><span class="dot"></span><span class="lbl">Results</span></a>
+            <a class="spine-stop" href="#sec-failures"  style="--p:75%"  ><span class="dot"></span><span class="lbl">Failures</span></a>
+            <a class="spine-stop" href="#sec-tradeoff" style="--p:100%" ><span class="dot"></span><span class="lbl">Tradeoff</span></a>
+        </div>
+    </div>
+</nav>
+
+<main class="paper">
+
+<!-- ════════════════ HERO ════════════════ -->
+<header class="hero">
+    <h1 class="hero-brand">SCORE</h1>
+    <p class="hero-subtitle">Support-Constrained RL Enables Real-World Policy Improvement without Real-World Experience</p>
+    <div class="hero-authors">
+        Raymond Yu<sup>*&thinsp;1</sup>&nbsp;&nbsp;&nbsp;
+        Will Huey<sup>*&thinsp;1</sup>&nbsp;&nbsp;&nbsp;
+        Mustafa Mukadam<sup>1</sup>&nbsp;&nbsp;&nbsp;
+        Anusha Nagabandi<sup>2</sup>&nbsp;&nbsp;&nbsp;
+        Abhishek Gupta<sup>1</sup>
+        <span class="affil"><sup>1</sup>University of Washington&nbsp;&nbsp;&nbsp;&nbsp;<sup>2</sup>Amazon FAR&nbsp;&nbsp;&nbsp;&nbsp;<sup>*</sup>Equal contribution</span>
+    </div>
+
+    <figure class="polaroid teaser-polaroid">
+        <video id="hero-teaser-video" autoplay loop muted playsinline preload="auto" fetchpriority="high">
+            <source src="static/videos/SCOREv6.mp4" type="video/mp4">
+        </video>
+    </figure>
+
+    <div class="hero-quick-links">
+        <a class="qlink primary" href="#" onclick="openVideoLb(); return false;">&#9654; Full video</a>
+        <!-- TODO: replace href="#" with the arXiv abstract URL once available -->
+        <a class="qlink link-accent" href="#" onclick="return false;"><i class="ai ai-arxiv"></i> arXiv ↗</a>
+    </div>
+</header>
+
+<!-- ════════════════ THE PROBLEM ════════════════ -->
+<section class="page-section fade-in" id="sec-problem">
+    <header class="sec-head">
+        <span class="sigma-rule"></span>
+        <h2 class="sec-title">The Problem</h2>
+        <p class="sec-lead">Simulation can improve policies, but it can also break them.</p>
+    </header>
+
+    <p class="body-text">
+        Improving real-world manipulation policies directly on hardware is slow and expensive, so we turn to simulation. In this paper, we study the problem of <strong>off-domain policy improvement</strong>: how can we improve a real-world policy using interaction only in simulation?
+    </p>
+
+    <p class="body-text">
+        But simulation is a double-edged sword. Existing methods sit at two extremes. They either optimize <strong>freely</strong> in sim, or tightly <strong>constrain</strong> the policy to the demonstration distribution, and each extreme fails in its own way:
+    </p>
+
+    <div class="card-grid card-grid-3" style="margin-top:22px;">
+        <article class="panel-card" style="border-left-color:var(--baseline-terracotta);">
+            <div class="card-step"><span class="step-num warn">&#9888;</span><span class="card-tag" style="color:var(--baseline-terracotta);">Failure Mode A</span></div>
+            <h4 class="card-title">Unconstrained RL in Sim</h4>
+            <p>Freely optimizing in simulation can discover reward-hacking, dynamics-specific behaviors that transfer poorly to the real world.</p>
+        </article>
+        <article class="panel-card" style="border-left-color:var(--baseline-ochre);">
+            <div class="card-step"><span class="step-num warn2">&#9888;</span><span class="card-tag" style="color:var(--baseline-ochre);">Failure Mode B</span></div>
+            <h4 class="card-title">Distributional regularization</h4>
+            <p>BC constraints keep policies close to the base policy. With too little regularization the policy reward-hacks; with too much it preserves the base policy&rsquo;s slow, imprecise, or failed behaviors.</p>
+        </article>
+        <article class="emerald-card">
+            <div class="card-step"><span class="step-num">&#10003;</span><span class="card-tag">Our approach</span></div>
+            <h4 class="card-title">Support-constrained improvement</h4>
+            <p>Constrain simulation optimization to behaviors already represented in the real-world policy. Improve <em>within</em> the support of the behavior prior, rather than matching or ignoring the full distribution.</p>
+        </article>
+    </div>
+
+    <div class="key-insight" style="margin-top:24px;">
+        <span class="ki-label">The key insight</span>
+        <p>Policy improvement in simulation should be constrained to the support of the real world prior.</p>
+    </div>
+</section>
+
+<!-- ════════════════ METHOD ════════════════ -->
+<section class="page-section fade-in" id="sec-method">
+    <header class="sec-head">
+        <span class="sigma-rule"></span>
+        <h2 class="sec-title">Method</h2>
+        <p class="sec-lead">Steer through the support, don&rsquo;t escape it.</p>
+    </header>
+
+    <p class="body-text">
+        To improve a policy in simulation without leaving what works in the real world, SCORE answers three questions, each handled by one component:
+    </p>
+
+    <div class="card-grid card-grid-3" style="margin-top:22px;">
+        <article class="emerald-card">
+            <div class="card-step"><span class="step-num">1</span><span class="card-tag">Frozen Real-World Prior</span></div>
+            <h4 class="card-title">What behaviors are transferable?</h4>
+            <p>A generative policy trained on real demonstrations defines the support. Only behaviors inside it can reliably transfer.</p>
+        </article>
+        <article class="emerald-card">
+            <div class="card-step"><span class="step-num">2</span><span class="card-tag">Support-Constrained Sim RL</span></div>
+            <h4 class="card-title">Which supported behaviors are best?</h4>
+            <p>RL in simulation searches within that support for higher-reward modes, guided by a privileged critic unavailable at deployment.</p>
+        </article>
+        <article class="emerald-card">
+            <div class="card-step"><span class="step-num">3</span><span class="card-tag">Direct Deployment</span></div>
+            <h4 class="card-title">How does it reach the robot?</h4>
+            <p>Directly, with <strong>no distillation and no finetuning.</strong> The actor is trained on deployment-compatible observations, with no distillation from a privileged state policy and no sim-to-real fine-tuning stage.</p>
+        </article>
+    </div>
+
+    <p class="body-text" style="margin-top:22px;">
+        Together, these pieces form <strong>SCORE</strong>, a simple and general framework for off-domain policy improvement. Its optimizer is modular: any support-constrained RL algorithm can be swapped in.
+    </p>
+
+    <figure class="polaroid wide-polaroid" style="margin-top:14px;">
+        <a href="#" data-lb="static/figures/method3.png?v=20260609">
+            <img src="static/figures/method3.png?v=20260609" alt="SCORE method overview">
+        </a>
+        <figcaption>
+            <strong>SCORE pipeline.</strong>
+            <em>Left:</em> task-specific demonstrations train a frozen generative base policy per task.
+            <em>Center:</em> a support-constrained steering policy is optimized with RL in domain-randomized simulation using a privileged critic.
+            <em>Right:</em> the two policies compose at deployment; no sim-to-real fine-tuning required.
+        </figcaption>
+    </figure>
+
+    <h3 class="sub-head" style="margin-top:38px;">Improvement in simulation</h3>
+    <p class="body-text">Inside the simulator, support-constrained RL steers the base policy toward higher-reward modes. We leverage massive domain randomization to make the resulting policies robust, randomizing object pose and placement, scale, mass, and applying force perturbations and forced resets, among others. Select a task and scrub through training time to watch the policy improve, step by step.</p>
+
+    <div class="ms-tabs">
+        <button class="ms-tab active" data-ms="lightbulb_screw" onclick="msSetTab(this)">Screw Lightbulb</button>
+        <button class="ms-tab"        data-ms="cup_pour"      onclick="msSetTab(this)">Pour Ball</button>
+        <button class="ms-tab"        data-ms="soccer_push"   onclick="msSetTab(this)">Push Soccer Ball</button>
+        <button class="ms-tab"        data-ms="credit_card"   onclick="msSetTab(this)">Pick Credit Card</button>
+        <button class="ms-tab"        data-ms="dishrack_place" onclick="msSetTab(this)">Place in Dishrack</button>
+        <button class="ms-tab"        data-ms="bottle_grasp"  onclick="msSetTab(this)">Grasp Bottle</button>
+        <button class="ms-tab"        data-ms="cup_grasp"     onclick="msSetTab(this)">Grasp Cup</button>
+        <button class="ms-tab"        data-ms="cube_grasp"    onclick="msSetTab(this)">Pinch Cube</button>
+    </div>
+
+    <div class="tl-player">
+        <div class="tl-stage">
+            <video id="tl-video" autoplay muted playsinline></video>
+            <button id="tl-playpause" class="tl-playpause" aria-label="Play or pause">
+                <i class="fa-solid fa-pause"></i>
+            </button>
+        </div>
+        <div class="tl-controls">
+            <div class="tl-readout"><span id="tl-step">Base Policy</span></div>
+            <div id="tl-track" class="tl-track" role="slider" tabindex="0"
+                 aria-label="Training progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+                <div class="tl-rail"></div>
+                <div id="tl-fill" class="tl-fill"></div>
+                <div id="tl-ticks" class="tl-ticks"></div>
+                <div id="tl-thumb" class="tl-thumb"></div>
+            </div>
+            <div id="tl-labels" class="tl-labels"></div>
+        </div>
+    </div>
+
+</section>
+
+<!-- ════════════════ REAL-WORLD RESULTS ════════════════ -->
+<section class="page-section fade-in" id="sec-real">
+    <header class="sec-head">
+        <span class="sigma-rule"></span>
+        <h2 class="sec-title">Real-World Results</h2>
+        <p class="sec-lead">Sim RL that transfers.</p>
+    </header>
+
+    <p class="body-text">
+        Across eight real-world multi-fingered manipulation tasks, SCORE substantially improves success rate over the base policy.
+    </p>
+
+    <div class="results-duo" id="results-charts" style="margin-top:24px;">
+        <div class="result-callout xl-callout">
+            <div class="big">89.9%</div>
+            <div class="desc"><strong>Average success rate</strong> after SCORE, up from 37.9% for the base policy, a 2.4&times; improvement across eight tasks.</div>
+        </div>
+        <div class="rchart">
+            <div class="rchart-title">Success Rate</div>
+            <div class="rchart-axis">average % across 8 tasks</div>
+            <div class="rbar-row">
+                <div class="rbar-label ours">SCORE</div>
+                <div class="rbar-track"><div class="rbar-fill ours" data-w="100"></div></div>
+                <div class="rbar-val ours">89.9%</div>
+            </div>
+            <div class="rbar-row">
+                <div class="rbar-label bl-dsrl">SCORE-DSRL</div>
+                <div class="rbar-track"><div class="rbar-fill bl-dsrl" data-w="88"></div></div>
+                <div class="rbar-val bl-dsrl">79.2%</div>
+            </div>
+            <div class="rbar-row">
+                <div class="rbar-label bl-resrl">Res-RL</div>
+                <div class="rbar-track"><div class="rbar-fill bl-resrl" data-w="66"></div></div>
+                <div class="rbar-val">59.5%</div>
+            </div>
+            <div class="rbar-row">
+                <div class="rbar-label bl-base">Base</div>
+                <div class="rbar-track"><div class="rbar-fill bl-base" data-w="42"></div></div>
+                <div class="rbar-val">37.9%</div>
+            </div>
+            <div class="rbar-row">
+                <div class="rbar-label bl-rialto">RialTo</div>
+                <div class="rbar-track"><div class="rbar-fill bl-rialto" data-w="30"></div></div>
+                <div class="rbar-val">26.9%</div>
+            </div>
+            <div class="rbar-row">
+                <div class="rbar-label bl-fpo">FPO</div>
+                <div class="rbar-track"><div class="rbar-fill bl-fpo" data-w="20"></div></div>
+                <div class="rbar-val">17.8%</div>
+            </div>
+        </div>
+    </div>
+
+    <h3 class="sub-head" style="margin-top:32px;">SCORE in action</h3>
+    <p class="body-text">SCORE solving all eight tasks.</p>
+    <div class="task-gallery">
+        <figure>
+            <video src="static/videos/real_world_rollouts/ball_pour/score/ep_000.mp4" autoplay loop muted playsinline></video>
+            <figcaption>Pour Ball</figcaption>
+        </figure>
+        <figure>
+            <video src="static/videos/real_world_rollouts/soccer_push/score/ep_000.mp4" autoplay loop muted playsinline></video>
+            <figcaption>Push Soccer Ball</figcaption>
+        </figure>
+        <figure>
+            <video src="static/videos/real_world_rollouts/lightbulb_screw/score/ep_000.mp4" autoplay loop muted playsinline></video>
+            <figcaption>Screw Lightbulb</figcaption>
+        </figure>
+        <figure>
+            <video src="static/videos/real_world_rollouts/credit_card_pick/score/ep_000.mp4" autoplay loop muted playsinline></video>
+            <figcaption>Pick Credit Card</figcaption>
+        </figure>
+        <figure>
+            <video src="static/videos/real_world_rollouts/dishrack_place/score/ep_000.mp4" autoplay loop muted playsinline></video>
+            <figcaption>Place in Dishrack</figcaption>
+        </figure>
+        <figure>
+            <video src="static/videos/real_world_rollouts/cube_pinch/score/ep_000.mp4" autoplay loop muted playsinline></video>
+            <figcaption>Pinch Cube</figcaption>
+        </figure>
+        <figure>
+            <video src="static/videos/real_world_rollouts/bottle_grasp/score/ep_000.mp4" autoplay loop muted playsinline></video>
+            <figcaption>Grasp Bottle</figcaption>
+        </figure>
+        <figure>
+            <video src="static/videos/real_world_rollouts/cup_grasp/score/ep_000.mp4" autoplay loop muted playsinline></video>
+            <figcaption>Grasp Cup</figcaption>
+        </figure>
+    </div>
+
+    <h3 class="sub-head" style="margin-top:32px;">Per-task rollouts</h3>
+    <p class="body-text">Select a task to see base policy versus SCORE rollouts, qualitative analysis, and per-task results. SCORE produces faster, more precise, and more robust behavior while remaining within the support of the real-world behavior prior.</p>
+
+    <div class="rw-tabs">
+        <button class="rw-tab active" data-task="ball_pour"        onclick="rwSetTask(this)">Pour Ball</button>
+        <button class="rw-tab"        data-task="soccer_push"      onclick="rwSetTask(this)">Push Soccer Ball</button>
+        <button class="rw-tab"        data-task="lightbulb_screw"  onclick="rwSetTask(this)">Screw Lightbulb</button>
+        <button class="rw-tab"        data-task="credit_card_pick" onclick="rwSetTask(this)">Pick Credit Card</button>
+        <button class="rw-tab"        data-task="dishrack_place"   onclick="rwSetTask(this)">Place in Dishrack</button>
+        <button class="rw-tab"        data-task="cube_pinch"       onclick="rwSetTask(this)">Pinch Cube</button>
+        <button class="rw-tab"        data-task="bottle_grasp"     onclick="rwSetTask(this)">Grasp Bottle</button>
+        <button class="rw-tab"        data-task="cup_grasp"        onclick="rwSetTask(this)">Grasp Cup</button>
+    </div>
+
+    <div class="rollout-grid">
+        <div class="rollout-col">
+            <div class="rollout-col-title">Base (per task)</div>
+            <div id="rw-pi0-grid" class="rollout-vid-grid"></div>
+            <div id="rw-pi0-note" class="rollout-note base-note"></div>
+        </div>
+        <div class="rollout-col emerald-col">
+            <div class="rollout-col-title">SCORE <em>(ours)</em></div>
+            <div id="rw-csp-grid" class="rollout-vid-grid"></div>
+            <div id="rw-csp-note" class="rollout-note score-note"></div>
+        </div>
+    </div>
+
+    <div class="tr-task-panel">
+        <div class="tr-task-head">
+            <span class="tr-task-head-title">Per-task success rate</span>
+            <span class="tr-task-head-axis">% of successful trials</span>
+        </div>
+        <div id="task-results-single" class="tr-single"></div>
+    </div>
+
+</section>
+
+<!-- ════════════════ EXTRAS ════════════════ -->
+<section class="page-section fade-in" id="sec-extras">
+    <header class="sec-head">
+        <span class="sigma-rule"></span>
+        <h2 class="sec-title">Going Further</h2>
+        <p class="sec-lead">A few more things SCORE can do.</p>
+    </header>
+
+    <div class="ex-tabs">
+        <button class="ex-tab active" data-ex="continuous" onclick="exSetTab(this)">Continuous Grasp</button>
+        <button class="ex-tab"        data-ex="cleanex"    onclick="exSetTab(this)">Open Clorox Bottle</button>
+        <button class="ex-tab"        data-ex="bookshelf"  onclick="exSetTab(this)">Take Book Off Shelf</button>
+        <button class="ex-tab"        data-ex="multitask"  onclick="exSetTab(this)">Multi-Task</button>
+    </div>
+
+    <p id="ex-blurb" class="body-text"></p>
+
+    <div class="rollout-grid">
+        <div class="rollout-col">
+            <div class="rollout-col-title">Base</div>
+            <div id="ex-base-grid" class="ex-vid-col"></div>
+        </div>
+        <div class="rollout-col emerald-col">
+            <div class="rollout-col-title">SCORE <em>(ours)</em></div>
+            <div id="ex-score-grid" class="ex-vid-col"></div>
+        </div>
+    </div>
+
+    <div id="ex-bonus" class="ex-bonus"></div>
+</section>
+
+<!-- ════════════════ FAILURE COMPARISONS ════════════════ -->
+<section class="page-section fade-in" id="sec-failures">
+    <header class="sec-head">
+        <span class="sigma-rule"></span>
+        <h2 class="sec-title">Where Unconstrained Simulation Optimization Fails</h2>
+        <p class="sec-lead">Unconstrained RL discovers strategies that are unsafe or unreliable on hardware.</p>
+    </header>
+
+    <p class="body-text">
+        Unconstrained RL in simulation can achieve high reward in simulation while learning behavior that is erratic or dangerous on physical hardware. SCORE avoids these failure modes by keeping the steering policy within the support of the real-world behavior prior.
+    </p>
+
+    <h3 class="sub-head" style="margin-top:32px;">What unconstrained optimization learns in simulation</h3>
+    <p class="body-text">Optimizing freely with FPO, the policy maximizes reward in simulation through contorted, high-force strategies that exploit the simulator. These behaviors look effective in sim but do not transfer to hardware.</p>
+    <div class="fpo-sim-gallery">
+        <figure>
+            <video src="static/videos/sim_fpo/bottle_grasp.mp4?v=20260604b" autoplay loop muted playsinline></video>
+            <figcaption class="ex-chip">Grasp Bottle</figcaption>
+        </figure>
+        <figure>
+            <video src="static/videos/sim_fpo/dishrack_place.mp4?v=20260604b" autoplay loop muted playsinline></video>
+            <figcaption class="ex-chip">Screw Lightbulb</figcaption>
+        </figure>
+        <figure>
+            <video src="static/videos/sim_fpo/cup_pour.mp4?v=20260604b" autoplay loop muted playsinline></video>
+            <figcaption class="ex-chip">Pick Credit Card</figcaption>
+        </figure>
+        <figure>
+            <video src="static/videos/sim_fpo/soccer_push.mp4" autoplay loop muted playsinline></video>
+            <figcaption class="ex-chip">Push Soccer Ball</figcaption>
+        </figure>
+    </div>
+    <p class="cap" style="margin-top:10px; color:var(--ink-muted);">Note: the original lightbulb asset did not transfer well under the FPO policy, so the lightbulb example here uses a different asset.</p>
+
+    <h3 class="sub-head" style="margin-top:32px;">And how it behaves on hardware</h3>
+    <div class="fail-gallery">
+        <figure>
+            <video src="static/videos/real_world_rollouts/soccer_push/fpo/ep_000.mp4" autoplay loop muted playsinline></video>
+            <figcaption class="cap" style="margin-top:6px;">This behavior works well in simulation but doesn&rsquo;t transfer: the ball just barely catches the thumb, snapping it into the table and failing completely.</figcaption>
+        </figure>
+        <figure>
+            <video src="static/videos/real_world_rollouts/bottle_grasp/fpo/ep_000.mp4" autoplay loop muted playsinline></video>
+            <figcaption class="cap" style="margin-top:6px;">The policy applies excessive, unstable force while grasping the bottle. This strategy does not transfer reliably to hardware.</figcaption>
+        </figure>
+        <figure>
+            <video src="static/videos/extras/ep_001.mp4" autoplay loop muted playsinline></video>
+            <figcaption class="cap" style="margin-top:6px;">The policy rotates the bulb by friction against the palm, nearly toppling the light stand despite us taping it down. It achieves some success, but is far from the safest strategy.</figcaption>
+        </figure>
+        <figure>
+            <video src="static/videos/extras/ep_003.mp4" autoplay loop muted playsinline></video>
+            <figcaption class="cap" style="margin-top:6px;">While attempting to grasp the credit card, the policy applies a large force on the block, causing unexpected motion and complete failure in the real world.</figcaption>
+        </figure>
+        <figure>
+            <video src="static/videos/extras/ep_002.mp4" autoplay loop muted playsinline></video>
+            <figcaption class="cap" style="margin-top:6px;">All the accumulated stress on the fingers from these repeated, high-force grasps eventually takes its toll on the hand.</figcaption>
+        </figure>
+        <figure>
+            <img src="static/images/fpo_broken_finger.jpg" alt="FPO policy broke the robot finger" style="width:100%; border-radius:10px; display:block;">
+            <figcaption class="cap" style="margin-top:6px;"><strong>Unconstrained optimization can damage hardware.</strong> Repeated high-force, unstable grasps eventually broke one of our hand&rsquo;s fingers.</figcaption>
+        </figure>
+    </div>
+</section>
+
+<!-- ════════════════ DISTRIBUTIONAL CONSTRAINT TRADEOFF ════════════════ -->
+<section class="page-section fade-in" id="sec-tradeoff">
+    <header class="sec-head">
+        <span class="sigma-rule"></span>
+        <h2 class="sec-title">The Distributional Constraint Tradeoff</h2>
+        <p class="sec-lead">Distributional constraints introduce a tradeoff between improvement and transferability.</p>
+    </header>
+
+    <p class="body-text">
+        A natural way to keep simulation policies deployable is to regularize them toward the base policy with a behavior-cloning (BC) loss. But the strength of that constraint is a delicate knob: too little and the policy drifts into dangerous, non-transferable behavior; too much and it inherits the base policy&rsquo;s failures. No single setting recovers SCORE&rsquo;s performance.
+    </p>
+
+    <figure class="polaroid wide-polaroid" style="margin-top:28px;">
+        <a href="#" data-lb="static/figures/distributional_tradeoff.png">
+            <img src="static/figures/distributional_tradeoff.png" alt="Real and simulated success rate vs BC loss coefficient for RialTo policies">
+        </a>
+        <figcaption>
+            <strong>Distributional constraints introduce a tradeoff between improvement and transferability.</strong>
+            The left plot shows the simulated (circles) and real-world (diamonds) performance of RialTo policies trained with five levels of BC regularization during BC-PPO. A coefficient of <em>10</em> collapses in simulation, reaching 0% success, while <em>100</em> learns a dangerous strategy far from the base policy distribution (top film strip). At the other extreme, <em>100k</em> over-constrains learning and retains the base policy&rsquo;s suboptimal failure modes (bottom film strip). The middle ground of <em>10k</em> reaches 60% real-world success, above the base policy&rsquo;s 30% but far below SCORE&rsquo;s 100%.
+        </figcaption>
+    </figure>
+
+    <!-- ──────── Distributional constraints on hardware ──────── -->
+    <h3 class="sub-head" style="margin-top:36px;">On hardware</h3>
+    <p class="body-text">The same tension shows up on real tasks: distributionally-constrained policies can still settle on behaviors that are unsafe or unreliable once deployed.</p>
+    <div class="fail-gallery">
+        <figure>
+            <video src="static/videos/real_world_rollouts/soccer_push/rialto/ep_000.mp4" autoplay loop muted playsinline></video>
+            <figcaption class="cap" style="margin-top:6px;">A really dangerous motion. In sim the policy drags its fingers across the table, which is hazardous on the real robot.</figcaption>
+        </figure>
+        <figure>
+            <video src="static/videos/real_world_rollouts/bottle_grasp/rialto/ep_000.mp4" autoplay loop muted playsinline></video>
+            <figcaption class="cap" style="margin-top:6px;">The policy applies excessive, unstable force while grasping the bottle. This strategy does not transfer reliably to hardware.</figcaption>
+        </figure>
+        <figure>
+            <video src="static/videos/extras/ep_000.mp4" autoplay loop muted playsinline></video>
+            <figcaption class="cap" style="margin-top:6px;">The policy learns an unintuitive swooping motion to pick up the cube, ending in an unstable pinch grasp. These violent motions put a lot of stress on the hand.</figcaption>
+        </figure>
+        <figure>
+            <video src="static/videos/extras/ep_004.mp4" autoplay loop muted playsinline></video>
+            <figcaption class="cap" style="margin-top:6px;">Here the fingers all move laterally downward, pushing into the table. This dangerous behavior often leads to failures.</figcaption>
+        </figure>
+        <figure>
+            <video src="static/videos/extras/ep_005.mp4" autoplay loop muted playsinline></video>
+            <figcaption class="cap" style="margin-top:6px;">Sometimes the policy fully reward-hacks. The reward is for getting the centroid inside the bounding box of the pegs, and in sim it learns to push the bowl right onto the edge.</figcaption>
+        </figure>
+    </div>
+</section>
+
+<!-- ════════════════ LIMITATIONS & FUTURE DIRECTIONS ════════════════ -->
+<section class="page-section fade-in" id="sec-limitations">
+    <header class="sec-head">
+        <span class="sigma-rule"></span>
+        <h2 class="sec-title">Limitations &amp; Future Directions</h2>
+        <p class="sec-lead">SCORE inherits the limits of its prior, and that points the way forward.</p>
+    </header>
+
+    <p class="body-text">
+        What SCORE can reach is shaped by the coverage of its real-world prior. The experiments below make this concrete. One shows how far steering can push a prior toward a new goal; the other shows where it stalls when the prior is too narrow.
+    </p>
+
+    <!-- ── Carrot: steering to a new object ── -->
+    <h3 class="sub-head">Steering to a new object: bottle &rarr; carrot</h3>
+    <p class="body-text">
+        We reuse a frozen <strong>bottle-grasp</strong> base policy and steer it in simulation by replacing the bottle with a carrot, an object the base policy was never trained on. A carrot is much thinner than a bottle and demands a precise pinch, a behavior that appears only with very low probability under the bottle-grasp prior. Even so, steering surfaces this rare in-support behavior: compared against the same policy <em>steered to grasp a bottle</em>, the carrot-steered policy improves substantially, showing that behaviors already in the prior&rsquo;s support can be repurposed toward new goals.
+    </p>
+    <div class="distractor-compare">
+        <div class="dc-stage"><span>In simulation</span></div>
+        <div class="rollout-grid" style="margin:0;">
+            <div class="rollout-col">
+                <div class="rollout-col-title">SCORE <em>(steered to bottle)</em></div>
+                <video src="static/videos/future/carrot/sim_bottle/ep_000.mp4?v=20260604i" autoplay loop muted playsinline style="width:100%;border-radius:10px;display:block;background:#000;"></video>
+                <div class="rollout-note base-note"><span class="note-tag" style="color:var(--em);">Reference</span>The same base policy steered in simulation to grasp a bottle, then inferenced on a carrot, so it still reaches as if the carrot were a bottle.</div>
+            </div>
+            <div class="rollout-col emerald-col">
+                <div class="rollout-col-title">SCORE <em>(steered to carrot)</em></div>
+                <video src="static/videos/future/carrot/sim_carrot/ep_000.mp4?v=20260604i" autoplay loop muted playsinline style="width:100%;border-radius:10px;display:block;background:#000;"></video>
+                <div class="rollout-note score-note"><span class="note-tag">✓ SCORE behavior</span>Steered to a carrot instead, the policy surfaces the rare in-support pinch and improves substantially over the bottle-steered result.</div>
+            </div>
+        </div>
+
+        <div class="dc-stage" style="margin-top:26px;"><span>On hardware</span></div>
+        <div class="rollout-grid" style="margin:0;">
+            <div class="rollout-col">
+                <div class="rollout-col-title">SCORE <em>(steered to bottle)</em></div>
+                <video src="static/videos/future/carrot/bottle/ep_000.mp4?v=20260604i" autoplay loop muted playsinline style="width:100%;border-radius:10px;display:block;background:#000;"></video>
+                <div class="rollout-note base-note"><span class="note-tag" style="color:var(--em);">Reference</span>The same bottle-steered policy inferenced on a carrot, now on the real robot.</div>
+            </div>
+            <div class="rollout-col emerald-col">
+                <div class="rollout-col-title">SCORE <em>(steered to carrot)</em></div>
+                <video src="static/videos/future/carrot/carrot/ep_000.mp4?v=20260604i" autoplay loop muted playsinline style="width:100%;border-radius:10px;display:block;background:#000;"></video>
+                <div class="rollout-note score-note"><span class="note-tag">✓ SCORE behavior</span>On hardware, steering to a carrot reaches 67% real-world success, far above the bottle-steered result.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Distractor: where the representation runs thin ── -->
+    <h3 class="sub-head" style="margin-top:38px;">Where it falls short: the limits of the representation</h3>
+    <p class="body-text">
+        The same bottle-grasp policy was trained on real data <strong>without distractors</strong>. Steering it in simulation to handle an added distractor recovers a lot of performance: 56% real-world success, up from 0% for the base policy and 11% for SCORE without distractors. But the simulation success map below reveals the catch: the policy succeeds almost only when the bottle is on one side of the workspace (&asymp;41.5% overall), defaulting to the right. The base policy&rsquo;s coverage and representation are too thin to absorb distractors across the whole workspace, so steering inherits a spatial bias rather than true robustness.
+    </p>
+    <div class="distractor-compare">
+        <div class="dc-stage"><span>In simulation</span></div>
+        <div class="rollout-grid" style="margin:0;">
+            <div class="rollout-col">
+                <div class="rollout-col-title">Base <em>(with distractor)</em></div>
+                <video src="static/videos/future/distractor/sim_base/ep_000.mp4?v=20260604h" autoplay loop muted playsinline style="width:100%;border-radius:10px;display:block;background:#000;"></video>
+                <div class="rollout-note base-note"><span class="note-tag">✗ Out-of-distribution</span>The distractor pushes the base bottle-grasp policy out of distribution, and it fails to find the grasp.</div>
+            </div>
+            <div class="rollout-col emerald-col">
+                <div class="rollout-col-title">SCORE <em>(steered, with distractor)</em></div>
+                <video src="static/videos/future/distractor/sim_score/ep_000.mp4?v=20260604h" autoplay loop muted playsinline style="width:100%;border-radius:10px;display:block;background:#000;"></video>
+                <div class="rollout-note score-note"><span class="note-tag">~ Partial</span>Steering in simulation teaches the policy to grasp around the distractor, recovering 41.5% success, but mostly when the bottle is on the right side of the workspace.</div>
+            </div>
+        </div>
+
+        <div class="dc-stage" style="margin-top:26px;"><span>On hardware</span></div>
+        <div class="rollout-grid" style="margin:0;">
+            <div class="rollout-col">
+                <div class="rollout-col-title">Base <em>(with distractor)</em></div>
+                <video src="static/videos/future/distractor/hw_base/ep_000.mp4?v=20260604i" autoplay loop muted playsinline style="width:100%;border-radius:10px;display:block;background:#000;"></video>
+                <div class="rollout-note base-note"><span class="note-tag">✗ Base policy</span>On the real robot, the base bottle-grasp policy collapses when a distractor is introduced.</div>
+            </div>
+            <div class="rollout-col emerald-col">
+                <div class="rollout-col-title">SCORE <em>(steered, with distractor)</em></div>
+                <video src="static/videos/future/distractor/hw_score/ep_000.mp4?v=20260604i" autoplay loop muted playsinline style="width:100%;border-radius:10px;display:block;background:#000;"></video>
+                <div class="rollout-note score-note"><span class="note-tag">✓ SCORE behavior</span>That same steering carries over to hardware, recovering a working grasp on the real robot (56% success).</div>
+            </div>
+        </div>
+    </div>
+
+    <figure class="polaroid wide-polaroid" style="margin-top:30px;">
+        <a href="#" data-lb="static/figures/distractor_carrot.png">
+            <img src="static/figures/distractor_carrot.png" alt="Quantitative results for carrot steering and distractor steering">
+        </a>
+        <figcaption>
+            <strong>Quantitative results.</strong>
+            <em>Left:</em> steering a bottle-grasp base policy to a carrot reaches 67% real-world success, far above steering it to a bottle (22%), while a cup base cannot be steered to the carrot at all (0%).
+            <em>Right:</em> with a distractor, steering lifts real-world success to 56% (from 0% base and 11% SCORE without distractors), but the simulation success map shows it succeeds mainly when the bottle is on one side of the workspace (&asymp;41.5%), a spatial bias rather than full robustness.
+        </figcaption>
+    </figure>
+
+    <div class="key-insight" style="margin-top:30px;">
+        <span class="ki-label">The takeaway</span>
+        <p>Both experiments point to the same lever: the behavior prior. Stronger representations, broader coverage, and robustness to conditions like distractors would directly expand what steering can achieve.</p>
+    </div>
+
+    <!-- ── Open directions beyond the prior ── -->
+    <h3 class="sub-head" style="margin-top:38px;">Beyond the prior</h3>
+    <p class="body-text">Improving the prior is the lever these experiments expose. Beyond it, what the simulator can reliably capture and how SCORE scales remain open directions.</p>
+    <div class="lim-list lim-row3">
+        <div class="lim-item">
+            <div class="lim-label">Simulating the Right Physics</div>
+            <p>SCORE is limited to behaviors the simulator can model faithfully. Rigid-body contact and randomized dynamics transfer well, but phenomena like deformables, cloth, and fluids remain hard to simulate accurately, which restricts the tasks SCORE can currently improve.</p>
+        </div>
+        <div class="lim-item">
+            <div class="lim-label">Observations</div>
+            <p>Because the simulator cannot render diverse, photorealistic environments at scale, we operate on point clouds and proprioception rather than RGB images. This sidesteps much of the visual sim-to-real gap, but point clouds strip away the semantic meaning that RGB carries.</p>
+        </div>
+        <div class="lim-item">
+            <div class="lim-label">Scaling to Broader Priors</div>
+            <p>SCORE typically trains a separate steering policy per task, though our multi-task result shows a single steering policy can already steer a prior across a few tasks at once. Scaling this to a much broader, more diverse prior, with one policy steering across many tasks and distributions, remains an open direction for future work.</p>
+        </div>
+    </div>
+</section>
+
+
+</main><!-- /.paper -->
+
+
+<!-- ════════════════ FULL VIDEO LIGHTBOX ════════════════ -->
+<div id="video-lb" onclick="if(event.target===this)closeVideoLb()">
+    <div style="position:relative; width:min(90vw,1100px); max-height:90vh;">
+        <video id="hero-full-video" controls playsinline style="
+            width:100%; border-radius:12px; background:#000;
+            box-shadow:0 30px 80px rgba(0,0,0,0.6);
+            display:block;
+        ">
+            <source src="static/videos/SCOREv6.mp4" type="video/mp4">
+        </video>
+        <button onclick="closeVideoLb()" style="
+            position:absolute; top:-14px; right:-14px;
+            width:32px; height:32px; border-radius:50%;
+            background:rgba(255,255,255,0.18); border:1.5px solid rgba(255,255,255,0.3);
+            color:#fff; font-size:14px; cursor:pointer; line-height:1;
+            display:flex; align-items:center; justify-content:center;
+            backdrop-filter:blur(8px);
+        ">✕</button>
+    </div>
+</div>
+
+<!-- ════════════════ CHART LIGHTBOX ════════════════ -->
+<div id="chart-lb" onclick="if(event.target===this)closeChartLb()">
+    <div class="chart-lb-inner">
+        <button class="chart-lb-close" onclick="closeChartLb()">&#x2715;</button>
+        <div id="chart-lb-content"></div>
+    </div>
+</div>
+
+<!-- ════════════════ IMAGE / VIDEO LIGHTBOX ════════════════ -->
+<div class="lb" id="lb">
+    <button class="lb-x" id="lb-x">✕</button>
+    <img id="lb-img" src="" alt="">
+    <video id="lb-vid" autoplay loop muted playsinline></video>
+</div>
+
+
+<!-- ════════════════ SCRIPTS ════════════════ -->
+<script src="static/js/sweep.js"></script>
+<script src="static/js/rollout.js?v=20260604b"></script>
+<script src="static/js/extras.js?v=20260604i"></script>
+<script src="static/js/methods_sim.js?v=20260610g"></script>
+<script src="static/js/qualitative.js"></script>
+<script src="static/js/barcharts.js"></script>
+<script src="static/js/task-results.js?v=20260528q"></script>
+<script src="static/js/main.js"></script>
+</body>
+</html>

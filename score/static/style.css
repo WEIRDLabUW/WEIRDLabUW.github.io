@@ -1523,9 +1523,9 @@
         /* BIBTEX */
         .bibtex-wrap { position: relative; }
         .bibtex-box {
-            background: var(--ink);
-            color: #ede8d9;
-            border: 1px solid var(--rule);
+            background: linear-gradient(170deg, var(--em-deep) 0%, #1d2a3f 100%);
+            color: #e3ece6;
+            border: 1px solid rgba(158, 177, 202, 0.18);
             border-radius: 16px;
             padding: 22px 26px;
             font-family: 'JetBrains Mono', monospace;

@@ -15,7 +15,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
 
-    <link rel="stylesheet" href="static/style.css?v=20260604h">
+    <link rel="stylesheet" href="static/style.css?v=20260610i">
 </head>
 <body>
 
@@ -575,7 +575,29 @@
 </section>
 
 
+<!-- ════════════════ BIBTEX ════════════════ -->
+<section class="page-section fade-in" id="sec-bibtex">
+    <header class="sec-head">
+        <span class="sigma-rule"></span>
+        <h2 class="sec-title">BibTeX</h2>
+    </header>
+    <!-- TODO: finalize citation (venue / eprint) once published -->
+    <div class="bibtex-wrap">
+        <button class="bibtex-copy" id="bibtex-copy" type="button">Copy</button>
+        <pre class="bibtex-box" id="bibtex-text">@misc{yu2026score,
+    title  = {SCORE: Support-Constrained RL Enables Real-World Policy Improvement without Real-World Experience},
+    author = {Yu, Raymond and Huey, Will and Mukadam, Mustafa and Nagabandi, Anusha and Gupta, Abhishek},
+    year   = {2026}
+}</pre>
+    </div>
+</section>
+
 </main><!-- /.paper -->
+
+<!-- ════════════════ FOOTER ════════════════ -->
+<footer>
+    Website template adapted from <a href="https://weirdlabuw.github.io/tmrl/" target="_blank">TMRL</a>.
+</footer>
 
 
 <!-- ════════════════ FULL VIDEO LIGHTBOX ════════════════ -->
@@ -624,5 +646,31 @@
 <script src="static/js/barcharts.js"></script>
 <script src="static/js/task-results.js?v=20260528q"></script>
 <script src="static/js/main.js"></script>
+<script>
+// BibTeX copy
+(function(){
+    var btn = document.getElementById('bibtex-copy');
+    var pre = document.getElementById('bibtex-text');
+    if(!btn || !pre) return;
+    btn.addEventListener('click', function(){
+        var txt = pre.textContent || pre.innerText;
+        var done = function(){
+            btn.classList.add('copied');
+            btn.textContent = 'Copied ✓';
+            setTimeout(function(){ btn.classList.remove('copied'); btn.textContent = 'Copy'; }, 1600);
+        };
+        function fallback(){
+            var ta = document.createElement('textarea');
+            ta.value = txt; ta.style.position='fixed'; ta.style.left='-9999px';
+            document.body.appendChild(ta); ta.select();
+            try { document.execCommand('copy'); done(); } catch(e){}
+            document.body.removeChild(ta);
+        }
+        if(navigator.clipboard && navigator.clipboard.writeText){
+            navigator.clipboard.writeText(txt).then(done).catch(fallback);
+        } else { fallback(); }
+    });
+}());
+</script>
 </body>
 </html>

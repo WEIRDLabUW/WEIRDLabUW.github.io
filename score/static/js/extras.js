@@ -2,7 +2,7 @@
     var _ex = 'continuous';
 
     // bump when extras video files are replaced, to bust browser cache
-    var CACHE_BUST = '20260604f';
+    var CACHE_BUST = '20260610i';
 
     var V = 'static/videos/';
 

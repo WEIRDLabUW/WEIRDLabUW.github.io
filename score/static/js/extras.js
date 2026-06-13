@@ -84,7 +84,79 @@
         host.appendChild(txt);
     }
 
+    // ── bespoke multi-task panel ──────────────────────────────────────
+    function mkVid(src){
+        var v = document.createElement('video');
+        v.src = V + src + '?v=' + CACHE_BUST;
+        v.autoplay = true; v.loop = true; v.muted = true;
+        v.setAttribute('playsinline',''); v.setAttribute('data-no-defer','');
+        v.style.aspectRatio = '4 / 3';
+        return v;
+    }
+    // one object unit: SCORE clip (main) beside the base-confused clip (reference)
+    function mkObj(name, scoreSrc, scoreTag, baseSrc, baseTag){
+        var o = document.createElement('div'); o.className = 'mt-obj';
+        o.innerHTML = '<div class="mt-obj-name">' + name + '</div>';
+        var pair = document.createElement('div'); pair.className = 'mt-pair';
+        var sc = document.createElement('figure'); sc.className = 'mt-card score';
+        sc.appendChild(mkVid(scoreSrc));
+        sc.insertAdjacentHTML('beforeend', '<figcaption><span class="mt-ok">✓ SCORE</span>' + scoreTag + '</figcaption>');
+        var ba = document.createElement('figure'); ba.className = 'mt-card base';
+        ba.appendChild(mkVid(baseSrc));
+        ba.insertAdjacentHTML('beforeend', '<figcaption><span class="mt-bad">✗ base</span>' + baseTag + '</figcaption>');
+        pair.appendChild(sc); pair.appendChild(ba);
+        o.appendChild(pair);
+        return o;
+    }
+    function renderMultitask(){
+        var host = document.getElementById('ex-multitask');
+        host.innerHTML =
+            '<p class="mt-lede">A <strong>single steered policy</strong> trained on three tasks &mdash; credit card, cube, and bottle. ' +
+            'It applies the right grasp to each object, and even <strong>reuses behaviors across tasks</strong>.</p>';
+
+        // ── borrowing hero ──
+        var hero = document.createElement('div'); hero.className = 'mt-hero';
+        hero.innerHTML = '<div class="mt-hero-head">Same cube, two borrowed behaviors</div>';
+        var clips = document.createElement('div'); clips.className = 'mt-hero-clips';
+        [['extras/multitask/score_cube.mp4', 'borrows its <b>credit-card pinch</b>', ''],
+         ['extras/multitask/score_cube_bottle.mp4', 'borrows its <b>bottle grasp</b>', 'cube placed beyond training randomization']
+        ].forEach(function(c){
+            var fig = document.createElement('figure'); fig.className = 'mt-card hero';
+            fig.appendChild(mkVid(c[0]));
+            fig.insertAdjacentHTML('beforeend',
+                '<figcaption><span class="mt-borrow">&#8627; ' + c[1] + '</span>' +
+                (c[2] ? '<span class="mt-sub">' + c[2] + '</span>' : '') + '</figcaption>');
+            clips.appendChild(fig);
+        });
+        hero.appendChild(clips);
+        hero.insertAdjacentHTML('beforeend',
+            '<p class="mt-hero-cap">The same cube is grasped two different ways depending on where it sits &mdash; ' +
+            'each behavior already lives inside the policy&rsquo;s support.</p>');
+        host.appendChild(hero);
+
+        // ── native tasks, with base reference ──
+        var nat = document.createElement('div'); nat.className = 'mt-native';
+        nat.innerHTML = '<div class="mt-native-head">One policy picks the right mode &mdash; the base policy confuses them</div>';
+        var objs = document.createElement('div'); objs.className = 'mt-objs';
+        objs.appendChild(mkObj('Credit Card',
+            'extras/multitask/score_credit.mp4', 'precise pinch',
+            'extras/multitask/base_credit.mp4', 'reaches with the bottle grasp'));
+        objs.appendChild(mkObj('Bottle',
+            'extras/multitask/score_bottle.mp4', 'stable grasp',
+            'extras/multitask/base_bottle.mp4', 'pinches as if it were the card'));
+        nat.appendChild(objs);
+        host.appendChild(nat);
+    }
+
     function render(){
+        var std = document.getElementById('ex-standard');
+        var mt  = document.getElementById('ex-multitask');
+        if (_ex === 'multitask'){
+            std.style.display = 'none'; mt.style.display = '';
+            renderMultitask();
+            return;
+        }
+        std.style.display = ''; mt.style.display = 'none'; mt.innerHTML = '';
         var bg = document.getElementById('ex-base-grid');
         var sg = document.getElementById('ex-score-grid');
         var blurb = document.getElementById('ex-blurb');

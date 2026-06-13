@@ -95,16 +95,19 @@ document.addEventListener('DOMContentLoaded',function(){
         vids.forEach(function(v){ v.preload='auto'; v.load(); if(v.dataset.autoplay) v.play().catch(function(){}); });
         return;
     }
+    // Play a video only while it's in view; pause it when scrolled away, so
+    // nothing plays until you actually see it (and offscreen clips stay quiet).
     var io = new IntersectionObserver(function(entries){
         entries.forEach(function(e){
-            if(!e.isIntersecting) return;
             var v = e.target;
-            v.preload = 'auto';
-            try { v.load(); } catch(_){}
-            if(v.dataset.autoplay) v.play().catch(function(){});
-            io.unobserve(v);
+            if(e.isIntersecting){
+                if(v.preload !== 'auto'){ v.preload = 'auto'; try { v.load(); } catch(_){} }
+                if(v.dataset.autoplay) v.play().catch(function(){});
+            } else if(v.dataset.autoplay && !v.paused){
+                v.pause();
+            }
         });
-    }, { rootMargin: '600px 0px' });
+    }, { rootMargin: '120px 0px', threshold: 0.01 });
     vids.forEach(function(v){ io.observe(v); });
 })();
 

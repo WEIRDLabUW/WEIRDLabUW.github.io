@@ -235,7 +235,7 @@
     </header>
 
     <p class="body-text">
-        Optimizing freely with unconstrained RL, the policy maximizes reward by <strong>exploiting the simulator</strong>: contorted, high-force grasps that score well in sim but are erratic or dangerous on the real robot. Each pair below is the <em>same policy</em>: what it learned in simulation, and what that does on hardware.
+        Optimizing freely with unconstrained RL, the policy maximizes reward by <strong>exploiting the simulator</strong>: contorted, high-force grasps that score well in sim but are erratic or dangerous on the real robot. Each pair below takes one <em>unconstrained-RL policy</em> and shows its high-reward behavior in simulation next to what that same behavior does on hardware.
     </p>
 
     <div class="ur-pairs">
@@ -376,7 +376,7 @@
     <!-- ── Carrot: steering to a new object ── -->
     <h3 class="sub-head" style="margin-top:42px;">Steering to a new object: bottle &rarr; carrot</h3>
     <p class="body-text">
-        We take a frozen <strong>bottle-grasp</strong> policy and steer it in simulation onto a <strong>carrot</strong>, an object it never trained on. A carrot is much thinner and demands a precise pinch, a behavior that appears only rarely under the bottle prior. Steering still surfaces it: on hardware the carrot-steered policy reaches <strong>67%</strong>, far above the same policy steered to a bottle (22%).
+        We take a frozen <strong>bottle-grasp</strong> policy and steer it in simulation onto a <strong>carrot</strong>, an object it never trained on. A carrot is much thinner and demands a precise pinch, a behavior that appears only rarely under the bottle prior. Steering still finds it: on hardware the carrot-steered policy reaches <strong>67%</strong>, far above the same policy steered to a bottle (22%).
     </p>
     <div class="rollout-grid" style="margin-top:16px;">
         <div class="rollout-col">
@@ -394,7 +394,7 @@
     <!-- ── Distractor: where it runs thin ── -->
     <h3 class="sub-head" style="margin-top:42px;">Where it runs thin</h3>
     <p class="body-text">
-        The same bottle policy was trained <strong>without distractors</strong>. Steering it to handle one recovers a working grasp on hardware (<strong>56%</strong>, up from 0% base), but it succeeds mainly when the bottle sits on one side of the workspace: the prior&rsquo;s coverage is too thin to absorb distractors everywhere, so steering inherits a spatial bias rather than true robustness.
+        The same bottle policy was trained <strong>without distractors</strong>. Steering it to handle one recovers a working grasp on hardware (<strong>56%</strong>, up from 0% base), but it succeeds mainly when the bottle sits on one side of the workspace: steering an out-of-distribution policy to succeed everywhere in simulation is much harder.
     </p>
     <div class="rollout-grid" style="margin-top:16px;">
         <div class="rollout-col">

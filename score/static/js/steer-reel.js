@@ -23,7 +23,12 @@
 
     var RWB = 'static/videos/real_world_rollouts/';
     var STB = 'static/videos/sim_timelapse/';
+    var PSB = 'static/videos/posters/';
     var RATE_REAL = 1.4, RATE_SIM = 1.6;     // play fully, just brisk
+    // iOS Safari caps how many videos it will decode at once and paints the
+    // rest (and any never-played video) black. On touch we lean on poster
+    // frames and drop the decorative backdrop so the main clip always plays.
+    var COARSE = !!(window.matchMedia && window.matchMedia('(hover: none), (pointer: coarse)').matches);
 
     // ── per-task config ──
     //  n=#sim steps; depEp=which deploy episode; nBase/nScore=#real episodes;
@@ -262,21 +267,33 @@
         var cell = document.createElement('button');
         cell.className = 'reel-pick' + (i===taskIdx?' active':'');
         cell.dataset.i = i;
-        var v = document.createElement('video');
-        v.src = RWB + t.real + '/score/' + ep(t.depEp||0);
-        v.muted=true; v.loop=true; v.playsInline=true; v.setAttribute('preload','auto'); v.setAttribute('data-no-defer','');
-        v.addEventListener('loadeddata', function(){ this.playbackRate = 1.4; try{ this.pause(); this.currentTime = 0.1; }catch(_){} });
+        // the always-visible thumbnail is a plain <img> — zero video decoders,
+        // so iOS never runs out and paints the picker (or the main stage) black.
+        var img = document.createElement('img');
+        img.className = 'reel-pick-img'; img.src = PSB + t.real + '.jpg';
+        img.alt = t.label; img.loading = 'lazy'; img.decoding = 'async';
+        cell.appendChild(img);
+        // only hover-capable devices get a clip layered on top (plays on hover)
+        if (!COARSE){
+            var v = document.createElement('video');
+            v.className = 'reel-pick-vid';
+            v.src = RWB + t.real + '/score/' + ep(t.depEp||0);
+            v.muted=true; v.loop=true; v.playsInline=true;
+            v.setAttribute('preload','none'); v.setAttribute('data-no-defer','');
+            v.addEventListener('loadeddata', function(){ this.playbackRate = 1.4; });
+            cell.appendChild(v);
+            cell.addEventListener('mouseenter', function(){ if(!cell.classList.contains('active')) v.play && v.play().catch(function(){}); });
+            cell.addEventListener('mouseleave', function(){ try{ v.pause(); v.currentTime = 0; }catch(_){} });
+        }
         var lbl = document.createElement('span'); lbl.className='reel-pick-lbl'; lbl.textContent = t.label;
-        cell.appendChild(v); cell.appendChild(lbl);
-        cell.addEventListener('mouseenter', function(){ if(!cell.classList.contains('active')) v.play && v.play().catch(function(){}); });
-        cell.addEventListener('mouseleave', function(){ try{ v.pause(); }catch(_){} });
+        cell.appendChild(lbl);
         cell.addEventListener('click', function(){ selectTask(i); });
         tabsEl.appendChild(cell);
     });
     function syncPicks(i){
         Array.prototype.forEach.call(tabsEl.children, function(b,bi){
             var on = (bi===i); b.classList.toggle('active', on);
-            var vv = b.querySelector('video'); if (vv){ try{ vv.pause(); }catch(_){} }
+            var vv = b.querySelector('video'); if (vv){ try{ vv.pause(); vv.currentTime = 0; }catch(_){} }
         });
     }
     syncPicks(taskIdx);
@@ -371,19 +388,19 @@
         var c = seq[i];
         video.src = c.src;
         video.load();
-        // mirror into the blurred backdrop (only visible on mech-off tasks)
-        if (videoBg.getAttribute('src') !== c.src){ videoBg.src = c.src; videoBg.load(); }
+        // mirror into the blurred backdrop (skip on touch to free a decoder)
+        if (!COARSE && videoBg.getAttribute('src') !== c.src){ videoBg.src = c.src; videoBg.load(); }
         video.onloadedmetadata = function(){
             video.playbackRate = c.kind==='sim' ? RATE_SIM : RATE_REAL;
             if (typeof seekFrac === 'number' && video.duration && isFinite(video.duration)){
                 video.currentTime = clamp(seekFrac,0,0.999) * video.duration;
             }
-            if (autoplay && playing && !scrubbing) video.play().catch(function(){});
+            if (playing && !scrubbing) startVideo();
             render();
         };
         videoBg.onloadedmetadata = function(){
             videoBg.playbackRate = c.kind==='sim' ? RATE_SIM : RATE_REAL;
-            if (playing) videoBg.play().catch(function(){});
+            if (playing && !COARSE) videoBg.play().catch(function(){});
         };
     }
     video.addEventListener('ended', function(){
@@ -482,10 +499,25 @@
         render();
         raf = requestAnimationFrame(loop);
     }
-    function play(){ if(playing) return; playing=true; lastTs=0; setIcon(); video.play().catch(function(){}); videoBg.play().catch(function(){}); raf=requestAnimationFrame(loop); }
+    // Real iOS hardware drops a play() issued before the clip has data, and
+    // never retries — so always retry once the element is actually ready.
+    function startVideo(){
+        if (!playing) return;
+        var p = video.play();
+        if (p && p.catch) p.catch(function(){
+            video.addEventListener('canplay', function once(){
+                video.removeEventListener('canplay', once);
+                if (playing && !scrubbing) video.play().catch(function(){});
+            }, { once:true });
+        });
+    }
+    function play(){ if(playing) return; playing=true; lastTs=0; setIcon(); startVideo(); if(!COARSE) videoBg.play().catch(function(){}); raf=requestAnimationFrame(loop); }
     function pause(){ playing=false; if(raf) cancelAnimationFrame(raf); raf=null; video.pause(); videoBg.pause(); setIcon(); }
     function setIcon(){ playBtn.innerHTML = playing ? '<i class="fa-solid fa-pause"></i>' : '<i class="fa-solid fa-play"></i>'; }
     playBtn.addEventListener('click', function(){ playing?pause():play(); });
+    // a real tap is a user gesture, which iOS always honors — if autoplay was
+    // refused (offscreen/decoder race) the first touch on the stage recovers it.
+    stage.addEventListener('pointerdown', function(){ if(playing) startVideo(); });
 
     // ── scrub: smooth seek across the whole sequence (clip + within-clip) ──
     var scrubbing = false;
@@ -528,7 +560,10 @@
     // ── boot: start when scrolled into view ───────────────────────────
     seq = buildSeq(task()); buildTicks(); buildBars(msBars, task().real); loadClip(0, false); render();
     if ('IntersectionObserver' in window){
-        var io=new IntersectionObserver(function(en){ en.forEach(function(x){ x.isIntersecting?play():pause(); }); }, { threshold:0.25 });
-        io.observe(root);
+        // observe the STAGE, not the whole (very tall) reel: iOS hardware
+        // refuses to start an offscreen video, so play() must fire when the
+        // video itself is on screen, and pause when it scrolls away.
+        var io=new IntersectionObserver(function(en){ en.forEach(function(x){ x.isIntersecting?play():pause(); }); }, { threshold:0.12 });
+        io.observe(stage);
     } else { play(); }
 })();

@@ -240,6 +240,32 @@
     var msTilesBase  = document.getElementById('ms-tiles-base');
     var msTilesScore = document.getElementById('ms-tiles-score');
 
+    // ── freeze-frame bridge ───────────────────────────────────────────
+    // Swapping video.src blanks the element to the stage's black backdrop
+    // until the next clip decodes a frame — a flash that's most jarring on
+    // the seamless sim→sim training steps. We hold the outgoing frame on a
+    // canvas and crossfade it out only once the new clip actually has a frame.
+    var freeze = document.createElement('canvas');
+    freeze.id = 'reel-freeze';
+    freeze.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;' +
+        'object-fit:contain;z-index:2;pointer-events:none;opacity:0;';
+    stage.insertBefore(freeze, domChip);
+    var freezeCtx = freeze.getContext('2d');
+    function showFreeze(){
+        var vw = video.videoWidth, vh = video.videoHeight;
+        if (!vw || !vh) return false;
+        freeze.width = vw; freeze.height = vh;
+        try { freezeCtx.drawImage(video, 0, 0, vw, vh); } catch(_){ return false; }
+        freeze.style.transition = 'none';
+        freeze.style.opacity = '1';
+        void freeze.offsetWidth;            // commit the held frame before fading
+        return true;
+    }
+    function hideFreeze(){
+        freeze.style.transition = 'opacity 0.32s ease';
+        freeze.style.opacity = '0';
+    }
+
     // ── state ─────────────────────────────────────────────────────────
     var taskIdx = 0;            // start on credit card
     var seq = [], idx = 0, playing = false, raf = null, clock = 0, lastTs = 0;
@@ -383,13 +409,22 @@
 
     // ── clip loading / advance ────────────────────────────────────────
     // seekFrac (optional): jump to this fraction of the clip once metadata loads
-    function loadClip(i, autoplay, seekFrac){
+    function loadClip(i, autoplay, seekFrac, smooth){
+        // capture the outgoing frame first, so the src swap never shows black
+        var bridged = smooth && video.readyState >= 2 && showFreeze();
         idx = i;
         var c = seq[i];
         video.src = c.src;
         video.load();
         // mirror into the blurred backdrop (skip on touch to free a decoder)
         if (!COARSE && videoBg.getAttribute('src') !== c.src){ videoBg.src = c.src; videoBg.load(); }
+        if (bridged){
+            var safety = setTimeout(hideFreeze, 1200);   // never strand the freeze
+            video.addEventListener('loadeddata', function onready(){
+                clearTimeout(safety);
+                requestAnimationFrame(hideFreeze);        // one paint, then crossfade
+            }, { once:true });
+        }
         video.onloadedmetadata = function(){
             video.playbackRate = c.kind==='sim' ? RATE_SIM : RATE_REAL;
             if (typeof seekFrac === 'number' && video.duration && isFinite(video.duration)){
@@ -405,7 +440,7 @@
     }
     video.addEventListener('ended', function(){
         var next = idx+1; if (next>=len()) next=0;
-        loadClip(next, true);
+        loadClip(next, true, undefined, true);   // smooth = freeze-frame bridge
     });
 
     function selectTask(i){

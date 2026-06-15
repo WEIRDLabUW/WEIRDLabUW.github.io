@@ -1182,6 +1182,18 @@
             /* the success reveal is absolutely positioned over the mechanism, so
                the panel must be tall enough to hold the bars + two rows of clips */
             .reel-mech { min-height: 430px; }
+            /* mobile progressive disclosure: stacked, so the mechanism reveals by
+               growing in below the video when sim training begins (no side resize). */
+            .reel:not(.mech-off) .reel-mech {
+                max-height: 900px; overflow: hidden;
+                transition: max-height 0.6s ease, opacity 0.5s ease,
+                            margin 0.5s ease, padding 0.5s ease;
+            }
+            .reel.pre-steer .reel-body { gap: 0; }
+            .reel.pre-steer .reel-mech {
+                max-height: 0; min-height: 0; opacity: 0; margin: 0;
+                padding-top: 0; padding-bottom: 0; pointer-events: none;
+            }
         }
 
         @media (max-width: 560px) {
@@ -1192,8 +1204,15 @@
                 gap: 4px 12px; padding-right: 0; border-right: 0; }
             .rb-stat { font-size: 0.9rem; }
             .rb-stat b { font-size: 1.05rem; }
-            /* picker stays a scannable wall but with bigger tap targets */
-            .reel-tabs { align-self: stretch; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+            /* touch: a swipeable filmstrip — one short scrolling row, tap to pick.
+               a partial thumbnail at the edge hints there's more to swipe. */
+            .reel-tabs {
+                align-self: stretch; display: flex; flex-wrap: nowrap; gap: 7px;
+                overflow-x: auto; overflow-y: hidden; -webkit-overflow-scrolling: touch;
+                scroll-snap-type: x proximity; padding-bottom: 2px; scrollbar-width: none;
+            }
+            .reel-tabs::-webkit-scrollbar { display: none; }
+            .reel-pick { flex: 0 0 86px; scroll-snap-align: start; }
             .reel-pick-lbl { font-size: 0.46rem; padding: 10px 3px 3px; }
             .reel-mech { padding: 12px 12px; min-height: 460px; }
             .reel-showcase { padding: 12px; }

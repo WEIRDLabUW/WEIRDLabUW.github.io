@@ -484,6 +484,9 @@
         domChip.classList.toggle('sim', !real); domChip.classList.toggle('real', real);
 
         root.classList.toggle('sim-active', a===2);
+        // hold the mechanism back until steering begins: only the base-policy video
+        // shows during act 1, then the mechanism slides in from the right at sim.
+        root.classList.toggle('pre-steer', taskIdx===0 && a===1);
 
         // readouts
         var rew = a===1 ? 0.10 : (a===3 ? 1.0 : 0.10 + conv*0.85);
@@ -493,7 +496,7 @@
         actTag.innerHTML = a===1 ? '&pi;<sub>base</sub> action' : '&pi;<sub>steer</sub> ∘ &pi;<sub>base</sub>';
         // narrated phase caption (replaces the old method paragraph)
         var cap;
-        if (a===1)            cap = '<b>Base policy</b> from real demonstrations: a frozen generative prior whose support we must respect.';
+        if (a===1)            cap = '<b>Base policy</b> from real demonstrations: a frozen generative prior that bounds where steering can go.';
         else if (a===3)       cap = '<b>Deployed</b> on the real robot, unchanged. No distillation, no sim-to-real fine-tuning.';
         else if (conv < 0.45) cap = '<b>Massively parallel simulation</b> with domain randomization over object pose, scale, mass &amp; force perturbations.';
         else if (conv < 0.80) cap = '<b>Support-constrained RL</b> steers the latent, guided by a privileged critic toward sparse task reward.';
@@ -593,6 +596,9 @@
     });
 
     // ── boot: start when scrolled into view ───────────────────────────
+    // the task wall starts as a calm, dimmed strip (hover to reopen) so the hero
+    // clip and its caption are the single focal point from the first paint.
+    root.classList.add('engaged');
     seq = buildSeq(task()); buildTicks(); buildBars(msBars, task().real); loadClip(0, false); render();
     if ('IntersectionObserver' in window){
         // observe the STAGE, not the whole (very tall) reel: iOS hardware

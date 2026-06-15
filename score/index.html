@@ -44,7 +44,7 @@
     <p class="hero-subtitle">Support-Constrained RL Enables Real-World Policy Improvement without Real-World Experience</p>
     <div class="hero-authors">
         Raymond Yu<sup>*&thinsp;1</sup>&nbsp;&nbsp;&nbsp;
-        Will Huey<sup>*&thinsp;1</sup>&nbsp;&nbsp;&nbsp;
+        William Huey<sup>*&thinsp;1</sup>&nbsp;&nbsp;&nbsp;
         Mustafa Mukadam<sup>1</sup>&nbsp;&nbsp;&nbsp;
         Anusha Nagabandi<sup>2</sup>&nbsp;&nbsp;&nbsp;
         Abhishek Gupta<sup>1</sup>
@@ -90,14 +90,16 @@
         <p class="sec-lead">Steer through the support, don&rsquo;t escape it.</p>
     </header>
 
-    <figure class="reel" id="method-reel">
-        <div class="reel-banner">
-            <span class="rb-stat"><b>89.9%</b> average success</span>
-            <span class="rb-sep"></span>
-            <span class="rb-stat"><b>2.4&times;</b> over the base policy</span>
-            <span class="rb-sub">across 8 real-world multi-fingered tasks &middot; pick one to explore</span>
+    <figure class="reel pre-steer" id="method-reel">
+        <div class="reel-top">
+            <div class="reel-banner">
+                <span class="rb-stat"><b>89.9%</b> average success</span>
+                <span class="rb-sep"></span>
+                <span class="rb-stat"><b>2.4&times;</b> over the base policy</span>
+                <span class="rb-sub">across 8 real-world multi-fingered tasks &middot; pick one to explore</span>
+            </div>
+            <div class="reel-tabs" id="reel-tabs"><!-- task thumbnails injected --></div>
         </div>
-        <div class="reel-tabs" id="reel-tabs"><!-- task thumbnails injected --></div>
 
         <div class="reel-body">
             <div class="reel-stage is-real" id="reel-stage">
@@ -230,7 +232,7 @@
 <section class="page-section fade-in" id="sec-failures">
     <header class="sec-head">
         <span class="sigma-rule"></span>
-        <h2 class="sec-title">When You Optimize Freely in Simulation</h2>
+        <h2 class="sec-title">Why You Shouldn&rsquo;t Optimize Freely in Simulation</h2>
         <p class="sec-lead">It looks great in sim, then breaks on hardware.</p>
     </header>
 
@@ -411,7 +413,7 @@
 
     <div class="key-insight" style="margin-top:30px;">
         <span class="ki-label">The lever</span>
-        <p>Everything here traces back to the behavior prior. A broader, richer prior directly widens how far steering can reach.</p>
+        <p>It all comes down to the behavior prior. The broader the prior, the further steering can push.</p>
     </div>
 </section>
 
@@ -427,7 +429,7 @@
         <button class="bibtex-copy" id="bibtex-copy" type="button">Copy</button>
         <pre class="bibtex-box" id="bibtex-text">@misc{yu2026score,
     title  = {SCORE: Support-Constrained RL Enables Real-World Policy Improvement without Real-World Experience},
-    author = {Yu, Raymond and Huey, Will and Mukadam, Mustafa and Nagabandi, Anusha and Gupta, Abhishek},
+    author = {Yu, Raymond and Huey, William and Mukadam, Mustafa and Nagabandi, Anusha and Gupta, Abhishek},
     year   = {2026}
 }</pre>
     </div>
@@ -479,7 +481,7 @@
 
 
 <!-- ════════════════ SCRIPTS ════════════════ -->
-<script src="static/js/steer-reel.js?v=20260614A7"></script>
+<script src="static/js/steer-reel.js?v=20260614A8"></script>
 <script src="static/js/qualitative.js"></script>
 <script src="static/js/tradeoff.js?v=20260614a"></script>
 <script src="static/js/main.js?v=20260613a"></script>

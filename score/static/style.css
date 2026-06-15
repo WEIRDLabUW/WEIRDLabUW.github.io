@@ -1212,7 +1212,12 @@
                 scroll-snap-type: x proximity; padding-bottom: 2px; scrollbar-width: none;
             }
             .reel-tabs::-webkit-scrollbar { display: none; }
-            .reel-pick { flex: 0 0 86px; scroll-snap-align: start; }
+            /* the strip recedes so the hero video leads; the active task stays
+               bright. desktop does this on hover, which touch can't trigger. */
+            .reel-pick { flex: 0 0 86px; scroll-snap-align: start;
+                opacity: 0.45; transition: opacity 0.25s; }
+            .reel-pick.active { opacity: 1; }
+            .reel-pick-img { filter: saturate(0.82); }
             .reel-pick-lbl { font-size: 0.46rem; padding: 10px 3px 3px; }
             .reel-mech { padding: 12px 12px; min-height: 460px; }
             .reel-showcase { padding: 12px; }

@@ -1903,6 +1903,19 @@
         .key-insight strong { color: var(--em-deep); font-weight: 700; }
         .key-insight em { color: var(--em); font-style: italic; font-weight: 600; }
 
+        /* The Problem: lead with the failure clip (motion is the lure), then the
+           one-line takeaway, then the detail demoted for those who want it. */
+        .problem-hook { margin: 22px auto 0; max-width: 800px; }
+        .problem-hook video {
+            width: 100%; display: block; border-radius: 14px;
+            background: #0c0d0f; box-shadow: var(--sh-card);
+        }
+        /* full-width text; drop the box's one-sided blue accent so the full-width
+           takeaway is symmetric instead of pulled off to the side. */
+        #sec-problem .key-insight {
+            border-left-width: 1px; border-left-color: var(--rule-soft);
+        }
+
         /* COMPARE ROW */
         .compare-row { display: flex; gap: 18px; flex-wrap: wrap; margin-top: 16px; }
         .compare-row > div { flex: 1 1 280px; text-align: center; }

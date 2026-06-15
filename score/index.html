@@ -72,13 +72,19 @@
         <p class="sec-lead">Simulation can improve policies, but it can also break them.</p>
     </header>
 
-    <p class="body-text">
+    <!-- HOOK: free optimization in sim literally snapped a finger on hardware -->
+    <figure class="problem-hook">
+        <video src="static/videos/extras/ep_002.mp4" autoplay loop muted playsinline></video>
+        <figcaption class="cap">Optimizing <strong style="color:var(--baseline-terracotta);">freely</strong> in simulation, the policy found high-reward grasps that exploit the simulator. The repeated, high-force motions eventually snapped a finger on the real hand.</figcaption>
+    </figure>
+
+    <p class="body-text" style="margin-top:22px;">
         Improving real-world policies on hardware is slow and expensive, so we turn to simulation. But simulation is a double-edged sword. Optimize <strong style="color:var(--baseline-terracotta);">freely</strong> and you discover reward-hacking behaviors that don&rsquo;t transfer to hardware; <strong style="color:var(--baseline-ochre);">over-constrain</strong> to the demonstrations and you inherit their slow, imprecise failures. SCORE takes the middle path: improve <em>within the support</em> of the real-world prior, surfacing better behaviors that are already reachable without inventing ones that aren&rsquo;t.
     </p>
 
     <div class="key-insight" style="margin-top:24px;">
         <span class="ki-label">The key insight</span>
-        <p>Policy improvement in simulation should be constrained to the support of the real-world prior.</p>
+        <p>Policy improvement in simulation should be constrained to the <em>support</em> of the real-world prior.</p>
     </div>
 </section>
 

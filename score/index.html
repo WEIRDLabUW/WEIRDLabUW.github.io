@@ -37,11 +37,12 @@
         <div class="spine-track" id="spine-track">
             <div class="spine-bar"></div>
             <div class="spine-cursor" id="spine-cursor"></div>
-            <a class="spine-stop" href="#sec-problem"   style="--p:0%"    ><span class="dot"></span><span class="lbl">Problem</span></a>
-            <a class="spine-stop" href="#sec-method"    style="--p:25%"   ><span class="dot"></span><span class="lbl">Method</span></a>
-            <a class="spine-stop" href="#sec-failures"  style="--p:50%"   ><span class="dot"></span><span class="lbl">Failures</span></a>
-            <a class="spine-stop" href="#sec-tradeoff"  style="--p:75%"   ><span class="dot"></span><span class="lbl">Tradeoff</span></a>
-            <a class="spine-stop" href="#sec-takeaway"  style="--p:100%"  ><span class="dot"></span><span class="lbl">Takeaway</span></a>
+            <a class="spine-stop" href="#sec-problem"      style="--p:0%"    ><span class="dot"></span><span class="lbl">Problem</span></a>
+            <a class="spine-stop" href="#sec-method"       style="--p:20%"   ><span class="dot"></span><span class="lbl">Method</span></a>
+            <a class="spine-stop" href="#sec-failures"     style="--p:40%"   ><span class="dot"></span><span class="lbl">Free RL</span></a>
+            <a class="spine-stop" href="#sec-tradeoff"     style="--p:60%"   ><span class="dot"></span><span class="lbl">Tradeoff</span></a>
+            <a class="spine-stop" href="#sec-limitations"  style="--p:80%"   ><span class="dot"></span><span class="lbl">Steering</span></a>
+            <a class="spine-stop" href="#sec-takeaway"     style="--p:100%"  ><span class="dot"></span><span class="lbl">Takeaway</span></a>
         </div>
     </div>
 </nav>
@@ -368,7 +369,7 @@
     </header>
 
     <p class="body-text">
-        A common way to keep a simulation policy deployable is to regularize it toward the base policy with a <strong>behavior-cloning (BC) loss</strong>, then tune the strength of that regularization. Across every coefficient we tried, the same tradeoff appeared. Weak regularization lets the policy drift into dangerous, non-transferable behavior, while strong regularization drags it back into the base policy&rsquo;s failures. Nothing in between recovers SCORE&rsquo;s performance. In the paper, we show this is a provable limitation of methods like <strong>BC-PPO</strong> that regularize toward the base policy&rsquo;s distribution.
+        A common way to keep a simulation policy deployable is to regularize it toward the base policy with a <strong>behavior-cloning (BC) loss</strong>, then tune the strength of that regularization. Across every coefficient we tried, the same tradeoff appeared. Weak regularization lets the policy drift into dangerous, non-transferable behavior, while strong regularization drags it back into the base policy&rsquo;s failures. Nothing in between recovers SCORE&rsquo;s performance. In our paper, we show that this is a provable limitation of algorithms that limit deviation from the base policy&rsquo;s distribution, such as <strong>BC-PPO</strong> or <strong>residual RL</strong>.
     </p>
 
     <!-- ── interactive BC-regularization plot ── -->
@@ -397,8 +398,8 @@
             <figcaption class="cap" style="margin-top:6px;">A swooping reach that ends in an unstable pinch.</figcaption>
         </figure>
         <figure>
-            <video src="static/videos/extras/ep_005.mp4" autoplay loop muted playsinline></video>
-            <figcaption class="cap" style="margin-top:6px;">A clear case of reward-hacking: rewarded whenever the centroid lies inside the pegs&rsquo; box, the policy balances the bowl on the edge and leaves it there instead of seating it.</figcaption>
+            <video src="static/videos/extras/ep_005.mp4?v=20260617b" autoplay loop muted playsinline></video>
+            <figcaption class="cap" style="margin-top:6px;">A clear case of reward-hacking: rewarded whenever the centroid lies inside the pegs&rsquo; box, the policy balances the plate on the edge and leaves it there instead of seating it.</figcaption>
         </figure>
     </div>
 </section>
@@ -570,10 +571,10 @@
 
 <!-- ════════════════ SCRIPTS ════════════════ -->
 <script src="static/js/method-anim.js?v=20260616d"></script>
-<script src="static/js/steer-reel.js?v=20260616e"></script>
+<script src="static/js/steer-reel.js?v=20260617a"></script>
 <script src="static/js/qualitative.js"></script>
 <script src="static/js/tradeoff.js?v=20260615b"></script>
-<script src="static/js/main.js?v=20260617a"></script>
+<script src="static/js/main.js?v=20260617b"></script>
 <script>
 // BibTeX copy
 (function(){

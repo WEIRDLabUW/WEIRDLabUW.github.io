@@ -45,10 +45,10 @@
           baseNote:'Misses the ball or strikes it inaccurately.',
           scoreNote:'Strikes accurately, recovers with retries.',
           ab:[1.00,0.55,0.70], as:[0.25,1.00,0.12] },
-        { label:'Place in Dishrack', real:'dishrack_place', sim:'dishrack_place', n:9, failEp:1, baseEp:1,
+        { label:'Place in Dishrack', real:'dishrack_place', sim:'dishrack_place', n:9, failEp:1, baseEp:1, depEp:3,
           nBase:4, nScore:4, srBase:50, srScore:90, diff:'Medium',
           baseNote:'Fails to grasp, misaligns with the first slot.',
-          scoreNote:'Aligns precisely and places faster, with retries.',
+          scoreNote:'Aligns precisely and places the plate in one clean motion.',
           ab:[1.00,0.70,0.60], as:[0.20,1.00,0.15] },
         { label:'Screw Lightbulb', real:'lightbulb_screw', sim:'lightbulb_screw', n:4, baseEp:2, depEp:2,
           nBase:4, nScore:4, srBase:50, srScore:100, diff:'Medium',
@@ -85,7 +85,7 @@
         lightbulb_screw:  { base:[[0,1],[1,1],[3,0]], score:[[0,1],[1,1],[3,1]] },  // hero base/score = ep2
         ball_pour:        { base:[[1,0],[2,0],[3,0]], score:[[1,0],[2,1],[3,1]] },
         soccer_push:      { base:[[1,0],[2,1],[3,1]], score:[[1,1],[2,1],[3,0]] },
-        dishrack_place:   { base:[[0,1],[2,0],[3,0]], score:[[1,0],[2,1],[3,1]] },
+        dishrack_place:   { base:[[0,1],[2,0],[3,0]], score:[[0,1],[1,0],[2,1]] },
         cup_grasp:        { base:[[1,0],[2,0],[3,0]], score:[[1,1],[2,1],[3,1]] }
     };
 

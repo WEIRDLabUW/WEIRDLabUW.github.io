@@ -24,7 +24,7 @@
     var RWB = 'static/videos/real_world_rollouts/';
     var STB = 'static/videos/sim_timelapse/';
     var PSB = 'static/videos/posters/';
-    var RATE_REAL = 1.7, RATE_SIM = 2.4;      // brisk: don't make people sit through the sim steps
+    var RATE_REAL = 1.4, RATE_SIM = 1.9;      // brisk but readable: faster than original, not a blur
     // iOS Safari caps how many videos it will decode at once and paints the
     // rest (and any never-played video) black. On touch we lean on poster
     // frames and drop the decorative backdrop so the main clip always plays.
@@ -511,11 +511,11 @@
         actTag.innerHTML = a===1 ? '&pi;<sub>base</sub> action' : '&pi;<sub>steer</sub> ∘ &pi;<sub>base</sub>';
         // narrated phase caption (replaces the old method paragraph)
         var cap;
-        if (a===1)            cap = '<b>Base policy</b> from real demonstrations: a frozen generative prior that bounds where steering can go.';
-        else if (a===3)       cap = '<b>Deployed</b> on the real robot, unchanged. No distillation, no sim-to-real fine-tuning.';
-        else if (conv < 0.45) cap = '<b>Massively parallel simulation</b> with domain randomization over object pose, scale, mass &amp; force perturbations.';
-        else if (conv < 0.80) cap = '<b>Support-constrained RL</b> steers the latent toward a <b>sparse task reward</b>, with no reward shaping.';
-        else                  cap = 'The action distribution <b>converges</b> on the high-reward mode, never leaving the prior&rsquo;s support.';
+        if (a===1)            cap = 'A frozen <b>base-policy prior</b> from real demonstrations bounds where steering can go.';
+        else if (a===3)       cap = '<b>Deployed</b> directly on the real robot, with the <b>base policy unchanged</b>. No distillation, no sim-to-real fine-tuning.';
+        else if (conv < 0.38) cap = '<b>Massively parallel simulation</b> enables broad domain randomization and rich failure-and-recovery interactions for the policy to learn from.';
+        else if (conv < 0.66) cap = '<b>Support-constrained RL</b> steers the policy toward a <b>sparse task reward</b>, with no reward shaping.';
+        else                  cap = 'The policy is <b>improved</b>, converging on the high-reward behavior without leaving the prior&rsquo;s support.';
         // only swap on an actual phase change, with a soft fade, so the line reads
         // like a deliberate subtitle instead of flickering every frame.
         if (actLbl.dataset.cap !== cap){

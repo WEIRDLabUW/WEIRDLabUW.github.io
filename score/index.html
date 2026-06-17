@@ -15,7 +15,7 @@
     <title>SCORE: Support-Constrained Off-Domain Real-world Exploration</title>
     <meta name="description" content="Support-Constrained RL Enables Real-World Policy Improvement without Real-World Experience">
 
-    <link rel="preload" as="video" href="static/videos/score_teaser.mp4" type="video/mp4" fetchpriority="high">
+    <link rel="preload" as="video" href="static/videos/score_teaser.mp4?v=20260617" type="video/mp4" fetchpriority="high">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 
@@ -38,9 +38,10 @@
             <div class="spine-bar"></div>
             <div class="spine-cursor" id="spine-cursor"></div>
             <a class="spine-stop" href="#sec-problem"   style="--p:0%"    ><span class="dot"></span><span class="lbl">Problem</span></a>
-            <a class="spine-stop" href="#sec-method"    style="--p:33%"   ><span class="dot"></span><span class="lbl">Method</span></a>
-            <a class="spine-stop" href="#sec-failures"  style="--p:66%"   ><span class="dot"></span><span class="lbl">Failures</span></a>
-            <a class="spine-stop" href="#sec-tradeoff"  style="--p:100%"  ><span class="dot"></span><span class="lbl">Tradeoff</span></a>
+            <a class="spine-stop" href="#sec-method"    style="--p:25%"   ><span class="dot"></span><span class="lbl">Method</span></a>
+            <a class="spine-stop" href="#sec-failures"  style="--p:50%"   ><span class="dot"></span><span class="lbl">Failures</span></a>
+            <a class="spine-stop" href="#sec-tradeoff"  style="--p:75%"   ><span class="dot"></span><span class="lbl">Tradeoff</span></a>
+            <a class="spine-stop" href="#sec-takeaway"  style="--p:100%"  ><span class="dot"></span><span class="lbl">Takeaway</span></a>
         </div>
     </div>
 </nav>
@@ -62,7 +63,7 @@
 
     <figure class="polaroid teaser-polaroid">
         <video id="hero-teaser-video" autoplay loop muted playsinline preload="auto" fetchpriority="high">
-            <source src="static/videos/score_teaser.mp4" type="video/mp4">
+            <source src="static/videos/score_teaser.mp4?v=20260617" type="video/mp4">
         </video>
     </figure>
 
@@ -89,7 +90,7 @@
     </figure>
 
     <p class="body-text problem-lead" style="margin-top:22px;">
-        A policy learned from a handful of demonstrations can be fragile: it may grasp imprecisely, act slowly, and fail as soon as the object is disturbed. Improving policies in the real world is slow and expensive, which makes simulation an appealing alternative. However, naively optimizing <strong style="color:var(--baseline-terracotta);">freely</strong> in simulation allows the policy to take advantage of any inaccuracy in the simulator to maximize reward, producing grasps that fail or damage the real hardware. A distributional constraint is often used to combat this, but <strong style="color:var(--baseline-ochre);">regularizing</strong> the policy too closely to the real-world demonstrations makes it inherit their failures. SCORE instead constrains improvement to the <em>support</em> of the real-world prior, moving the policy only toward behaviors that are realizable in the real world.
+        A policy learned from a handful of demonstrations can be fragile: it may grasp imprecisely, act slowly, and fail as soon as the object is disturbed. Improving policies in the real world is slow and expensive, which makes simulation an appealing alternative. However, naively optimizing <strong style="color:var(--baseline-terracotta);">freely</strong> in simulation allows the policy to take advantage of any inaccuracy in the simulator to maximize reward, producing grasps that fail or damage the real hardware. A distributional constraint is often used to combat this, but <strong style="color:var(--baseline-ochre);">regularizing</strong> the policy too closely to the real-world demonstrations makes it inherit their failures. SCORE instead constrains improvement to the <strong style="color:var(--em);">support</strong> of the real-world prior, moving the policy only toward behaviors that are realizable in the real world.
     </p>
 
     <div class="key-insight" style="margin-top:24px;">
@@ -342,7 +343,7 @@
         <div class="ur-pair">
             <div class="ur-task">Pick Credit Card</div>
             <div class="ur-duo">
-                <figure class="ur-card sim"><video src="static/videos/sim_fpo/cup_pour.mp4?v=20260604b" autoplay loop muted playsinline></video><figcaption><span class="ur-sim">sim</span>high reward</figcaption></figure>
+                <figure class="ur-card sim"><video src="static/videos/sim_fpo/cup_pour.mp4?v=20260617" autoplay loop muted playsinline></video><figcaption><span class="ur-sim">sim</span>high reward</figcaption></figure>
                 <span class="ur-arrow">&rarr;</span>
                 <figure class="ur-card hw"><video src="static/videos/extras/ep_003.mp4" autoplay loop muted playsinline></video><figcaption><span class="ur-hw">real</span>large force, fails completely</figcaption></figure>
             </div>
@@ -367,20 +368,20 @@
     </header>
 
     <p class="body-text">
-        A common way to keep a simulation policy deployable is to regularize it toward the base policy with a <strong>behavior-cloning (BC) loss</strong>, then tune the strength of that regularization. Across every coefficient we tried, the same tradeoff appeared. Weak regularization lets the policy drift into dangerous, non-transferable behavior, while strong regularization drags it back into the base policy&rsquo;s failures. Nothing in between recovers SCORE&rsquo;s performance.
+        A common way to keep a simulation policy deployable is to regularize it toward the base policy with a <strong>behavior-cloning (BC) loss</strong>, then tune the strength of that regularization. Across every coefficient we tried, the same tradeoff appeared. Weak regularization lets the policy drift into dangerous, non-transferable behavior, while strong regularization drags it back into the base policy&rsquo;s failures. Nothing in between recovers SCORE&rsquo;s performance. In the paper, we show this is a provable limitation of methods like <strong>BC-PPO</strong> that regularize toward the base policy&rsquo;s distribution.
     </p>
 
     <!-- ── interactive BC-regularization plot ── -->
     <figure class="bctk" id="bc-knob">
-        <div class="bctk-title">Success rate as the policy is constrained toward the base</div>
+        <div class="bctk-title">Success rate under varying levels of BC regularization to the base</div>
         <div class="bctk-legend">
             <span class="bctk-leg"><i class="lg-line real"></i>Real-world success</span>
             <span class="bctk-leg"><i class="lg-line sim"></i>Sim success</span>
             <span class="bctk-tag" id="bc-tag">collapses</span>
         </div>
         <div class="bctk-chart" id="bc-chart"><!-- svg injected by tradeoff.js --></div>
-        <p class="bctk-state" id="bc-state">Too loose to learn anything: the policy collapses in simulation.</p>
         <div class="bctk-axis">weaker&nbsp;constraint&nbsp;&nbsp;&larr;&nbsp;&nbsp;<b>BC loss coefficient</b>&nbsp;&nbsp;&rarr;&nbsp;&nbsp;stronger&nbsp;constraint</div>
+        <p class="bctk-state" id="bc-state">Too loose to learn anything: the policy collapses in simulation.</p>
     </figure>
 
     <!-- ── on hardware (trimmed) ── -->
@@ -481,7 +482,7 @@
         <div class="rollout-col emerald-col">
             <div class="rollout-col-title">SCORE <em>(steered, with distractor)</em></div>
             <video src="static/videos/future/distractor/hw_score/ep_000.mp4?v=20260604i" autoplay loop muted playsinline style="width:100%;border-radius:10px;display:block;background:#000;"></video>
-            <div class="rollout-note score-note"><span class="note-tag">✓ SCORE behavior</span>Steering recovers a working grasp on the real robot (56%).</div>
+            <div class="rollout-note score-note"><span class="note-tag">~ SCORE behavior</span>SCORE occasionally achieves a working grasp, but performance is limited because the prior is far out of distribution (56%).</div>
         </div>
     </div>
 
@@ -489,6 +490,19 @@
         <span class="ki-label">The limit</span>
         <p>What limits steering is the prior itself. The broader its coverage, the further steering can go.</p>
     </div>
+</section>
+
+<!-- ════════════════ TAKEAWAY ════════════════ -->
+<section class="page-section fade-in" id="sec-takeaway">
+    <header class="sec-head">
+        <span class="sigma-rule"></span>
+        <h2 class="sec-title">Takeaway</h2>
+        <p class="sec-lead">Improve the policy you already have.</p>
+    </header>
+
+    <p class="body-text problem-lead" style="margin-top:22px;">
+        Overall, SCORE shows that simulation does not have to mean training a new policy from scratch. It can also be used to improve an existing real-world policy, so long as that improvement stays within the support of the real-world prior. With sparse rewards and a simple training pipeline, SCORE reaches robust, fast, and precise manipulation with minimal effort. A new task takes under half a day to add, from data collection to training to deployment, with large gains over the base policy. However, its reach is still bounded by coverage, since improvement falls off in scenes that drift far from the prior. A natural next step is to build broader behavior priors and datasets designed for steering, where coverage is measured by what simulation can later improve.
+    </p>
 </section>
 
 
@@ -525,7 +539,7 @@
             box-shadow:0 30px 80px rgba(0,0,0,0.6);
             display:block;
         ">
-            <source src="static/videos/score_teaser.mp4" type="video/mp4">
+            <source src="static/videos/score_teaser.mp4?v=20260617" type="video/mp4">
         </video>
         <button onclick="closeVideoLb()" style="
             position:absolute; top:-14px; right:-14px;
@@ -559,7 +573,7 @@
 <script src="static/js/steer-reel.js?v=20260616e"></script>
 <script src="static/js/qualitative.js"></script>
 <script src="static/js/tradeoff.js?v=20260615b"></script>
-<script src="static/js/main.js?v=20260613a"></script>
+<script src="static/js/main.js?v=20260617a"></script>
 <script>
 // BibTeX copy
 (function(){

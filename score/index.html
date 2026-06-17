@@ -15,7 +15,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
 
-    <link rel="stylesheet" href="static/style.css?v=20260614a">
+    <link rel="stylesheet" href="static/style.css?v=20260616r">
 </head>
 <body>
 
@@ -61,6 +61,7 @@
         <a class="qlink primary" href="#" onclick="openVideoLb(); return false;">&#9654; Full video</a>
         <!-- TODO: replace href="#" with the arXiv abstract URL once available -->
         <a class="qlink link-accent" href="#" onclick="return false;"><i class="ai ai-arxiv"></i> arXiv ↗</a>
+        <span class="qlink qlink-soon"><i class="fa-brands fa-github"></i> Code <em>coming soon</em></span>
     </div>
 </header>
 
@@ -69,22 +70,22 @@
     <header class="sec-head">
         <span class="sigma-rule"></span>
         <h2 class="sec-title">The Problem</h2>
-        <p class="sec-lead">Simulation can improve policies, but it can also break them.</p>
+        <p class="sec-lead">The same simulation that improves a policy can break it.</p>
     </header>
 
     <!-- HOOK: free optimization in sim literally snapped a finger on hardware -->
     <figure class="problem-hook">
         <video src="static/videos/extras/ep_002.mp4" autoplay loop muted playsinline></video>
-        <figcaption class="cap">Optimizing <strong style="color:var(--baseline-terracotta);">freely</strong> in simulation, the policy found high-reward grasps that exploit the simulator. The repeated, high-force motions eventually snapped a finger on the real hand.</figcaption>
+        <figcaption class="cap">Optimized <strong style="color:var(--baseline-terracotta);">freely</strong> in simulation, the policy solves the task, but through motions that exploit the simulator. Executed at high force on the real hand, those same motions eventually snapped a finger.</figcaption>
     </figure>
 
-    <p class="body-text" style="margin-top:22px;">
-        Improving real-world policies on hardware is slow and expensive, so we turn to simulation. But simulation is a double-edged sword. Optimize <strong style="color:var(--baseline-terracotta);">freely</strong> and you discover reward-hacking behaviors that don&rsquo;t transfer to hardware; <strong style="color:var(--baseline-ochre);">over-constrain</strong> to the demonstrations and you inherit their slow, imprecise failures. SCORE takes the middle path: improve <em>within the support</em> of the real-world prior, surfacing better behaviors that are already reachable without inventing ones that aren&rsquo;t.
+    <p class="body-text problem-lead" style="margin-top:22px;">
+        A policy learned from a handful of demonstrations can be fragile: it may grasp imprecisely, act slowly, and fail as soon as the object is disturbed. Improving policies in the real world is slow and expensive, which makes simulation an appealing alternative. However, naively optimizing <strong style="color:var(--baseline-terracotta);">freely</strong> in simulation allows the policy to take advantage of any inaccuracy in the simulator to maximize reward, producing grasps that fail or damage the real hardware. A distributional constraint is often used to combat this, but <strong style="color:var(--baseline-ochre);">regularizing</strong> the policy too closely to the real-world demonstrations makes it inherit their failures. SCORE instead constrains improvement to the <em>support</em> of the real-world prior, moving the policy only toward behaviors that are realizable in the real world.
     </p>
 
     <div class="key-insight" style="margin-top:24px;">
         <span class="ki-label">The key insight</span>
-        <p>Policy improvement in simulation should be constrained to the <em>support</em> of the real-world prior.</p>
+        <p>Policy improvement in simulation should be constrained to the <em>support</em> of the real-world base policy.</p>
     </div>
 </section>
 
@@ -102,6 +103,7 @@
                 <span class="rb-stat"><b>89.9%</b> average success</span>
                 <span class="rb-sep"></span>
                 <span class="rb-stat"><b>2.4&times;</b> over the base policy</span>
+                <span class="rb-stat rb-reward"><b>Minimal</b> reward engineering</span>
                 <span class="rb-sub">across 8 real-world multi-fingered tasks &middot; pick one to explore</span>
             </div>
             <div class="reel-tabs" id="reel-tabs"><!-- task thumbnails injected --></div>
@@ -111,7 +113,10 @@
             <div class="reel-stage is-real" id="reel-stage">
                 <video id="reel-video-bg" class="reel-bg" muted playsinline preload="auto" data-no-defer aria-hidden="true"></video>
                 <video id="reel-video" muted playsinline preload="auto" data-no-defer></video>
-                <div class="reel-domain real" id="reel-domain"><span class="rd-dot"></span><span id="reel-domain-txt">REAL WORLD</span></div>
+                <div class="reel-domain real" id="reel-domain">
+                    <span class="rd-phase" id="reel-domain-phase">Base policy</span>
+                    <span class="rd-loc"><span class="rd-dot"></span><span id="reel-domain-txt">REAL WORLD</span></span>
+                </div>
                 <div class="reel-actlabel" id="reel-actlabel"></div>
             </div>
 
@@ -161,10 +166,6 @@
             </div>
         </div>
 
-        <div class="reel-meta">
-            <div class="reel-reward"><span class="rr-label">reward</span><div class="rr-bar"><div class="rr-fill" id="reel-reward-fill"></div></div></div>
-        </div>
-
         <div class="reel-controls">
             <button class="reel-play" id="reel-play" aria-label="Play or pause"><i class="fa-solid fa-play"></i></button>
             <div class="reel-track" id="reel-track" role="slider" tabindex="0"
@@ -176,6 +177,64 @@
                 <div class="reel-phaselabels" id="reel-phaselabels"></div>
             </div>
         </div>
+    </figure>
+
+    <!-- live method figure: photos are images, everything else is vector so the
+         middle panel can clearly animate base -> deploy -->
+    <figure class="method-figure" style="margin-top:34px;">
+        <div class="mfx" id="mfx">
+            <!-- ── STEP 1 · base (static) ── -->
+            <div class="mfx-panel">
+                <div class="mfx-head"><span class="mfx-badge">1</span><span class="mfx-title">Pretrain <span class="mq">&pi;<sub>base</sub></span> in the real world</span></div>
+                <div class="mfx-body">
+                    <div class="mfx-photo"><img src="static/images/method/photo1.png" alt="Base policy rollout in the real world"></div>
+                    <div class="mfx-col">
+                        <div class="mfx-lab"><span class="mq"><i>z</i> &sim; &#119977;(0,1)</span></div>
+                        <svg class="mfx-bell" id="bell1" viewBox="0 0 200 92" preserveAspectRatio="none"></svg>
+                        <span class="mfx-arrow"></span>
+                        <div class="mfx-box"><span class="mq">&pi;<sub>base</sub>(<i>a</i>&#8201;&#8739;&#8201;<i>s</i>,&#8201;<i>z</i>)</span><i class="mfx-frozen fa-solid fa-snowflake"></i></div>
+                        <span class="mfx-arrow"></span>
+                        <svg class="mfx-act" id="act1" viewBox="0 0 235 96" preserveAspectRatio="none"></svg>
+                    </div>
+                </div>
+                <div class="mfx-cap">The base policy spreads its mass over <b class="t-bad">suboptimal</b> and <b class="t-slow">slow</b> actions, so it often fails.</div>
+            </div>
+
+            <!-- ── STEP 2 · steering (LIVE) ── -->
+            <div class="mfx-panel is-live">
+                <div class="mfx-head"><span class="mfx-badge">2</span><span class="mfx-title">Support-constrained RL in simulation</span></div>
+                <div class="mfx-body">
+                    <div class="mfx-photo"><img src="static/images/method/photo2.png" alt="Support-constrained RL in massively parallel simulation"></div>
+                    <div class="mfx-col">
+                        <div class="mfx-lab"><span class="mq">&pi;<sub>steer</sub>(<i>z</i>&#8201;&#8739;&#8201;<i>o</i>)</span></div>
+                        <svg class="mfx-bell" id="bell2" viewBox="0 0 200 92" preserveAspectRatio="none"></svg>
+                        <span class="mfx-arrow flow"></span>
+                        <div class="mfx-box"><span class="mq">&pi;<sub>base</sub>(<i>a</i>&#8201;&#8739;&#8201;<i>s</i>,&#8201;<i>z</i>)</span><i class="mfx-frozen fa-solid fa-snowflake"></i></div>
+                        <span class="mfx-arrow flow"></span>
+                        <svg class="mfx-act" id="act2" viewBox="0 0 235 96" preserveAspectRatio="none"></svg>
+                    </div>
+                </div>
+                <div class="mfx-cap"><b>Massively parallel</b> simulation steers the policy toward <b class="t-good">high-value</b> actions, within support.</div>
+            </div>
+
+            <!-- ── STEP 3 · deploy (static) ── -->
+            <div class="mfx-panel">
+                <div class="mfx-head"><span class="mfx-badge">3</span><span class="mfx-title">Deploy directly in the real world</span></div>
+                <div class="mfx-body">
+                    <div class="mfx-photo"><img src="static/images/method/photo3.png" alt="Steered policy deployed in the real world"></div>
+                    <div class="mfx-col">
+                        <div class="mfx-lab"><span class="mq">&pi;<sub>steer</sub>(<i>z</i>&#8201;&#8739;&#8201;<i>o</i>)</span></div>
+                        <svg class="mfx-bell" id="bell3" viewBox="0 0 200 92" preserveAspectRatio="none"></svg>
+                        <span class="mfx-arrow"></span>
+                        <div class="mfx-box"><span class="mq">&pi;<sub>base</sub>(<i>a</i>&#8201;&#8739;&#8201;<i>s</i>,&#8201;<i>z</i>)</span><i class="mfx-frozen fa-solid fa-snowflake"></i></div>
+                        <span class="mfx-arrow"></span>
+                        <svg class="mfx-act" id="act3" viewBox="0 0 235 96" preserveAspectRatio="none"></svg>
+                    </div>
+                </div>
+                <div class="mfx-cap">Steered policy is <b class="t-good">fast, precise, and robust</b>.</div>
+            </div>
+        </div>
+        <figcaption class="cap">SCORE in three steps: pretrain a base policy on real demos, steer it in simulation within the prior&rsquo;s support using only a <strong>sparse task reward</strong>, then deploy directly on the robot.</figcaption>
     </figure>
 
 </section>
@@ -191,7 +250,7 @@
 
     <!-- ── Continuous operation (hero) ── -->
     <h3 class="sub-head">Continuous operation</h3>
-    <p class="body-text">Picking cubes and dropping them into a basket, over and over, tests robustness across a long horizon. The base policy is slow and imprecise, leaving the basket mostly empty; SCORE reliably grasps the cube and fills it.</p>
+    <p class="body-text">Running continuously, the policy picks up cubes one by one and drops them into the basket. The base policy misses most of them and leaves the basket nearly empty, while SCORE grasps reliably and fills it.</p>
     <div class="bb-duo">
         <figure class="bb-card base">
             <video src="static/videos/cube_basket/base.mp4?v=20260613b" autoplay loop muted playsinline></video>
@@ -203,7 +262,7 @@
 
     <!-- ── Brand-new tasks (merged) ── -->
     <h3 class="sub-head" style="margin-top:38px;">Fast to iterate on new tasks</h3>
-    <p class="body-text">SCORE is fast: in under half a day, from collecting demonstrations to deployment, we can iterate on a new task. In both below, the base policy is imprecise and can&rsquo;t recover from a mistake; SCORE is more precise and retries at the right moments.</p>
+    <p class="body-text">Adding a new task is fast: under half a day from collecting demonstrations to deploying a steered policy. In both examples below, the base policy cannot recover once a grasp fails, while SCORE retries until it succeeds.</p>
     <div class="bb-tasks">
         <div class="bb-task">
             <div class="bb-task-name">Open a Clorox bottle</div>
@@ -214,7 +273,7 @@
                 </figure>
                 <figure class="bb-card score">
                     <video src="static/videos/extras/cleanex/score_0.mp4" autoplay loop muted playsinline></video>
-                    <figcaption><span class="bb-ok">✓ SCORE</span>retries and opens it reliably</figcaption>
+                    <figcaption><span class="bb-ok">✓ SCORE</span>retries until the cap comes off</figcaption>
                 </figure>
             </div>
         </div>
@@ -243,7 +302,7 @@
     </header>
 
     <p class="body-text">
-        Optimizing freely with unconstrained RL, the policy maximizes reward by <strong>exploiting the simulator</strong>: contorted, high-force grasps that score well in sim but are erratic or dangerous on the real robot. Each pair below takes one <em>unconstrained-RL policy</em> and shows its high-reward behavior in simulation next to what that same behavior does on hardware.
+        With unconstrained RL, the policy maximizes reward by <strong>exploiting the simulator</strong>. The resulting grasps are contorted and high-force: they achieve high reward in simulation but become erratic or dangerous on the real robot. Each pair below shows one such <em>unconstrained-RL policy</em> in simulation, then the same behavior on hardware.
     </p>
 
     <div class="ur-pairs">
@@ -285,7 +344,7 @@
         <img src="static/images/fpo_broken_finger.jpg" alt="FPO policy broke the robot finger">
         <div class="ur-climax-text">
             <span class="ur-climax-tag">It can damage the hardware</span>
-            <p>The accumulated stress from these repeated, high-force grasps eventually <strong>broke one of our hand&rsquo;s fingers</strong>.</p>
+            <p>Repeated at this force, these grasps eventually <strong>broke one of our hand&rsquo;s fingers</strong>.</p>
         </div>
     </div>
 </section>
@@ -295,11 +354,11 @@
     <header class="sec-head">
         <span class="sigma-rule"></span>
         <h2 class="sec-title">The Distributional Constraint Tradeoff</h2>
-        <p class="sec-lead">Distributional constraints introduce a tradeoff between improvement and transferability.</p>
+        <p class="sec-lead">Constraining a policy toward the base trades improvement for transferability.</p>
     </header>
 
     <p class="body-text">
-        A natural way to keep simulation policies deployable is to regularize them toward the base policy with a <strong>behavior-cloning (BC) loss</strong>. But the strength of that constraint is a delicate knob: too little and the policy drifts into dangerous, non-transferable behavior; too much and it inherits the base policy&rsquo;s failures. No single setting recovers SCORE&rsquo;s performance.
+        A common way to keep a simulation policy deployable is to regularize it toward the base policy with a <strong>behavior-cloning (BC) loss</strong>, then tune the strength of that regularization. Across every coefficient we tried, the same tradeoff appeared. Weak regularization lets the policy drift into dangerous, non-transferable behavior, while strong regularization drags it back into the base policy&rsquo;s failures. Nothing in between recovers SCORE&rsquo;s performance.
     </p>
 
     <!-- ── interactive BC-regularization plot ── -->
@@ -317,19 +376,19 @@
 
     <!-- ── on hardware (trimmed) ── -->
     <h3 class="sub-head" style="margin-top:36px;">The same tension on hardware</h3>
-    <p class="body-text">On real tasks too, distributionally-constrained policies still settle on behaviors that are unsafe or unreliable once deployed.</p>
+    <p class="body-text">The same thing happens on real hardware: even with the BC constraint in place, the policy settles on behavior that is unsafe or unreliable once deployed.</p>
     <div class="fail-gallery">
         <figure>
             <video src="static/videos/real_world_rollouts/soccer_push/rialto/ep_000.mp4" autoplay loop muted playsinline></video>
-            <figcaption class="cap" style="margin-top:6px;">A dangerous motion: in sim the policy drags its fingers across the table, hazardous on the real robot.</figcaption>
+            <figcaption class="cap" style="margin-top:6px;">To earn reward, the policy drags its fingers across the table in sim, a motion that would be hazardous on the real robot.</figcaption>
         </figure>
         <figure>
             <video src="static/videos/extras/ep_000.mp4" autoplay loop muted playsinline></video>
-            <figcaption class="cap" style="margin-top:6px;">An unintuitive swooping motion ending in an unstable pinch, putting a lot of stress on the hand.</figcaption>
+            <figcaption class="cap" style="margin-top:6px;">A swooping reach that ends in an unstable pinch.</figcaption>
         </figure>
         <figure>
             <video src="static/videos/extras/ep_005.mp4" autoplay loop muted playsinline></video>
-            <figcaption class="cap" style="margin-top:6px;">Sometimes it fully reward-hacks: rewarded for the centroid inside the pegs&rsquo; box, it pushes the bowl onto the edge.</figcaption>
+            <figcaption class="cap" style="margin-top:6px;">A clear case of reward-hacking: rewarded whenever the centroid lies inside the pegs&rsquo; box, the policy balances the bowl on the edge and leaves it there instead of seating it.</figcaption>
         </figure>
     </div>
 </section>
@@ -339,12 +398,12 @@
     <header class="sec-head">
         <span class="sigma-rule"></span>
         <h2 class="sec-title">How Far Can Steering Go?</h2>
-        <p class="sec-lead">Steering can reach surprisingly far, as long as the behavior lives in the prior.</p>
+        <p class="sec-lead">Steering goes a long way, as long as the behavior already lives in the prior.</p>
     </header>
 
     <!-- ── Multi-task: one policy across tasks ── -->
     <h3 class="sub-head">One policy across tasks</h3>
-    <p class="mt-lede">A <strong>single steered policy</strong> trained on three tasks: credit card, cube, and bottle. It applies the right grasp to each object, and even <strong>reuses behaviors across tasks</strong>.</p>
+    <p class="mt-lede">One <strong>steered policy</strong> trained on three tasks: credit card, cube, and bottle. It picks the right grasp for each object, and even <strong>reuses behaviors across them</strong>.</p>
 
     <div class="mt-hero">
         <div class="mt-hero-head">Same cube, two borrowed behaviors</div>
@@ -362,7 +421,7 @@
     </div>
 
     <div class="mt-native">
-        <div class="mt-native-head">One policy picks the right mode; the base policy confuses them</div>
+        <p class="mt-native-head">For each object, the steered policy reaches with the <strong>right grasp</strong>. The base policy mixes them up, using one object&rsquo;s grasp on another.</p>
         <div class="mt-objs">
             <div class="mt-obj">
                 <div class="mt-obj-name">Credit Card</div>
@@ -384,7 +443,7 @@
     <!-- ── Carrot: steering to a new object ── -->
     <h3 class="sub-head" style="margin-top:42px;">Steering to a new object: bottle &rarr; carrot</h3>
     <p class="body-text">
-        We take a frozen <strong>bottle-grasp</strong> policy and steer it in simulation onto a <strong>carrot</strong>, an object it never trained on. A carrot is much thinner and demands a precise pinch, a behavior that appears only rarely under the bottle prior. Steering still finds it: on hardware the carrot-steered policy reaches <strong>67%</strong>, far above the same policy steered to a bottle (22%).
+        We take a frozen <strong>bottle-grasp</strong> policy and steer it in simulation onto a <strong>carrot</strong>, an object it never trained on. A carrot is much thinner and demands a precise pinch, a behavior that appears only rarely under the bottle prior. Steering still recovers that pinch: on hardware the carrot-steered policy reaches <strong>67%</strong>, far above the same policy steered to a bottle (22%).
     </p>
     <div class="rollout-grid" style="margin-top:16px;">
         <div class="rollout-col">
@@ -402,7 +461,7 @@
     <!-- ── Distractor: where it runs thin ── -->
     <h3 class="sub-head" style="margin-top:42px;">Where it runs thin</h3>
     <p class="body-text">
-        The same bottle policy was trained <strong>without distractors</strong>. Steering it to handle one recovers a working grasp on hardware (<strong>56%</strong>, up from 0% base), but it succeeds mainly when the bottle sits on one side of the workspace: steering an out-of-distribution policy to succeed everywhere in simulation is much harder.
+        The same bottle policy was trained with <strong>no distractor objects</strong> in the scene. When we add <strong>two distractor cubes</strong> and steer the policy to grasp around them, it recovers a working grasp on hardware (<strong>56%</strong>, up from 0% base), but only when the bottle sits on one side of the workspace. Even though SCORE trains with the distractors in simulation, exploration gets harder the farther the scene drifts from where the base policy was trained, so a robust grasp is harder to discover through steering.
     </p>
     <div class="rollout-grid" style="margin-top:16px;">
         <div class="rollout-col">
@@ -418,8 +477,8 @@
     </div>
 
     <div class="key-insight" style="margin-top:30px;">
-        <span class="ki-label">The lever</span>
-        <p>It all comes down to the behavior prior. The broader the prior, the further steering can push.</p>
+        <span class="ki-label">The limit</span>
+        <p>What limits steering is the prior itself. The broader its coverage, the further steering can go.</p>
     </div>
 </section>
 
@@ -487,9 +546,10 @@
 
 
 <!-- ════════════════ SCRIPTS ════════════════ -->
-<script src="static/js/steer-reel.js?v=20260614A8"></script>
+<script src="static/js/method-anim.js?v=20260616d"></script>
+<script src="static/js/steer-reel.js?v=20260616d"></script>
 <script src="static/js/qualitative.js"></script>
-<script src="static/js/tradeoff.js?v=20260614a"></script>
+<script src="static/js/tradeoff.js?v=20260615b"></script>
 <script src="static/js/main.js?v=20260613a"></script>
 <script>
 // BibTeX copy

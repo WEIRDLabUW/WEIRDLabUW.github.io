@@ -24,7 +24,7 @@
     var RWB = 'static/videos/real_world_rollouts/';
     var STB = 'static/videos/sim_timelapse/';
     var PSB = 'static/videos/posters/';
-    var RATE_REAL = 1.4, RATE_SIM = 1.6;     // play fully, just brisk
+    var RATE_REAL = 1.7, RATE_SIM = 2.4;      // brisk: don't make people sit through the sim steps
     // iOS Safari caps how many videos it will decode at once and paints the
     // rest (and any never-played video) black. On touch we lean on poster
     // frames and drop the decorative backdrop so the main clip always plays.
@@ -83,7 +83,7 @@
     var CLIPS = {
         credit_card_pick: { base:[[1,0],[2,0],[3,0]], score:[[1,1],[2,0],[3,1]] },
         lightbulb_screw:  { base:[[0,1],[1,1],[3,0]], score:[[0,1],[1,1],[3,1]] },  // hero base/score = ep2
-        ball_pour:        { base:[[1,0],[2,0],[3,0]], score:[[1,1],[2,1],[3,1]] },
+        ball_pour:        { base:[[1,0],[2,0],[3,0]], score:[[1,0],[2,1],[3,1]] },
         soccer_push:      { base:[[1,0],[2,1],[3,1]], score:[[1,1],[2,1],[3,0]] },
         dishrack_place:   { base:[[0,1],[2,0],[3,0]], score:[[1,0],[2,1],[3,1]] },
         cup_grasp:        { base:[[1,0],[2,0],[3,0]], score:[[1,1],[2,1],[3,1]] }
@@ -215,6 +215,7 @@
     var stage   = document.getElementById('reel-stage');
     var domTxt  = document.getElementById('reel-domain-txt');
     var domChip = document.getElementById('reel-domain');
+    var domPhase= document.getElementById('reel-domain-phase');
     var rewFill = document.getElementById('reel-reward-fill');
     var actLbl  = document.getElementById('reel-actlabel');
     var statusEl= document.getElementById('reel-status');
@@ -483,14 +484,28 @@
         domTxt.textContent = real ? 'REAL WORLD' : 'SIMULATION';
         domChip.classList.toggle('sim', !real); domChip.classList.toggle('real', real);
 
+        // top-left inset: WHICH policy you're watching, and WHERE.
+        //  act 1 → base policy, real demos   act 2 → base improving in sim
+        //  act 3 → SCORE deployed in the real world
+        // the first sim clip is the "0" step (still the base policy); 40M onward
+        // (step >= 1) is where the policy is actually being improved.
+        var improving = (a===2 && seq[i].step >= 1);
+        var phaseTxt;
+        if (a===3)         phaseTxt = 'SCORE';
+        else if (improving) phaseTxt = 'Improving policy';
+        else                phaseTxt = 'Base policy';
+        if (domPhase) domPhase.textContent = phaseTxt;
+        domChip.classList.toggle('is-score', a===3);
+        domChip.classList.toggle('is-improving', improving);
+
         root.classList.toggle('sim-active', a===2);
-        // hold the mechanism back until steering begins: only the base-policy video
-        // shows during act 1, then the mechanism slides in from the right at sim.
-        root.classList.toggle('pre-steer', taskIdx===0 && a===1);
+        // mechanism diagram removed: the explainer task stays a full-width video
+        // with its captions through base AND sim, so attention is on the narration;
+        // the right panel only reveals the success result at deploy.
+        root.classList.toggle('pre-steer', taskIdx===0 && a!==3);
 
         // readouts
-        var rew = a===1 ? 0.10 : (a===3 ? 1.0 : 0.10 + conv*0.85);
-        rewFill.style.width = (rew*100).toFixed(1)+'%';
+        if (rewFill){ var rew = a===1 ? 0.10 : (a===3 ? 1.0 : 0.10 + conv*0.85); rewFill.style.width = (rew*100).toFixed(1)+'%'; }
         statusEl.textContent = a===1 ? 'real-world prior' : a===3 ? 'converged ✓' : (conv<0.55?'exploring latent':'converging');
         statusEl.classList.toggle('done', a===3);
         actTag.innerHTML = a===1 ? '&pi;<sub>base</sub> action' : '&pi;<sub>steer</sub> ∘ &pi;<sub>base</sub>';
@@ -499,9 +514,16 @@
         if (a===1)            cap = '<b>Base policy</b> from real demonstrations: a frozen generative prior that bounds where steering can go.';
         else if (a===3)       cap = '<b>Deployed</b> on the real robot, unchanged. No distillation, no sim-to-real fine-tuning.';
         else if (conv < 0.45) cap = '<b>Massively parallel simulation</b> with domain randomization over object pose, scale, mass &amp; force perturbations.';
-        else if (conv < 0.80) cap = '<b>Support-constrained RL</b> steers the latent, guided by a privileged critic toward sparse task reward.';
+        else if (conv < 0.80) cap = '<b>Support-constrained RL</b> steers the latent toward a <b>sparse task reward</b>, with no reward shaping.';
         else                  cap = 'The action distribution <b>converges</b> on the high-reward mode, never leaving the prior&rsquo;s support.';
-        actLbl.innerHTML = cap;
+        // only swap on an actual phase change, with a soft fade, so the line reads
+        // like a deliberate subtitle instead of flickering every frame.
+        if (actLbl.dataset.cap !== cap){
+            actLbl.dataset.cap = cap;
+            actLbl.innerHTML = cap;
+            actLbl.style.opacity = '0';
+            requestAnimationFrame(function(){ requestAnimationFrame(function(){ actLbl.style.opacity = '1'; }); });
+        }
 
         // showcase (other tasks): base note in the base intro, SCORE note at deploy;
         // during the sim/training middle the text clears and the tiles grow to fill
@@ -604,7 +626,15 @@
         // observe the STAGE, not the whole (very tall) reel: iOS hardware
         // refuses to start an offscreen video, so play() must fire when the
         // video itself is on screen, and pause when it scrolls away.
-        var io=new IntersectionObserver(function(en){ en.forEach(function(x){ x.isIntersecting?play():pause(); }); }, { threshold:0.12 });
+        // High threshold + reset-on-first-view: the reel doesn't run while it's
+        // still scrolling past, so the viewer arrives at ACT 1, not mid-timeline.
+        var firstView = true;
+        var io=new IntersectionObserver(function(en){ en.forEach(function(x){
+            if (x.isIntersecting){
+                if (firstView){ firstView=false; loadClip(0, false); render(); }
+                play();
+            } else { pause(); }
+        }); }, { threshold:0.55 });
         io.observe(stage);
     } else { play(); }
 })();

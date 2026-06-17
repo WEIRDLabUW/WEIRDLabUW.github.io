@@ -17,13 +17,13 @@
         { c:'10',   sim:0,   real:0,  tag:'collapses',
           state:'Too loose to learn anything: the policy collapses in simulation.' },
         { c:'100',  sim:100, real:12, tag:'reward-hacks',
-          state:'Reward-hacks: a fast, suboptimal smashing strategy far from the base policy. Dangerous on hardware.' },
+          state:'Reward-hacks: a fast but degenerate strategy far from the base policy that would be unsafe on hardware.' },
         { c:'1k',   sim:95,  real:40, tag:'drifting',
           state:'Improving in the real world, but still drifting from what actually transfers.' },
         { c:'10k',  sim:90,  real:60, tag:'best tradeoff',
           state:'The best tradeoff: 60% real, above the base policy&rsquo;s 30% but far below SCORE&rsquo;s 100%.' },
         { c:'100k', sim:50,  real:30, tag:'inherits base',
-          state:'Over-constrained: it just inherits the base policy&rsquo;s suboptimal, failure-prone behavior.' }
+          state:'Over-constrained: it falls back on the base policy&rsquo;s slow, failure-prone behavior.' }
     ];
     var N = DATA.length, idx = 0;
     var BASE = 30, SCORE = 100;

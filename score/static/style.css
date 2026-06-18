@@ -235,7 +235,7 @@
         @media (max-width: 640px) { .paper { padding: 0 20px; } }
 
         /* ════════════════ HERO ════════════════ */
-        .hero { padding: 32px 0 16px; max-width: 980px; position: relative; }
+        .hero { padding: 20px 0 12px; max-width: 980px; position: relative; }
         .hero-meta {
             font-family: 'JetBrains Mono', monospace;
             font-size: 0.74rem;
@@ -251,10 +251,10 @@
             font-family: 'Fraunces', Georgia, serif;
             font-variation-settings: 'opsz' 144;
             font-weight: 700;
-            font-size: clamp(2.8rem, 7.4vw, 5rem);
+            font-size: clamp(2.4rem, 5.5vw, 3.8rem);
             line-height: 0.95;
             letter-spacing: -0.045em;
-            margin: 0 0 14px;
+            margin: 0 0 10px;
             color: var(--ink);
         }
         .hero-subtitle {
@@ -619,18 +619,18 @@
 
         /* ════════════════ SECTION HEADER (architectural detail) ════════════════ */
         .page-section {
-            padding: 44px 0 4px;
+            padding: 26px 0 4px;
             scroll-margin-top: calc(var(--spine-h) + 8px);
         }
-        .page-section:first-of-type { padding-top: 48px; }
+        .page-section:first-of-type { padding-top: 30px; }
 
-        .sec-head { margin-bottom: 28px; }
+        .sec-head { margin-bottom: 16px; }
         /* Architectural marker: small green block + thin charcoal beam */
         .sigma-rule {
             display: flex;
             align-items: center;
             gap: 12px;
-            margin-bottom: 22px;
+            margin-bottom: 14px;
         }
         .sigma-rule::before {
             content: "";
@@ -647,11 +647,11 @@
             font-family: 'Fraunces', serif;
             font-variation-settings: 'opsz' 84;
             font-weight: 700;
-            font-size: clamp(2.2rem, 4.8vw, 3.4rem);
+            font-size: clamp(1.9rem, 3.6vw, 2.6rem);
             line-height: 1.05;
             letter-spacing: -0.025em;
             color: var(--ink);
-            margin: 0 0 14px;
+            margin: 0 0 8px;
         }
         .sec-lead {
             font-family: 'Fraunces', serif;
@@ -678,10 +678,10 @@
         .sub-head {
             font-family: 'Fraunces', serif;
             font-weight: 700;
-            font-size: 1.22rem;
+            font-size: 1.12rem;
             color: var(--ink);
-            margin: 36px 0 14px;
-            padding: 4px 0 4px 14px;
+            margin: 22px 0 10px;
+            padding: 3px 0 3px 14px;
             border-left: 3px solid var(--em);
             letter-spacing: -0.005em;
             line-height: 1.3;
@@ -707,13 +707,13 @@
         .body-text + .body-text { margin-top: 14px; }
         /* problem statement reads as a lead: shorter measure, a touch larger */
         .problem-lead {
-            max-width: 72ch;
+            max-width: 800px;
             margin-inline: auto;
             text-align: justify;
             text-wrap: pretty;
             hyphens: none;
-            font-size: 1.13rem;
-            line-height: 1.85;
+            font-size: 1.06rem;
+            line-height: 1.7;
         }
 
         .cap {
@@ -1944,7 +1944,7 @@
 
         /* The Problem: lead with the failure clip (motion is the lure), then the
            one-line takeaway, then the detail demoted for those who want it. */
-        .problem-hook { margin: 22px auto 0; max-width: 800px; }
+        .problem-hook { margin: 18px auto 0; max-width: 800px; }
         .problem-hook video {
             width: 100%; display: block; border-radius: 14px;
             background: #0c0d0f; box-shadow: var(--sh-card);
@@ -2762,6 +2762,7 @@
             position: absolute; left: 0; right: 0; bottom: 0; padding: 15px 9px 6px;
             font-family: 'JetBrains Mono', monospace; font-size: 0.58rem; line-height: 1.3; color: #fff;
             background: linear-gradient(0deg, rgba(0,0,0,0.8), transparent);
+            pointer-events: none;   /* let clicks reach the native video controls underneath */
         }
         .ur-sim { display: block; color: #9fb8d8; font-weight: 700; font-size: 0.52rem; text-transform: uppercase; letter-spacing: 0.08em; }
         .ur-hw  { display: block; color: #e0a59a; font-weight: 700; font-size: 0.52rem; text-transform: uppercase; letter-spacing: 0.08em; }
@@ -2796,6 +2797,7 @@
             position: absolute; left: 0; right: 0; bottom: 0; padding: 18px 12px 9px;
             font-family: 'JetBrains Mono', monospace; font-size: 0.66rem; line-height: 1.4; color: #fff;
             background: linear-gradient(0deg, rgba(0,0,0,0.8), transparent);
+            pointer-events: none;
         }
         .bb-ok  { color: #9fd3b0; font-weight: 700; margin-right: 6px; }
         .bb-bad { color: #e0a59a; font-weight: 700; margin-right: 6px; }
@@ -2816,6 +2818,7 @@
             font-family: 'JetBrains Mono', monospace; font-size: 0.64rem; line-height: 1.35; color: #fff;
             background: linear-gradient(0deg, rgba(0,0,0,0.78), transparent);
             display: flex; flex-direction: column; gap: 2px;
+            pointer-events: none;
         }
         .mt-card figcaption b { color: #fff; font-weight: 700; }
         .mt-borrow { color: var(--em-glow); font-weight: 700; }

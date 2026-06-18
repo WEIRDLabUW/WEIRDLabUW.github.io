@@ -95,20 +95,21 @@ document.addEventListener('DOMContentLoaded',function(){
         vids.forEach(function(v){ v.preload='auto'; v.load(); if(v.dataset.autoplay) v.play().catch(function(){}); });
         return;
     }
-    // Play a video only while it's in view; pause it when scrolled away, so
-    // nothing plays until you actually see it (and offscreen clips stay quiet).
+    // Preload a clip as it nears the viewport, but only PLAY it while it's at
+    // least half on screen — so two autoplaying clips (e.g. the hero teaser and
+    // the Problem clip) never animate at the same time. The hero is included so
+    // it pauses once you scroll down toward the next video.
     var io = new IntersectionObserver(function(entries){
         entries.forEach(function(e){
             var v = e.target;
-            if(e.isIntersecting){
-                if(v.preload !== 'auto'){ v.preload = 'auto'; try { v.load(); } catch(_){} }
-                if(v.dataset.autoplay) v.play().catch(function(){});
-            } else if(v.dataset.autoplay && !v.paused){
-                v.pause();
-            }
+            if(e.isIntersecting && v.preload !== 'auto'){ v.preload = 'auto'; try { v.load(); } catch(_){} }
+            if(!(v === hero || v.dataset.autoplay)) return;
+            if(e.intersectionRatio >= 0.5){ if(v.paused) v.play().catch(function(){}); }
+            else if(!v.paused){ v.pause(); }
         });
-    }, { rootMargin: '120px 0px', threshold: 0.01 });
+    }, { rootMargin: '120px 0px', threshold: [0, 0.5, 1] });
     vids.forEach(function(v){ io.observe(v); });
+    io.observe(hero);
 })();
 
 // Lazy-load offscreen images

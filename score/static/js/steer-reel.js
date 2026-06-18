@@ -511,11 +511,11 @@
         actTag.innerHTML = a===1 ? '&pi;<sub>base</sub> action' : '&pi;<sub>steer</sub> ∘ &pi;<sub>base</sub>';
         // narrated phase caption (replaces the old method paragraph)
         var cap;
-        if (a===1)            cap = 'A frozen <b>base-policy prior</b> from real demonstrations bounds where steering can go.';
-        else if (a===3)       cap = '<b>Deployed</b> directly on the real robot, with the <b>base policy unchanged</b>. No distillation, no sim-to-real fine-tuning.';
-        else if (conv < 0.38) cap = '<b>Massively parallel simulation</b> enables broad domain randomization and rich failure-and-recovery interactions for the policy to learn from.';
-        else if (conv < 0.66) cap = '<b>Support-constrained RL</b> steers the policy toward a <b>sparse task reward</b>, with no reward shaping.';
-        else                  cap = 'The policy is <b>improved</b>, converging on the high-reward behavior without leaving the prior&rsquo;s support.';
+        if (a===1)            cap = 'Frozen <b>base policy</b> from real demos';
+        else if (a===3)       cap = '<b>Deployed</b> unchanged on the real robot';
+        else if (conv < 0.38) cap = '<b>Massively parallel sim training</b> with domain randomization';
+        else if (conv < 0.66) cap = '<b>Support-constrained RL</b> with sparse rewards';
+        else                  cap = 'Steered toward <b>high-value actions</b>';
         // only swap on an actual phase change, with a soft fade, so the line reads
         // like a deliberate subtitle instead of flickering every frame.
         if (actLbl.dataset.cap !== cap){

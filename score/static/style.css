@@ -2792,6 +2792,13 @@
         .bb-card { position: relative; margin: 0; border-radius: 11px; overflow: hidden;
             background: #000; box-shadow: 0 0 0 1px var(--rule); }
         .bb-card video { width: 100%; display: block; object-fit: cover; aspect-ratio: 4 / 3; }
+        /* small speed inset, top-left so it clears the native control bar */
+        .speed-tag {
+            position: absolute; left: 10px; top: 10px; z-index: 2; pointer-events: none;
+            font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; font-weight: 600;
+            letter-spacing: 0.04em; color: #fff; background: rgba(0,0,0,0.55);
+            padding: 3px 8px; border-radius: 5px;
+        }
         .bb-card.score { box-shadow: 0 0 0 1.5px var(--em-mid); }
         .bb-card figcaption {
             position: absolute; left: 0; right: 0; bottom: 0; padding: 18px 12px 9px;

@@ -8,7 +8,7 @@
      ACT 1 · REAL demos   → the real prior fixes the support.
      ACT 2 · SIM training → step through the timelapse while the mechanism
                             converges.
-     ACT 3 · REAL deploy  → runs on the real robot, unchanged.
+     ACT 3 · REAL deploy  → runs on the real robot.
 
    The mechanism (right) shows the real architecture:
        π_steer(z|o)  →  π_base 🔒 (frozen lens)  →  action distribution
@@ -512,7 +512,7 @@
         // narrated phase caption (replaces the old method paragraph)
         var cap;
         if (a===1)            cap = 'Frozen <b>base policy</b> from real demos';
-        else if (a===3)       cap = '<b>Deployed</b> unchanged on the real robot';
+        else if (a===3)       cap = '<b>Deployed</b> on the real robot';
         else if (conv < 0.38) cap = '<b>Massively parallel sim training</b> with domain randomization';
         else if (conv < 0.66) cap = '<b>Support-constrained RL</b> with sparse rewards';
         else                  cap = 'Steered toward <b>high-value actions</b>';

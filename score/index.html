@@ -41,7 +41,7 @@
             <a class="spine-stop" href="#sec-method"       style="--p:20%"   ><span class="dot"></span><span class="lbl">Method</span></a>
             <a class="spine-stop" href="#sec-failures"     style="--p:40%"   ><span class="dot"></span><span class="lbl">Free RL</span></a>
             <a class="spine-stop" href="#sec-tradeoff"     style="--p:60%"   ><span class="dot"></span><span class="lbl">Tradeoff</span></a>
-            <a class="spine-stop" href="#sec-limitations"  style="--p:80%"   ><span class="dot"></span><span class="lbl">Steering</span></a>
+            <a class="spine-stop" href="#sec-limitations"  style="--p:80%"   ><span class="dot"></span><span class="lbl">Reach</span></a>
             <a class="spine-stop" href="#sec-takeaway"     style="--p:100%"  ><span class="dot"></span><span class="lbl">Takeaway</span></a>
         </div>
     </div>
@@ -293,7 +293,7 @@
 
     <!-- ── Brand-new tasks (merged) ── -->
     <h3 class="sub-head" style="margin-top:38px;">Fast to iterate on new tasks</h3>
-    <p class="body-text">Adding a new task is fast: under half a day from collecting demonstrations to deploying a steered policy. In both examples below, the base policy cannot recover once a grasp fails, while SCORE retries until it succeeds.</p>
+    <p class="body-text">Adding a new task is fast: under half a day from collecting demonstrations to deploying a SCORE policy. In both examples below, the base policy cannot recover once a grasp fails, while SCORE retries until it succeeds.</p>
     <div class="bb-tasks">
         <div class="bb-task">
             <div class="bb-task-name">Open a Clorox bottle</div>
@@ -424,17 +424,17 @@
     </div>
 </section>
 
-<!-- ════════════════ HOW FAR CAN STEERING GO ════════════════ -->
+<!-- ════════════════ HOW FAR CAN SCORE GO ════════════════ -->
 <section class="page-section fade-in" id="sec-limitations">
     <header class="sec-head">
         <span class="sigma-rule"></span>
-        <h2 class="sec-title">How Far Can Steering Go?</h2>
-        <p class="sec-lead">Steering goes a long way, as long as the behavior already lives in the prior.</p>
+        <h2 class="sec-title">How Far Can SCORE Go?</h2>
+        <p class="sec-lead">SCORE goes a long way, as long as the behavior already lives in the prior.</p>
     </header>
 
     <!-- ── Multi-task: one policy across tasks ── -->
     <h3 class="sub-head">One policy across tasks</h3>
-    <p class="mt-lede">One <strong>steered policy</strong> trained on three tasks: credit card, cube, and bottle. It picks the right grasp for each object, and even <strong>reuses behaviors across them</strong>.</p>
+    <p class="mt-lede">One policy, trained with <strong>SCORE</strong> on three tasks: credit card, cube, and bottle. It picks the right grasp for each object, and even <strong>reuses behaviors across them</strong>.</p>
 
     <div class="mt-hero">
         <div class="mt-hero-head">Same cube, two borrowed behaviors</div>
@@ -452,7 +452,7 @@
     </div>
 
     <div class="mt-native">
-        <p class="mt-native-head">For each object, the steered policy reaches with the <strong>right grasp</strong>. The base policy mixes them up, using one object&rsquo;s grasp on another.</p>
+        <p class="mt-native-head">For each object, the SCORE policy reaches with the <strong>right grasp</strong>. The base policy mixes them up, using one object&rsquo;s grasp on another.</p>
         <div class="mt-objs">
             <div class="mt-obj">
                 <div class="mt-obj-name">Credit Card</div>
@@ -471,45 +471,45 @@
         </div>
     </div>
 
-    <!-- ── Carrot: steering to a new object ── -->
-    <h3 class="sub-head" style="margin-top:42px;">Steering to a new object: bottle &rarr; carrot</h3>
+    <!-- ── Carrot: a new object ── -->
+    <h3 class="sub-head" style="margin-top:42px;">A new object: bottle &rarr; carrot</h3>
     <p class="body-text">
-        We take a frozen <strong>bottle-grasp</strong> policy and steer it in simulation onto a <strong>carrot</strong>, an object it never trained on. The carrot is thinner and needs a precise pinch that the bottle prior produces only rarely.
+        We take a frozen <strong>bottle-grasp</strong> policy and use <strong>SCORE</strong> in simulation to grasp a <strong>carrot</strong>, an object it never trained on. The carrot is thinner and needs a precise pinch that the bottle prior produces only rarely.
     </p>
     <div class="rollout-grid" style="margin-top:16px;">
         <div class="rollout-col">
-            <div class="rollout-col-title">SCORE <em>(steered to bottle)</em></div>
+            <div class="rollout-col-title">SCORE <em>(bottle)</em></div>
             <video src="static/videos/future/carrot/bottle/ep_000.mp4?v=20260604i" autoplay loop muted playsinline controls controlslist="nodownload noplaybackrate" style="width:100%;border-radius:10px;display:block;background:#000;"></video>
-            <div class="rollout-note base-note"><span class="note-tag" style="color:var(--em);">Reference</span>Steered to a bottle, then run on a carrot, it still reaches as if the carrot were a bottle (<strong>22%</strong> on hardware).</div>
+            <div class="rollout-note base-note"><span class="note-tag" style="color:var(--em);">Reference</span>With SCORE on a bottle, then run on a carrot, it still reaches as if the carrot were a bottle (<strong>22%</strong> success).</div>
         </div>
         <div class="rollout-col emerald-col">
-            <div class="rollout-col-title">SCORE <em>(steered to carrot)</em></div>
+            <div class="rollout-col-title">SCORE <em>(carrot)</em></div>
             <video src="static/videos/future/carrot/carrot/ep_000.mp4?v=20260604i" autoplay loop muted playsinline controls controlslist="nodownload noplaybackrate" style="width:100%;border-radius:10px;display:block;background:#000;"></video>
-            <div class="rollout-note score-note"><span class="note-tag">✓ SCORE behavior</span>Steered to the carrot, it surfaces the rare in-support pinch and grasps it: 67% on hardware.</div>
+            <div class="rollout-note score-note"><span class="note-tag">✓ SCORE behavior</span>With SCORE on the carrot, it surfaces the rare in-support pinch and grasps it: 67% success.</div>
         </div>
     </div>
 
     <!-- ── Distractor: where it runs thin ── -->
-    <h3 class="sub-head" style="margin-top:42px;">Steering around distractors</h3>
+    <h3 class="sub-head" style="margin-top:42px;">Adding distractors</h3>
     <p class="body-text">
-        The bottle policy was trained with <strong>no distractor objects</strong>. We add <strong>two distractor cubes</strong> and steer it to grasp around them, recovering a working grasp on hardware, but only when the bottle sits on one side of the workspace.
+        The bottle policy was trained with <strong>no distractor objects</strong>. We add <strong>two distractor cubes</strong> and apply <strong>SCORE</strong> to grasp around them, recovering a working grasp on hardware, but only when the bottle sits on one side of the workspace.
     </p>
     <div class="rollout-grid" style="margin-top:16px;">
         <div class="rollout-col">
             <div class="rollout-col-title">Base <em>(with distractor)</em></div>
             <video src="static/videos/future/distractor/hw_base/ep_000.mp4?v=20260604i" autoplay loop muted playsinline controls controlslist="nodownload noplaybackrate" style="width:100%;border-radius:10px;display:block;background:#000;"></video>
-            <div class="rollout-note base-note"><span class="note-tag">✗ Base policy</span>With a distractor, the base bottle policy collapses (<strong>0%</strong> on hardware).</div>
+            <div class="rollout-note base-note"><span class="note-tag">✗ Base policy</span>With a distractor, the base bottle policy collapses (<strong>0%</strong> success).</div>
         </div>
         <div class="rollout-col emerald-col">
-            <div class="rollout-col-title">SCORE <em>(steered, with distractor)</em></div>
+            <div class="rollout-col-title">SCORE <em>(with distractor)</em></div>
             <video src="static/videos/future/distractor/hw_score/ep_000.mp4?v=20260604i" autoplay loop muted playsinline controls controlslist="nodownload noplaybackrate" style="width:100%;border-radius:10px;display:block;background:#000;"></video>
-            <div class="rollout-note score-note"><span class="note-tag">~ SCORE behavior</span>SCORE occasionally achieves a working grasp, but performance is limited because the prior is far out of distribution (56%).</div>
+            <div class="rollout-note score-note"><span class="note-tag">~ SCORE behavior</span>SCORE occasionally achieves a working grasp, but performance is limited because the prior is far out of distribution (56% success).</div>
         </div>
     </div>
 
     <div class="key-insight" style="margin-top:30px;">
         <span class="ki-label">The limit</span>
-        <p>What limits steering is the prior itself. The broader its coverage, the further steering can go.</p>
+        <p>What limits SCORE is the prior itself. The broader its coverage, the further it can go.</p>
     </div>
 </section>
 

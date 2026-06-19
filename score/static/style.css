@@ -1955,6 +1955,29 @@
             border-left-width: 1px; border-left-color: var(--rule-soft);
         }
 
+        /* THE PROBLEM as two square cards: one per failure mode. Square so a
+           portrait teleop clip and a landscape rollout sit as a deliberate pair. */
+        .problem-duo { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 18px 0 0; }
+        .pcard { margin: 0; }
+        .pcard video {
+            width: 100%; display: block; aspect-ratio: 16 / 9; object-fit: cover;
+            border-radius: 14px; background: #0c0d0f; box-shadow: var(--sh-card);
+        }
+        .pcard figcaption {
+            margin-top: 12px;
+            font-family: 'Fraunces', serif; font-variation-settings: 'opsz' 32;
+            font-size: 1rem; line-height: 1.5; color: var(--ink-soft);
+        }
+        .pcard-tag {
+            display: block;
+            font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; font-weight: 700;
+            letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 6px;
+        }
+        .pcard-tag.real  { color: var(--em); }
+        .pcard-tag.sim   { color: var(--baseline-terracotta); }
+        .pcard-tag.tight { color: var(--baseline-ochre); }
+        @media (max-width: 760px) { .problem-duo { grid-template-columns: 1fr; } }
+
         /* METHOD: static overview figure (the three acts at a glance) sits above
            the interactive reel so the gist reads in one look, no video required. */
         /* ── live method figure (rebuilt in HTML/CSS/SVG) ── */

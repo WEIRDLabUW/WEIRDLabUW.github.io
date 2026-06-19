@@ -15,7 +15,7 @@
     <title>SCORE: Support-Constrained Off-Domain Real-world Exploration</title>
     <meta name="description" content="Support-Constrained RL Enables Real-World Policy Improvement without Real-World Experience">
 
-    <link rel="preload" as="video" href="static/videos/score_teaser.mp4?v=20260617b" type="video/mp4" fetchpriority="high">
+    <link rel="preload" as="video" href="static/videos/score_teaser.mp4?v=20260618f" type="video/mp4" fetchpriority="high">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 
@@ -24,7 +24,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
 
-    <link rel="stylesheet" href="static/style.css?v=20260618a">
+    <link rel="stylesheet" href="static/style.css?v=20260618d">
 </head>
 <body>
 
@@ -64,12 +64,11 @@
 
     <figure class="polaroid teaser-polaroid">
         <video id="hero-teaser-video" autoplay loop muted playsinline controls controlslist="nodownload noplaybackrate" preload="auto" fetchpriority="high">
-            <source src="static/videos/score_teaser.mp4?v=20260617b" type="video/mp4">
+            <source src="static/videos/score_teaser.mp4?v=20260618f" type="video/mp4">
         </video>
     </figure>
 
     <div class="hero-quick-links">
-        <a class="qlink primary" href="#" onclick="openVideoLb(); return false;">&#9654; Full video</a>
         <!-- TODO: replace href="#" with the arXiv abstract URL once available -->
         <a class="qlink link-accent" href="#" onclick="return false;"><i class="ai ai-arxiv"></i> arXiv ↗</a>
         <span class="qlink qlink-soon"><i class="fa-brands fa-github"></i> Code <em>coming soon</em></span>
@@ -84,15 +83,31 @@
         <p class="sec-lead">The same simulation that improves a policy can break it.</p>
     </header>
 
-    <p class="body-text">
-        A policy learned from a handful of demonstrations can be fragile: it may grasp imprecisely, act slowly, and fail as soon as the object is disturbed. Improving policies in the real world is slow and expensive, which makes simulation an appealing alternative. However, naively optimizing <strong style="color:var(--baseline-terracotta);">freely</strong> in simulation allows the policy to exploit any inaccuracy in the simulator to maximize reward, producing grasps that fail or damage the real hardware. Constraining it too <strong style="color:var(--baseline-ochre);">tightly</strong> to the demonstrations avoids that, but inherits the base policy&rsquo;s imperfections.
-    </p>
-
-    <!-- HOOK: free optimization in sim literally snapped a finger on hardware -->
-    <figure class="problem-hook">
-        <video src="static/videos/extras/ep_002.mp4" autoplay loop muted playsinline controls controlslist="nodownload noplaybackrate"></video>
-        <figcaption class="cap">Optimized <strong style="color:var(--baseline-terracotta);">freely</strong> in simulation, the policy solves the task, but through motions that exploit the simulator. Executed at high force on the real hand, those same motions eventually snapped a finger.</figcaption>
-    </figure>
+    <!-- two problems, shown as evidence: real-world data is costly + limited,
+         and free optimization in sim exploits the simulator. -->
+    <div class="problem-duo">
+        <figure class="pcard">
+            <video src="static/videos/problem/teleop.mp4?v=20260618c" autoplay loop muted playsinline controls controlslist="nodownload noplaybackrate"></video>
+            <figcaption>
+                <span class="pcard-tag real">Learning from real data</span>
+                Collecting real-world demonstrations is slow and expensive, and the policy inherits the demonstrator&rsquo;s flaws.
+            </figcaption>
+        </figure>
+        <figure class="pcard">
+            <video src="static/videos/sim_fpo/cup_pour.mp4?v=20260618" autoplay loop muted playsinline controls controlslist="nodownload noplaybackrate"></video>
+            <figcaption>
+                <span class="pcard-tag sim">Improving policies in simulation</span>
+                Improving policies freely in simulation with RL exploits the simulator and transfers unsafely to the real world.
+            </figcaption>
+        </figure>
+        <figure class="pcard">
+            <video src="static/videos/real_world_rollouts/credit_card_pick/base/ep_003.mp4?v=20260618" autoplay loop muted playsinline controls controlslist="nodownload noplaybackrate"></video>
+            <figcaption>
+                <span class="pcard-tag tight">Regularization tradeoff</span>
+                Too much regularization toward real-world demos keeps the base policy&rsquo;s failures. Too little exploits the simulator.
+            </figcaption>
+        </figure>
+    </div>
 
     <div class="key-insight" style="margin-top:16px;">
         <span class="ki-label">The key insight</span>
@@ -105,7 +120,7 @@
     <header class="sec-head">
         <span class="sigma-rule"></span>
         <h2 class="sec-title">Method</h2>
-        <p class="sec-lead">Steer through the support, don&rsquo;t escape it.</p>
+        <p class="sec-lead">We learn to steer the base policy in simulation.</p>
     </header>
 
     <!-- live method figure: photos are images, everything else is vector so the
@@ -314,11 +329,11 @@
     <header class="sec-head">
         <span class="sigma-rule"></span>
         <h2 class="sec-title">Why You Shouldn&rsquo;t Optimize Freely in Simulation</h2>
-        <p class="sec-lead">It looks great in sim, then breaks on hardware.</p>
+        <p class="sec-lead">It works in sim, then breaks on hardware.</p>
     </header>
 
     <p class="body-text">
-        With unconstrained RL, the policy maximizes reward by <strong>exploiting the simulator</strong>. The resulting grasps are contorted and high-force: they achieve high reward in simulation but become erratic or dangerous on the real robot. Each pair below shows one such <em>unconstrained-RL policy</em> in simulation, then the same behavior on hardware.
+        With unconstrained RL, the policy maximizes reward by <strong>exploiting the simulator</strong>. The resulting grasps are contorted and high-force: they achieve high reward in simulation but become erratic or dangerous on the real robot.
     </p>
 
     <div class="ur-pairs">
@@ -374,7 +389,7 @@
     </header>
 
     <p class="body-text">
-        A common way to keep a simulation policy deployable is to regularize it toward the base policy with a <strong>behavior-cloning (BC) loss</strong>, then tune the strength of that regularization. Across every coefficient we tried, the same tradeoff appeared. Weak regularization lets the policy drift into dangerous, non-transferable behavior, while strong regularization drags it back into the base policy&rsquo;s failures. Nothing in between recovers SCORE&rsquo;s performance. In our paper, we show that this is a provable limitation of algorithms that limit deviation from the base policy&rsquo;s distribution, such as <strong>BC-PPO</strong> or <strong>residual RL</strong>.
+        A common way to keep a simulation policy deployable is to regularize it toward the base policy with a <strong>behavior-cloning (BC) loss</strong>, then tune the strength of that regularization. In our paper, we show that this induces a tradeoff and is a provable limitation of algorithms that limit deviation from the base policy&rsquo;s distribution, such as <strong>BC-PPO</strong> or <strong>residual RL</strong>.
     </p>
 
     <!-- ── interactive BC-regularization plot ── -->
@@ -391,8 +406,8 @@
     </figure>
 
     <!-- ── on hardware (trimmed) ── -->
-    <h3 class="sub-head" style="margin-top:36px;">The same tension on hardware</h3>
-    <p class="body-text">The same thing happens on real hardware: even with the BC constraint in place, the policy settles on behavior that is unsafe or unreliable once deployed.</p>
+    <h3 class="sub-head" style="margin-top:36px;">On real hardware</h3>
+    <p class="body-text">Even with the BC constraint in place, the policy settles on behavior that is unsafe or unreliable once deployed.</p>
     <div class="fail-gallery">
         <figure>
             <video src="static/videos/real_world_rollouts/soccer_push/rialto/ep_000.mp4" autoplay loop muted playsinline controls controlslist="nodownload noplaybackrate"></video>
@@ -459,13 +474,13 @@
     <!-- ── Carrot: steering to a new object ── -->
     <h3 class="sub-head" style="margin-top:42px;">Steering to a new object: bottle &rarr; carrot</h3>
     <p class="body-text">
-        We take a frozen <strong>bottle-grasp</strong> policy and steer it in simulation onto a <strong>carrot</strong>, an object it never trained on. A carrot is much thinner and demands a precise pinch, a behavior that appears only rarely under the bottle prior. Steering still recovers that pinch: on hardware the carrot-steered policy reaches <strong>67%</strong>, far above the same policy steered to a bottle (22%).
+        We take a frozen <strong>bottle-grasp</strong> policy and steer it in simulation onto a <strong>carrot</strong>, an object it never trained on. The carrot is thinner and needs a precise pinch that the bottle prior produces only rarely.
     </p>
     <div class="rollout-grid" style="margin-top:16px;">
         <div class="rollout-col">
             <div class="rollout-col-title">SCORE <em>(steered to bottle)</em></div>
             <video src="static/videos/future/carrot/bottle/ep_000.mp4?v=20260604i" autoplay loop muted playsinline controls controlslist="nodownload noplaybackrate" style="width:100%;border-radius:10px;display:block;background:#000;"></video>
-            <div class="rollout-note base-note"><span class="note-tag" style="color:var(--em);">Reference</span>Steered to a bottle, then run on a carrot, it still reaches as if the carrot were a bottle.</div>
+            <div class="rollout-note base-note"><span class="note-tag" style="color:var(--em);">Reference</span>Steered to a bottle, then run on a carrot, it still reaches as if the carrot were a bottle (<strong>22%</strong> on hardware).</div>
         </div>
         <div class="rollout-col emerald-col">
             <div class="rollout-col-title">SCORE <em>(steered to carrot)</em></div>
@@ -475,15 +490,15 @@
     </div>
 
     <!-- ── Distractor: where it runs thin ── -->
-    <h3 class="sub-head" style="margin-top:42px;">Where it runs thin</h3>
+    <h3 class="sub-head" style="margin-top:42px;">Steering around distractors</h3>
     <p class="body-text">
-        The same bottle policy was trained with <strong>no distractor objects</strong> in the scene. When we add <strong>two distractor cubes</strong> and steer the policy to grasp around them, it recovers a working grasp on hardware (<strong>56%</strong>, up from 0% base), but only when the bottle sits on one side of the workspace. Even though SCORE trains with the distractors in simulation, exploration gets harder the farther the scene drifts from where the base policy was trained, so a robust grasp is harder to discover through steering.
+        The bottle policy was trained with <strong>no distractor objects</strong>. We add <strong>two distractor cubes</strong> and steer it to grasp around them, recovering a working grasp on hardware, but only when the bottle sits on one side of the workspace.
     </p>
     <div class="rollout-grid" style="margin-top:16px;">
         <div class="rollout-col">
             <div class="rollout-col-title">Base <em>(with distractor)</em></div>
             <video src="static/videos/future/distractor/hw_base/ep_000.mp4?v=20260604i" autoplay loop muted playsinline controls controlslist="nodownload noplaybackrate" style="width:100%;border-radius:10px;display:block;background:#000;"></video>
-            <div class="rollout-note base-note"><span class="note-tag">✗ Base policy</span>With a distractor, the base bottle policy collapses.</div>
+            <div class="rollout-note base-note"><span class="note-tag">✗ Base policy</span>With a distractor, the base bottle policy collapses (<strong>0%</strong> on hardware).</div>
         </div>
         <div class="rollout-col emerald-col">
             <div class="rollout-col-title">SCORE <em>(steered, with distractor)</em></div>
@@ -507,7 +522,7 @@
     </header>
 
     <p class="body-text problem-lead" style="margin-top:22px;">
-        Overall, SCORE shows that simulation does not have to mean training a new policy from scratch. It can also be used to improve an existing real-world policy, so long as that improvement stays within the support of the real-world prior. With sparse rewards and a simple training pipeline, SCORE reaches robust, fast, and precise manipulation with minimal effort. A new task takes under half a day to add, from data collection to training to deployment, with large gains over the base policy. However, its reach is still bounded by coverage, since improvement falls off in scenes that drift far from the prior. A natural next step is to build broader behavior priors and datasets designed for steering, where coverage is measured by what simulation can later improve.
+        SCORE shows that simulation does not have to mean training a new policy from scratch. It can also improve an existing real-world policy, so long as that improvement stays within the support of the real-world prior. With sparse rewards and a simple pipeline, it reaches fast, precise, and robust manipulation with minimal effort, and a new task takes under half a day to add. However, its reach is still bounded by the prior&rsquo;s coverage, so a natural next step is building broader behavior priors and datasets designed for steering.
     </p>
 </section>
 
@@ -545,7 +560,7 @@
             box-shadow:0 30px 80px rgba(0,0,0,0.6);
             display:block;
         ">
-            <source src="static/videos/score_teaser.mp4?v=20260617b" type="video/mp4">
+            <source src="static/videos/score_teaser.mp4?v=20260618f" type="video/mp4">
         </video>
         <button onclick="closeVideoLb()" style="
             position:absolute; top:-14px; right:-14px;

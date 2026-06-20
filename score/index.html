@@ -24,7 +24,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
 
-    <link rel="stylesheet" href="static/style.css?v=20260618d">
+    <link rel="stylesheet" href="static/style.css?v=20260620e">
 </head>
 <body>
 
@@ -38,10 +38,11 @@
             <div class="spine-bar"></div>
             <div class="spine-cursor" id="spine-cursor"></div>
             <a class="spine-stop" href="#sec-problem"      style="--p:0%"    ><span class="dot"></span><span class="lbl">Problem</span></a>
-            <a class="spine-stop" href="#sec-method"       style="--p:20%"   ><span class="dot"></span><span class="lbl">Method</span></a>
-            <a class="spine-stop" href="#sec-failures"     style="--p:40%"   ><span class="dot"></span><span class="lbl">Free RL</span></a>
-            <a class="spine-stop" href="#sec-tradeoff"     style="--p:60%"   ><span class="dot"></span><span class="lbl">Tradeoff</span></a>
-            <a class="spine-stop" href="#sec-limitations"  style="--p:80%"   ><span class="dot"></span><span class="lbl">Reach</span></a>
+            <a class="spine-stop" href="#sec-method"       style="--p:17%"   ><span class="dot"></span><span class="lbl">Method</span></a>
+            <a class="spine-stop" href="#sec-failures"     style="--p:33%"   ><span class="dot"></span><span class="lbl">Free RL</span></a>
+            <a class="spine-stop" href="#sec-tradeoff"     style="--p:50%"   ><span class="dot"></span><span class="lbl">Tradeoff</span></a>
+            <a class="spine-stop" href="#sec-support"      style="--p:67%"   ><span class="dot"></span><span class="lbl">Support</span></a>
+            <a class="spine-stop" href="#sec-limitations"  style="--p:83%"   ><span class="dot"></span><span class="lbl">Reach</span></a>
             <a class="spine-stop" href="#sec-takeaway"     style="--p:100%"  ><span class="dot"></span><span class="lbl">Takeaway</span></a>
         </div>
     </div>
@@ -424,6 +425,40 @@
     </div>
 </section>
 
+<!-- ════════════════ SUPPORT CONSTRAINT ════════════════ -->
+<section class="page-section fade-in" id="sec-support">
+    <header class="sec-head">
+        <span class="sigma-rule"></span>
+        <h2 class="sec-title">What Is a Support Constraint?</h2>
+        <p class="sec-lead">Optimize for reward without leaving what the base policy can already do.</p>
+    </header>
+
+    <p class="body-text">
+        The <strong>support</strong> of &pi;<sub>base</sub> is the model-induced set of actions the base policy can produce for a given latent <em>z</em>. A <strong>support constraint</strong> keeps optimization within that set. SCORE optimizes over <em>z</em> and climbs toward higher reward, but does not act far out of the prior&rsquo;s support, allowing for better sim2real transfer.
+    </p>
+
+    <figure class="sconst">
+        <div class="sconst-stage">
+            <svg id="sconst-svg" viewBox="0 0 760 446" preserveAspectRatio="xMidYMid meet" role="img"
+                 aria-label="A space of behaviors. The base policy's demonstrations cover a region called its support. SCORE optimizes for reward within that support; a distributional (BC) constraint trades off transferability for reward as it loosens, and at the weak limit collapses to unconstrained RL, which exploits the simulator."></svg>
+            <div class="sconst-legend" id="sconst-legend">
+                <button data-i="0" style="--c:#808794"><span class="dot"></span>base policy</button>
+                <button data-i="1" style="--c:#2c4266"><span class="dot"></span>SCORE</button>
+                <button data-i="2" style="--c:#b08b45"><span class="dot"></span>distributional constraint</button>
+                <button data-i="3" style="--c:#e63418"><span class="dot"></span>unconstrained RL</button>
+            </div>
+        </div>
+        <figcaption class="cap">
+            Each point is an action &pi;<sub>base</sub> can produce. <b class="t-good">SCORE</b> shifts the policy toward reward inside the support. A <b class="t-mid">distributional (BC) constraint</b> trades off as &lambda; loosens: it drifts out of support and collapses to <b class="t-bad">unconstrained RL</b>, which exploits the simulator.
+        </figcaption>
+    </figure>
+
+    <div class="key-insight" style="margin-top:18px;">
+        <span class="ki-label">Why it works</span>
+        <p>Inside the support, behaviors are already <em>realizable</em> in real. A <strong>support constraint</strong> keeps optimization on that manifold, so the improvement found in simulation still holds on the robot.</p>
+    </div>
+</section>
+
 <!-- ════════════════ HOW FAR CAN SCORE GO ════════════════ -->
 <section class="page-section fade-in" id="sec-limitations">
     <header class="sec-head">
@@ -594,7 +629,8 @@
 <script src="static/js/steer-reel.js?v=20260619a"></script>
 <script src="static/js/qualitative.js"></script>
 <script src="static/js/tradeoff.js?v=20260615b"></script>
-<script src="static/js/main.js?v=20260617c"></script>
+<script src="static/js/support-anim.js?v=20260620w"></script>
+<script src="static/js/main.js?v=20260620a"></script>
 <script>
 // BibTeX copy
 (function(){

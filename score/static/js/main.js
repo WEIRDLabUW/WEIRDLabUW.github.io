@@ -143,7 +143,7 @@ document.querySelectorAll('.static-vid').forEach(function(v){
     var spine = document.getElementById('sigma-spine');
     var cursor = document.getElementById('spine-cursor');
     var stops = document.querySelectorAll('.spine-stop');
-    var sectionIds = ['sec-problem','sec-method','sec-failures','sec-tradeoff','sec-limitations','sec-takeaway'];
+    var sectionIds = ['sec-problem','sec-method','sec-failures','sec-tradeoff','sec-support','sec-limitations','sec-takeaway'];
     var sections = sectionIds.map(function(id){ return document.getElementById(id); }).filter(Boolean);
 
     // map stop href→section index

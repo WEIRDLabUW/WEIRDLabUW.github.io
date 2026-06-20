@@ -2052,6 +2052,47 @@
             .mfx { grid-template-columns: 1fr; gap: 12px; }
             .mfx-bell { height: 44px; } .mfx-act { height: 52px; }
         }
+
+        /* ── "What is a support constraint?" behavior-landscape figure ── */
+        .sconst { margin: 18px auto 0; max-width: 1000px; }
+        .sconst-stage {
+            position: relative;
+            background: var(--panel);
+            border: 1px solid var(--rule-soft);
+            border-radius: 16px;
+            box-shadow: var(--sh-card);
+            padding: 16px 18px 12px;
+        }
+        #sconst-svg { width: 100%; height: auto; display: block; }
+        .sconst .cap { margin-top: 14px; text-align: center; }
+        .sconst-legend {
+            position: absolute; left: 20px; bottom: 18px; z-index: 2;
+            display: flex; flex-direction: column; gap: 6px;
+        }
+        .sconst-legend button {
+            display: flex; align-items: center; gap: 8px;
+            font-family: 'JetBrains Mono', monospace; font-size: 0.74rem; font-weight: 500;
+            color: #6a665c; background: rgba(255,255,255,0.5);
+            border: 1px solid rgba(28,28,25,0.10); border-radius: 999px;
+            padding: 5px 13px 5px 10px; cursor: pointer; letter-spacing: 0.01em;
+            text-align: left; -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px);
+            transition: background .16s ease, color .16s ease, border-color .16s ease, transform .16s ease, box-shadow .16s ease;
+        }
+        .sconst-legend .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--c); flex: none; transition: transform .16s ease; }
+        .sconst-legend button:hover { background: rgba(255,255,255,0.92); color: #2a2822; border-color: rgba(28,28,25,0.22); transform: translateX(2px); }
+        .sconst-legend button.is-active {
+            background: #fff; color: #1c1c19; font-weight: 700;
+            border-color: var(--c); box-shadow: 0 2px 9px rgba(28,28,25,0.10);
+        }
+        .sconst-legend button.is-active .dot { transform: scale(1.3); }
+        @media (max-width: 640px) {
+            .sconst-legend { left: 10px; bottom: 10px; gap: 4px; }
+            .sconst-legend button { font-size: 0.64rem; padding: 4px 9px 4px 7px; gap: 6px; }
+        }
+
+        .sconst .cap .t-good { color: var(--em); font-weight: 700; }
+        .sconst .cap .t-mid  { color: #9c7a33; font-weight: 700; }
+        .sconst .cap .t-bad  { color: #d23a1f; font-weight: 700; }
         @media (prefers-reduced-motion: reduce) {
             .mfx-live::before, .mfx-arrow.flow { animation: none; }
         }

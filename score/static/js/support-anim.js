@@ -58,15 +58,19 @@
     // SCORE steers z, so it can only ever land on actions inside that set.
     var KB = {pos:'base',  col:SLATE,  leg:0, cap:'every action the base policy can produce', cc:INKS, star:0, sl:0, kv:0,   xm:0, trans:1, hold:2400};
     var KS = {pos:'score', col:NAVY,   leg:1, cap:'steers z toward reward, in support',          cc:EM,   star:1, sl:0, kv:0,   xm:0, trans:1600, hold:2800};
-    var KC1= {pos:'base',  col:OCHRE,  leg:2, cap:'λ high: pinned to base, keeps flaws',    cc:OCHD, star:0, sl:1, kv:0,   xm:0, trans:1400, hold:2500};
-    var KC2= {pos:'mid',   col:ORANGE, leg:2, cap:'λ lower: drifts out of support',         cc:'#b5642a', star:0, sl:1, kv:0.5, xm:0, trans:1500, hold:2500};
-    var KC3= {pos:'out',   col:REDV,   leg:3, cap:'no constraint: exploits the simulator',       cc:REDD, star:0, sl:1, kv:1,   xm:1, trans:1500, hold:2800};
-    var KF=[KB,KS,KC1,KC2,KC3];
+    var KC1 = {pos:'base', col:OCHRE,  leg:2, cap:'λ strong: barely improves, keeps its flaws', cc:OCHD, star:0, sl:1, kv:0,   xm:0, trans:1,    hold:2000};
+    var KC2 = {pos:'mid',  col:ORANGE, leg:2, cap:'λ looser: drifts out of support',          cc:'#b5642a', star:0, sl:1, kv:0.5, xm:0, trans:1400, hold:2000};
+    var KC2b= {pos:'out',  col:REDV,   leg:2, cap:'λ weak: collapses to unconstrained RL',     cc:REDD, star:0, sl:1, kv:1,   xm:1, trans:1400, hold:2200};
+    // unconstrained RL also starts from the base points (snap there, stay red / leg3),
+    // then exploits — mirrors how the distributional branch starts at base.
+    var KU  = {pos:'base', col:REDV,   leg:3, cap:'no constraint: optimize freely',           cc:REDD, star:0, sl:0, kv:0,   xm:0, trans:1,    hold:1400};
+    var KC3 = {pos:'out',  col:REDV,   leg:3, cap:'no constraint: exploits the simulator',      cc:REDD, star:0, sl:0, kv:0,   xm:1, trans:1500, hold:2800};
+    var KF=[KB,KS,KC1,KC2,KC2b,KU,KC3];
     var SEG=[], total=0;
     for(var k=0;k<KF.length;k++){ SEG.push({start:total, prev:KF[(k-1+KF.length)%KF.length], cur:KF[k]}); total += KF[k].trans+KF[k].hold; }
 
     // legend click → which regime to show, and where to resume the auto-loop
-    var PICK=[KB,KS,KC2,KC3], PICK_AUTO=[0,1,3,4];
+    var PICK=[KB,KS,KC2,KC3], PICK_AUTO=[0,1,3,6];
     var manual=false, selIdx=-1, mFrom=null, mTo=null, mT0=0, lastSt=null, MDUR=1500, TA=700;
 
     // ── defs ──

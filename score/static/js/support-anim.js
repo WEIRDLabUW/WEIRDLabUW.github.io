@@ -44,9 +44,9 @@
     var BASE = [[214,200],[276,170],[342,162],[238,244],[306,224],[372,250],
                 [206,272],[300,306],[416,228],[228,312],[342,300],[300,198]];
     var N = BASE.length;
-    var SCT = BASE.map(function(p,i){ var a=i*2.39996, r=5+4.4*Math.sqrt(i);
+    var SCT = BASE.map(function(_,i){ var a=i*2.39996, r=5+4.4*Math.sqrt(i);
         return [GOAL.x+r*Math.cos(a), GOAL.y+r*Math.sin(a)*0.82]; });     // SCORE: in-support cluster
-    var EST = BASE.map(function(p,i){ var a=i*2.39996+1.1, r=6+5.0*Math.sqrt(i);
+    var EST = BASE.map(function(_,i){ var a=i*2.39996+1.1, r=6+5.0*Math.sqrt(i);
         return [EXPL.x+r*Math.cos(a), EXPL.y+r*Math.sin(a)*0.92]; });     // out of support (exploit)
     var MID = BASE.map(function(p,i){ return [lerp(p[0],EST[i][0],0.5), lerp(p[1],EST[i][1],0.5)]; });
     var POS = {base:BASE, score:SCT, mid:MID, out:EST};
@@ -71,7 +71,7 @@
 
     // legend click → which regime to show, and where to resume the auto-loop
     var PICK=[KB,KS,KC2,KC3], PICK_AUTO=[0,1,3,6];
-    var manual=false, selIdx=-1, mFrom=null, mTo=null, mT0=0, lastSt=null, MDUR=1500, TA=700;
+    var manual=false, selIdx=-1, mTo=null, mT0=0, MDUR=1500;
 
     // ── defs ──
     var defs = E('defs',{});
@@ -160,8 +160,6 @@
                  capOp: loc<b.trans ? easeOut(clamp((loc-b.trans*0.25)/(b.trans*0.55))) : 1 };
     }
     function still(kf){ return { pos:POS[kf.pos], col:kf.col, star:kf.star, sl:kf.sl, kv:kf.kv, xm:kf.xm, cap:kf.cap, cc:kf.cc, leg:kf.leg, capOp:1 }; }
-    function snapshot(s){ var p=[]; for(var i=0;i<N;i++) p.push([s.pos[i][0], s.pos[i][1]]);
-        return {pos:p, col:s.col.slice(), star:s.star, sl:s.sl, kv:s.kv, xm:s.xm, leg:s.leg, cap:s.cap, cc:s.cc}; }
     function blendStates(a,b,e){
         var p=[]; for(var i=0;i<N;i++) p.push([lerp(a.pos[i][0],b.pos[i][0],e), lerp(a.pos[i][1],b.pos[i][1],e)]);
         return {pos:p, col:mixA(a.col,b.col,e), star:lerp(a.star,b.star,e), sl:lerp(a.sl,b.sl,e),
@@ -192,7 +190,6 @@
             introDone=true; play(); return;
         }
         manual=true; selIdx=i;
-        mFrom = snapshot(lastSt || still(KB));   // reset to base, then play to the pick
         mTo = still(PICK[i]); mT0 = performance.now();
         play();
     }
@@ -270,7 +267,6 @@
             st = introDone ? stateAt((t-INTRO)%total)
                            : {pos:POS.base, col:SLATE, star:0, sl:0, kv:0, xm:0, cap:KB.cap, cc:INKS, leg:0, capOp:1};
         }
-        lastSt = st;
         draw(blobIn, cloudIn, st, twk);
         raf=requestAnimationFrame(frame);
     }

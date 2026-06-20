@@ -2086,8 +2086,18 @@
         }
         .sconst-legend button.is-active .dot { transform: scale(1.3); }
         @media (max-width: 640px) {
-            .sconst-legend { left: 10px; bottom: 10px; gap: 4px; }
-            .sconst-legend button { font-size: 0.64rem; padding: 4px 9px 4px 7px; gap: 6px; }
+            /* below this width the overlaid buttons cover the figure, so flow them
+               below it as a centered wrapping row instead */
+            .sconst-stage { padding: 12px 12px 10px; }
+            .sconst-legend {
+                position: static; left: auto; bottom: auto;
+                flex-direction: row; flex-wrap: wrap; justify-content: center;
+                gap: 6px; margin: 10px auto 0;
+            }
+            .sconst-legend button {
+                font-size: 0.68rem; padding: 5px 11px 5px 9px; gap: 6px;
+                background: rgba(255,255,255,0.72);
+            }
         }
 
         .sconst .cap .t-good { color: var(--em); font-weight: 700; }

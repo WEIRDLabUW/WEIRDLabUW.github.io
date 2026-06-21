@@ -112,7 +112,7 @@
         var host = document.getElementById('ex-multitask');
         host.innerHTML =
             '<p class="mt-lede">A <strong>single steered policy</strong> trained on three tasks &mdash; credit card, cube, and bottle. ' +
-            'It applies the right grasp to each object, and even <strong>reuses behaviors across tasks</strong>.</p>';
+            'It applies the correct grasp to each object, and even <strong>learns to reuse behaviors across tasks</strong>.</p>';
 
         // ── borrowing hero ──
         var hero = document.createElement('div'); hero.className = 'mt-hero';

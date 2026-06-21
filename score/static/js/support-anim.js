@@ -58,15 +58,15 @@
     // ── keyframes: each regime, held long enough to read ──
     // support = the set of actions the base policy can produce over its latent z;
     // SCORE steers z, so it can only ever land on actions inside that set.
-    var KB = {pos:'base',  col:SLATE,  leg:0, cap:'every action the base policy can produce', cc:INKS, star:0, sl:0, kv:0,   xm:0, trans:1, hold:2400};
-    var KS = {pos:'score', col:NAVY,   leg:3, cap:'steers z toward reward, in support',          cc:EM,   star:1, sl:0, kv:0,   xm:0, trans:1600, hold:2800};
-    var KC1 = {pos:'base', col:OCHRE,  leg:2, cap:'λ strong: barely improves, keeps its flaws', cc:OCHD, star:0, sl:1, kv:0,   xm:0, trans:1,    hold:2000};
-    var KC2 = {pos:'mid',  col:ORANGE, leg:2, cap:'λ looser: drifts out of support',          cc:'#714350', star:0, sl:1, kv:0.5, xm:0, trans:1400, hold:2000};
-    var KC2b= {pos:'out',  col:REDV,   leg:2, cap:'λ weak: collapses to unconstrained RL',     cc:REDD, star:0, sl:1, kv:1,   xm:1, trans:1400, hold:2200};
+    var KB = {pos:'base',  col:SLATE,  leg:0, cap:'Base policy support: every action it can generate', cc:INKS, star:0, sl:0, kv:0,   xm:0, trans:1, hold:2400};
+    var KS = {pos:'score', col:NAVY,   leg:3, cap:'SCORE steers z toward reward, in support',          cc:EM,   star:1, sl:0, kv:0,   xm:0, trans:1600, hold:2800};
+    var KC1 = {pos:'base', col:OCHRE,  leg:2, cap:'Strong distributional constraint barely improves', cc:OCHD, star:0, sl:1, kv:0,   xm:0, trans:1,    hold:2000};
+    var KC2 = {pos:'mid',  col:ORANGE, leg:2, cap:'Looser distributional constraint drifts out of support',          cc:'#714350', star:0, sl:1, kv:0.5, xm:0, trans:1400, hold:2000};
+    var KC2b= {pos:'out',  col:REDV,   leg:2, cap:'Weak distributional constraint collapses to unconstrained RL',     cc:REDD, star:0, sl:1, kv:1,   xm:1, trans:1400, hold:2200};
     // unconstrained RL also starts from the base points (snap there, recolor / leg1),
     // then exploits — mirrors how the distributional branch starts at base.
-    var KU  = {pos:'base', col:REDV,   leg:1, cap:'no constraint: optimize freely',           cc:REDD, star:0, sl:0, kv:0,   xm:0, trans:1,    hold:1400};
-    var KC3 = {pos:'out',  col:REDV,   leg:1, cap:'no constraint: exploits the simulator',      cc:REDD, star:0, sl:0, kv:0,   xm:1, trans:1500, hold:2800};
+    var KU  = {pos:'base', col:REDV,   leg:1, cap:'No constraint: optimize freely',           cc:REDD, star:0, sl:0, kv:0,   xm:0, trans:1,    hold:1400};
+    var KC3 = {pos:'out',  col:REDV,   leg:1, cap:'Without constraints, π exploits the simulator',      cc:REDD, star:0, sl:0, kv:0,   xm:1, trans:1500, hold:2800};
     var KF=[KB,KU,KC3,KC1,KC2,KC2b,KS];
     var SEG=[], total=0;
     for(var k=0;k<KF.length;k++){ SEG.push({start:total, prev:KF[(k-1+KF.length)%KF.length], cur:KF[k]}); total += KF[k].trans+KF[k].hold; }
@@ -78,8 +78,8 @@
     // ── defs ──
     var defs = E('defs',{});
     var rg = E('radialGradient',{id:'sc-reward', cx:'50%', cy:'50%', r:'50%'});
-    rg.appendChild(E('stop',{offset:'0%',  'stop-color':'#e9c986', 'stop-opacity':'0.42'}));
-    rg.appendChild(E('stop',{offset:'55%', 'stop-color':'#e9c986', 'stop-opacity':'0.12'}));
+    rg.appendChild(E('stop',{offset:'0%',  'stop-color':'#b8842c', 'stop-opacity':'0.7'}));
+    rg.appendChild(E('stop',{offset:'55%', 'stop-color':'#e0bd6a', 'stop-opacity':'0.3'}));
     rg.appendChild(E('stop',{offset:'100%','stop-color':'#e9c986', 'stop-opacity':'0'}));
     defs.appendChild(rg);
     var bgg = E('linearGradient',{id:'sc-blob', x1:'0', y1:'1', x2:'1', y2:'0'});
@@ -89,7 +89,7 @@
     svg.appendChild(defs);
 
     // ── short explanation line (top-left), updates per phase ──
-    var cap = E('text',{x:152, y:42, 'font-family':MONO, 'font-size':'12.5', 'font-weight':'600',
+    var cap = E('text',{x:20, y:42, 'font-family':MONO, 'font-size':'12.5', 'font-weight':'600',
         'letter-spacing':'0.01em', opacity:'0'});
     svg.appendChild(cap);
 
@@ -98,10 +98,10 @@
     legBtns.forEach(function(b){ b.addEventListener('click', function(){ onPick(+b.getAttribute('data-i')); }); });
 
     // ── reward field ──
-    svg.appendChild(E('circle',{cx:668, cy:100, r:250, fill:'url(#sc-reward)'}));
+    svg.appendChild(E('circle',{cx:668, cy:100, r:410, fill:'url(#sc-reward)'}));
     var rlab = E('text',{x:738, y:34, 'text-anchor':'end', fill:'#9c7333',
         'font-family':MONO, 'font-size':'12', 'font-weight':'700', 'letter-spacing':'0.06em'});
-    rlab.textContent='high sim reward  ↗'; svg.appendChild(rlab);
+    rlab.textContent='High sim reward  ↗'; svg.appendChild(rlab);
 
     // ── support blob ──
     var blobFill = E('path',{d:BLOB, fill:'url(#sc-blob)', stroke:'none'});
@@ -112,7 +112,7 @@
     var blobTag = E('text',{x:330, y:101, 'text-anchor':'middle', fill:EMD, 'font-family':MONO, 'font-size':'13',
         'font-weight':'700'});
     var SERIF="Georgia, 'Times New Roman', serif";
-    var supT=E('tspan',{}); supT.textContent='support of ';
+    var supT=E('tspan',{}); supT.textContent='Support of ';
     var piT=E('tspan',{'font-family':SERIF, 'font-style':'italic', 'font-size':'16'}); piT.textContent='π';
     var piS=E('tspan',{'font-family':SERIF, 'font-style':'italic', 'font-size':'10', dy:'4'}); piS.textContent='base';
     var endT=E('tspan',{dy:'-4'}); endT.textContent=' ';
@@ -142,7 +142,7 @@
     var AX0=438, AX1=712, AY=410;
     var slG = E('g',{opacity:'0'}); svg.appendChild(slG);
     var slTitle = E('text',{x:AX0, y:AY-16, fill:OCHD, 'font-family':MONO, 'font-size':'12', 'font-weight':'700', 'font-style':'italic'});
-    slTitle.textContent='λ'; slG.appendChild(slTitle);
+    slTitle.textContent='distributional loss coefficient'; slG.appendChild(slTitle);
     slG.appendChild(E('line',{x1:AX0, y1:AY, x2:AX1, y2:AY, stroke:'#cbc4b1', 'stroke-width':'4', 'stroke-linecap':'round'}));
     var slFill = E('line',{x1:AX0, y1:AY, x2:AX0, y2:AY, stroke:OCHD, 'stroke-width':'4', 'stroke-linecap':'round'}); slG.appendChild(slFill);
     var lEnd=E('text',{x:AX0, y:AY+18, fill:MUT,'font-family':MONO,'font-size':'10.5'}); lEnd.textContent='strong'; slG.appendChild(lEnd);
@@ -171,9 +171,9 @@
     function bcState(s){
         var p=[]; for(var i=0;i<N;i++) p.push([lerp(BASE[i][0],EST[i][0],s), lerp(BASE[i][1],EST[i][1],s)]);
         var col = s<0.5 ? mixA(OCHRE,ORANGE,s/0.5) : mixA(ORANGE,REDV,(s-0.5)/0.5);
-        var z = s<0.2  ? ['λ strong: barely improves, keeps its flaws', OCHD]
-              : s<0.62 ? ['λ looser: drifts out of support', '#714350']
-              :          ['λ weak: collapses to unconstrained RL', REDD];
+        var z = s<0.2  ? ['Strong distributional constraint: barely improves', OCHD]
+              : s<0.62 ? ['Looser distributional constraint: drifts out of support', '#714350']
+              :          ['Weak distributional constraint: collapses to unconstrained RL', REDD];
         return {pos:p, col:col, star:0, sl:1, kv:s, xm:clamp((s-0.82)/0.18), leg:2, cap:z[0], cc:z[1], capOp:1};
     }
     // sweep λ with a long hold at each setting (readable), then snap back to strong

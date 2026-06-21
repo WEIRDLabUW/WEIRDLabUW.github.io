@@ -24,7 +24,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
 
-    <link rel="stylesheet" href="static/style.css?v=20260621d">
+    <link rel="stylesheet" href="static/style.css?v=20260621l">
 </head>
 <body>
 
@@ -121,7 +121,7 @@
     <header class="sec-head">
         <span class="sigma-rule"></span>
         <h2 class="sec-title">Method</h2>
-        <p class="sec-lead">We learn to steer the base policy in simulation.</p>
+        <p class="sec-lead">We learn to steer the base policy in simulation, improving within its support.</p>
     </header>
 
     <!-- live method figure: photos are images, everything else is vector so the
@@ -191,7 +191,7 @@
                 <span class="rb-stat"><b>89.9%</b> average success</span>
                 <span class="rb-sep"></span>
                 <span class="rb-stat"><b>2.4&times;</b> over the base policy</span>
-                <span class="rb-stat rb-reward"><b>Minimal</b> reward engineering</span>
+                <span class="rb-stat rb-reward"><b>Sparse</b> rewards</span>
                 <span class="rb-sub">across 8 real-world multi-fingered tasks &middot; pick one to explore</span>
             </div>
             <div class="reel-tabs" id="reel-tabs"><!-- task thumbnails injected --></div>
@@ -390,16 +390,16 @@
     </header>
 
     <p class="body-text">
-        A common way to keep a simulation policy deployable is to regularize it toward the base policy with a <strong>behavior-cloning (BC) loss</strong>, but this introduces a tradeoff between improvement and deployment. In our paper, we show that this is a provable limitation of algorithms that limit deviation from the base policy&rsquo;s distribution, such as <strong>BC-PPO</strong> or <strong>residual RL</strong>.
+        A common way to keep a simulation policy deployable is to regularize it toward the base policy with a <strong>behavior-cloning (BC) loss</strong>, but this introduces a tradeoff between improvement and deployment. In our paper, we show that this is a provable limitation of algorithms that limit deviation from the base policy&rsquo;s distribution, such as <strong>BC-PPO</strong> (RialTo) or <strong>residual RL</strong>.
     </p>
 
     <!-- ── interactive BC-regularization plot ── -->
     <figure class="bctk" id="bc-knob">
-        <div class="bctk-title">Success rate under varying levels of BC regularization to the base</div>
+        <div class="bctk-title">Success rate of RialTo baseline under varying BC-PPO loss coefficients</div>
         <div class="bctk-legend">
-            <span class="bctk-leg"><i class="lg-line real"></i>Real-world success</span>
             <span class="bctk-leg"><i class="lg-line sim"></i>Sim success</span>
-            <span class="bctk-tag" id="bc-tag">collapses</span>
+            <span class="bctk-leg"><i class="lg-line real"></i>Real-world success</span>
+            <span class="bctk-tag" id="bc-tag">training collapses</span>
         </div>
         <div class="bctk-chart" id="bc-chart"><!-- svg injected by tradeoff.js --></div>
         <div class="bctk-axis">weaker&nbsp;constraint&nbsp;&nbsp;&larr;&nbsp;&nbsp;<b>BC loss coefficient</b>&nbsp;&nbsp;&rarr;&nbsp;&nbsp;stronger&nbsp;constraint</div>
@@ -434,7 +434,7 @@
     </header>
 
     <p class="body-text">
-        The <strong>support</strong> of &pi;<sub>base</sub> is the model-induced set of actions the base policy can produce for a given latent <em>z</em>. A <strong>support constraint</strong> keeps optimization within that set. Using flow steering, SCORE optimizes over <em>z</em> and climbs toward higher reward, but does not act far out of the prior&rsquo;s support, allowing for better sim2real transfer.
+        The <strong>support</strong> of &pi;<sub>base</sub> is the model-induced set of actions the base policy can produce for a given latent <em>z</em>. A <strong>support constraint</strong> keeps optimization within that set. Using flow steering, SCORE optimizes over <em>z</em> and climbs toward higher reward, but stays near the prior&rsquo;s support, allowing for better sim-to-real transfer.
     </p>
 
     <figure class="sconst">
@@ -449,13 +449,13 @@
             </div>
         </div>
         <figcaption class="cap">
-            Each point is an action &pi;<sub>base</sub> can produce. <b class="t-good">SCORE</b> shifts the policy toward reward inside the support. A <b class="t-mid">distributional (BC) constraint</b> trades off as &lambda; loosens: it drifts out of support and collapses to <b class="t-bad">unconstrained RL</b>, which exploits the simulator.
+            Each point is an action that &pi;<sub>base</sub> can generate. A <b class="t-mid">distributional (BC) constraint</b> trades off transferability for reward, drifting out of support and eventually collapsing to <b class="t-bad">unconstrained RL</b>. <b class="t-good">SCORE</b> learns high-reward actions inside the support.
         </figcaption>
     </figure>
 
     <div class="key-insight" style="margin-top:18px;">
         <span class="ki-label">Why it works</span>
-        <p>Inside the support, behaviors are already <em>realizable</em> in real. A <strong>support constraint</strong> keeps optimization on that manifold, so the improvement found in simulation still holds on the robot.</p>
+        <p>Behaviors in the support of the base policy can be performed in the real world. Flow steering optimizes performance under the base policy's support, so the improvement found in simulation still holds on the robot.</p>
     </div>
 </section>
 
@@ -469,7 +469,7 @@
 
     <!-- ── Multi-task: one policy across tasks ── -->
     <h3 class="sub-head">One policy across tasks</h3>
-    <p class="mt-lede">One policy, trained with <strong>SCORE</strong> on three tasks: credit card, cube, and bottle. It picks the right grasp for each object, and even <strong>reuses behaviors across them</strong>.</p>
+    <p class="mt-lede">One policy, trained with <strong>SCORE</strong> on three tasks: credit card, cube, and bottle. It picks the correct grasp for each object, and even <strong>learns to reuse behaviors</strong> across tasks.</p>
 
     <div class="mt-hero">
         <div class="mt-hero-head">Same cube, two borrowed behaviors</div>
@@ -487,7 +487,7 @@
     </div>
 
     <div class="mt-native">
-        <p class="mt-native-head">For each object, the SCORE policy reaches with the <strong>right grasp</strong>. The base policy mixes them up, using one object&rsquo;s grasp on another.</p>
+        <p class="mt-native-head">For each object, SCORE learns a successful grasp. The base policy mixes them up, using one object&rsquo;s grasp on another.</p>
         <div class="mt-objs">
             <div class="mt-obj">
                 <div class="mt-obj-name">Credit Card</div>
@@ -557,7 +557,7 @@
     </header>
 
     <p class="body-text" style="margin-top:22px;">
-        Given a sparse reward and half a day of training, SCORE learns fast, precise, and robust policies that transfer to the real world. This is made possible by constraining policy improvement to the support of the real-world prior. A natural next step is building broader behavior priors and datasets designed for steering.
+        Given a sparse reward function and half a day of training, SCORE learns fast, precise, and robust policies that transfer to the real world. This is made possible by constraining policy improvement to the support of the real-world prior. A natural next step is to build broader behavior priors and datasets designed for steering.
     </p>
 </section>
 
@@ -626,10 +626,10 @@
 
 <!-- ════════════════ SCRIPTS ════════════════ -->
 <script src="static/js/method-anim.js?v=20260616d"></script>
-<script src="static/js/steer-reel.js?v=20260619a"></script>
+<script src="static/js/steer-reel.js?v=20260621d"></script>
 <script src="static/js/qualitative.js"></script>
-<script src="static/js/tradeoff.js?v=20260621b"></script>
-<script src="static/js/support-anim.js?v=20260621g"></script>
+<script src="static/js/tradeoff.js?v=20260621d"></script>
+<script src="static/js/support-anim.js?v=20260621j"></script>
 <script src="static/js/main.js?v=20260620a"></script>
 <script>
 // BibTeX copy

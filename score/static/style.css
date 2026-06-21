@@ -36,6 +36,7 @@
             --baseline-terracotta: #b56b5c;
             --baseline-ochre: #b08b45;
             --baseline-plum: #7b648e;
+            --baseline-skyblue: #8ab8d4;
 
             /* rules */
             --rule: #1c1c19;
@@ -1123,10 +1124,10 @@
         .scb-val { color: var(--ink-soft); font-variant-numeric: tabular-nums; }
         .scb-score .scb-lbl, .scb-score .scb-val { color: var(--em); font-weight: 700; }
         .scb-score  .scb-fill { background: var(--em); }
-        .scb-dsrl   .scb-fill { background: var(--baseline-sage); }
-        .scb-resrl  .scb-fill { background: var(--baseline-plum); }
+        .scb-dsrl   .scb-fill { background: var(--baseline-skyblue); }
+        .scb-resrl  .scb-fill { background: var(--baseline-ochre); }
         .scb-base   .scb-fill { background: var(--baseline-neutral); }
-        .scb-rialto .scb-fill { background: var(--baseline-ochre); }
+        .scb-rialto .scb-fill { background: var(--baseline-plum); }
         .scb-fpo    .scb-fill { background: var(--baseline-terracotta); }
 
         .sc-div { height: 1px; background: var(--rule); margin: 3px 0; }
@@ -2784,15 +2785,15 @@
         .bctk-legend { display: flex; align-items: center; gap: 20px; margin-bottom: 6px; }
         .bctk-leg { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; color: var(--ink-soft); display: inline-flex; align-items: center; }
         .lg-line { display: inline-block; width: 22px; height: 0; border-top: 4px solid; margin-right: 8px; vertical-align: middle; }
-        .lg-line.real { border-color: #55426b; }
-        .lg-line.sim  { border-color: var(--baseline-neutral); opacity: 0.6; }
+        .lg-line.real { border-color: var(--baseline-terracotta); }
+        .lg-line.sim  { border-color: var(--baseline-ochre); opacity: 0.6; }
         .bctk-tag {
             margin-left: auto;
             font-family: 'JetBrains Mono', monospace; font-size: 0.64rem; font-weight: 700; letter-spacing: 0.04em;
-            text-transform: uppercase; color: #fff; background: #55426b;
+            text-transform: uppercase; color: #fff; background: var(--baseline-terracotta);
             padding: 3px 11px; border-radius: 999px; white-space: nowrap; transition: background 0.3s;
         }
-        .bctk-tag.good { background: var(--baseline-sage); }
+        .bctk-tag.good { background: var(--baseline-ochre); }
 
         .bctk-chart { width: 100%; max-width: 600px; margin: 4px auto 0; }
         .bctk-svg { display: block; width: 100%; height: auto; overflow: visible; }
@@ -2804,18 +2805,20 @@
         .bctk-reflabel { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700; }
         .bctk-reflabel.score { fill: var(--em-deep); }
         .bctk-reflabel.base  { fill: var(--ink-soft); }
-        .bctk-sim-line { fill: none; stroke: var(--baseline-neutral); stroke-width: 2; opacity: 0.5; stroke-dasharray: 5 4; stroke-linejoin: round; }
-        /* the constrained policy's real-world curve — purple, distinct from SCORE's navy */
+        .bctk-sim-line { fill: none; stroke: var(--baseline-ochre); stroke-width: 2; opacity: 0.5; stroke-dasharray: 5 4; stroke-linejoin: round; }
+        /* the constrained policy's real-world curve — red, distinct from SCORE's navy */
         .bctk-real-area { fill: url(#bctk-grad); }
-        .bctk-real-line { fill: none; stroke: #55426b; stroke-width: 3.5; stroke-linejoin: round; stroke-linecap: round; filter: drop-shadow(0 2px 4px rgba(85, 66, 107, 0.32)); }
+        .bctk-real-line { fill: none; stroke: var(--baseline-terracotta); stroke-width: 3.5; stroke-linejoin: round; stroke-linecap: round; filter: drop-shadow(0 2px 4px rgba(181, 107, 92, 0.32)); }
         .bctk-dot { stroke: var(--panel); stroke-width: 1.5; }
-        .bctk-dot.sim  { fill: var(--baseline-neutral); opacity: 0.5; }
-        .bctk-dot.real { fill: #55426b; }
+        .bctk-dot.sim  { fill: var(--baseline-ochre); opacity: 0.5; }
+        .bctk-dot.real { fill: var(--baseline-terracotta); }
         .bctk-dot.on { opacity: 1; }
         .bctk-xlab { font-family: 'JetBrains Mono', monospace; font-size: 15px; font-weight: 600; fill: var(--ink-soft); }
         .bctk-cursor { stroke: var(--ink-soft); stroke-width: 1; opacity: 0.3; }
-        .bctk-hl { fill: #55426b; stroke: var(--panel); stroke-width: 2.5; }
-        .bctk-bubble { fill: #55426b; }
+        .bctk-hl { fill: var(--baseline-terracotta); stroke: var(--panel); stroke-width: 2.5; }
+        .bctk-hl.sim { fill: var(--baseline-ochre); }
+        .bctk-bubble { fill: var(--baseline-terracotta); }
+        .bctk-bubble.sim { fill: var(--baseline-ochre); }
         .bctk-bubble-tx { fill: #fff; font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; }
 
         .bctk-state { margin: 12px 2px 14px; min-height: 2.6em; font-family: 'Fraunces', serif; font-style: italic;

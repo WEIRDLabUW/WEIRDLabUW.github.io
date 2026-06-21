@@ -14,15 +14,15 @@
     if (!root) return;
 
     var DATA = [
-        { c:'10',   sim:0,   real:0,  tag:'collapses',
+        { c:'10',   sim:0,   real:0,  tag:'training collapses',
           state:'Too loose to learn anything: the policy collapses in simulation.' },
         { c:'100',  sim:100, real:12, tag:'reward-hacks',
           state:'Reward-hacks: a fast but degenerate strategy far from the base policy that would be unsafe on hardware.' },
-        { c:'1k',   sim:95,  real:40, tag:'drifting',
-          state:'Improving in the real world, but still drifting from what actually transfers.' },
+        { c:'1k',   sim:95,  real:40, tag:'reward-hacks',
+          state:'Improving in the real world, but the sim policy still drifts from behaviors that transfer.' },
         { c:'10k',  sim:90,  real:60, tag:'best tradeoff',
           state:'The best tradeoff: 60% real, above the base policy&rsquo;s 30% but far below SCORE&rsquo;s 100%.' },
-        { c:'100k', sim:50,  real:30, tag:'inherits base',
+        { c:'100k', sim:50,  real:30, tag:'over-constrained',
           state:'Over-constrained: it falls back on the base policy&rsquo;s slow, failure-prone behavior.' }
     ];
     var N = DATA.length, idx = 0;
@@ -41,11 +41,11 @@
 
     var svg = E('svg', { viewBox:'0 0 '+W+' '+H, class:'bctk-svg', preserveAspectRatio:'xMidYMid meet' });
 
-    // soft vertical gradient for the real-world area fill (purple → transparent)
+    // soft vertical gradient for the real-world area fill (terracotta → transparent)
     var defs = E('defs', {});
     var grad = E('linearGradient', { id:'bctk-grad', x1:'0', y1:'0', x2:'0', y2:'1' });
-    grad.appendChild(E('stop', { offset:'0',   'stop-color':'#55426b', 'stop-opacity':'0.30' }));
-    grad.appendChild(E('stop', { offset:'1',   'stop-color':'#55426b', 'stop-opacity':'0.02' }));
+    grad.appendChild(E('stop', { offset:'0',   'stop-color':'#b56b5c', 'stop-opacity':'0.30' }));
+    grad.appendChild(E('stop', { offset:'1',   'stop-color':'#b56b5c', 'stop-opacity':'0.02' }));
     defs.appendChild(grad);
     svg.appendChild(defs);
 
@@ -86,8 +86,11 @@
         var t=E('text',{ x:X(i), y:plotB+22, 'text-anchor':'middle', class:'bctk-xlab' }); t.textContent=d.c; svg.appendChild(t);
     });
 
-    // cursor (vertical line + highlighted real dot + value bubble)
+    // cursor (vertical line + highlighted sim/real dots + value bubbles)
     var cursor = E('line',{ y1:plotT-4, y2:plotB, class:'bctk-cursor' }); svg.appendChild(cursor);
+    var hlSim = E('circle',{ r:6, class:'bctk-hl sim' }); svg.appendChild(hlSim);
+    var simBubbleBg = E('rect',{ rx:5, width:46, height:20, class:'bctk-bubble sim' }); svg.appendChild(simBubbleBg);
+    var simBubbleTx = E('text',{ class:'bctk-bubble-tx', 'text-anchor':'middle' }); svg.appendChild(simBubbleTx);
     var hl = E('circle',{ r:6, class:'bctk-hl' }); svg.appendChild(hl);
     var bubbleBg = E('rect',{ rx:5, width:46, height:20, class:'bctk-bubble' }); svg.appendChild(bubbleBg);
     var bubbleTx = E('text',{ class:'bctk-bubble-tx', 'text-anchor':'middle' }); svg.appendChild(bubbleTx);
@@ -98,14 +101,30 @@
     var tagEl   = document.getElementById('bc-tag');
 
     function render(){
-        var d = DATA[idx], x = X(idx), yr = Y(d.real);
+        var d = DATA[idx], x = X(idx), yr = Y(d.real), ys = Y(d.sim);
         cursor.setAttribute('x1', x); cursor.setAttribute('x2', x);
-        hl.setAttribute('cx', x); hl.setAttribute('cy', yr);
         var bx = Math.max(plotL, Math.min(plotR-46, x-23));
+
+        hl.setAttribute('cx', x); hl.setAttribute('cy', yr);
         var by = yr - 28; if (by < plotT-6) by = yr + 10;
+
+        hlSim.setAttribute('cx', x); hlSim.setAttribute('cy', ys);
+        var bySim = ys - 28; if (bySim < plotT-6) bySim = ys + 10;
+
+        // keep the two bubbles from overlapping when sim/real land on the same y
+        if (Math.abs(by - bySim) < 24){
+            bySim = by - 24;
+            if (bySim < plotT-6) bySim = by + 24;
+        }
+
         bubbleBg.setAttribute('x', bx); bubbleBg.setAttribute('y', by);
         bubbleTx.setAttribute('x', bx+23); bubbleTx.setAttribute('y', by+14);
         bubbleTx.textContent = d.real + '%';
+
+        simBubbleBg.setAttribute('x', bx); simBubbleBg.setAttribute('y', bySim);
+        simBubbleTx.setAttribute('x', bx+23); simBubbleTx.setAttribute('y', bySim+14);
+        simBubbleTx.textContent = d.sim + '%';
+
         realDots.forEach(function(c,i){ c.classList.toggle('on', i===idx); });
         simDots.forEach(function(c,i){ c.classList.toggle('on', i===idx); });
         stateEl.innerHTML = d.state;

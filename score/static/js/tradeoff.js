@@ -41,11 +41,11 @@
 
     var svg = E('svg', { viewBox:'0 0 '+W+' '+H, class:'bctk-svg', preserveAspectRatio:'xMidYMid meet' });
 
-    // soft vertical gradient for the real-world area fill (terracotta → transparent)
+    // soft vertical gradient for the real-world area fill (purple → transparent)
     var defs = E('defs', {});
     var grad = E('linearGradient', { id:'bctk-grad', x1:'0', y1:'0', x2:'0', y2:'1' });
-    grad.appendChild(E('stop', { offset:'0',   'stop-color':'#b56b5c', 'stop-opacity':'0.30' }));
-    grad.appendChild(E('stop', { offset:'1',   'stop-color':'#b56b5c', 'stop-opacity':'0.02' }));
+    grad.appendChild(E('stop', { offset:'0',   'stop-color':'#55426b', 'stop-opacity':'0.30' }));
+    grad.appendChild(E('stop', { offset:'1',   'stop-color':'#55426b', 'stop-opacity':'0.02' }));
     defs.appendChild(grad);
     svg.appendChild(defs);
 

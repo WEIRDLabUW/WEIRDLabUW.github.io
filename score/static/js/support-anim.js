@@ -7,11 +7,12 @@
    ONE cloud of behaviors walks slowly through the regimes so each is
    readable:
      1. base policy            — spread inside the support (grey)
-     2. SCORE                  — shift toward reward, stay IN support (blue)
+     2. unconstrained RL       — no constraint, exploits the sim (dusty rose)
      3. distributional (BC) λ  — a hyperparameter sweep:
-          strong λ  → pinned to base, keeps its flaws (ochre)
+          strong λ  → pinned to base, keeps its flaws (purple)
           looser λ  → more reward, but drifting OUT of support
-          weak λ    → collapses to FREE RL, exploits the sim (red)
+          weak λ    → collapses to unconstrained RL (dusty rose)
+     4. SCORE                  — shift toward reward, stay IN support (blue)
 
    A single caption line and a λ slider update with the state. Palette
    matches the rest of the site.
@@ -30,8 +31,9 @@
 
     // palette
     var EM='#344f78', EMD='#26364f', EMM='#5f789f', EML='#dce4ee';
-    var REDD='#c0381f', MUT='#7a7872', OCHD='#8a6a2e', INKS='#4a4a44';
-    var SLATE=[128,135,148], NAVY=[44,66,102], OCHRE=[176,139,69], ORANGE=[214,96,40], REDV=[230,52,24];
+    var REDD='#8d4434', MUT='#7a7872', OCHD='#55426b', INKS='#4a4a44';
+    var SLATE=[128,135,148], NAVY=[44,66,102], OCHRE=[85,66,107], REDV=[141,68,52];
+    var ORANGE = mixA(OCHRE, REDV, 0.5);   // midpoint of distributional ↔ unconstrained, for the λ sweep
     var MONO = "'JetBrains Mono', ui-monospace, monospace";
 
     // geometry (viewBox 760 x 446) — behavior space on top, λ slider below
@@ -57,20 +59,20 @@
     // support = the set of actions the base policy can produce over its latent z;
     // SCORE steers z, so it can only ever land on actions inside that set.
     var KB = {pos:'base',  col:SLATE,  leg:0, cap:'every action the base policy can produce', cc:INKS, star:0, sl:0, kv:0,   xm:0, trans:1, hold:2400};
-    var KS = {pos:'score', col:NAVY,   leg:1, cap:'steers z toward reward, in support',          cc:EM,   star:1, sl:0, kv:0,   xm:0, trans:1600, hold:2800};
+    var KS = {pos:'score', col:NAVY,   leg:3, cap:'steers z toward reward, in support',          cc:EM,   star:1, sl:0, kv:0,   xm:0, trans:1600, hold:2800};
     var KC1 = {pos:'base', col:OCHRE,  leg:2, cap:'λ strong: barely improves, keeps its flaws', cc:OCHD, star:0, sl:1, kv:0,   xm:0, trans:1,    hold:2000};
-    var KC2 = {pos:'mid',  col:ORANGE, leg:2, cap:'λ looser: drifts out of support',          cc:'#b5642a', star:0, sl:1, kv:0.5, xm:0, trans:1400, hold:2000};
+    var KC2 = {pos:'mid',  col:ORANGE, leg:2, cap:'λ looser: drifts out of support',          cc:'#714350', star:0, sl:1, kv:0.5, xm:0, trans:1400, hold:2000};
     var KC2b= {pos:'out',  col:REDV,   leg:2, cap:'λ weak: collapses to unconstrained RL',     cc:REDD, star:0, sl:1, kv:1,   xm:1, trans:1400, hold:2200};
-    // unconstrained RL also starts from the base points (snap there, stay red / leg3),
+    // unconstrained RL also starts from the base points (snap there, recolor / leg1),
     // then exploits — mirrors how the distributional branch starts at base.
-    var KU  = {pos:'base', col:REDV,   leg:3, cap:'no constraint: optimize freely',           cc:REDD, star:0, sl:0, kv:0,   xm:0, trans:1,    hold:1400};
-    var KC3 = {pos:'out',  col:REDV,   leg:3, cap:'no constraint: exploits the simulator',      cc:REDD, star:0, sl:0, kv:0,   xm:1, trans:1500, hold:2800};
-    var KF=[KB,KS,KC1,KC2,KC2b,KU,KC3];
+    var KU  = {pos:'base', col:REDV,   leg:1, cap:'no constraint: optimize freely',           cc:REDD, star:0, sl:0, kv:0,   xm:0, trans:1,    hold:1400};
+    var KC3 = {pos:'out',  col:REDV,   leg:1, cap:'no constraint: exploits the simulator',      cc:REDD, star:0, sl:0, kv:0,   xm:1, trans:1500, hold:2800};
+    var KF=[KB,KU,KC3,KC1,KC2,KC2b,KS];
     var SEG=[], total=0;
     for(var k=0;k<KF.length;k++){ SEG.push({start:total, prev:KF[(k-1+KF.length)%KF.length], cur:KF[k]}); total += KF[k].trans+KF[k].hold; }
 
     // legend click → which regime to show, and where to resume the auto-loop
-    var PICK=[KB,KS,KC2,KC3], PICK_AUTO=[0,1,3,6];
+    var PICK=[KB,KC3,KC2,KS], PICK_AUTO=[0,2,4,6];
     var manual=false, selIdx=-1, mTo=null, mT0=0, MDUR=1500;
 
     // ── defs ──
@@ -170,7 +172,7 @@
         var p=[]; for(var i=0;i<N;i++) p.push([lerp(BASE[i][0],EST[i][0],s), lerp(BASE[i][1],EST[i][1],s)]);
         var col = s<0.5 ? mixA(OCHRE,ORANGE,s/0.5) : mixA(ORANGE,REDV,(s-0.5)/0.5);
         var z = s<0.2  ? ['λ strong: barely improves, keeps its flaws', OCHD]
-              : s<0.62 ? ['λ looser: drifts out of support', '#b5642a']
+              : s<0.62 ? ['λ looser: drifts out of support', '#714350']
               :          ['λ weak: collapses to unconstrained RL', REDD];
         return {pos:p, col:col, star:0, sl:1, kv:s, xm:clamp((s-0.82)/0.18), leg:2, cap:z[0], cc:z[1], capOp:1};
     }

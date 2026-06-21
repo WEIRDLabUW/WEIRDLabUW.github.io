@@ -24,7 +24,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
 
-    <link rel="stylesheet" href="static/style.css?v=20260621a">
+    <link rel="stylesheet" href="static/style.css?v=20260621d">
 </head>
 <body>
 
@@ -390,7 +390,7 @@
     </header>
 
     <p class="body-text">
-        A common way to keep a simulation policy deployable is to regularize it toward the base policy with a <strong>behavior-cloning (BC) loss</strong>, then tune the strength of that regularization. In our paper, we show that this induces a tradeoff and is a provable limitation of algorithms that limit deviation from the base policy&rsquo;s distribution, such as <strong>BC-PPO</strong> or <strong>residual RL</strong>.
+        A common way to keep a simulation policy deployable is to regularize it toward the base policy with a <strong>behavior-cloning (BC) loss</strong>, but this introduces a tradeoff between improvement and deployment. In our paper, we show that this is a provable limitation of algorithms that limit deviation from the base policy&rsquo;s distribution, such as <strong>BC-PPO</strong> or <strong>residual RL</strong>.
     </p>
 
     <!-- ── interactive BC-regularization plot ── -->
@@ -429,12 +429,12 @@
 <section class="page-section fade-in" id="sec-support">
     <header class="sec-head">
         <span class="sigma-rule"></span>
-        <h2 class="sec-title">What Is a Support Constraint?</h2>
-        <p class="sec-lead">Optimize for reward without leaving what the base policy can already do.</p>
+        <h2 class="sec-title">Flow Steering as Support-Constrained RL</h2>
+        <p class="sec-lead">SCORE optimizes for reward while staying within the support of realistic base-policy behaviors .</p>
     </header>
 
     <p class="body-text">
-        The <strong>support</strong> of &pi;<sub>base</sub> is the model-induced set of actions the base policy can produce for a given latent <em>z</em>. A <strong>support constraint</strong> keeps optimization within that set. SCORE optimizes over <em>z</em> and climbs toward higher reward, but does not act far out of the prior&rsquo;s support, allowing for better sim2real transfer.
+        The <strong>support</strong> of &pi;<sub>base</sub> is the model-induced set of actions the base policy can produce for a given latent <em>z</em>. A <strong>support constraint</strong> keeps optimization within that set. Using flow steering, SCORE optimizes over <em>z</em> and climbs toward higher reward, but does not act far out of the prior&rsquo;s support, allowing for better sim2real transfer.
     </p>
 
     <figure class="sconst">
@@ -443,9 +443,9 @@
                  aria-label="A space of behaviors. The base policy's demonstrations cover a region called its support. SCORE optimizes for reward within that support; a distributional (BC) constraint trades off transferability for reward as it loosens, and at the weak limit collapses to unconstrained RL, which exploits the simulator."></svg>
             <div class="sconst-legend" id="sconst-legend">
                 <button data-i="0" style="--c:#808794"><span class="dot"></span>base policy</button>
-                <button data-i="1" style="--c:#2c4266"><span class="dot"></span>SCORE</button>
-                <button data-i="2" style="--c:#b08b45"><span class="dot"></span>distributional constraint</button>
-                <button data-i="3" style="--c:#e63418"><span class="dot"></span>unconstrained RL</button>
+                <button data-i="1" style="--c:#8d4434"><span class="dot"></span>unconstrained RL</button>
+                <button data-i="2" style="--c:#55426b"><span class="dot"></span>distributional constraint</button>
+                <button data-i="3" style="--c:#2c4266"><span class="dot"></span>SCORE</button>
             </div>
         </div>
         <figcaption class="cap">
@@ -463,8 +463,8 @@
 <section class="page-section fade-in" id="sec-limitations">
     <header class="sec-head">
         <span class="sigma-rule"></span>
-        <h2 class="sec-title">How Far Can SCORE Go?</h2>
-        <p class="sec-lead">SCORE goes a long way, as long as the behavior already lives in the prior.</p>
+        <h2 class="sec-title">How does the base policy affect improvement?</h2>
+        <p class="sec-lead">SCORE goes a long way, as long as the behavior lies in the support of the base policy.</p>
     </header>
 
     <!-- ── Multi-task: one policy across tasks ── -->
@@ -628,8 +628,8 @@
 <script src="static/js/method-anim.js?v=20260616d"></script>
 <script src="static/js/steer-reel.js?v=20260619a"></script>
 <script src="static/js/qualitative.js"></script>
-<script src="static/js/tradeoff.js?v=20260615b"></script>
-<script src="static/js/support-anim.js?v=20260621c"></script>
+<script src="static/js/tradeoff.js?v=20260621b"></script>
+<script src="static/js/support-anim.js?v=20260621g"></script>
 <script src="static/js/main.js?v=20260620a"></script>
 <script>
 // BibTeX copy

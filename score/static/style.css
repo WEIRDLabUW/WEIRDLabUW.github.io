@@ -2101,8 +2101,8 @@
         }
 
         .sconst .cap .t-good { color: var(--em); font-weight: 700; }
-        .sconst .cap .t-mid  { color: #9c7a33; font-weight: 700; }
-        .sconst .cap .t-bad  { color: #d23a1f; font-weight: 700; }
+        .sconst .cap .t-mid  { color: #55426b; font-weight: 700; }
+        .sconst .cap .t-bad  { color: #8d4434; font-weight: 700; }
         @media (prefers-reduced-motion: reduce) {
             .mfx-live::before, .mfx-arrow.flow { animation: none; }
         }
@@ -2784,12 +2784,12 @@
         .bctk-legend { display: flex; align-items: center; gap: 20px; margin-bottom: 6px; }
         .bctk-leg { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; color: var(--ink-soft); display: inline-flex; align-items: center; }
         .lg-line { display: inline-block; width: 22px; height: 0; border-top: 4px solid; margin-right: 8px; vertical-align: middle; }
-        .lg-line.real { border-color: var(--baseline-terracotta); }
+        .lg-line.real { border-color: #55426b; }
         .lg-line.sim  { border-color: var(--baseline-neutral); opacity: 0.6; }
         .bctk-tag {
             margin-left: auto;
             font-family: 'JetBrains Mono', monospace; font-size: 0.64rem; font-weight: 700; letter-spacing: 0.04em;
-            text-transform: uppercase; color: #fff; background: var(--baseline-terracotta);
+            text-transform: uppercase; color: #fff; background: #55426b;
             padding: 3px 11px; border-radius: 999px; white-space: nowrap; transition: background 0.3s;
         }
         .bctk-tag.good { background: var(--baseline-sage); }
@@ -2805,17 +2805,17 @@
         .bctk-reflabel.score { fill: var(--em-deep); }
         .bctk-reflabel.base  { fill: var(--ink-soft); }
         .bctk-sim-line { fill: none; stroke: var(--baseline-neutral); stroke-width: 2; opacity: 0.5; stroke-dasharray: 5 4; stroke-linejoin: round; }
-        /* the constrained policy's real-world curve — terracotta, distinct from SCORE's navy */
+        /* the constrained policy's real-world curve — purple, distinct from SCORE's navy */
         .bctk-real-area { fill: url(#bctk-grad); }
-        .bctk-real-line { fill: none; stroke: var(--baseline-terracotta); stroke-width: 3.5; stroke-linejoin: round; stroke-linecap: round; filter: drop-shadow(0 2px 4px rgba(181, 107, 92, 0.28)); }
+        .bctk-real-line { fill: none; stroke: #55426b; stroke-width: 3.5; stroke-linejoin: round; stroke-linecap: round; filter: drop-shadow(0 2px 4px rgba(85, 66, 107, 0.32)); }
         .bctk-dot { stroke: var(--panel); stroke-width: 1.5; }
         .bctk-dot.sim  { fill: var(--baseline-neutral); opacity: 0.5; }
-        .bctk-dot.real { fill: var(--baseline-terracotta); }
+        .bctk-dot.real { fill: #55426b; }
         .bctk-dot.on { opacity: 1; }
         .bctk-xlab { font-family: 'JetBrains Mono', monospace; font-size: 15px; font-weight: 600; fill: var(--ink-soft); }
         .bctk-cursor { stroke: var(--ink-soft); stroke-width: 1; opacity: 0.3; }
-        .bctk-hl { fill: var(--baseline-terracotta); stroke: var(--panel); stroke-width: 2.5; }
-        .bctk-bubble { fill: var(--baseline-terracotta); }
+        .bctk-hl { fill: #55426b; stroke: var(--panel); stroke-width: 2.5; }
+        .bctk-bubble { fill: #55426b; }
         .bctk-bubble-tx { fill: #fff; font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; }
 
         .bctk-state { margin: 12px 2px 14px; min-height: 2.6em; font-family: 'Fraunces', serif; font-style: italic;

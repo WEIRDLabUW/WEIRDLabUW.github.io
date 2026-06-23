@@ -2885,7 +2885,7 @@
         }
         .bb-ok  { color: #9fd3b0; font-weight: 700; margin-right: 6px; }
         .bb-bad { color: #e0a59a; font-weight: 700; margin-right: 6px; }
-        .bb-tasks { display: grid; grid-template-columns: 1fr 1fr; gap: 26px; margin-top: 14px; }
+        .bb-tasks { display: grid; grid-template-columns: 1fr; gap: 26px; margin-top: 14px; }
         .bb-task-name { font-family: 'Fraunces', serif; font-weight: 600; font-size: 1rem; color: var(--ink); margin-bottom: 2px; }
         .bb-task .bb-duo { gap: 10px; margin-top: 8px; }
         @media (max-width: 760px) { .bb-tasks { grid-template-columns: 1fr; } }

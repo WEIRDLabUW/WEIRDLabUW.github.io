@@ -1,0 +1,107 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>figModel</title><style>html,body{margin:0;padding:0;background:transparent;}
+  .fig{width:100%;height:auto;display:block;cursor:pointer;}
+  .fig .anim{opacity:0;}
+  .fig.play .anim{animation:riseIn .55s cubic-bezier(.2,.75,.25,1) both;animation-delay:var(--d,0s);}
+  @keyframes riseIn{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+  .fig .pop{opacity:0;transform-box:fill-box;transform-origin:50% 50%;}
+  .fig.play .pop{animation:popIn .5s cubic-bezier(.18,.9,.28,1.35) both;animation-delay:var(--d,0s);}
+  @keyframes popIn{0%{opacity:0;transform:translateY(16px) scale(.84);}60%{opacity:1;}100%{opacity:1;transform:translateY(0) scale(1);}}
+  .fig .stash{opacity:0;}
+  .fig.play .stash{animation:slideStash .5s cubic-bezier(.2,.7,.3,1) both;animation-delay:var(--d,0s);}
+  @keyframes slideStash{from{opacity:0;transform:translate(-11px,-11px);}to{opacity:1;transform:translate(0,0);}}
+  .fig .armove{opacity:0;transform-box:fill-box;transform-origin:50% 50%;}
+  .fig.play .armove{animation:armoveK .6s cubic-bezier(.45,.05,.25,1) both;animation-delay:var(--d,0s);}
+  @keyframes armoveK{0%{opacity:0;transform:translate(var(--mx,0),var(--my,0)) scale(1.05);}25%{opacity:1;}100%{opacity:1;transform:translate(0,0) scale(1);}}
+  .fig .draw{opacity:0;}
+  .fig.play .draw{animation:drawIn .5s ease-out both;animation-delay:var(--d,0s);}
+  @keyframes drawIn{0%{opacity:0;stroke-dashoffset:var(--len,160);}25%{opacity:1;}100%{opacity:1;stroke-dashoffset:0;}}
+  .fig.play .drawm{animation:drawM .7s ease both;animation-delay:var(--d,0s);}
+  @keyframes drawM{from{stroke-dashoffset:var(--len);}to{stroke-dashoffset:0;}}
+  @media (prefers-reduced-motion: reduce){
+    .fig .anim,.fig .pop,.fig .draw,.fig .drawm,.fig .stash,.fig .armove{opacity:1!important;animation:none!important;stroke-dashoffset:0!important;transform:none!important;}
+  }
+  .fig .conn{stroke:#9D9D9D;stroke-width:1.5;}
+</style></head><body><svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+    <filter id="tsh" x="-20%" y="-20%" width="150%" height="150%"><feDropShadow dx="0" dy="1.2" stdDeviation="1.6" flood-color="#000" flood-opacity="0.14"/></filter>
+    <filter id="blur" x="-30%" y="-30%" width="170%" height="170%"><feGaussianBlur stdDeviation="1.4"/></filter>
+    <marker id="ap" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0,0L10,5L0,10z" fill="#6D588B"/></marker>
+    <marker id="ag" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="5.5" markerHeight="5.5" orient="auto"><path d="M0,0L10,5L0,10z" fill="#9D9D9D"/></marker>
+    <pattern id="hatch" width="7" height="7" patternTransform="rotate(45)" patternUnits="userSpaceOnUse"><rect width="7" height="7" fill="#EFEAF7"/><line x1="0" y1="0" x2="0" y2="7" stroke="#DAD2EA" stroke-width="3"/></pattern>
+    <clipPath id="cc38"><rect x="0" y="0" width="38" height="38" rx="8"/></clipPath><clipPath id="cc40"><rect x="0" y="0" width="40" height="40" rx="8"/></clipPath>
+  </defs></svg>
+<svg class="fig" id="figModel" viewBox="0 0 964 462" role="img" aria-label="figModel"><defs></defs>
+<rect width="964" height="462" fill="#ffffff"/>
+<g transform="translate(22,288)"><g class="anim" style="--d:0.55s;"><rect x="0" y="0" width="654" height="30" rx="12" fill="#F7E1E7" filter="url(#tsh)"/><text x="327.0" y="19.9" text-anchor="middle" font-family="Georgia,'Times New Roman','Times',serif" font-size="14" fill="#494345">Cross-Attention Encoder</text></g></g>
+<g transform="translate(22,344)"><g class="anim" style="--d:1.00s;"><rect x="0" y="0" width="186" height="84" rx="12" fill="none" stroke="#6E97C8" stroke-width="1.3"/><text x="93.0" y="75" text-anchor="middle" font-family="Georgia,'Times New Roman','Times',serif" font-size="13" fill="#5C84BE">observations</text></g></g>
+<g transform="translate(30,356)"><g class="anim" style="--d:1.05s;"><image href="./static/figanim/cam0.png" x="0" y="0" width="38" height="38" preserveAspectRatio="xMidYMid slice" clip-path="url(#cc38)"/><rect x="0" y="0" width="38" height="38" rx="8" fill="none" stroke="#D6D6D6"/></g></g>
+<g transform="translate(74,356)"><g class="anim" style="--d:1.10s;"><image href="./static/figanim/cam1.png" x="0" y="0" width="38" height="38" preserveAspectRatio="xMidYMid slice" clip-path="url(#cc38)"/><rect x="0" y="0" width="38" height="38" rx="8" fill="none" stroke="#D6D6D6"/></g></g>
+<g transform="translate(118,356)"><g class="anim" style="--d:1.15s;"><image href="./static/figanim/cam2.png" x="0" y="0" width="38" height="38" preserveAspectRatio="xMidYMid slice" clip-path="url(#cc38)"/><rect x="0" y="0" width="38" height="38" rx="8" fill="none" stroke="#D6D6D6"/></g></g>
+<g transform="translate(162,356)"><g class="anim" style="--d:1.20s;"><image href="./static/figanim/cam3.png" x="0" y="0" width="38" height="38" preserveAspectRatio="xMidYMid slice" clip-path="url(#cc38)"/><rect x="0" y="0" width="38" height="38" rx="8" fill="none" stroke="#D6D6D6"/></g></g>
+<path class="conn draw" style="--d:1.30s" d="M115 344 V318" fill="none" marker-end="url(#ag)"/>
+<g transform="translate(224,344)"><g class="anim" style="--d:1.45s;"><rect x="0" y="0" width="228" height="84" rx="12" fill="none" stroke="#B7A6D6" stroke-width="1.3"/><text x="114.0" y="75" text-anchor="middle" font-family="Georgia,'Times New Roman','Times',serif" font-size="13" fill="#8C77B4">actions / masks</text></g></g>
+<g transform="translate(245,367)"><g class="stash" style="--d:2.00s;"><rect x="4" y="6" width="42" height="42" rx="11" fill="#DAD2EA" opacity="0.5" filter="url(#blur)"/><rect x="0" y="0" width="42" height="42" rx="11" fill="url(#hatch)" stroke="#CBBBE6" filter="url(#tsh)"/></g></g>
+<g transform="translate(234,356)"><g class="pop" style="--d:1.55s;"><rect x="0" y="0" width="42" height="42" rx="11" fill="#DAD2EA" stroke="#C7B8E4" filter="url(#tsh)"/><line x1="11.3" y1="23.0" x2="30.7" y2="19.0" stroke="#6D588B" stroke-width="3" marker-end="url(#ap)"/></g></g>
+<g transform="translate(299,367)"><g class="stash" style="--d:2.06s;"><rect x="4" y="6" width="42" height="42" rx="11" fill="#DAD2EA" opacity="0.5" filter="url(#blur)"/><rect x="0" y="0" width="42" height="42" rx="11" fill="url(#hatch)" stroke="#CBBBE6" filter="url(#tsh)"/></g></g>
+<g transform="translate(288,356)"><g class="pop" style="--d:1.61s;"><rect x="0" y="0" width="42" height="42" rx="11" fill="#DAD2EA" stroke="#C7B8E4" filter="url(#tsh)"/><line x1="11.3" y1="28.0" x2="30.7" y2="14.0" stroke="#6D588B" stroke-width="3" marker-end="url(#ap)"/></g></g>
+<g transform="translate(353,367)"><g class="stash" style="--d:2.12s;"><rect x="4" y="6" width="42" height="42" rx="11" fill="#DAD2EA" opacity="0.5" filter="url(#blur)"/><rect x="0" y="0" width="42" height="42" rx="11" fill="url(#hatch)" stroke="#CBBBE6" filter="url(#tsh)"/></g></g>
+<g transform="translate(342,356)"><g class="pop" style="--d:1.67s;"><rect x="0" y="0" width="42" height="42" rx="11" fill="#DAD2EA" stroke="#C7B8E4" filter="url(#tsh)"/><line x1="11.3" y1="33.0" x2="30.7" y2="9.0" stroke="#6D588B" stroke-width="3" marker-end="url(#ap)"/></g></g>
+<g transform="translate(407,367)"><g class="stash" style="--d:2.18s;"><rect x="4" y="6" width="42" height="42" rx="11" fill="#DAD2EA" opacity="0.5" filter="url(#blur)"/><rect x="0" y="0" width="42" height="42" rx="11" fill="url(#hatch)" stroke="#CBBBE6" filter="url(#tsh)"/></g></g>
+<g transform="translate(396,356)"><g class="pop" style="--d:1.73s;"><rect x="0" y="0" width="42" height="42" rx="11" fill="#DAD2EA" stroke="#C7B8E4" filter="url(#tsh)"/><line x1="11.3" y1="37.0" x2="30.7" y2="5.0" stroke="#6D588B" stroke-width="3" marker-end="url(#ap)"/></g></g>
+<path class="conn draw" style="--d:2.25s" d="M336 344 V318" fill="none" marker-end="url(#ag)"/>
+<g transform="translate(472,356)"><g class="pop" style="--d:2.55s;"><rect x="4" y="6" width="42" height="42" rx="11" fill="#CCD8E7" opacity="0.9" filter="url(#blur)"/><rect x="0" y="0" width="42" height="42" rx="11" fill="#DCDCDC" stroke="#E8E8E8" filter="url(#tsh)"/><text x="21.0" y="26.2" text-anchor="middle" font-family="Georgia,'Times New Roman','Times',serif" font-size="15" fill="#9F9F9F">bos</text></g></g>
+<path class="conn draw" style="--d:2.73s" d="M493 356 V318" fill="none" marker-end="url(#ag)"/>
+<path class="conn draw" style="--d:2.83s" d="M493 288 V268" fill="none" marker-end="url(#ag)"/>
+<g transform="translate(472,226)"><g class="pop" style="--d:2.85s;"><rect x="4" y="6" width="42" height="42" rx="11" fill="#CCD8E7" opacity="0.9" filter="url(#blur)"/><rect x="0" y="0" width="42" height="42" rx="11" fill="#F2F2F2" stroke="#E8E8E8" filter="url(#tsh)"/><text x="17.0" y="28.0" text-anchor="middle" font-family="Georgia,'Times New Roman','Times',serif" font-style="italic" font-size="20" fill="#9F9F9F">z</text><text x="29.0" y="32.0" text-anchor="middle" font-family="Georgia,'Times New Roman','Times',serif" font-size="11" fill="#9F9F9F">1</text></g></g>
+<g transform="translate(526,356)"><g class="armove" style="--d:3.13s;--mx:-54px;--my:-130px;"><rect x="4" y="6" width="42" height="42" rx="11" fill="#CCD8E7" opacity="0.9" filter="url(#blur)"/><rect x="0" y="0" width="42" height="42" rx="11" fill="#F2F2F2" stroke="#E8E8E8" filter="url(#tsh)"/><text x="17.0" y="28.0" text-anchor="middle" font-family="Georgia,'Times New Roman','Times',serif" font-style="italic" font-size="20" fill="#9F9F9F">z</text><text x="29.0" y="32.0" text-anchor="middle" font-family="Georgia,'Times New Roman','Times',serif" font-size="11" fill="#9F9F9F">1</text></g></g>
+<path class="conn draw" style="--d:3.43s" d="M547 356 V318" fill="none" marker-end="url(#ag)"/>
+<path class="conn draw" style="--d:3.53s" d="M547 288 V268" fill="none" marker-end="url(#ag)"/>
+<g transform="translate(526,226)"><g class="pop" style="--d:3.55s;"><rect x="4" y="6" width="42" height="42" rx="11" fill="#CCD8E7" opacity="0.9" filter="url(#blur)"/><rect x="0" y="0" width="42" height="42" rx="11" fill="#F2F2F2" stroke="#E8E8E8" filter="url(#tsh)"/><text x="17.0" y="28.0" text-anchor="middle" font-family="Georgia,'Times New Roman','Times',serif" font-style="italic" font-size="20" fill="#9F9F9F">z</text><text x="29.0" y="32.0" text-anchor="middle" font-family="Georgia,'Times New Roman','Times',serif" font-size="11" fill="#9F9F9F">2</text></g></g>
+<g transform="translate(580,356)"><g class="armove" style="--d:3.83s;--mx:-54px;--my:-130px;"><rect x="4" y="6" width="42" height="42" rx="11" fill="#CCD8E7" opacity="0.9" filter="url(#blur)"/><rect x="0" y="0" width="42" height="42" rx="11" fill="#F2F2F2" stroke="#E8E8E8" filter="url(#tsh)"/><text x="17.0" y="28.0" text-anchor="middle" font-family="Georgia,'Times New Roman','Times',serif" font-style="italic" font-size="20" fill="#9F9F9F">z</text><text x="29.0" y="32.0" text-anchor="middle" font-family="Georgia,'Times New Roman','Times',serif" font-size="11" fill="#9F9F9F">2</text></g></g>
+<path class="conn draw" style="--d:4.13s" d="M601 356 V318" fill="none" marker-end="url(#ag)"/>
+<path class="conn draw" style="--d:4.23s" d="M601 288 V268" fill="none" marker-end="url(#ag)"/>
+<g transform="translate(580,226)"><g class="pop" style="--d:4.25s;"><rect x="4" y="6" width="42" height="42" rx="11" fill="#CCD8E7" opacity="0.9" filter="url(#blur)"/><rect x="0" y="0" width="42" height="42" rx="11" fill="#F2F2F2" stroke="#E8E8E8" filter="url(#tsh)"/><text x="17.0" y="28.0" text-anchor="middle" font-family="Georgia,'Times New Roman','Times',serif" font-style="italic" font-size="20" fill="#9F9F9F">z</text><text x="29.0" y="32.0" text-anchor="middle" font-family="Georgia,'Times New Roman','Times',serif" font-size="11" fill="#9F9F9F">3</text></g></g>
+<g transform="translate(634,356)"><g class="armove" style="--d:4.53s;--mx:-54px;--my:-130px;"><rect x="4" y="6" width="42" height="42" rx="11" fill="#CCD8E7" opacity="0.9" filter="url(#blur)"/><rect x="0" y="0" width="42" height="42" rx="11" fill="#F2F2F2" stroke="#E8E8E8" filter="url(#tsh)"/><text x="17.0" y="28.0" text-anchor="middle" font-family="Georgia,'Times New Roman','Times',serif" font-style="italic" font-size="20" fill="#9F9F9F">z</text><text x="29.0" y="32.0" text-anchor="middle" font-family="Georgia,'Times New Roman','Times',serif" font-size="11" fill="#9F9F9F">3</text></g></g>
+<path class="conn draw" style="--d:4.83s" d="M655 356 V318" fill="none" marker-end="url(#ag)"/>
+<path class="conn draw" style="--d:4.93s" d="M655 288 V268" fill="none" marker-end="url(#ag)"/>
+<g transform="translate(634,226)"><g class="pop" style="--d:4.95s;"><rect x="4" y="6" width="42" height="42" rx="11" fill="#CCD8E7" opacity="0.9" filter="url(#blur)"/><rect x="0" y="0" width="42" height="42" rx="11" fill="#DCDCDC" stroke="#E8E8E8" filter="url(#tsh)"/><text x="21.0" y="26.2" text-anchor="middle" font-family="Georgia,'Times New Roman','Times',serif" font-size="15" fill="#9F9F9F">eos</text></g></g>
+<text class="anim" style="--d:2.75s" x="472" y="416" font-family="Georgia,'Times New Roman','Times',serif" font-size="10.5" fill="#9A9A9A" font-style="italic">autoregressive: each z is fed back as input until <tspan font-style="normal">eos</tspan></text>
+<g transform="translate(22,156)"><g class="anim" style="--d:5.20s;"><rect x="0" y="0" width="186" height="68" rx="12" fill="none" stroke="#6E97C8" stroke-width="1.3"/><text x="93.0" y="59" text-anchor="middle" font-family="Georgia,'Times New Roman','Times',serif" font-size="13" fill="#5C84BE">obs context</text></g></g>
+<g transform="translate(30,164)"><g class="anim" style="--d:5.25s;"><image href="./static/figanim/cam0.png" x="0" y="0" width="38" height="38" preserveAspectRatio="xMidYMid slice" clip-path="url(#cc38)"/><rect x="0" y="0" width="38" height="38" rx="8" fill="none" stroke="#D6D6D6"/></g></g>
+<g transform="translate(74,164)"><g class="anim" style="--d:5.30s;"><image href="./static/figanim/cam1.png" x="0" y="0" width="38" height="38" preserveAspectRatio="xMidYMid slice" clip-path="url(#cc38)"/><rect x="0" y="0" width="38" height="38" rx="8" fill="none" stroke="#D6D6D6"/></g></g>
+<g transform="translate(118,164)"><g class="anim" style="--d:5.35s;"><image href="./static/figanim/cam2.png" x="0" y="0" width="38" height="38" preserveAspectRatio="xMidYMid slice" clip-path="url(#cc38)"/><rect x="0" y="0" width="38" height="38" rx="8" fill="none" stroke="#D6D6D6"/></g></g>
+<g transform="translate(162,164)"><g class="anim" style="--d:5.40s;"><image href="./static/figanim/cam3.png" x="0" y="0" width="38" height="38" preserveAspectRatio="xMidYMid slice" clip-path="url(#cc38)"/><rect x="0" y="0" width="38" height="38" rx="8" fill="none" stroke="#D6D6D6"/></g></g>
+<path class="conn draw" style="--d:5.50s" d="M115 156 V146" fill="none" marker-end="url(#ag)"/>
+<path class="conn draw" style="--d:5.55s" d="M493 226 V146" fill="none" marker-end="url(#ag)"/>
+<path class="conn draw" style="--d:5.55s" d="M547 226 V146" fill="none" marker-end="url(#ag)"/>
+<path class="conn draw" style="--d:5.55s" d="M601 226 V146" fill="none" marker-end="url(#ag)"/>
+<path class="conn draw" style="--d:5.55s" d="M655 226 V146" fill="none" marker-end="url(#ag)"/>
+<g transform="translate(722,164)"><g class="pop" style="--d:5.55s;"><rect x="4" y="6" width="42" height="42" rx="11" fill="#DAD2EA" opacity="0.5" filter="url(#blur)"/><rect x="0" y="0" width="42" height="42" rx="11" fill="url(#hatch)" stroke="#CBBBE6" filter="url(#tsh)"/></g></g>
+<g transform="translate(776,164)"><g class="pop" style="--d:5.62s;"><rect x="4" y="6" width="42" height="42" rx="11" fill="#DAD2EA" opacity="0.5" filter="url(#blur)"/><rect x="0" y="0" width="42" height="42" rx="11" fill="url(#hatch)" stroke="#CBBBE6" filter="url(#tsh)"/></g></g>
+<g transform="translate(830,164)"><g class="pop" style="--d:5.69s;"><rect x="4" y="6" width="42" height="42" rx="11" fill="#DAD2EA" opacity="0.5" filter="url(#blur)"/><rect x="0" y="0" width="42" height="42" rx="11" fill="url(#hatch)" stroke="#CBBBE6" filter="url(#tsh)"/></g></g>
+<g transform="translate(884,164)"><g class="pop" style="--d:5.76s;"><rect x="4" y="6" width="42" height="42" rx="11" fill="#DAD2EA" opacity="0.5" filter="url(#blur)"/><rect x="0" y="0" width="42" height="42" rx="11" fill="url(#hatch)" stroke="#CBBBE6" filter="url(#tsh)"/></g></g>
+<text class="anim" style="--d:5.6s" x="722" y="222" font-family="Georgia,'Times New Roman','Times',serif" font-size="10.5" fill="#8C77B4" font-style="italic">learnable queries</text>
+<path class="conn draw" style="--d:5.70s" d="M743 164 V146" fill="none" marker-end="url(#ag)"/>
+<path class="conn draw" style="--d:5.75s" d="M797 164 V146" fill="none" marker-end="url(#ag)"/>
+<path class="conn draw" style="--d:5.80s" d="M851 164 V146" fill="none" marker-end="url(#ag)"/>
+<path class="conn draw" style="--d:5.85s" d="M905 164 V146" fill="none" marker-end="url(#ag)"/>
+<g transform="translate(22,116)"><g class="anim" style="--d:5.95s;"><rect x="0" y="0" width="904" height="30" rx="12" fill="#F7E1E7" filter="url(#tsh)"/><text x="452.0" y="19.9" text-anchor="middle" font-family="Georgia,'Times New Roman','Times',serif" font-size="14" fill="#494345">Cross-Attention Decoder</text></g></g>
+<path class="conn draw" style="--d:6.25s" d="M743 116 V100" fill="none" marker-end="url(#ag)"/>
+<g transform="translate(722,54)"><g class="pop" style="--d:6.35s;"><rect x="4" y="6" width="42" height="42" rx="11" fill="#DAD2EA" opacity="0.55" filter="url(#blur)"/><rect x="0" y="0" width="42" height="42" rx="11" fill="#DAD2EA" stroke="#C7B8E4" filter="url(#tsh)"/><line x1="11.3" y1="23.0" x2="30.7" y2="19.0" stroke="#6D588B" stroke-width="3" marker-end="url(#ap)"/></g></g>
+<path class="conn draw" style="--d:6.31s" d="M797 116 V100" fill="none" marker-end="url(#ag)"/>
+<g transform="translate(776,54)"><g class="pop" style="--d:6.43s;"><rect x="4" y="6" width="42" height="42" rx="11" fill="#DAD2EA" opacity="0.55" filter="url(#blur)"/><rect x="0" y="0" width="42" height="42" rx="11" fill="#DAD2EA" stroke="#C7B8E4" filter="url(#tsh)"/><line x1="11.3" y1="28.0" x2="30.7" y2="14.0" stroke="#6D588B" stroke-width="3" marker-end="url(#ap)"/></g></g>
+<path class="conn draw" style="--d:6.37s" d="M851 116 V100" fill="none" marker-end="url(#ag)"/>
+<g transform="translate(830,54)"><g class="pop" style="--d:6.51s;"><rect x="4" y="6" width="42" height="42" rx="11" fill="#DAD2EA" opacity="0.55" filter="url(#blur)"/><rect x="0" y="0" width="42" height="42" rx="11" fill="#DAD2EA" stroke="#C7B8E4" filter="url(#tsh)"/><line x1="11.3" y1="33.0" x2="30.7" y2="9.0" stroke="#6D588B" stroke-width="3" marker-end="url(#ap)"/></g></g>
+<path class="conn draw" style="--d:6.43s" d="M905 116 V100" fill="none" marker-end="url(#ag)"/>
+<g transform="translate(884,54)"><g class="pop" style="--d:6.59s;"><rect x="4" y="6" width="42" height="42" rx="11" fill="#DAD2EA" opacity="0.55" filter="url(#blur)"/><rect x="0" y="0" width="42" height="42" rx="11" fill="#DAD2EA" stroke="#C7B8E4" filter="url(#tsh)"/><line x1="11.3" y1="37.0" x2="30.7" y2="5.0" stroke="#6D588B" stroke-width="3" marker-end="url(#ap)"/></g></g>
+<text class="anim" style="--d:6.5s" x="722" y="46" font-family="Georgia,'Times New Roman','Times',serif" font-size="10.5" fill="#6D588B" font-style="italic">action chunk</text>
+</svg>
+<script>
+(function(){
+  function prep(f){f.querySelectorAll('.draw').forEach(function(p){var l=p.getTotalLength();p.style.strokeDasharray=l;p.style.strokeDashoffset=l;p.style.setProperty('--len',l);});}
+  function play(f){f.classList.remove('play');void f.getBoundingClientRect();f.classList.add('play');}
+  var figs=[].slice.call(document.querySelectorAll('.fig'));
+  figs.forEach(function(f){try{prep(f);}catch(e){}f.addEventListener('click',function(){play(f);});});
+  figs.forEach(play);
+  window.addEventListener('message',function(e){if(e.data&&e.data.type==='lmp-play')figs.forEach(play);});
+}());
+</script></body></html>

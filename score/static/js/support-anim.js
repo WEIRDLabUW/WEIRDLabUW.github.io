@@ -67,12 +67,15 @@
     // then exploits — mirrors how the distributional branch starts at base.
     var KU  = {pos:'base', col:REDV,   leg:1, cap:'No constraint: optimize freely',           cc:REDD, star:0, sl:0, kv:0,   xm:0, trans:1,    hold:1400};
     var KC3 = {pos:'out',  col:REDV,   leg:1, cap:'Without constraints, π exploits the simulator',      cc:REDD, star:0, sl:0, kv:0,   xm:1, trans:1500, hold:2800};
-    var KF=[KB,KU,KC3,KC1,KC2,KC2b,KS];
+    // SCORE re-grounds in the base support (snap, like the distributional branch) before steering,
+    // so it moves FORWARD into reward instead of sliding back from the exploit cluster.
+    var KSr = {pos:'base', col:SLATE,  leg:3, cap:'SCORE starts inside the base support',      cc:INKS, star:0, sl:0, kv:0,   xm:0, trans:1,    hold:900};
+    var KF=[KB,KU,KC3,KC1,KC2,KC2b,KSr,KS];
     var SEG=[], total=0;
     for(var k=0;k<KF.length;k++){ SEG.push({start:total, prev:KF[(k-1+KF.length)%KF.length], cur:KF[k]}); total += KF[k].trans+KF[k].hold; }
 
     // legend click → which regime to show, and where to resume the auto-loop
-    var PICK=[KB,KC3,KC2,KS], PICK_AUTO=[0,2,4,6];
+    var PICK=[KB,KC3,KC2,KS], PICK_AUTO=[0,2,4,7];
     var manual=false, selIdx=-1, mTo=null, mT0=0, MDUR=1500;
 
     // ── defs ──

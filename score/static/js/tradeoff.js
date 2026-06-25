@@ -29,7 +29,7 @@
     var BASE = 30, SCORE = 100;
 
     // ── geometry (balanced padding so the plot sits centered) ──
-    var W = 640, H = 300, padL = 18, padR = 18, padT = 30, padB = 40;
+    var W = 640, H = 300, padL = 46, padR = 18, padT = 30, padB = 40;
     var plotL = padL, plotR = W - padR, plotW = plotR - plotL;
     var plotT = padT, plotB = H - padB, plotH = plotB - plotT;
     function X(i){ return plotL + (i/(N-1))*plotW; }
@@ -52,7 +52,11 @@
     // gridlines + y labels (0/50/100)
     [0,50,100].forEach(function(v){
         svg.appendChild(E('line',{ x1:plotL, y1:Y(v), x2:plotR, y2:Y(v), class:'bctk-grid' }));
+        var yl=E('text',{ x:plotL-9, y:Y(v)+4, 'text-anchor':'end', class:'bctk-ylab' }); yl.textContent=v; svg.appendChild(yl);
     });
+    // y-axis title (rotated)
+    var yc=plotT+plotH/2;
+    var ytitle=E('text',{ x:14, y:yc, 'text-anchor':'middle', transform:'rotate(-90 14 '+yc+')', class:'bctk-ytitle' }); ytitle.textContent='Success rate (%)'; svg.appendChild(ytitle);
 
     // SCORE ceiling (dashed) + inline label, top-left
     svg.appendChild(E('line',{ x1:plotL, y1:Y(SCORE), x2:plotR, y2:Y(SCORE), class:'bctk-ceil' }));

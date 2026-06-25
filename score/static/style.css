@@ -2814,6 +2814,8 @@
         .bctk-dot.real { fill: var(--baseline-terracotta); }
         .bctk-dot.on { opacity: 1; }
         .bctk-xlab { font-family: 'JetBrains Mono', monospace; font-size: 15px; font-weight: 600; fill: var(--ink-soft); }
+        .bctk-ylab { font-family: 'JetBrains Mono', monospace; font-size: 13px; fill: var(--ink-soft); opacity: 0.85; }
+        .bctk-ytitle { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700; fill: var(--ink-soft); letter-spacing: 0.02em; }
         .bctk-cursor { stroke: var(--ink-soft); stroke-width: 1; opacity: 0.3; }
         .bctk-hl { fill: var(--baseline-terracotta); stroke: var(--panel); stroke-width: 2.5; }
         .bctk-hl.sim { fill: var(--baseline-ochre); }

@@ -2918,6 +2918,15 @@
             color: var(--ink); margin-bottom: 14px; }
         .mt-hero-clips { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
         .mt-card.hero { box-shadow: 0 0 0 1.5px var(--em-mid), 0 6px 18px rgba(0,0,0,0.14); }
+        /* zoomed inset: the borrowed behavior shown on its native object */
+        .mt-inset { position: absolute; top: 9px; left: 9px; width: 34%; z-index: 3;
+            border-radius: 7px; overflow: hidden;
+            box-shadow: 0 0 0 1.5px rgba(255,255,255,0.55), 0 4px 12px rgba(0,0,0,0.4); }
+        .mt-inset video { width: 100%; display: block; aspect-ratio: 4 / 3; object-fit: cover; }
+        .mt-inset-lbl { position: absolute; left: 0; right: 0; top: 0; padding: 3px 5px 8px;
+            font-family: 'JetBrains Mono', monospace; font-size: 0.48rem; font-weight: 600;
+            letter-spacing: 0.02em; color: #fff; text-align: center;
+            background: linear-gradient(180deg, rgba(0,0,0,0.82), transparent); }
         .mt-hero-cap { margin: 14px 0 0; font-family: 'Fraunces', serif; font-style: italic;
             font-size: 0.95rem; line-height: 1.5; color: var(--ink-soft); }
 

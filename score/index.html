@@ -24,7 +24,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
 
-    <link rel="stylesheet" href="static/style.css?v=20260621l">
+    <link rel="stylesheet" href="static/style.css?v=20260624a">
 </head>
 <body>
 
@@ -81,7 +81,7 @@
     <header class="sec-head">
         <span class="sigma-rule"></span>
         <h2 class="sec-title">The Problem</h2>
-        <p class="sec-lead">The same simulation that improves a policy can break it.</p>
+        <p class="sec-lead">Simulation can improve or break policies.</p>
     </header>
 
     <!-- two problems, shown as evidence: real-world data is costly + limited,
@@ -176,7 +176,7 @@
                         <svg class="mfx-act" id="act3" viewBox="0 0 235 96" preserveAspectRatio="none"></svg>
                     </div>
                 </div>
-                <div class="mfx-cap">Steered policy is <b class="t-good">fast, precise, and robust</b>.</div>
+                <div class="mfx-cap">Steered policy is <b class="t-good">fast, precise, robust, and transferable</b>.</div>
             </div>
         </div>
         <figcaption class="cap">SCORE in three steps: pretrain a base policy on real demos, steer it in simulation within the prior&rsquo;s support using only a <strong>sparse task reward</strong>, then deploy directly on the robot.</figcaption>
@@ -301,10 +301,12 @@
             <div class="bb-duo">
                 <figure class="bb-card base">
                     <video src="static/videos/extras/cleanex/base_0.mp4" autoplay loop muted playsinline controls controlslist="nodownload noplaybackrate"></video>
+                    <span class="speed-tag">1&times; speed</span>
                     <figcaption><span class="bb-bad">✗ Base</span>can&rsquo;t recover once the grasp slips</figcaption>
                 </figure>
                 <figure class="bb-card score">
                     <video src="static/videos/extras/cleanex/score_0.mp4" autoplay loop muted playsinline controls controlslist="nodownload noplaybackrate"></video>
+                    <span class="speed-tag">1&times; speed</span>
                     <figcaption><span class="bb-ok">✓ SCORE</span>retries until the cap comes off</figcaption>
                 </figure>
             </div>
@@ -314,10 +316,12 @@
             <div class="bb-duo">
                 <figure class="bb-card base">
                     <video src="static/videos/extras/bookshelf/base_0.mp4" autoplay loop muted playsinline controls controlslist="nodownload noplaybackrate"></video>
+                    <span class="speed-tag">2.5&times; speed</span>
                     <figcaption><span class="bb-bad">✗ Base</span>pulls the book too far, so it falls</figcaption>
                 </figure>
                 <figure class="bb-card score">
                     <video src="static/videos/extras/bookshelf/score_0.mp4" autoplay loop muted playsinline controls controlslist="nodownload noplaybackrate"></video>
+                    <span class="speed-tag">2&times; speed</span>
                     <figcaption><span class="bb-ok">✓ SCORE</span>hooks the book and pulls it out cleanly</figcaption>
                 </figure>
             </div>
@@ -434,7 +438,7 @@
     </header>
 
     <p class="body-text">
-        The <strong>support</strong> of &pi;<sub>base</sub> is the model-induced set of actions the base policy can produce for a given latent <em>z</em>. A <strong>support constraint</strong> keeps optimization within that set. Using flow steering, SCORE optimizes over <em>z</em> and climbs toward higher reward, but stays near the prior&rsquo;s support, allowing for better sim-to-real transfer.
+        The <strong>support</strong> of &pi;<sub>base</sub> is the model-induced set of actions the base policy can produce for a given latent <em>z</em>. A <strong>support constraint</strong> keeps optimization within that set. Using flow steering, SCORE optimizes over <em>z</em> and climbs toward higher reward, but stays within the prior&rsquo;s support, allowing for better sim-to-real transfer.
     </p>
 
     <figure class="sconst">
@@ -455,7 +459,7 @@
 
     <div class="key-insight" style="margin-top:18px;">
         <span class="ki-label">Why it works</span>
-        <p>Behaviors in the support of the base policy can be performed in the real world. Flow steering optimizes performance under the base policy's support, so the improvement found in simulation still holds on the robot.</p>
+        <p>Behaviors in the support of the base policy can be transferred to the real world. Flow steering optimizes performance under the base policy's support, so the improvement found in simulation still holds on the robot.</p>
     </div>
 </section>
 
@@ -472,44 +476,42 @@
     <p class="mt-lede">One policy, trained with <strong>SCORE</strong> on three tasks: credit card, cube, and bottle. It picks the correct grasp for each object, and even <strong>learns to reuse behaviors</strong> across tasks.</p>
 
     <div class="mt-hero">
-        <div class="mt-hero-head">Same cube, two borrowed behaviors</div>
+        <div class="mt-hero-head">One multi-task policy, borrowing behaviors across tasks</div>
         <div class="mt-hero-clips">
             <figure class="mt-card hero">
                 <video src="static/videos/extras/multitask/score_cube.mp4" autoplay loop muted playsinline controls controlslist="nodownload noplaybackrate"></video>
-                <figcaption><span class="mt-borrow">&#8627; borrows its <b>credit-card pinch</b></span></figcaption>
+                <div class="mt-inset"><video src="static/videos/extras/multitask/score_credit_inset.mp4?v=20260624a" autoplay loop muted playsinline></video><span class="mt-inset-lbl">credit card pinch behavior</span></div>
             </figure>
             <figure class="mt-card hero">
                 <video src="static/videos/extras/multitask/score_cube_bottle.mp4" autoplay loop muted playsinline controls controlslist="nodownload noplaybackrate"></video>
-                <figcaption><span class="mt-borrow">&#8627; borrows its <b>bottle grasp</b></span><span class="mt-sub">cube placed beyond training randomization</span></figcaption>
+                <div class="mt-inset"><video src="static/videos/extras/multitask/score_bottle_inset.mp4?v=20260624b" autoplay loop muted playsinline></video><span class="mt-inset-lbl">bottle grasp behavior</span></div>
+                <figcaption><span class="mt-sub">cube placed beyond training randomization</span></figcaption>
             </figure>
         </div>
-        <p class="mt-hero-cap">The same cube is grasped two different ways depending on where it sits. Each behavior already lives inside the policy&rsquo;s support.</p>
+        <p class="mt-hero-cap">The same cube is grasped two different ways: a credit-card pinch and a bottle grasp, both behaviors the policy learned on other objects. By reusing skills across tasks, one policy can still grasp the cube from placements outside its own training range.</p>
     </div>
 
-    <div class="mt-native">
-        <p class="mt-native-head">For each object, SCORE learns a successful grasp. The base policy mixes them up, using one object&rsquo;s grasp on another.</p>
-        <div class="mt-objs">
-            <div class="mt-obj">
-                <div class="mt-obj-name">Credit Card</div>
-                <div class="mt-pair">
-                    <figure class="mt-card score"><video src="static/videos/extras/multitask/score_credit.mp4" autoplay loop muted playsinline controls controlslist="nodownload noplaybackrate"></video><figcaption><span class="mt-ok">✓ SCORE</span>precise pinch</figcaption></figure>
-                    <figure class="mt-card base"><video src="static/videos/extras/multitask/base_credit.mp4" autoplay loop muted playsinline controls controlslist="nodownload noplaybackrate"></video><figcaption><span class="mt-bad">✗ base</span>reaches with the bottle grasp</figcaption></figure>
-                </div>
-            </div>
-            <div class="mt-obj">
-                <div class="mt-obj-name">Bottle</div>
-                <div class="mt-pair">
-                    <figure class="mt-card score"><video src="static/videos/extras/multitask/score_bottle.mp4" autoplay loop muted playsinline controls controlslist="nodownload noplaybackrate"></video><figcaption><span class="mt-ok">✓ SCORE</span>stable grasp</figcaption></figure>
-                    <figure class="mt-card base"><video src="static/videos/extras/multitask/base_bottle.mp4" autoplay loop muted playsinline controls controlslist="nodownload noplaybackrate"></video><figcaption><span class="mt-bad">✗ base</span>pinches as if it were the card</figcaption></figure>
-                </div>
-            </div>
+    <div class="mt-hero" style="margin-top:30px;">
+        <div class="mt-hero-head">The base policy mixes them up</div>
+        <div class="mt-hero-clips">
+            <figure class="mt-card">
+                <video src="static/videos/extras/multitask/base_credit.mp4" autoplay loop muted playsinline controls controlslist="nodownload noplaybackrate"></video>
+                <div class="mt-inset"><video src="static/videos/extras/multitask/score_bottle_inset_bc.mp4?v=20260624a" autoplay loop muted playsinline></video><span class="mt-inset-lbl">bottle grasp behavior</span></div>
+                <figcaption><span class="mt-bad">✗ Credit card</span>uses bottle grasp mode instead</figcaption>
+            </figure>
+            <figure class="mt-card">
+                <video src="static/videos/extras/multitask/base_bottle.mp4" autoplay loop muted playsinline controls controlslist="nodownload noplaybackrate"></video>
+                <div class="mt-inset"><video src="static/videos/extras/multitask/score_credit_inset.mp4?v=20260624a" autoplay loop muted playsinline></video><span class="mt-inset-lbl">credit card pinch behavior</span></div>
+                <figcaption><span class="mt-bad">✗ Bottle</span>uses card pinch mode instead</figcaption>
+            </figure>
         </div>
+        <p class="mt-hero-cap">On the real objects, the base policy applies each grasp to the wrong one.</p>
     </div>
 
     <!-- ── Carrot: a new object ── -->
     <h3 class="sub-head" style="margin-top:42px;">A new object: bottle &rarr; carrot</h3>
     <p class="body-text">
-        We take a frozen <strong>bottle-grasp</strong> policy and use <strong>SCORE</strong> in simulation to grasp a <strong>carrot</strong>, an object it never trained on. The carrot is thinner and needs a precise pinch that the bottle prior produces only rarely.
+        We take a frozen <strong>bottle-grasp</strong> policy and use <strong>SCORE</strong> in simulation to grasp a <strong>carrot</strong>, an object it never trained on. The carrot is thinner and needs a precise pinch that the bottle base policy produces only rarely.
     </p>
     <div class="rollout-grid" style="margin-top:16px;">
         <div class="rollout-col">
@@ -524,7 +526,7 @@
         </div>
     </div>
 
-    <!-- ── Distractor: where it runs thin ── -->
+    <!-- ── Distractor adaptation ── -->
     <h3 class="sub-head" style="margin-top:42px;">Adding distractors</h3>
     <p class="body-text">
         The bottle policy was trained with <strong>no distractor objects</strong>. We add <strong>two distractor cubes</strong> and apply <strong>SCORE</strong> to grasp around them, recovering a working grasp on hardware, but only when the bottle sits on one side of the workspace.
@@ -538,13 +540,13 @@
         <div class="rollout-col emerald-col">
             <div class="rollout-col-title">SCORE <em>(with distractor)</em></div>
             <video src="static/videos/future/distractor/hw_score/ep_000.mp4?v=20260604i" autoplay loop muted playsinline controls controlslist="nodownload noplaybackrate" style="width:100%;border-radius:10px;display:block;background:#000;"></video>
-            <div class="rollout-note score-note"><span class="note-tag">~ SCORE behavior</span>SCORE occasionally achieves a working grasp, but performance is limited because the prior is far out of distribution (56% success).</div>
+            <div class="rollout-note score-note"><span class="note-tag">~ SCORE behavior</span>Retrained in sim with the distractors, SCORE recovers a grasp over part of the workspace (56%). Trained without distractors, the base policy never learned the visual features that separate the cubes from the bottle, which makes it much harder to steer in the new setting.</div>
         </div>
     </div>
 
     <div class="key-insight" style="margin-top:30px;">
         <span class="ki-label">The limit</span>
-        <p>What limits SCORE is the prior itself. The broader its coverage, the further it can go.</p>
+        <p>What limits SCORE is the base policy itself. The broader its coverage, the further it can go.</p>
     </div>
 </section>
 

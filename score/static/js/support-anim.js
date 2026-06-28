@@ -58,18 +58,18 @@
     // ── keyframes: each regime, held long enough to read ──
     // support = the set of actions the base policy can produce over its latent z;
     // SCORE steers z, so it can only ever land on actions inside that set.
-    var KB = {pos:'base',  col:SLATE,  leg:0, cap:'Base policy support: every action it can generate', cc:INKS, star:0, sl:0, kv:0,   xm:0, trans:1, hold:2400};
-    var KS = {pos:'score', col:NAVY,   leg:3, cap:'SCORE steers z toward reward, in support',          cc:EM,   star:1, sl:0, kv:0,   xm:0, trans:1600, hold:2800};
-    var KC1 = {pos:'base', col:OCHRE,  leg:2, cap:'Strong distributional constraint barely improves', cc:OCHD, star:0, sl:1, kv:0,   xm:0, trans:1,    hold:2000};
+    var KB = {pos:'base',  col:SLATE,  leg:0, cap:'Base policy support: every action it can generate', cc:INKS, star:0, sl:0, kv:0,   xm:0, trans:900, hold:2400};
+    var KS = {pos:'score', col:NAVY,   leg:3, cap:'then steers toward higher reward while ensuring transferability',          cc:EM,   star:1, sl:0, kv:0,   xm:0, trans:1600, hold:3600};
+    var KC1 = {pos:'base', col:OCHRE,  leg:2, cap:'Strong distributional constraint reduces to the base policy', cc:OCHD, star:0, sl:1, kv:0,   xm:0, trans:900,    hold:2000};
     var KC2 = {pos:'mid',  col:ORANGE, leg:2, cap:'Looser distributional constraint drifts out of support',          cc:'#714350', star:0, sl:1, kv:0.5, xm:0, trans:1400, hold:2000};
     var KC2b= {pos:'out',  col:REDV,   leg:2, cap:'Weak distributional constraint collapses to unconstrained RL',     cc:REDD, star:0, sl:1, kv:1,   xm:1, trans:1400, hold:2200};
     // unconstrained RL also starts from the base points (snap there, recolor / leg1),
     // then exploits — mirrors how the distributional branch starts at base.
     var KU  = {pos:'base', col:REDV,   leg:1, cap:'No constraint: optimize freely',           cc:REDD, star:0, sl:0, kv:0,   xm:0, trans:1,    hold:1400};
-    var KC3 = {pos:'out',  col:REDV,   leg:1, cap:'Without constraints, π exploits the simulator',      cc:REDD, star:0, sl:0, kv:0,   xm:1, trans:1500, hold:2800};
+    var KC3 = {pos:'out',  col:REDV,   leg:1, cap:'Without constraints, the policy exploits the simulator',      cc:REDD, star:0, sl:0, kv:0,   xm:1, trans:1500, hold:2800};
     // SCORE re-grounds in the base support (snap, like the distributional branch) before steering,
     // so it moves FORWARD into reward instead of sliding back from the exploit cluster.
-    var KSr = {pos:'base', col:SLATE,  leg:3, cap:'SCORE starts inside the base support',      cc:INKS, star:0, sl:0, kv:0,   xm:0, trans:1,    hold:900};
+    var KSr = {pos:'base', col:NAVY,   leg:3, cap:'SCORE optimizes only over actions the real policy already produces',      cc:EM, star:0, sl:0, kv:0,   xm:0, trans:900,    hold:2600};
     var KF=[KB,KU,KC3,KC1,KC2,KC2b,KSr,KS];
     var SEG=[], total=0;
     for(var k=0;k<KF.length;k++){ SEG.push({start:total, prev:KF[(k-1+KF.length)%KF.length], cur:KF[k]}); total += KF[k].trans+KF[k].hold; }
@@ -157,14 +157,25 @@
     // resolve the animation state at loop-time lt (or a fixed keyframe object)
     function stateAt(lt){
         var s=SEG[0]; for(var i=0;i<SEG.length;i++){ if(lt>=SEG[i].start) s=SEG[i]; }
-        var loc=lt-s.start, e = loc<s.cur.trans ? ease(loc/s.cur.trans) : 1;
+        var loc=lt-s.start, raw = loc<s.cur.trans ? clamp(loc/s.cur.trans) : 1, e=ease(raw);
         var a=s.prev, b=s.cur, pa=POS[a.pos], pb=POS[b.pos], pos=[];
-        for(var j=0;j<N;j++) pos.push([lerp(pa[j][0],pb[j][0],e), lerp(pa[j][1],pb[j][1],e)]);
+        // a "reset" is any move from an advanced regime back into the base support.
+        // sliding the cloud backward draws reversed arrows, and a hard snap looks like
+        // a teleport — so fade it out, swap to base while invisible, then fade back in.
+        var reset = (b.pos==='base' && a.pos!=='base'), rfade=1;
+        if(reset){
+            var src = raw<0.5 ? pa : pb;
+            for(var j=0;j<N;j++) pos.push([src[j][0], src[j][1]]);
+            rfade = Math.abs(2*raw-1);
+        } else {
+            for(var j=0;j<N;j++) pos.push([lerp(pa[j][0],pb[j][0],e), lerp(pa[j][1],pb[j][1],e)]);
+        }
+        // on a reset the slider is fading out — freeze the knob (don't slide it backward)
         return { pos:pos, col:mixA(a.col,b.col,e), star:lerp(a.star,b.star,e), sl:lerp(a.sl,b.sl,e),
-                 kv:lerp(a.kv,b.kv,e), xm:lerp(a.xm,b.xm,e), cap:b.cap, cc:b.cc, leg:b.leg,
+                 kv: reset ? a.kv : lerp(a.kv,b.kv,e), xm:lerp(a.xm,b.xm,e), cap:b.cap, cc:b.cc, leg:b.leg, rfade:rfade,
                  capOp: loc<b.trans ? easeOut(clamp((loc-b.trans*0.25)/(b.trans*0.55))) : 1 };
     }
-    function still(kf){ return { pos:POS[kf.pos], col:kf.col, star:kf.star, sl:kf.sl, kv:kf.kv, xm:kf.xm, cap:kf.cap, cc:kf.cc, leg:kf.leg, capOp:1 }; }
+    function still(kf){ return { pos:POS[kf.pos], col:kf.col, star:kf.star, sl:kf.sl, kv:kf.kv, xm:kf.xm, cap:kf.cap, cc:kf.cc, leg:kf.leg, rfade:1, capOp:1 }; }
     function blendStates(a,b,e){
         var p=[]; for(var i=0;i<N;i++) p.push([lerp(a.pos[i][0],b.pos[i][0],e), lerp(a.pos[i][1],b.pos[i][1],e)]);
         return {pos:p, col:mixA(a.col,b.col,e), star:lerp(a.star,b.star,e), sl:lerp(a.sl,b.sl,e),
@@ -215,7 +226,8 @@
             dots[i].setAttribute('cy',cy.toFixed(1));
             dots[i].setAttribute('r',(RAD[i]*ai).toFixed(2));
             dots[i].setAttribute('fill', col);
-            fade(dots[i], ai*0.94);
+            var rf = (st.rfade==null?1:st.rfade);
+            fade(dots[i], ai*0.94*rf);
             // motion arrow: comes in while the dot moves, fades when it settles
             var vx=st.pos[i][0]-prevPos[i][0], vy=st.pos[i][1]-prevPos[i][1];
             var sp=Math.sqrt(vx*vx+vy*vy), ar=arrows[i];

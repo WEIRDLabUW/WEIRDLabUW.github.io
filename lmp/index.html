@@ -121,7 +121,7 @@
         <div class="columns is-centered has-text-centered">
           <div class="column is-full">
             <div id="teaser-player" style="margin: 0 auto; user-select: none;">
-              <div style="display: flex; gap: 12px; align-items: flex-start;">
+              <div style="display: flex; gap: 12px; align-items: flex-start; width: 70%; margin: 0 auto;">
                 <!-- Scene camera -->
                 <div style="flex: 1; min-width: 0;">
                   <div
@@ -157,7 +157,7 @@
                   <div id="teaser-step-label"
                     style="font-size: 0.75rem; color: #888; font-family: 'Google Sans', monospace;"></div>
                 </div>
-                <div id="teaser-steps" style="display: flex; gap: 3px; height: 64px; align-items: flex-end;"></div>
+                <div id="teaser-steps" style="display: flex; gap: 3px; height: 96px; align-items: flex-end;"></div>
               </div>
 
               <!-- Playback scrubber -->
@@ -396,7 +396,7 @@
             <p class="has-text-centered">
               <iframe class="lmp-figframe" src="./fig_model_embed.html" title="LMP-&pi; architecture" scrolling="no"
                 loading="lazy"
-                style="width:100%;max-width:956px;aspect-ratio:956/356;border:0;display:block;margin:0 auto;"></iframe>
+                style="width:100%;max-width:901px;aspect-ratio:901/356;border:0;display:block;margin:0 auto;"></iframe>
             </p>
             <p>
               LMP uses a cross-attention encoder-decoder architecture. The <strong>encoder</strong> processes
@@ -413,7 +413,7 @@
             <p class="has-text-centered">
               <iframe class="lmp-figframe" src="./fig_training_embed.html" title="Training LMP-&pi;" scrolling="no"
                 loading="lazy"
-                style="width:100%;max-width:956px;aspect-ratio:956/414;border:0;display:block;margin:0 auto;"></iframe>
+                style="width:100%;max-width:901px;aspect-ratio:901/414;border:0;display:block;margin:0 auto;"></iframe>
             </p>
             <p>
               We optimize this objective using latent-space reinforcement learning. Training alternates between two
@@ -462,7 +462,7 @@
           <div class="content has-text-justified">
             <p>
               We pretrain LMP and DP models on the full DROID dataset. In the zero-shot setting,
-              LMP-&pi; outperforms DP on cube-bowl and marker-mug. We then finetune on two challenging
+              LMP-&pi; outperforms DP on block-bowl and marker-mug. We then finetune on two challenging
               task: peg-hole (precision) and clean-table (multimodality). LMP-&pi; demonstrates both precision
               and compositional generalization, notably picking up at least two objects with 95% success in the
               clean-table task.
@@ -480,8 +480,8 @@
               <th colspan="4" class="has-text-centered">Finetuned</th>
             </tr>
             <tr>
-              <th class="has-text-centered">cube-bowl</th>
-              <th class="has-text-centered">pen-mug</th>
+              <th class="has-text-centered">block-bowl</th>
+              <th class="has-text-centered">marker-mug</th>
               <th class="has-text-centered">peg-hole</th>
               <th class="has-text-centered">clean-table (1/3)</th>
               <th class="has-text-centered">clean-table (2/3)</th>
@@ -515,8 +515,8 @@
       <div class="content has-text-centered">
         <div class="seg-toggle" id="droid-toggle">
           <span class="seg-thumb"></span>
-          <button class="seg-btn is-active" onclick="showDroid('block_bowl', this)">Cube-Bowl</button>
-          <button class="seg-btn" onclick="showDroid('marker_mug', this)">Pen-Mug</button>
+          <button class="seg-btn is-active" onclick="showDroid('block_bowl', this)">Block-Bowl</button>
+          <button class="seg-btn" onclick="showDroid('marker_mug', this)">Marker-Mug</button>
           <button class="seg-btn" onclick="showDroid('peg_hole', this)">Peg-Hole</button>
           <button class="seg-btn" onclick="showDroid('clean_table', this)">Clean-Table</button>
         </div>
@@ -666,11 +666,11 @@
         <script>
           groupedBarPlot('tok-plot', '#tok-table',
             [{ name: 'VQVAE', color: '#362149', col: 1 },
-             { name: 'FAST', color: '#675988', col: 2 },
-             { name: 'OAT', color: '#999DCC', col: 3 },
-             { name: 'LMP-tok', color: '#D097AC', col: 4 }],
+            { name: 'FAST', color: '#675988', col: 2 },
+            { name: 'OAT', color: '#999DCC', col: 3 },
+            { name: 'LMP-tok', color: '#D097AC', col: 4 }],
             [{ name: 'Robomimic', vals: [0.29, 0.49, 0.47, 0.69] },
-             { name: 'LIBERO', vals: [0.14, 0.22, 0.31, 0.75] }]);
+            { name: 'LIBERO', vals: [0.14, 0.22, 0.31, 0.75] }]);
         </script>
         <p class="is-size-7 mt-2">Average success rates of autoregressive policies fitted to each tokenizer on RoboMimic
           and LIBERO. Hover a method to compare it across domains.</p>
@@ -678,7 +678,8 @@
 
       <div class="columns is-centered">
         <div class="column is-four-fifths">
-          <table id="tok-table" class="table is-bordered is-striped is-narrow is-hoverable is-fullwidth" style="font-size: 0.85rem;">
+          <table id="tok-table" class="table is-bordered is-striped is-narrow is-hoverable is-fullwidth"
+            style="font-size: 0.85rem;">
             <thead>
               <tr>
                 <th>Task</th>
@@ -848,10 +849,10 @@
         <script>
           groupedBarPlot('st-plot', '#st-table',
             [{ name: 'VQ-BET', color: '#675988', col: 1 },
-             { name: 'VAE', color: '#999DCC', col: 2 },
-             { name: 'LMP-&pi;', color: '#D097AC', col: 3 }],
+            { name: 'VAE', color: '#999DCC', col: 2 },
+            { name: 'LMP-&pi;', color: '#D097AC', col: 3 }],
             [{ name: 'D3IL', vals: [0.39, 0.57, 0.76] },
-             { name: 'Robomimic', vals: [0.56, 0.68, 0.83] }]);
+            { name: 'Robomimic', vals: [0.56, 0.68, 0.83] }]);
         </script>
         <p class="is-size-7 mt-2">Single-task success on D3IL and RoboMimic. Iterative computation yields higher
           performance. Hover a method to compare it across domains.</p>
@@ -866,7 +867,7 @@
                 <th>Task</th>
                 <th class="has-text-centered">VQ-BET</th>
                 <th class="has-text-centered">VAE</th>
-                                <th class="has-text-centered">LMP-&pi;</th>
+                <th class="has-text-centered">LMP-&pi;</th>
               </tr>
             </thead>
             <tbody>
@@ -929,7 +930,8 @@
                 <td>robomimic-square</td>
                 <td class="has-text-centered">0.58 <span style="color:#888; font-size:0.8em;">&pm;0.06</span></td>
                 <td class="has-text-centered">0.79 <span style="color:#888; font-size:0.8em;">&pm;0.08</span></td>
-                <td class="has-text-centered"><strong>0.87</strong> <span style="color:#888; font-size:0.8em;">&pm;0.02</span></td>
+                <td class="has-text-centered"><strong>0.87</strong> <span
+                    style="color:#888; font-size:0.8em;">&pm;0.02</span></td>
               </tr>
               <tr>
                 <td>robomimic-tool-hang</td>
@@ -1025,13 +1027,6 @@
             latent steps.</p>
         </div>
       </div>
-      <div class="columns is-centered">
-        <div class="column is-half has-text-centered">
-          <img src="./static/images/training_latent_length.png" style="width:90%; border-radius:8px;"
-            alt="Posterior latent length over training">
-          <p class="is-size-7 mt-2">Average posterior latent length over training for different variance schedules.</p>
-        </div>
-      </div>
 
       <!-- Does the model adaptively allocate test-time compute? -->
       <h3 class="title is-5 mt-6 has-text-left">Does the model adaptively allocate test-time compute?</h3>
@@ -1105,49 +1100,93 @@
       </div>
       <div class="rt-carousel" data-base="./static/videos/sim_analysis_videos" data-eps="5" data-task="."></div>
 
-      <div class="columns is-centered mt-5">
-        <div class="column">
-          <div class="content has-text-justified">
-            <p>
-              Quantitatively, we find reasoning length to be negatively correlated with nearest-neighbor
-              action variance &mdash; the model reasons more when the local action distribution is more multimodal.
-            </p>
+      <!-- More Analysis: secondary results, one slide at a time (text + plot scroll together) -->
+      <h4 class="title is-5 mt-5 has-text-left">More Analysis</h4>
+      <div style="display:flex; align-items:center; gap:12px;">
+        <button id="ma-prev" aria-label="Previous"
+          style="flex:none; background:none; border:1px solid #ccc; border-radius:50%; width:36px; height:36px; cursor:pointer; font-size:1.1rem; line-height:1;">&#8592;</button>
+        <div style="flex:1; overflow:hidden;">
+          <div id="ma-track"
+            style="display:flex; transition:transform .45s cubic-bezier(0.4, 0, 0.2, 1); will-change:transform;">
+            <!-- (a) latent length over training -->
+            <div style="flex:0 0 100%; min-width:0; padding:0 6px;">
+              <h3 class="title is-5 has-text-left">Latent length over training</h3>
+              <div class="has-text-centered">
+                <img src="./static/images/training_latent_length.png" loading="lazy"
+                  style="width:min(90%, 520px); border-radius:8px;" alt="Posterior latent length over training">
+                <p class="is-size-7 mt-2">Average posterior latent length over training for different variance
+                  schedules.</p>
+              </div>
+            </div>
+            <!-- (b) reasoning length vs action variance -->
+            <div style="flex:0 0 100%; min-width:0; padding:0 6px;">
+              <h3 class="title is-5 has-text-left">Reasoning length vs. action variance</h3>
+              <div class="content has-text-justified">
+                <p>
+                  Quantitatively, we find reasoning length to be negatively correlated with nearest-neighbor
+                  action variance &mdash; the model reasons more when the local action distribution is more multimodal.
+                </p>
+              </div>
+              <div class="has-text-centered">
+                <img src="./static/images/analysis_knn.png" loading="lazy"
+                  style="width:min(80%, 480px); border-radius:8px;" alt="Reasoning length vs KNN action variance">
+                <p class="is-size-7 mt-2">Reasoning length vs. nearest-neighbor action variance (Pearson =
+                  &minus;0.518).</p>
+              </div>
+            </div>
+            <!-- (c) reasoning and multimodality -->
+            <div style="flex:0 0 100%; min-width:0; padding:0 6px;">
+              <h3 class="title is-5 has-text-left">Reasoning and multimodality</h3>
+              <div class="content has-text-justified">
+                <p>
+                  We plot rollouts on the D3IL avoiding task as we manually truncate the maximum number of latent steps
+                  at test time. The policy becomes effectively deterministic as the budget reduces to zero, yet it
+                  remains <em>mode-seeking</em> rather than mode-averaging. We attribute this to training with
+                  reinforcement learning rather than supervised learning.
+                </p>
+              </div>
+              <div class="has-text-centered">
+                <img src="./static/images/ablation_multimodality.png" loading="lazy"
+                  style="width:min(100%, 640px); border-radius:8px;" alt="Mode-seeking under truncated latent steps">
+                <p class="is-size-7 mt-2">As the maximum number of latent steps is truncated, the model exhibits
+                  mode-seeking behavior.</p>
+              </div>
+            </div>
           </div>
         </div>
+        <button id="ma-next" aria-label="Next"
+          style="flex:none; background:none; border:1px solid #ccc; border-radius:50%; width:36px; height:36px; cursor:pointer; font-size:1.1rem; line-height:1;">&#8594;</button>
       </div>
-      <div class="columns is-centered">
-        <div class="column is-half has-text-centered">
-          <img src="./static/images/analysis_knn.png" style="width:80%; border-radius:8px;"
-            alt="Reasoning length vs KNN action variance">
-          <p class="is-size-7 mt-2">Reasoning length vs. nearest-neighbor action variance (Pearson = &minus;0.518).</p>
-        </div>
-      </div>
+      <div id="ma-dots" style="display:flex; justify-content:center; gap:8px; margin-top:14px;"></div>
+      <script>
+        (function () {
+          try {
+            var track = document.getElementById('ma-track');
+            var dots = document.getElementById('ma-dots');
+            var N = track.children.length, i = 0;
+            for (var k = 0; k < N; k++) (function (k) {
+              var d = document.createElement('div');
+              d.style.cssText = 'width:9px; height:9px; border-radius:50%; background:#ccc; cursor:pointer; transition:background .2s;';
+              d.addEventListener('click', function () { show(k); });
+              dots.appendChild(d);
+            })(k);
+            function show(k) {
+              i = ((k % N) + N) % N;
+              track.style.transform = 'translateX(' + (-i * 100) + '%)';
+              for (var j = 0; j < N; j++) dots.children[j].style.background = (j === i) ? '#6a4fb4' : '#ccc';
+            }
+            document.getElementById('ma-prev').addEventListener('click', function () { show(i - 1); });
+            document.getElementById('ma-next').addEventListener('click', function () { show(i + 1); });
+            show(0);
+          } catch (e) { console.error('ma-carousel:', e); }
+        })();
+      </script>
 
 
-      <!-- Reasoning and multimodality -->
-      <h4 class="title is-5 mt-5 has-text-left">Reasoning and multimodality</h4>
-      <div class="columns is-centered">
-        <div class="column">
-          <div class="content has-text-justified">
-            <p>
-              We plot rollouts on the D3IL avoiding taskas we manually truncate the maximum number of latent steps at
-              test time. The policy becomes effectively deterministic as the budget reduces to zero, yet it remains
-              <em>mode-seeking</em> rather than mode-averaging. We attribute this to training with reinforcement
-              learning rather than supervised learning.
-            </p>
-          </div>
-        </div>
-      </div>
-      <div class="columns is-centered">
-        <div class="column is-two-thirds has-text-centered">
-          <img src="./static/images/ablation_multimodality.png" style="width:100%; border-radius:8px;"
-            alt="Mode-seeking under truncated latent steps">
-          <p class="is-size-7 mt-2">As the maximum number of latent steps is truncated, the model exhibits mode-seeking
-            behavior.</p>
-        </div>
-      </div>
     </div>
   </section>
+
+
 
   <div class="hr"></div>
 

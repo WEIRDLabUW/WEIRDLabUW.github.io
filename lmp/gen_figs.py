@@ -125,15 +125,15 @@ def lbl(x,y,base,mathit,col,d=0.0,size=15):
 #  (2) box -> prior -> blue tokens slide from BEHIND -> KL term
 #         -> GT actions slide from BEHIND -> action term
 # =====================================================================
-W2,H2=956,414
+W2,H2=901,414
 b=[f'<rect width="{W2}" height="{H2}" fill="#ffffff"/>']
 
 TS=42; PK=11                             # uniform tile size, peek offset
 CP,RP=58,64                              # column / row pitch for stacked tiles:
                                          # tile 42 + peek 11 = 53, so pitch must exceed 53
                                          # (54 left a 1px gap and the stacks collided)
-GX,GY=352,56                             # token-grid origin
-APX=801                                  # action-stack origin (2 cols)
+GX,GY=322,56                             # token-grid origin
+APX=757                                  # action-stack origin (2 cols)
 ADY=[5,11]                               # arrow angles for the posterior input actions
 ADY_GRID=[[5,14],[-9,2],[12,-5]]         # varied arrow angles per decoder stack (row x col)
 rows=[
@@ -146,17 +146,17 @@ acx=lambda c:APX+c*CP
 
 # ---------- STEP 1 : posterior input box (top-aligned with box (1)) ----------
 # obs thumbnails are tokens too: same size (42), pitch (54) and layered shadow as the action tiles
-b.append(grpbox(8,12,224,150,"",GRP_GRAY,LBL_GRAY,d=0.00))
+b.append(grpbox(8,12,208,150,"",GRP_GRAY,LBL_GRAY,d=0.00))
 b.append(lbl(20,32,"Posterior ","q(z|o,a)",LBL_GRAY,d=0.05))
-for i in range(4): b.append(cam(18+i*54,44,TS,i,d=0.12+i*0.05,sh=True))
-b.append(atile(18,98,TS,dy=ADY[0],d=0.36)); b.append(atile(72,98,TS,dy=ADY[1],d=0.44))
+for i in range(4): b.append(cam(16+i*50,44,TS,i,d=0.12+i*0.05,sh=True))
+b.append(atile(16,98,TS,dy=ADY[0],d=0.36)); b.append(atile(66,98,TS,dy=ADY[1],d=0.44))
 
 # ---------- STEP 2 : draw (1) box ----------
-b.append(dbox_draw(246,12,702,256,"(1) Latent Rollouts From Posterior",d=0.65))
-b.append(conn("M232 65 H274",d=1.15))
+b.append(dbox_draw(230,12,663,256,"(1) Latent Rollouts From Posterior",d=0.65))
+b.append(conn("M216 65 H251",d=1.15))
 # ---------- STEP 3 : encoder ----------
 BARH=2*RP+TS                             # bars span the full 3-row grid
-b.append(bar(278,GY,42,BARH,"Encoder",d=1.25,vertical=True,fs=15))   # 42 wide, centred in the border->grid gap
+b.append(bar(255,GY,42,BARH,"Encoder",d=1.25,vertical=True,fs=15))   # 42 wide, centred in the border->grid gap
 # ---------- STEPS 4 + 9 : token stacks (blue prior BEHIND, gray posterior front) ----------
 for r,row in enumerate(rows):
     for c,t in enumerate(row):
@@ -170,7 +170,7 @@ for r,row in enumerate(rows):
             b.append(tok(x+PK,y+PK,TS,sub=t[2],col='blue',cls="stash",d=db))
             b.append(tok(x,y,TS,sup=t[1],sub=t[2],flat=True,d=df))
 # ---------- STEP 5 : decoder ----------
-b.append(bar(727,GY,42,BARH,"Decoder",d=2.95,vertical=True,fs=15))   # 42 wide, centred in the grid->stacks gap
+b.append(bar(690,GY,42,BARH,"Decoder",d=2.95,vertical=True,fs=15))   # 42 wide, centred in the grid->stacks gap
 # ---------- STEPS 6 + 11 : action stacks (lavender GT BEHIND, gray pred front) ----------
 for r in range(3):
     for c in range(2):
@@ -181,13 +181,13 @@ for r in range(3):
         b.append(atile(x,y,TS,dy=dyy,gray=True,flat=True,d=df))    # prediction (gray) front
 
 # ---------- STEP 7 : draw (2) box ----------
-b.append(dbox_draw(246,286,702,116,"(2) Model Update",d=3.85))
+b.append(dbox_draw(230,286,663,116,"(2) Model Update",d=3.85))
 # ---------- STEP 8 : prior input box (bottom-aligned with box (1)) ----------
-b.append(grpbox(8,176,224,92,"",GRP_BLUE,LBL_BLUE,d=4.35))
+b.append(grpbox(8,176,208,92,"",GRP_BLUE,LBL_BLUE,d=4.35))
 b.append(lbl(20,196,"Prior ","p(z|o)",LBL_BLUE,d=4.40))
-for i in range(4): b.append(cam(18+i*54,210,TS,i,d=4.46+i*0.05,sh=True))
+for i in range(4): b.append(cam(16+i*50,210,TS,i,d=4.46+i*0.05,sh=True))
 # prior -> (shared) encoder: straight horizontal arrow into the encoder's left side
-b.append(conn("M232 222 H274",d=4.75))
+b.append(conn("M216 222 H251",d=4.75))
 GRIDC=(gcx(0)+gcx(5)+TS)/2               # grid horizontal centre
 ACTC=(acx(0)+acx(1)+TS)/2                # action-stack centre
 # ---------- STEP 10 : KL loss term (q gray front  ‖  p blue behind) ----------
@@ -202,8 +202,8 @@ b.append(kl)
 b.append(conn(f"M{ACTC:.0f} 245 V338",d=6.85))
 # the + sits midway between the two loss terms; the reconstruction term is right-aligned
 # to keep a clear margin inside box (2)'s dashed border
-b.append(f'<text class="anim" style="--d:{6.95*SLOW:.2f}s" x="738" y="362" text-anchor="middle" font-family="{SERIF}" font-size="21" fill="#222">+</text>')
-act=(f'<text class="anim" style="--d:{7.0*SLOW:.2f}s" x="924" y="362" text-anchor="end" font-family="{SERIF}" font-size="21" fill="#222">'
+b.append(f'<text class="anim" style="--d:{6.95*SLOW:.2f}s" x="656" y="362" text-anchor="middle" font-family="{SERIF}" font-size="21" fill="#222">+</text>')
+act=(f'<text class="anim" style="--d:{7.0*SLOW:.2f}s" x="869" y="362" text-anchor="end" font-family="{SERIF}" font-size="21" fill="#222">'
     f'<tspan font-style="italic">&#120124;</tspan><tspan font-size="13" dy="4" font-style="italic">q</tspan><tspan dy="-4">[</tspan>'
     f'<tspan>log </tspan><tspan fill="{ARROW}" font-style="italic">p</tspan><tspan fill="{ARROW}">(</tspan><tspan fill="{ARROW}" font-style="italic">a</tspan><tspan fill="{ARROW}">|</tspan><tspan fill="{ARROW}" font-style="italic">o</tspan><tspan fill="{ARROW}">,</tspan><tspan fill="{ARROW}" font-style="italic">z</tspan><tspan fill="{ARROW}">)</tspan><tspan>]</tspan></text>')
 b.append(act)
@@ -217,15 +217,15 @@ TRAIN_DEFS=''.join(MASKS)
 #   -> decoder obs context -> decoder mask tokens -> decoder -> action outputs
 # =====================================================================
 # same on-screen scale as Figure 2 (both iframes display 1:1) -> identical font sizes
-W3,H3=956,356
+W3,H3=901,356
 m=[f'<rect width="{W3}" height="{H3}" fill="#ffffff"/>']
 
 # geometry (one uniform grid; no connector arrows — layers read by adjacency) --
-TS=42; CAM=42; P=54; PK=11        # obs thumbnails are tokens: same size + pitch as tiles
+TS=42; CAM=42; P=50; PK=11        # obs thumbnails are tokens: same size + pitch as tiles
 SP=58                             # pitch for stacked tiles (tile 42 + peek 11 must fit)
 BAR3=42                           # attention-bar thickness (matches tile height)
-LX=516                            # latent AR columns (4); the latents grpbox needs 10px margins
-MX=744                            # mask / action-output columns (4)
+LX=491                            # latent AR columns (4); the latents grpbox needs 8px margins
+MX=703                            # mask / action-output columns (4)
 # vertical rhythm: uniform 14px seams everywhere (same as decoder -> action gap):
 # actions 24..66 | decoder 80..122 | z+query band 136..178 | encoder 192..234
 # | input boxes 248..332 (tokens 260..302)
@@ -237,21 +237,21 @@ def camrow(bx,by,d0):             # flat 1x4 cam row on the token pitch, token-s
     return [cam(bx+i*P,by,CAM,i,d=d0+i*0.05,sh=True) for i in range(4)]
 
 # ---------- STEP 1 : encoder (shared core appears first) ----------
-m.append(bar(8,Y_ENC,722,BAR3,"Cross-Attention Encoder",d=0.55,fs=15))
+m.append(bar(8,Y_ENC,683,BAR3,"Cross-Attention Encoder",d=0.55,fs=15))
 # ---------- STEP 2 : obs box (encoder context) — flat 1x4 ----------
-m.append(grpbox(8,Y_BOX,224,84,"observations",GRP_BLUE,LBL_BLUE,d=1.0))
-m+=camrow(18,Y_IN,1.05)
+m.append(grpbox(8,Y_BOX,208,84,"observations",GRP_BLUE,LBL_BLUE,d=1.0))
+m+=camrow(16,Y_IN,1.05)
 # ---------- STEP 3 : actions box (posterior actions, prior MASKS peek behind) ----------
-m.append(grpbox(246,Y_BOX,246,84,"actions / masks",GRP_PURP,LBL_PURP,d=1.45))
+m.append(grpbox(228,Y_BOX,243,84,"actions / masks",GRP_PURP,LBL_PURP,d=1.45))
 for i in range(4):
-    ax=256+i*SP
+    ax=236+i*SP
     m.append(atile(ax+PK,Y_IN+PK,TS,mask=True,cls="stash",d=2.0+i*0.06))  # prior mask behind
     m.append(atile(ax,Y_IN,TS,dy=ADY4[i],flat=True,d=1.55+i*0.06))        # posterior action front
 
 # ---------- STEP 4 : autoregressive z rollout ----------
 # input row (below encoder): bos z1 z2 z3   |   output row (above encoder): z1 z2 z3 eos
 ARB=2.55
-m.append(grpbox(lx(0)-10,Y_BOX,lx(3)+TS+10-(lx(0)-10),84,"latents (autoregressive)",GRP_GRAY,LBL_GRAY,d=ARB-0.15))
+m.append(grpbox(lx(0)-8,Y_BOX,lx(3)+TS+8-(lx(0)-8),84,"latents (autoregressive)",GRP_GRAY,LBL_GRAY,d=ARB-0.15))
 m.append(tok(lx(0),Y_IN,TS,text="bos",eos=True,d=ARB))                   # seed: bos
 for k in range(4):
     do_out = ARB+0.30 + k*0.70
@@ -263,11 +263,11 @@ for k in range(4):
 
 # ---------- STEP 5 : decoder observations — bare 1x4 cam row on the z/query band ----------
 DB=5.2
-m+=camrow(18,Y_OUT,DB+0.05)
+m+=camrow(16,Y_OUT,DB+0.05)
 # ---------- STEP 6 : decoder mask / query tokens (same band as the z outputs) ----------
 for i in range(4): m.append(atile(mx(i),Y_OUT,TS,mask=True,d=5.55+i*0.07))
 # ---------- STEP 7 : decoder model ----------
-m.append(bar(8,Y_DEC,940,BAR3,"Cross-Attention Decoder",d=5.95,fs=15))
+m.append(bar(8,Y_DEC,887,BAR3,"Cross-Attention Decoder",d=5.95,fs=15))
 # ---------- STEP 8 : action outputs ----------
 for i in range(4):
     m.append(atile(mx(i),Y_ACT,TS,dy=ADY4[i],d=6.35+i*0.08))

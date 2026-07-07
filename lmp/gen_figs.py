@@ -13,6 +13,7 @@ EOS_FILL="#DCDCDC"; BAR="#F7E1E7"; BARTX="#494345"; LAV="#DAD2EA"; ARROW="#6D588
 GRP_GRAY="#BCBCBC"; GRP_BLUE="#6E97C8"; GRP_PURP="#B7A6D6"; DASH="#B6A2D4"
 LBL_GRAY="#9A9A9A"; LBL_BLUE="#5C84BE"; LBL_PURP="#8C77B4"; CONN="#9D9D9D"
 SERIF="Georgia,'Times New Roman','Times',serif"
+SLOW=1.5   # global animation tempo: all delays & durations scale by this
 
 clips=set()
 def clip(s):
@@ -20,7 +21,7 @@ def clip(s):
 
 def g(x,y,inner,cls="anim",d=0.0,sty=""):
     return (f'<g transform="translate({x},{y})">'
-            f'<g class="{cls}" style="--d:{d:.2f}s;{sty}">{inner}</g></g>')
+            f'<g class="{cls}" style="--d:{d*SLOW:.2f}s;{sty}">{inner}</g></g>')
 
 def tok(x,y,s,sup=None,sub=None,text=None,d=0.0,eos=False,col=None,flat=False,cls="pop",sty=""):
     # col=None -> gray (posterior); col='blue' -> prior tint
@@ -96,12 +97,12 @@ def dbox_draw(x,y,w,h,label,d=0.0,labx=16,dur=0.7):
     L=2*(w-2*r)+2*(h-2*r)+2*3.14159*r
     MASKS.append(
         f'<mask id="{mid}" maskUnits="userSpaceOnUse" x="{x-14}" y="{y-14}" width="{w+28}" height="{h+28}">'
-        f'<path class="drawm" style="--d:{d:.2f}s;--len:{L:.0f};animation-duration:{dur}s" '
+        f'<path class="drawm" style="--d:{d*SLOW:.2f}s;--len:{L:.0f};animation-duration:{dur*SLOW:.2f}s" '
         f'd="{roundpath(x,y,w,h,r)}" fill="none" stroke="#fff" stroke-width="10" '
         f'stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="{L:.0f}" stroke-dashoffset="{L:.0f}"/></mask>')
     body=(f'<rect x="{x}" y="{y}" width="{w}" height="{h}" rx="{r}" fill="none" stroke="{DASH}" '
           f'stroke-width="1.4" stroke-dasharray="7 5" mask="url(#{mid})"/>'
-          f'<text class="anim" style="--d:{d+dur*0.55:.2f}s" x="{x+labx}" y="{y+24}" '
+          f'<text class="anim" style="--d:{(d+dur*0.55)*SLOW:.2f}s" x="{x+labx}" y="{y+24}" '
           f'font-family="{SERIF}" font-size="15" fill="{LBL_GRAY}">{label}</text>')
     return body
 
@@ -111,7 +112,7 @@ def grpbox(x,y,w,h,label,color,labcol,d=0.0):
     return g(x,y,inner,cls="anim",d=d)
 
 def conn(d_path,d=0.0,marker="ag",cls="conn"):
-    return f'<path class="{cls} draw" style="--d:{d:.2f}s" d="{d_path}" fill="none" marker-end="url(#{marker})"/>'
+    return f'<path class="{cls} draw" style="--d:{d*SLOW:.2f}s" d="{d_path}" fill="none" marker-end="url(#{marker})"/>'
 
 def lbl(x,y,base,mathit,col,d=0.0,size=15):
     inner=(f'<text x="0" y="0" font-family="{SERIF}" font-size="{size}" fill="{col}">{base}'
@@ -133,7 +134,8 @@ CP,RP=58,64                              # column / row pitch for stacked tiles:
                                          # (54 left a 1px gap and the stacks collided)
 GX,GY=352,56                             # token-grid origin
 APX=801                                  # action-stack origin (2 cols)
-ADY=[5,11]                               # consistent action-arrow angles per column
+ADY=[5,11]                               # arrow angles for the posterior input actions
+ADY_GRID=[[5,14],[-9,2],[12,-5]]         # varied arrow angles per decoder stack (row x col)
 rows=[
   [("z",1,1),("z",1,2),("z",1,3),("z",1,4),("z",1,5),("eos",)],
   [("z",2,1),("z",2,2),("eos",)],
@@ -172,10 +174,10 @@ b.append(bar(727,GY,42,BARH,"Decoder",d=2.95,vertical=True,fs=15))   # 42 wide, 
 # ---------- STEPS 6 + 11 : action stacks (lavender GT BEHIND, gray pred front) ----------
 for r in range(3):
     for c in range(2):
-        x=acx(c); y=grow(r); dyy=ADY[c]
+        x=acx(c); y=grow(r); dyy=ADY_GRID[r][c]
         df=3.2+r*0.12+c*0.07             # gray prediction front (phase 1)
         db=6.45+r*0.10+c*0.06            # lavender GT back (phase 2, slides out)
-        b.append(atile(x+PK,y+PK,TS,dy=dyy,cls="stash",d=db))      # GT (lavender) behind
+        b.append(atile(x+PK,y+PK,TS,dy=ADY[c],cls="stash",d=db))   # GT (lavender) behind: identical repeats of the posterior input actions
         b.append(atile(x,y,TS,dy=dyy,gray=True,flat=True,d=df))    # prediction (gray) front
 
 # ---------- STEP 7 : draw (2) box ----------
@@ -190,7 +192,7 @@ GRIDC=(gcx(0)+gcx(5)+TS)/2               # grid horizontal centre
 ACTC=(acx(0)+acx(1)+TS)/2                # action-stack centre
 # ---------- STEP 10 : KL loss term (q gray front  ‖  p blue behind) ----------
 b.append(conn(f"M{GRIDC:.0f} 245 V338",d=6.05))
-kl=(f'<text class="anim" style="--d:6.2s" x="{GRIDC:.0f}" y="362" text-anchor="middle" font-family="{SERIF}" font-size="21" fill="#222">'
+kl=(f'<text class="anim" style="--d:{6.2*SLOW:.2f}s" x="{GRIDC:.0f}" y="362" text-anchor="middle" font-family="{SERIF}" font-size="21" fill="#222">'
     f'max<tspan dx="20">&#8722;</tspan><tspan font-style="italic">D</tspan><tspan font-size="13" dy="4">KL</tspan><tspan dy="-4">(</tspan>'
     f'<tspan fill="{LBL_GRAY}" font-style="italic">q</tspan><tspan fill="{LBL_GRAY}">(</tspan><tspan fill="{LBL_GRAY}" font-style="italic">z</tspan><tspan fill="{LBL_GRAY}">|</tspan><tspan fill="{LBL_GRAY}" font-style="italic">o</tspan><tspan fill="{LBL_GRAY}">,</tspan><tspan fill="{LBL_GRAY}" font-style="italic">a</tspan><tspan fill="{LBL_GRAY}">)</tspan>'
     f'<tspan dx="3">&#8741;</tspan>'
@@ -200,8 +202,8 @@ b.append(kl)
 b.append(conn(f"M{ACTC:.0f} 245 V338",d=6.85))
 # the + sits midway between the two loss terms; the reconstruction term is right-aligned
 # to keep a clear margin inside box (2)'s dashed border
-b.append(f'<text class="anim" style="--d:6.95s" x="738" y="362" text-anchor="middle" font-family="{SERIF}" font-size="21" fill="#222">+</text>')
-act=(f'<text class="anim" style="--d:7.0s" x="924" y="362" text-anchor="end" font-family="{SERIF}" font-size="21" fill="#222">'
+b.append(f'<text class="anim" style="--d:{6.95*SLOW:.2f}s" x="738" y="362" text-anchor="middle" font-family="{SERIF}" font-size="21" fill="#222">+</text>')
+act=(f'<text class="anim" style="--d:{7.0*SLOW:.2f}s" x="924" y="362" text-anchor="end" font-family="{SERIF}" font-size="21" fill="#222">'
     f'<tspan font-style="italic">&#120124;</tspan><tspan font-size="13" dy="4" font-style="italic">q</tspan><tspan dy="-4">[</tspan>'
     f'<tspan>log </tspan><tspan fill="{ARROW}" font-style="italic">p</tspan><tspan fill="{ARROW}">(</tspan><tspan fill="{ARROW}" font-style="italic">a</tspan><tspan fill="{ARROW}">|</tspan><tspan fill="{ARROW}" font-style="italic">o</tspan><tspan fill="{ARROW}">,</tspan><tspan fill="{ARROW}" font-style="italic">z</tspan><tspan fill="{ARROW}">)</tspan><tspan>]</tspan></text>')
 b.append(act)
@@ -283,19 +285,19 @@ import os
 FIG_CSS='''
   .fig{width:100%;height:auto;display:block;cursor:pointer;}
   .fig .anim{opacity:0;}
-  .fig.play .anim{animation:riseIn .55s cubic-bezier(.2,.75,.25,1) both;animation-delay:var(--d,0s);}
+  .fig.play .anim{animation:riseIn .85s cubic-bezier(.2,.75,.25,1) both;animation-delay:var(--d,0s);}
   @keyframes riseIn{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
   .fig .pop{opacity:0;transform-box:fill-box;transform-origin:50% 50%;}
-  .fig.play .pop{animation:popIn .5s cubic-bezier(.18,.9,.28,1.35) both;animation-delay:var(--d,0s);}
+  .fig.play .pop{animation:popIn .75s cubic-bezier(.18,.9,.28,1.35) both;animation-delay:var(--d,0s);}
   @keyframes popIn{0%{opacity:0;transform:translateY(16px) scale(.84);}60%{opacity:1;}100%{opacity:1;transform:translateY(0) scale(1);}}
   .fig .stash{opacity:0;}
-  .fig.play .stash{animation:slideStash .5s cubic-bezier(.2,.7,.3,1) both;animation-delay:var(--d,0s);}
+  .fig.play .stash{animation:slideStash .75s cubic-bezier(.2,.7,.3,1) both;animation-delay:var(--d,0s);}
   @keyframes slideStash{from{opacity:0;transform:translate(-11px,-11px);}to{opacity:1;transform:translate(0,0);}}
   .fig .armove{opacity:0;transform-box:fill-box;transform-origin:50% 50%;}
-  .fig.play .armove{animation:armoveK .6s cubic-bezier(.45,.05,.25,1) both;animation-delay:var(--d,0s);}
+  .fig.play .armove{animation:armoveK .9s cubic-bezier(.45,.05,.25,1) both;animation-delay:var(--d,0s);}
   @keyframes armoveK{0%{opacity:0;transform:translate(var(--mx,0),var(--my,0)) scale(1.05);}25%{opacity:1;}100%{opacity:1;transform:translate(0,0) scale(1);}}
   .fig .draw{opacity:0;}
-  .fig.play .draw{animation:drawIn .5s ease-out both;animation-delay:var(--d,0s);}
+  .fig.play .draw{animation:drawIn .75s ease-out both;animation-delay:var(--d,0s);}
   @keyframes drawIn{0%{opacity:0;stroke-dashoffset:var(--len,160);}25%{opacity:1;}100%{opacity:1;stroke-dashoffset:0;}}
   .fig.play .drawm{animation:drawM .7s ease both;animation-delay:var(--d,0s);}
   @keyframes drawM{from{stroke-dashoffset:var(--len);}to{stroke-dashoffset:0;}}
@@ -324,8 +326,9 @@ EMBED_JS='''<script>
   function play(f){f.classList.remove('play');void f.getBoundingClientRect();f.classList.add('play');}
   var figs=[].slice.call(document.querySelectorAll('.fig'));
   figs.forEach(function(f){try{prep(f);}catch(e){}f.addEventListener('click',function(){play(f);});});
-  figs.forEach(play);
-  window.addEventListener('message',function(e){if(e.data&&e.data.type==='lmp-play')figs.forEach(play);});
+  // play once, on the parent's first scroll-into-view signal; afterwards only clicks replay
+  var played=false;
+  window.addEventListener('message',function(e){if(e.data&&e.data.type==='lmp-play'&&!played){played=true;figs.forEach(play);}});
 }());
 </script>'''
 def embed_page(svgid,vbw,vbh,inner,extradefs=""):
@@ -374,7 +377,6 @@ HTML=f'''<!DOCTYPE html>
   figs.forEach(function(f){{try{{prep(f);}}catch(e){{}}f.addEventListener('click',function(){{play(f);}});}});
   document.querySelectorAll('button.replay').forEach(function(b){{b.addEventListener('click',function(){{var t=document.getElementById(b.getAttribute('data-target'));if(t)play(t);}});}});
   figs.forEach(play);
-  if('IntersectionObserver' in window){{var first=true;var io=new IntersectionObserver(function(es){{es.forEach(function(e){{if(e.isIntersecting&&!first)play(e.target);}});first=false;}},{{threshold:0.3}});figs.forEach(function(f){{io.observe(f);}});}}
 }})();
 </script>
 </body></html>'''

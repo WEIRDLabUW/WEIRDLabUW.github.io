@@ -169,11 +169,10 @@
                 style="position: relative; display: flex; justify-content: space-between; align-items: center; margin-top: 4px;">
                 <button id="teaser-playbtn"
                   style="background: none; border: 1px solid #ccc; border-radius: 4px; padding: 4px 12px; cursor: pointer; font-size: 0.8rem;">Pause</button>
-                <!-- Task instruction, centered between the Pause button and the frame counter -->
+                <!-- Task instruction, centered in the controls row -->
                 <div id="teaser-task-text"
                   style="position: absolute; left: 0; right: 0; top: 0; bottom: 0; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; color: #444; font-family: 'Google Sans', sans-serif; pointer-events: none;">
                 </div>
-                <div id="teaser-frame-label" style="font-size: 0.7rem; color: #999; font-family: monospace;"></div>
               </div>
 
               <!-- Carousel navigation -->
@@ -210,7 +209,6 @@
                   const scrubber = document.getElementById('teaser-scrubber');
                   const stepsContainer = document.getElementById('teaser-steps');
                   const stepLabel = document.getElementById('teaser-step-label');
-                  const frameLabel = document.getElementById('teaser-frame-label');
                   const playBtn = document.getElementById('teaser-playbtn');
                   const prevBtn = document.getElementById('teaser-prev');
                   const nextBtn = document.getElementById('teaser-next');
@@ -254,8 +252,7 @@
                       bars[i].style.opacity = i === stepIdx ? '1' : '0.3';
                       bars[i].style.transform = i === stepIdx ? 'scaleY(1.1)' : 'scaleY(1)';
                     }
-                    stepLabel.textContent = `Step ${stepIdx + 1}/${ep.stepLens.length} · ${ep.stepLens[stepIdx].toFixed(1)} reasoning tokens`;
-                    frameLabel.textContent = `Frame ${f + 1}/${ep.totalFrames}`;
+                    stepLabel.textContent = `${ep.stepLens[stepIdx].toFixed(1)} reasoning tokens`;
                   }
 
                   // Seek both videos to frame f (frame-accurate; clips are all-intra).
@@ -663,15 +660,25 @@
       </div>
 
       <div class="content has-text-centered">
-        <img src="./static/images/results_tokenizer.png" style="width:55%; min-width:320px; border-radius:8px;"
-          alt="Tokenizer success rates">
+        <!-- Native grouped bar chart (replaces results_tokenizer.png); hovering a method
+             highlights its bars across both domains -->
+        <div id="tok-plot" style="max-width:620px; margin:0 auto;"></div>
+        <script>
+          groupedBarPlot('tok-plot', '#tok-table',
+            [{ name: 'VQVAE', color: '#362149', col: 1 },
+             { name: 'FAST', color: '#675988', col: 2 },
+             { name: 'OAT', color: '#999DCC', col: 3 },
+             { name: 'LMP-tok', color: '#D097AC', col: 4 }],
+            [{ name: 'Robomimic', vals: [0.29, 0.49, 0.47, 0.69] },
+             { name: 'LIBERO', vals: [0.14, 0.22, 0.31, 0.75] }]);
+        </script>
         <p class="is-size-7 mt-2">Average success rates of autoregressive policies fitted to each tokenizer on RoboMimic
-          and LIBERO.</p>
+          and LIBERO. Hover a method to compare it across domains.</p>
       </div>
 
       <div class="columns is-centered">
         <div class="column is-four-fifths">
-          <table class="table is-bordered is-striped is-narrow is-hoverable is-fullwidth" style="font-size: 0.85rem;">
+          <table id="tok-table" class="table is-bordered is-striped is-narrow is-hoverable is-fullwidth" style="font-size: 0.85rem;">
             <thead>
               <tr>
                 <th>Task</th>
@@ -834,12 +841,118 @@
           </div>
         </div>
       </div>
+      <div class="content has-text-centered">
+        <!-- Native grouped bar chart (replaces results_singletask.png); hover a method to
+             highlight it across domains and in the table below -->
+        <div id="st-plot" style="max-width:540px; margin:0 auto;"></div>
+        <script>
+          groupedBarPlot('st-plot', '#st-table',
+            [{ name: 'VQ-BET', color: '#675988', col: 1 },
+             { name: 'VAE', color: '#999DCC', col: 2 },
+             { name: 'LMP-&pi;', color: '#D097AC', col: 3 }],
+            [{ name: 'D3IL', vals: [0.39, 0.57, 0.76] },
+             { name: 'Robomimic', vals: [0.56, 0.68, 0.83] }]);
+        </script>
+        <p class="is-size-7 mt-2">Single-task success on D3IL and RoboMimic. Iterative computation yields higher
+          performance. Hover a method to compare it across domains.</p>
+      </div>
+
       <div class="columns is-centered">
-        <div class="column is-half has-text-centered">
-          <img src="./static/images/results_singletask.png" style="width:100%; border-radius:8px;"
-            alt="Iterative vs non-iterative">
-          <p class="is-size-7 mt-2">Single-task success on D3IL and RoboMimic. Iterative computation yields higher
-            performance.</p>
+        <div class="column is-four-fifths">
+          <table id="st-table" class="table is-bordered is-striped is-narrow is-hoverable is-fullwidth"
+            style="font-size: 0.85rem;">
+            <thead>
+              <tr>
+                <th>Task</th>
+                <th class="has-text-centered">VQ-BET</th>
+                <th class="has-text-centered">VAE</th>
+                                <th class="has-text-centered">LMP-&pi;</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>d3il-aligning</td>
+                <td class="has-text-centered">0.23 <span style="color:#888; font-size:0.8em;">&pm;0.03</span></td>
+                <td class="has-text-centered">0.51 <span style="color:#888; font-size:0.8em;">&pm;0.07</span></td>
+                <td class="has-text-centered"><strong>0.71</strong> <span
+                    style="color:#888; font-size:0.8em;">&pm;0.04</span></td>
+              </tr>
+              <tr>
+                <td>d3il-stacking</td>
+                <td class="has-text-centered">0.53 <span style="color:#888; font-size:0.8em;">&pm;0.03</span></td>
+                <td class="has-text-centered">0.71 <span style="color:#888; font-size:0.8em;">&pm;0.07</span></td>
+                <td class="has-text-centered"><strong>0.86</strong> <span
+                    style="color:#888; font-size:0.8em;">&pm;0.04</span></td>
+              </tr>
+              <tr>
+                <td>d3il-sorting-2</td>
+                <td class="has-text-centered">0.46 <span style="color:#888; font-size:0.8em;">&pm;0.02</span></td>
+                <td class="has-text-centered">0.67 <span style="color:#888; font-size:0.8em;">&pm;0.13</span></td>
+                <td class="has-text-centered"><strong>0.80</strong> <span
+                    style="color:#888; font-size:0.8em;">&pm;0.01</span></td>
+              </tr>
+              <tr>
+                <td>d3il-sorting-4</td>
+                <td class="has-text-centered">0.41 <span style="color:#888; font-size:0.8em;">&pm;0.01</span></td>
+                <td class="has-text-centered">0.68 <span style="color:#888; font-size:0.8em;">&pm;0.04</span></td>
+                <td class="has-text-centered"><strong>0.68</strong> <span
+                    style="color:#888; font-size:0.8em;">&pm;0.02</span></td>
+              </tr>
+              <tr>
+                <td>d3il-sorting-6</td>
+                <td class="has-text-centered">0.32 <span style="color:#888; font-size:0.8em;">&pm;0.04</span></td>
+                <td class="has-text-centered">0.70 <span style="color:#888; font-size:0.8em;">&pm;0.04</span></td>
+                <td class="has-text-centered"><strong>0.75</strong> <span
+                    style="color:#888; font-size:0.8em;">&pm;0.04</span></td>
+              </tr>
+              <tr style="background:#f0ecf7;">
+                <td><em>d3il average</em></td>
+                <td class="has-text-centered">0.39</td>
+                <td class="has-text-centered">0.57</td>
+                <td class="has-text-centered"><strong>0.76</strong></td>
+              </tr>
+              <tr>
+                <td>robomimic-lift</td>
+                <td class="has-text-centered">0.96 <span style="color:#888; font-size:0.8em;">&pm;0.00</span></td>
+                <td class="has-text-centered">0.97 <span style="color:#888; font-size:0.8em;">&pm;0.01</span></td>
+                <td class="has-text-centered"><strong>1.00</strong> <span
+                    style="color:#888; font-size:0.8em;">&pm;0.00</span></td>
+              </tr>
+              <tr>
+                <td>robomimic-can</td>
+                <td class="has-text-centered">0.83 <span style="color:#888; font-size:0.8em;">&pm;0.04</span></td>
+                <td class="has-text-centered">0.78 <span style="color:#888; font-size:0.8em;">&pm;0.07</span></td>
+                <td class="has-text-centered"><strong>1.00</strong> <span
+                    style="color:#888; font-size:0.8em;">&pm;0.00</span></td>
+              </tr>
+              <tr>
+                <td>robomimic-square</td>
+                <td class="has-text-centered">0.58 <span style="color:#888; font-size:0.8em;">&pm;0.06</span></td>
+                <td class="has-text-centered">0.79 <span style="color:#888; font-size:0.8em;">&pm;0.08</span></td>
+                <td class="has-text-centered"><strong>0.87</strong> <span style="color:#888; font-size:0.8em;">&pm;0.02</span></td>
+              </tr>
+              <tr>
+                <td>robomimic-tool-hang</td>
+                <td class="has-text-centered">0.15 <span style="color:#888; font-size:0.8em;">&pm;0.04</span></td>
+                <td class="has-text-centered">0.29 <span style="color:#888; font-size:0.8em;">&pm;0.06</span></td>
+                <td class="has-text-centered"><strong>0.51</strong> <span
+                    style="color:#888; font-size:0.8em;">&pm;0.08</span></td>
+              </tr>
+              <tr>
+                <td>robomimic-transport</td>
+                <td class="has-text-centered">0.26 <span style="color:#888; font-size:0.8em;">&pm;0.05</span></td>
+                <td class="has-text-centered">0.58 <span style="color:#888; font-size:0.8em;">&pm;0.12</span></td>
+                <td class="has-text-centered"><strong>0.75</strong> <span
+                    style="color:#888; font-size:0.8em;">&pm;0.08</span></td>
+              </tr>
+              <tr style="background:#f0ecf7;">
+                <td><em>robomimic average</em></td>
+                <td class="has-text-centered">0.56</td>
+                <td class="has-text-centered">0.68</td>
+                <td class="has-text-centered"><strong>0.83</strong></td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
 

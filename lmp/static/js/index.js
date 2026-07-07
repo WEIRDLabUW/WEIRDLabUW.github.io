@@ -17,7 +17,6 @@ function initAdaptiveViz() {
   if (!svg) return;
   const NS = 'http://www.w3.org/2000/svg';
   const SERIF = 'Georgia, "Times New Roman", serif';
-  const SANS = "'Google Sans', sans-serif";
   const C1 = [106, 79, 180], C2 = [227, 152, 174];                  // purple -> pink, per step
   const col = t => { t = Math.max(0, Math.min(1, t)); return 'rgb(' + C1.map((v, i) => Math.round(v + (C2[i] - v) * t)).join(',') + ')'; };
   const colF = p => col((p - 1) / 3);
@@ -60,10 +59,11 @@ function initAdaptiveViz() {
   grad.appendChild(make('stop', { offset: '100%', 'stop-color': col(1) }));
   defs.appendChild(grad); svg.appendChild(defs);
 
-  const label = (x, y, s) => make('text', { x: x, y: y, 'font-size': 11, 'font-weight': 600, 'letter-spacing': 1.5, fill: '#999', 'font-family': SANS }, s);
-  svg.appendChild(label(24, 26, 'LATENT SPACE'));
-  svg.appendChild(label(24, 226, 'VARIANCE SCHEDULE'));
-  svg.appendChild(label(430, 26, 'DATA'));
+  // pane titles match the animated method figures: 15px serif, gray, title case
+  const label = (x, y, s) => make('text', { x: x, y: y, 'font-size': 15, fill: '#9A9A9A', 'font-family': SERIF }, s);
+  svg.appendChild(label(24, 26, 'Latent Space'));
+  svg.appendChild(label(24, 226, 'Variance Schedule'));
+  svg.appendChild(label(430, 26, 'Data'));
 
   // playhead line spanning both left panes (behind everything else)
   const vline = make('line', { y1: 38, y2: SY0, stroke: '#c9c9c9', 'stroke-width': 1.2, 'stroke-dasharray': '4 4' });
@@ -86,8 +86,8 @@ function initAdaptiveViz() {
 
   // trellis: root + 4 layers x (2 tokens + eos); nodes are solid-filled so edges pass behind them
   svg.appendChild(make('circle', { cx: 40, cy: ROWS[1], r: NODE_R, fill: col(0) }));
-  svg.appendChild(make('text', { x: 40, y: ROWS[1] + 28, 'text-anchor': 'middle', 'font-size': 11, fill: '#999', 'font-family': SERIF, 'font-style': 'italic' }, 'root'));
-  svg.appendChild(make('text', { x: 101, y: ROWS[2] + 4, 'text-anchor': 'end', 'font-size': 12, fill: '#999', 'font-family': SERIF, 'font-style': 'italic' }, 'eos'));
+  svg.appendChild(make('text', { x: 40, y: ROWS[1] + 28, 'text-anchor': 'middle', 'font-size': 11, fill: '#999', 'font-family': SERIF }, 'root'));
+  svg.appendChild(make('text', { x: 101, y: ROWS[2] + 4, 'text-anchor': 'end', 'font-size': 11, fill: '#999', 'font-family': SERIF }, 'eos'));
   const nodes = [];   // {el, layer, isEos}
   for (let j = 1; j <= 4; j++) {
     ROWS.forEach((y, ri) => {
@@ -243,6 +243,99 @@ function initAdaptiveViz() {
 
   render(st.p);
   svg._viz = { setP: v => { st.mode = 'drag'; st.p = v; render(v); }, getP: () => st.p, getMode: () => st.mode, advance: advance, st: st };
+}
+
+// Grouped bar chart with cross-linked hover: hovering a method (bar or legend entry)
+// highlights its bars in every group and its column in the linked results table, dimming
+// the rest. METHODS: [{name, color, col}] where col = 1-based column in the linked table.
+// GROUPS: [{name, vals}] with vals aligned to METHODS order.
+function groupedBarPlot(rootId, tableSel, METHODS, GROUPS) {
+  var root = document.getElementById(rootId);
+  if (!root) return;
+  var H = 250, hoverables = [], tbl = null;
+
+  var row = document.createElement('div');
+  row.style.cssText = 'display:flex; align-items:stretch;';
+  var yTitle = document.createElement('div');
+  yTitle.style.cssText = 'flex:none; width:22px; position:relative;';
+  yTitle.innerHTML = '<span style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%) rotate(-90deg); white-space:nowrap; font-size:14px; color:#777;">Success Rate</span>';
+  var areaWrap = document.createElement('div');
+  areaWrap.style.cssText = 'flex:1; padding-left:34px;';
+  var area = document.createElement('div');
+  area.style.cssText = 'position:relative; height:' + H + 'px; border-left:1.4px solid #cfcfcf; border-bottom:1.4px solid #cfcfcf;';
+  for (var v = 0; v <= 1.0001; v += 0.2) {
+    var y = (v * 100).toFixed(1);
+    if (v > 0.001) area.insertAdjacentHTML('beforeend',
+      '<div style="position:absolute; left:0; right:0; bottom:' + y + '%; border-top:1px dashed #ececec;"></div>');
+    area.insertAdjacentHTML('beforeend',
+      '<div style="position:absolute; right:100%; margin-right:9px; bottom:' + y + '%; transform:translateY(50%); font-size:12px; color:#999;">' + v.toFixed(1) + '</div>');
+  }
+  var groupsRow = document.createElement('div');
+  groupsRow.style.cssText = 'position:absolute; inset:0; display:flex; justify-content:space-around; align-items:flex-end; padding:0 14px;';
+  var labelsRow = document.createElement('div');
+  labelsRow.style.cssText = 'display:flex; justify-content:space-around; padding:6px 14px 0 0; margin-left:34px;';
+
+  GROUPS.forEach(function (grp) {
+    var g = document.createElement('div');
+    g.style.cssText = 'display:flex; align-items:flex-end; gap:7px;';
+    grp.vals.forEach(function (val, m) {
+      var cell = document.createElement('div');
+      cell.style.cssText = 'display:flex; flex-direction:column; align-items:center; justify-content:flex-end;';
+      cell.setAttribute('data-m', m);
+      cell.innerHTML =
+        '<div style="font-size:13px; color:#555; margin-bottom:3px;">' + val.toFixed(2) + '</div>' +
+        '<div class="gbp-bar" style="width:34px; height:' + (val * H) + 'px; background:' + METHODS[m].color + '; border-radius:3px 3px 0 0;"></div>';
+      g.appendChild(cell);
+      hoverables.push({ el: cell, m: m });
+    });
+    groupsRow.appendChild(g);
+    labelsRow.insertAdjacentHTML('beforeend', '<div style="font-size:15px; color:#555;">' + grp.name + '</div>');
+  });
+  area.appendChild(groupsRow);
+  areaWrap.appendChild(area);
+  row.appendChild(yTitle); row.appendChild(areaWrap);
+  root.appendChild(row);
+  root.appendChild(labelsRow);
+
+  var leg = document.createElement('div');
+  leg.style.cssText = 'display:flex; justify-content:center; gap:22px; margin-top:14px; flex-wrap:wrap;';
+  METHODS.forEach(function (meth, m) {
+    var item = document.createElement('div');
+    item.style.cssText = 'display:flex; align-items:center; gap:7px; font-size:13.5px; color:#555; cursor:default;';
+    item.setAttribute('data-m', m);
+    item.innerHTML = '<span style="width:15px; height:15px; border-radius:3px; background:' + meth.color + '; display:inline-block;"></span>' + meth.name;
+    leg.appendChild(item);
+    hoverables.push({ el: item, m: m });
+  });
+  root.appendChild(leg);
+
+  function setHover(m) {
+    hoverables.forEach(function (h) {
+      var on = (m === null || h.m === m);
+      h.el.style.opacity = on ? '1' : '0.25';
+      var bar = h.el.querySelector('.gbp-bar');
+      if (bar) bar.style.filter = (m !== null && h.m === m) ? 'brightness(1.08) saturate(1.15)' : '';
+    });
+    if (!tbl) {   // lazy: the table may be parsed after this plot is built
+      tbl = document.querySelector(tableSel);
+      if (tbl) tbl.querySelectorAll('td,th').forEach(function (c) { c.style.transition = 'background .18s ease, opacity .18s ease'; });
+    }
+    if (tbl) {
+      var hotCol = (m === null) ? -1 : METHODS[m].col;
+      tbl.querySelectorAll('tr').forEach(function (row) {
+        var cells = row.children;
+        for (var i = 1; i < cells.length; i++) {
+          cells[i].style.background = (i === hotCol) ? '#f0ecf7' : '';   // same neutral shade for every method
+          cells[i].style.opacity = (m !== null && i !== hotCol) ? '0.35' : '1';
+        }
+      });
+    }
+  }
+  hoverables.forEach(function (h) {
+    h.el.style.transition = 'opacity .18s ease';
+    h.el.addEventListener('mouseenter', function () { setHover(h.m); });
+    h.el.addEventListener('mouseleave', function () { setHover(null); });
+  });
 }
 
 function showDroid(task, btn) {

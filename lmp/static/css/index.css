@@ -286,7 +286,7 @@ img.inline-figure {
 }
 .rt-viewport { flex: 1; overflow: hidden; }
 .rt-track { display: flex; }
-.rt-indicator { text-align: center; font-size: 0.75rem; color: #999; font-family: monospace; margin-top: 8px; }
+.rt-indicator { display: flex; justify-content: center; gap: 8px; margin-top: 10px; }
 
 .video-hover {
   width: 100%;

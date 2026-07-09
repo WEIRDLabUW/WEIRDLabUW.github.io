@@ -160,11 +160,14 @@
                 <div id="teaser-steps" style="display: flex; gap: 3px; height: 96px; align-items: flex-end;"></div>
 
                 <!-- Thin-line scrubber: a hairline track under the trace, with the ‹ › knob riding it -->
-                <div id="teaser-scrub" style="position: relative; touch-action: none; cursor: ew-resize; padding: 20px 0 12px;">
+                <div id="teaser-scrub"
+                  style="position: relative; touch-action: none; cursor: ew-resize; padding: 20px 0 12px;">
                   <div style="height: 2px; background: #e9e6f2; border-radius: 1px;"></div>
                   <div id="teaser-progress"
-                    style="position: absolute; top: 21px; left: 0; width: 100%; height: 2px; background: #b3a8d4; border-radius: 1px; transform: scaleX(0); transform-origin: left center;"></div>
-                  <div id="teaser-playhead" style="position: absolute; top: 21px; left: 0; width: 0; height: 0; pointer-events: none;">
+                    style="position: absolute; top: 21px; left: 0; width: 100%; height: 2px; background: #b3a8d4; border-radius: 1px; transform: scaleX(0); transform-origin: left center;">
+                  </div>
+                  <div id="teaser-playhead"
+                    style="position: absolute; top: 21px; left: 0; width: 0; height: 0; pointer-events: none;">
                     <div
                       style="position: absolute; top: 0; left: 0; transform: translate(-50%, -50%); width: 20px; height: 20px; border-radius: 50%; background: #fff; box-shadow: 0 1px 6px rgba(0,0,0,0.28); user-select: none;">
                     </div>
@@ -435,9 +438,9 @@
             </script>
 
             <div class="content has-text-justified" style="margin-top: 1.5rem;">
-              <span class="multi-color-text">Latent Memory Palace</span> (LMP) formulates latent reasoning as
-              autoregressive variational inference, resulting in polcies that adaptively allocate their test-time
-              compute. Gripper movements are associated with fewer reasoning steps.
+              <span class="multi-color-text">Latent Memory Palace</span> (LMP) formulates reasoning as variational
+              inference with an autoregressive latent distribution. This results in polcies that adaptively allocate
+              their test-time compute.
             </div>
           </div>
         </div>
@@ -454,16 +457,15 @@
     <div class="container is-max-desktop">
       <div class="columns is-centered has-text-centered">
         <div class="column">
-          <h2 class="title is-3">Motivation</h2>
+          <h2 class="title is-3">Overview</h2>
           <div class="content has-text-justified">
             <p>
               Human decision-making is highly flexible, ranging from immediate reactions to extended deliberations.
               Large language models have also shown a similar capacity for adaptive reasoning. However, bringing this
-              capability to robotic policies is nontrivial, since reasoning directly in language is too coarse for
-              precise motor control. We instead formulate reasoning as variational inference with an autoregressive
-              latent distribution. This enables the policy to adaptively allocate computational resources during
-              inference. Our method, Latent Memory Palace (LMP), results in improved generalization while showing
-              interpretable, adaptive allocation of test-time compute.
+              capability to robotic policies is challenging, since reasoning directly in language is too coarse for
+              motor control. We propose to have robotic policies reason iteratively in a learned latent space trained
+              end-to-end for action prediction. This preserves the benefit of iterative, adaptive computation while
+              allowing latents to capture control-relevant information at the appropriate granularity.
             </p>
           </div>
           <div class="publication-video">
@@ -487,12 +489,11 @@
           <h3 class="title is-5 has-text-left">Reasoning as Variational Inference</h3>
           <div class="content has-text-justified">
             <p>
-              We cast reasoning for decision-making as inference in a latent-variable model. Rather than mapping an
-              observation \(o\) directly to an action \(a\), the policy first produces a latent reasoning
+              We cast reasoning for decision-making as inference in a latent-variable model, where actions \(a\) are
+              generated from observations \(o\) and latent traces
               <em>trace</em> \(z = (z_1, z_2, \ldots, z_{T(z)})\) drawn from a vocabulary
-              \(\mathcal{V} \cup \{\texttt{eos}\}\), then decodes an action from \((o, z)\).
-              Policy learning is then maximum-likelihood estimation of \(p(a \mid o)\). We maximize the evidence lower
-              bound:
+              \(\mathcal{V} \cup \{\texttt{eos}\}\). We maximize the evidence lower bound of the maximum likelihood
+              objective:
             </p>
             <p style="overflow-x: auto;">
               \[
@@ -510,13 +511,37 @@
             </p>
           </div>
 
+          <h3 class="title is-5 has-text-left">Adaptive Computation via Compression</h3>
+          <div class="content has-text-justified">
+            <p>
+              The objective above doesn't inherently incentivize adaptive computation. We introduce
+              compression by decaying the decoder variance with latent length. This imposes a length penalty and
+              encourages the model to allocate compute parsimoniously.
+            </p>
+            <!-- Combined interactive: latent trellis + variance schedule + Gaussian coverage of the data -->
+            <div style="max-width: 860px; margin: 1.25rem auto 0;">
+              <svg id="adaptive-viz" viewBox="0 0 880 400"
+                style="width:100%; touch-action:none; user-select:none; display:block;"></svg>
+            </div>
+          </div>
+
+          <h3 class="title is-5 has-text-left">Training via Latent Space Reinforcement Learning</h3>
+          <div class="content has-text-justified">
+            <p>
+              We optimize this objective using latent-space reinforcement learning. Training alternates between two
+              phases: (1) the posterior generates a buffer of latent trajectories. (2) the model optimizes a clipped
+              surrogate objective (PPO) of the variational lower bound, minimizing KL divergence to the posterior while
+              maximizing action likelihood.
+            </p>
+            <p class="has-text-centered">
+              <iframe class="lmp-figframe" src="./fig_training_embed.html" title="Training LMP-&pi;" scrolling="no"
+                loading="lazy"
+                style="width:100%;max-width:901px;aspect-ratio:901/414;border:0;display:block;margin:0 auto;"></iframe>
+            </p>
+          </div>
+
           <h3 class="title is-5 has-text-left">Model Architecture</h3>
           <div class="content has-text-justified">
-            <p class="has-text-centered">
-              <iframe class="lmp-figframe" src="./fig_model_embed.html" title="LMP-&pi; architecture" scrolling="no"
-                loading="lazy"
-                style="width:100%;max-width:901px;aspect-ratio:901/356;border:0;display:block;margin:0 auto;"></iframe>
-            </p>
             <p>
               LMP uses a cross-attention encoder-decoder architecture. The <strong>encoder</strong> processes
               observations
@@ -525,40 +550,10 @@
               A learned stop token terminates the reasoning chain, allowing the model to adaptively allocate
               more computation.
             </p>
-          </div>
-
-          <h3 class="title is-5 has-text-left">Training via Latent Space Reinforcement Learning</h3>
-          <div class="content has-text-justified">
             <p class="has-text-centered">
-              <iframe class="lmp-figframe" src="./fig_training_embed.html" title="Training LMP-&pi;" scrolling="no"
+              <iframe class="lmp-figframe" src="./fig_model_embed.html" title="LMP-&pi; architecture" scrolling="no"
                 loading="lazy"
-                style="width:100%;max-width:901px;aspect-ratio:901/414;border:0;display:block;margin:0 auto;"></iframe>
-            </p>
-            <p>
-              We optimize this objective using latent-space reinforcement learning. Training alternates between two
-              phases: (1) the posterior generates a buffer of latent trajectories. (2) the model optimizes a clipped
-              surrogate objective (PPO) of the variational lower bound, minimizing KL divergence to the posterior while
-              maximizing action likelihood.
-            </p>
-          </div>
-
-          <h3 class="title is-5 has-text-left">Adaptive Computation via Compression</h3>
-          <div class="content has-text-justified">
-            <p>
-              The autoregressive latent space doesn't inherently incentivize adaptive computation. We introduce
-              compression via a length penalty. The decoder variance decays with length, encouraging the model to
-              produce shorter representations.
-            </p>
-          </div>
-
-          <!-- Combined interactive: latent trellis + variance schedule + Gaussian coverage of the data -->
-          <div style="max-width: 860px; margin: 1.25rem auto 0;">
-            <svg id="adaptive-viz" viewBox="0 0 880 400"
-              style="width:100%; touch-action:none; user-select:none; display:block;"></svg>
-            <p class="is-size-7 has-text-centered" style="color:#666; margin-top: 0.6rem;">
-              Reasoning length sets decoding precision: a trace terminating after \(k\) latent steps decodes with
-              variance \(\sigma_k\), so the \(2^{k-1}\) traces of length \(k\) carve the data into ever finer
-              Gaussians. The sweep plays on its own &mdash; drag along the variance schedule to scrub it.
+                style="width:100%;max-width:901px;aspect-ratio:901/356;border:0;display:block;margin:0 auto;"></iframe>
             </p>
           </div>
         </div>
@@ -572,7 +567,7 @@
   <!-- RQ1: A Performant Generative Control Policy -->
   <section class="section">
     <div class="container is-max-desktop">
-      <h2 class="title is-3 has-text-centered">Experiments: Policy</h2>
+      <h2 class="title is-3 has-text-centered">Policy Experiments</h2>
 
       <!-- Real-Robot (DROID) -->
       <h3 class="title is-5 mt-4 has-text-left">Real-Robot (DROID)</h3>
@@ -580,11 +575,10 @@
         <div class="column">
           <div class="content has-text-justified">
             <p>
-              We pretrain LMP and DP models on the full DROID dataset. In the zero-shot setting,
+              We train language-conditinoed LMP-&pi; and DP models on the DROID dataset. In the zero-shot setting,
               LMP-&pi; outperforms DP on block-bowl and marker-mug. We then finetune on two challenging
-              task: peg-hole (precision) and clean-table (multimodality). LMP-&pi; demonstrates both precision
-              and compositional generalization, notably picking up at least two objects with 95% success in the
-              clean-table task.
+              tasks: peg-hole and clean-table. LMP-&pi; demonstrates both precision and compositional generalization,
+              notably picking up at least two objects with 95% success in clean-table.
             </p>
           </div>
         </div>
@@ -716,9 +710,9 @@
         <div class="column">
           <div class="content has-text-justified">
             <p>
-              On language-conditioned multitask LIBERO-90, LMP-&pi; performs marginally better overall, but a closer
-              look reveals significantly higher success on the bottom-10 tasks. This indicates that LMP-&pi; organizes
-              information with less cross-task interference. The per-task breakdown below
+              On language-conditioned multitask LIBERO-90, LMP-&pi; performs marginally better than DP across the board,
+              but a closer look reveals significantly higher success on the bottom-10 tasks. This indicates that
+              LMP-&pi; organizes information with less cross-task interference. The per-task breakdown below
               shows LMP-&pi; tapering off at a slower rate than DP.
             </p>
           </div>
@@ -754,7 +748,8 @@
       </div>
 
       <p class="is-size-7 has-text-centered" style="color:#777;margin-bottom:.4rem;">
-        Each bar is one task, sorted by success rate. <em>Hover a bar to see the task and play its rollout.</em></p>
+        <em>Hover a bar to see task details.</em>
+      </p>
       <iframe id="lmp-libero" src="./libero_dist.html" title="LIBERO-90 per-task distribution" allow="autoplay"
         scrolling="no" loading="lazy" style="width:100%;border:0;display:block;height:640px;"></iframe>
     </div>
@@ -765,14 +760,15 @@
   <!-- RQ2: An Effective Action Tokenizer -->
   <section class="section">
     <div class="container is-max-desktop">
-      <h2 class="title is-3 has-text-centered">Experiments: Action Tokenizer</h2>
+      <h2 class="title is-3 has-text-centered">Action Tokenizer Experiments</h2>
       <div class="columns is-centered">
         <div class="column">
           <div class="content has-text-justified">
             <p>
-              We drop the observation conditioning and instantiate LMP as a variable-length discrete action tokenizer.
-              When controlling for downstream autoregressive policies, LMP-tok significantly outperforms all baselines
-              and is the only method achieving nontrivial performance on the RoboMimic tool-hang task.
+              We can instantiate LMP as a variable-length discrete action tokenizer, LMP-tok, by dropping the
+              observation conditioning. When controlling for downstream autoregressive policies, LMP-tok
+              significantly outperforms all baselines and is the only method achieving nontrivial performance on the
+              RoboMimic tool-hang task.
             </p>
           </div>
         </div>
@@ -791,8 +787,6 @@
             [{ name: 'Robomimic', vals: [0.29, 0.49, 0.47, 0.69] },
             { name: 'LIBERO', vals: [0.14, 0.22, 0.31, 0.75] }]);
         </script>
-        <p class="is-size-7 mt-2">Average success rates of autoregressive policies fitted to each tokenizer on RoboMimic
-          and LIBERO. Hover a method to compare it across domains.</p>
       </div>
 
       <div class="columns is-centered">
@@ -939,8 +933,8 @@
         <div class="column">
           <div class="content has-text-justified">
             <p>
-              We ablate the factors that contribute to LMP's performance and study the mechanism behind iterative and
-              adaptive reasoning.
+              We ablate the design choices that contribute to LMP's performance and study the mechanism behind iterative
+              and adaptive reasoning.
             </p>
           </div>
         </div>
@@ -952,11 +946,9 @@
         <div class="column">
           <div class="content has-text-justified">
             <p>
-              We compare LMP-&pi; to two non-iterative latent-space baselines: a one-step Gaussian
-              <strong>VAE Policy</strong> and <strong>VQ-BET</strong> (a behavior transformer with a residual VQ-VAE,
-              whose two-level hierarchy makes it effectively non-iterative). LMP consistently outperforms both on D3IL
-              and RoboMimic, indicating that fixed-length latent representations lack the granularity needed for complex
-              manipulation tasks.
+              We compare LMP-&pi; to two non-iterative latent-variable baselines: Gaussian <strong>VAE Policy</strong>
+              and <strong>VQ-BeT</strong>. LMP-&pi; consistently outperforms both on D3IL and RoboMimic, indicating that
+              fixed-length latent representations lack the granularity needed for complex manipulation tasks.
             </p>
           </div>
         </div>
@@ -973,8 +965,6 @@
             [{ name: 'D3IL', vals: [0.39, 0.57, 0.76] },
             { name: 'Robomimic', vals: [0.56, 0.68, 0.83] }]);
         </script>
-        <p class="is-size-7 mt-2">Single-task success on D3IL and RoboMimic. Iterative computation yields higher
-          performance. Hover a method to compare it across domains.</p>
       </div>
 
       <div class="columns is-centered">
@@ -1083,10 +1073,10 @@
         <div class="column">
           <div class="content has-text-justified">
             <p>
-              We ablate compression strength via the decoder variance schedule. A smaller
-              &sigma;<sub>min</sub> penalizes wrong predictions more heavily, yielding shorter latent traces. Reducing
-              compression (larger &sigma;<sub>min</sub>) hurts performance across LIBERO tasks,
-              showing that parsimonious allocation of latent-step compute is crucial for generalization.
+              We ablate compression strength by controlling the decoder variance schedule. A smaller
+              &sigma;<sub>min</sub> penalizes prediction errors more heavily, yielding shorter latent traces. Across
+              LIBERO tasks, increasing compression (smaller &sigma;<sub>min</sub>) improves performance, showing that
+              parsimonious allocation of latent-step compute is crucial for generalization.
             </p>
           </div>
         </div>
@@ -1122,8 +1112,6 @@
               </tr>
             </tbody>
           </table>
-          <p class="is-size-7 has-text-centered">Variance-schedule ablation on LIBERO-90 (&sigma;<sub>max</sub> fixed at
-            0.1).</p>
         </div>
       </div>
       <!-- Compression trade-off -->
@@ -1131,19 +1119,18 @@
         <div class="column">
           <div class="content has-text-justified">
             <p>
-              Too little compression causes the decoder to ignore the latents; too much forces overly short traces and
-              raises reconstruction error &mdash; a balanced schedule works best.
+              On DROID checkpoints, we find too little compression (0.1-0.08) causes the decoder to ignore the latents;
+              too much (0.1-0.01) forces overly short traces and raises reconstruction error; we use a balanced
+              schedule (0.2-0.02) in our experiments.
             </p>
           </div>
         </div>
       </div>
       <!-- Compression analysis figure -->
       <div class="columns is-centered">
-        <div class="column is-two-thirds has-text-centered">
+        <div class="column is-four-fifth has-text-centered">
           <img src="./static/images/analysis_compression.png" style="width:100%; border-radius:8px;"
             alt="Effect of compression">
-          <p class="is-size-7 mt-2">Effect of compression on reconstruction bias and latent utilization across truncated
-            latent steps.</p>
         </div>
       </div>
 
@@ -1153,16 +1140,15 @@
         <div class="column">
           <div class="content has-text-justified">
             <p>
-              We visualize the number of latent steps generated during rollouts, averaging over 64 latent samples per
-              observation to reduce variance. The model uses fewer reasoning steps when the gripper is engaged &mdash;
-              e.g. during grasping and release in clean-table, or the hand-over in RoboMimic transport. Each video below
-              shows the rollout alongside a bar indicating the reasoning tokens generated at each step.
+              We visualize the number of latent steps generated during rollouts. The model uses fewer reasoning steps
+              when the gripper is engaged, e.g., during grasping and release in clean-table, or the hand-over in
+              RoboMimic transport.
             </p>
           </div>
         </div>
       </div>
 
-      <h4 class="title is-5 mt-5 has-text-left">Real Robot (DROID)</h4>
+      <h4 class="title is-6 mt-5 has-text-left">DROID Tasks</h4>
       <div class="content has-text-centered">
         <div class="seg-toggle">
           <span class="seg-thumb"></span>
@@ -1183,7 +1169,7 @@
           style="display:none"></div>
       </div>
 
-      <h4 class="title is-5 mt-5 has-text-left">Simulation</h4>
+      <h4 class="title is-6 mt-5 has-text-left">Simulation Tasks</h4>
       <div class="content has-text-centered">
         <div class="seg-toggle">
           <span class="seg-thumb"></span>
@@ -1205,14 +1191,13 @@
       </div>
 
       <!-- Qualitative Analysis: sliding-block reasoning probe -->
-      <h4 class="title is-5 mt-5 has-text-left">Probing</h4>
+      <h4 class="title is-6 mt-5 has-text-left">Probing Experiment</h4>
       <div class="columns is-centered">
         <div class="column">
           <div class="content has-text-justified">
             <p>
-              We run a probing experiment: a block is manually slid through the open gripper while we query the policy
-              for the number of reasoning steps at each position. The policy's reasoning length shifts with the block's
-              configuration relative to the gripper.
+              We manually slide a block through the open gripper while querying the policy for the number of reasoning
+              steps at each state. The reasoning length shifts with the block's distance to the gripper.
             </p>
           </div>
         </div>
@@ -1229,21 +1214,28 @@
             style="display:flex; transition:transform .45s cubic-bezier(0.4, 0, 0.2, 1); will-change:transform;">
             <!-- (a) latent length over training -->
             <div style="flex:0 0 100%; min-width:0; padding:0 6px;">
-              <h3 class="title is-5 has-text-left">Latent length over training</h3>
+              <div class="content has-text-justified">
+                <p>
+                  <strong>Latent length over training</strong> We find the number of reasoning steps to increase
+                  spontaneously throughout training. The latent length is initialially low because of high
+                  reconstruction errors, then increases as training converges.
+                </p>
+              </div>
               <div class="has-text-centered">
                 <img src="./static/images/training_latent_length.png" loading="lazy"
                   style="width:min(90%, 520px); border-radius:8px;" alt="Posterior latent length over training">
-                <p class="is-size-7 mt-2">Average posterior latent length over training for different variance
-                  schedules.</p>
+
               </div>
             </div>
             <!-- (b) reasoning length vs action variance -->
             <div style="flex:0 0 100%; min-width:0; padding:0 6px;">
-              <h3 class="title is-5 has-text-left">Reasoning length vs. action variance</h3>
               <div class="content has-text-justified">
                 <p>
-                  Quantitatively, we find reasoning length to be negatively correlated with nearest-neighbor
-                  action variance &mdash; the model reasons more when the local action distribution is more multimodal.
+                  <strong>Reasoning length vs. action variance</strong> We find reasoning length to be negatively
+                  correlated
+                  with nearest-neighbor action variance. The variance can be largely attributed to binarized gripper
+                  actions timed differently across demonstrations, resulting in the model spending less compute during
+                  gripper movements.
                 </p>
               </div>
               <div class="has-text-centered">
@@ -1255,20 +1247,16 @@
             </div>
             <!-- (c) reasoning and multimodality -->
             <div style="flex:0 0 100%; min-width:0; padding:0 6px;">
-              <h3 class="title is-5 has-text-left">Reasoning and multimodality</h3>
               <div class="content has-text-justified">
                 <p>
-                  We plot rollouts on the D3IL avoiding task as we manually truncate the maximum number of latent steps
-                  at test time. The policy becomes effectively deterministic as the budget reduces to zero, yet it
-                  remains <em>mode-seeking</em> rather than mode-averaging. We attribute this to training with
-                  reinforcement learning rather than supervised learning.
+                  <strong> Reasoning and multimodality </strong> We visualize rollouts on the D3IL avoiding task as the
+                  maximum number of latent steps is truncate. The policy becomes effectively deterministic as the latent
+                  length reduces to zero, yet it remains <em>mode-seeking</em> rather than mode-averaging.
                 </p>
               </div>
               <div class="has-text-centered">
                 <img src="./static/images/ablation_multimodality.png" loading="lazy"
                   style="width:min(100%, 640px); border-radius:8px;" alt="Mode-seeking under truncated latent steps">
-                <p class="is-size-7 mt-2">As the maximum number of latent steps is truncated, the model exhibits
-                  mode-seeking behavior.</p>
               </div>
             </div>
           </div>
@@ -1313,7 +1301,7 @@
   <section class="section" id="BibTeX">
     <div class="container is-max-desktop content">
       <h2 class="title has-text-centered">BibTeX</h2>
-      <pre><code>@article{zhu2025lmp,
+      <pre><code>@article{zhu2026lmp,
     author    = {Zhu, Chuning and Xu, Eva and Barreiros, Jose and Srinivasan, Krishnan and Shah, Paarth and Gupta, Abhishek},
     title     = {Latent Memory Palace: Reasoning for Control as Autoregressive Variational Inference},
     booktitle = {ArXiv Preprint},

@@ -43,14 +43,24 @@ function initAdaptiveViz() {
   // true geometric decay σ_k = σ_max·(σ_min/σ_max)^((k-1)/(K-1)) with σ_max=1, σ_min=0.01
   const sigAt = p => Math.pow(0.01, (p - 1) / 3);
   const SIG = [1, 2, 3, 4].map(sigAt);
-  // ring data + Gaussian levels (level s has 2^(s-1) blobs on nested half-arcs)
-  const CX = 655, CY = 205, RING = 110, BETA = -Math.PI / 2;
-  const RADII = [122, 104, 74, 45];                                 // blob radius per level (overlapping like the storyboard)
-  const DIST = [0, 70, 99, 107];                                    // blob centroid distance (arc centroid)
+  // 3D data pane: the ring lies on a tilted ground plane; the mixture density rises along z
+  // as a ridgeline surface. Level s has 2^(s-1) Gaussians on nested half-arcs — fewer steps =
+  // one broad flat bump, more steps = many sharp tall bumps (higher density).
+  const CX = 660, CY = 238, RING = 110, BETA = -Math.PI / 2;
+  const SD = [61, 47, 32, 21];                                      // σ per level (data units)
+  const HGT = [46, 62, 86, 118];                                    // peak height per level (px)
+  const DIST = [0, 70, 99, 107];                                    // component centroid distance
   const LVL = [1, 2, 4, 8].map((m, li) => Array.from({ length: m }, (_, i) => {
     const th = BETA + (i + 0.5) * 2 * Math.PI / m;
-    return { x: CX + DIST[li] * Math.cos(th), y: CY + DIST[li] * Math.sin(th), r: RADII[li] };
+    return { x: DIST[li] * Math.cos(th), y: DIST[li] * Math.sin(th), s: SD[li], h: HGT[li] };
   }));
+  const EXT = 150, NX = 46, NY = 26;                                // grid extent + mesh resolution
+  const RH = 2 * EXT / NY;                                          // row pitch (data units)
+  // Classic xyz corner view: the x-y plane is yawed 45° to the screen (x recedes down-right,
+  // y up-right), z vertical. C1/C2 fold in cos45, overall scale and elevation.
+  const KX = 0.601, KY = 0.330, ZS = 0.8;
+  const px3 = (x, y) => CX + (x - y) * KX;
+  const py3 = (x, y, z) => CY + (x + y) * KY - z * ZS;
 
   // --- static scenery ---
   const defs = make('defs', {});
@@ -69,14 +79,12 @@ function initAdaptiveViz() {
   const vline = make('line', { y1: 38, y2: SY0, stroke: '#c9c9c9', 'stroke-width': 1.2, 'stroke-dasharray': '4 4' });
   svg.appendChild(vline);
 
-  // trellis edges (behind the nodes): root -> layer 1, tokens of layer j -> tokens/eos of layer j+1
-  const edges = [];   // {el, src (0 = root), tgt, isEos}
+  // trellis edges (behind the nodes): tokens of layer j -> tokens/eos of layer j+1
+  const edges = [];   // {el, src, tgt, isEos}
   const addEdge = (x1, y1, x2, y2, src, tgt, isEos) => {
     const l = make('line', { x1: x1, y1: y1, x2: x2, y2: y2, stroke: mix(EDGE_GRAY, EDGE_GRAY, 0), 'stroke-width': 1.3 });
     svg.appendChild(l); edges.push({ el: l, src: src, tgt: tgt, isEos: isEos });
   };
-  [ROWS[0], ROWS[1]].forEach(y => addEdge(40, ROWS[1], XS(1), y, 0, 1, false));
-  addEdge(40, ROWS[1], XS(1), ROWS[2], 0, 1, true);
   for (let j = 1; j <= 3; j++) {
     [ROWS[0], ROWS[1]].forEach(ys => {
       [ROWS[0], ROWS[1]].forEach(yt => addEdge(XS(j), ys, XS(j + 1), yt, j, j + 1, false));
@@ -84,9 +92,7 @@ function initAdaptiveViz() {
     });
   }
 
-  // trellis: root + 4 layers x (2 tokens + eos); nodes are solid-filled so edges pass behind them
-  svg.appendChild(make('circle', { cx: 40, cy: ROWS[1], r: NODE_R, fill: col(0) }));
-  svg.appendChild(make('text', { x: 40, y: ROWS[1] + 28, 'text-anchor': 'middle', 'font-size': 11, fill: '#999', 'font-family': SERIF }, 'root'));
+  // trellis: 4 layers x (2 tokens + eos); nodes are solid-filled so edges pass behind them
   svg.appendChild(make('text', { x: 101, y: ROWS[2] + 4, 'text-anchor': 'end', 'font-size': 11, fill: '#999', 'font-family': SERIF }, 'eos'));
   const nodes = [];   // {el, layer, isEos}
   for (let j = 1; j <= 4; j++) {
@@ -116,24 +122,46 @@ function initAdaptiveViz() {
   const playhead = make('circle', { r: 8, fill: '#fff', 'stroke-width': 3.5 });
   svg.appendChild(playhead);
 
-  // ring data (seeded so the scatter is stable across loads)
+  // Seeded ring points on the ground plane, interleaved row-by-row with the surface so
+  // nearer ridges occlude farther points (points under a bump hide behind its front face).
   let seed = 7;
   const rnd = () => { seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+  const ringPts = [];
   for (let i = 0; i < 150; i++) {
     const a = rnd() * 2 * Math.PI;
     const g = Math.sqrt(-2 * Math.log(rnd() + 1e-12)) * Math.cos(2 * Math.PI * rnd());
     const r = RING + g * 10;
-    svg.appendChild(make('circle', { cx: CX + r * Math.cos(a), cy: CY + r * Math.sin(a), r: 2.2, fill: '#555', opacity: 0.6 }));
+    ringPts.push({ x: r * Math.cos(a), y: r * Math.sin(a) });
   }
-  // Gaussian pool (max 8)
-  const blobs = Array.from({ length: 8 }, () => {
-    const c = make('circle', { 'fill-opacity': 0.13, 'stroke-width': 2.5, 'stroke-opacity': 0.9, display: 'none' });
-    svg.appendChild(c); return c;
+  // Ground scatter first — it shows through the translucent blanket above it.
+  ringPts.forEach(q => {
+    svg.appendChild(make('circle', { cx: px3(q.x, q.y), cy: py3(q.x, q.y, 0), r: 1.8, fill: '#555', opacity: 0.5 }));
   });
+  // Transparent blanket: translucent under-fills give the sheet its body (overlaps darken
+  // where the surface is tall) + a light two-direction wireframe; the back stays visible.
+  const ROWS3 = [];
+  for (let j = 0; j < NY; j++) ROWS3.push(-EXT + (j + 0.5) * RH);
+  const rowFills = ROWS3.map(() => { const e = make('path', { 'fill-opacity': 0.05, stroke: 'none' }); svg.appendChild(e); return e; });
+  const rowLines = ROWS3.map((_, j) => { const e = make('path', { fill: 'none', 'stroke-width': 1.1, 'stroke-opacity': (0.3 + 0.3 * j / (NY - 1)).toFixed(2) }); svg.appendChild(e); return e; });
+  const COLS3 = [];
+  for (let i = 0; i <= NX; i += 2) COLS3.push(i);
+  const colLines = COLS3.map(() => { const e = make('path', { fill: 'none', 'stroke-width': 1.1, 'stroke-opacity': 0.28 }); svg.appendChild(e); return e; });
+  // Classic xyz triad from the plane's left corner: x and y run along the ground edges,
+  // z rises vertically with an arrow + label.
+  const ox = px3(-EXT, EXT), oy = py3(-EXT, EXT, 0), zTop = oy - 132 * ZS;
+  const axisLine = (x2, y2) => svg.appendChild(make('line', { x1: ox, y1: oy, x2: x2, y2: y2, stroke: '#b0b0b0', 'stroke-width': 1.2 }));
+  axisLine(px3(EXT, EXT), py3(EXT, EXT, 0));      // x edge (down-right)
+  axisLine(px3(-EXT, -EXT), py3(-EXT, -EXT, 0));  // y edge (up-right)
+  axisLine(ox, zTop);                             // z (vertical)
+  svg.appendChild(make('path', { d: 'M' + (ox - 3.5) + ' ' + (zTop + 7) + ' L' + ox + ' ' + zTop + ' L' + (ox + 3.5) + ' ' + (zTop + 7), fill: 'none', stroke: '#b0b0b0', 'stroke-width': 1.2 }));
+  svg.appendChild(make('text', { x: ox - 8, y: (oy + zTop) / 2, 'text-anchor': 'middle', 'font-size': 11, fill: '#999', 'font-family': SERIF, transform: 'rotate(-90 ' + (ox - 8) + ' ' + (oy + zTop) / 2 + ')' }, 'density'));
 
   // --- render everything for a continuous position p ∈ [1,4] ---
+  let lastP = NaN;
   function render(p) {
     p = Math.max(1, Math.min(4, p));
+    if (p === lastP) return;   // the surface is ~10k exp() per paint; skip no-op frames
+    lastP = p;
     vline.setAttribute('x1', XS(p)); vline.setAttribute('x2', XS(p));
     nodes.forEach(n => {
       const a = n.isEos ? clamp01(1 - Math.abs(p - n.layer)) : clamp01(p - n.layer);
@@ -142,7 +170,7 @@ function initAdaptiveViz() {
       n.el.setAttribute('stroke-opacity', (0.5 + 0.5 * a).toFixed(3));
     });
     edges.forEach(g => {
-      const srcA = g.src === 0 ? 1 : clamp01(p - g.src);
+      const srcA = clamp01(p - g.src);
       const a = g.isEos ? Math.min(srcA, clamp01(1 - Math.abs(p - g.tgt))) : clamp01(p - g.tgt);
       g.el.setAttribute('stroke', mix(EDGE_GRAY, rgbOf((g.tgt - 1) / 3), a * 0.9));
       g.el.setAttribute('stroke-width', (1.3 + 0.7 * a).toFixed(2));
@@ -150,27 +178,54 @@ function initAdaptiveViz() {
     sigMarkers.forEach((m, i) => m.setAttribute('r', (4.5 + 4 * clamp01(1 - Math.abs(p - (i + 1)))).toFixed(2)));
     playhead.setAttribute('cx', XS(p)); playhead.setAttribute('cy', yS(sigAt(p)));
     playhead.setAttribute('stroke', colF(p));
-    // Gaussians: at integer p show level p; between p and p+1 each parent splits into two,
-    // children interpolating from the parent's position/size out to their own.
-    const s = Math.min(4, Math.floor(p + 1e-9)), f = p - s;
-    let draw;
-    if (f < 1e-4 || s >= 4) {
-      draw = LVL[s - 1].map(b => ({ x: b.x, y: b.y, r: b.r }));
-    } else {
+    // Mixture components at position p: at integer p show level p; between p and p+1 each
+    // parent splits into two children (position, σ and height all interpolate).
+    const st4 = Math.min(4, Math.floor(p + 1e-9)), f = p - st4;
+    let comps;
+    if (f < 1e-4 || st4 >= 4) comps = LVL[st4 - 1];
+    else {
       const e = easeIO(f);
-      draw = LVL[s].map((c, j) => {
-        const par = LVL[s - 1][j >> 1];
-        return { x: par.x + (c.x - par.x) * e, y: par.y + (c.y - par.y) * e, r: par.r + (c.r - par.r) * e };
+      comps = LVL[st4].map((c, j) => {
+        const par = LVL[st4 - 1][j >> 1];
+        // mass conservation: two coincident children must SUM to the parent bump at the
+        // moment of splitting, so each starts at half the parent's height
+        return { x: par.x + (c.x - par.x) * e, y: par.y + (c.y - par.y) * e,
+                 s: par.s + (c.s - par.s) * e, h: par.h / 2 + (c.h - par.h / 2) * e };
       });
     }
+    // Evaluate the density grid once (z = Σ h·exp(−d²/2σ²)), then draw the blanket from it.
     const cc = colF(p);
-    blobs.forEach((b, i) => {
-      if (i < draw.length) {
-        b.setAttribute('display', '');
-        b.setAttribute('cx', draw[i].x.toFixed(1)); b.setAttribute('cy', draw[i].y.toFixed(1));
-        b.setAttribute('r', draw[i].r.toFixed(1));
-        b.setAttribute('fill', cc); b.setAttribute('stroke', cc);
-      } else b.setAttribute('display', 'none');
+    const grid = [];
+    for (let j = 0; j < NY; j++) {
+      const row = new Float64Array(NX + 1);
+      for (let i = 0; i <= NX; i++) {
+        const x = -EXT + (2 * EXT * i) / NX;
+        let z = 0;
+        for (const c of comps) {
+          const dx = x - c.x, dy = ROWS3[j] - c.y;
+          z += c.h * Math.exp(-(dx * dx + dy * dy) / (2 * c.s * c.s));
+        }
+        row[i] = z;
+      }
+      grid.push(row);
+    }
+    for (let j = 0; j < NY; j++) {
+      const ry = ROWS3[j];
+      let d = '';
+      for (let i = 0; i <= NX; i++) {
+        const x = -EXT + (2 * EXT * i) / NX;
+        d += (i ? ' L' : 'M') + px3(x, ry).toFixed(1) + ' ' + py3(x, ry, grid[j][i]).toFixed(1);
+      }
+      rowLines[j].setAttribute('d', d); rowLines[j].setAttribute('stroke', cc);
+      rowFills[j].setAttribute('d', d + ' L' + px3(EXT, ry).toFixed(1) + ' ' + py3(EXT, ry, 0).toFixed(1) +
+        ' L' + px3(-EXT, ry).toFixed(1) + ' ' + py3(-EXT, ry, 0).toFixed(1) + ' Z');
+      rowFills[j].setAttribute('fill', cc);
+    }
+    COLS3.forEach((ci, k) => {
+      const x = -EXT + (2 * EXT * ci) / NX;
+      let d = '';
+      for (let j = 0; j < NY; j++) d += (j ? ' L' : 'M') + px3(x, ROWS3[j]).toFixed(1) + ' ' + py3(x, ROWS3[j], grid[j][ci]).toFixed(1);
+      colLines[k].setAttribute('d', d); colLines[k].setAttribute('stroke', cc);
     });
   }
 

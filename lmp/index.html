@@ -528,7 +528,7 @@
           <h3 class="title is-5 has-text-left">Training via Latent Space Reinforcement Learning</h3>
           <div class="content has-text-justified">
             <p>
-              We optimize this objective using latent-space reinforcement learning. Training alternates between two
+              We optimize the ELBO using latent-space reinforcement learning. Training alternates between two
               phases: (1) the posterior generates a buffer of latent trajectories; (2) the model optimizes a clipped
               surrogate objective (PPO) of the variational lower bound, minimizing KL divergence to the posterior while
               maximizing action likelihood.

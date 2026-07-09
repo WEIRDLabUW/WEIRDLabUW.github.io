@@ -544,11 +544,9 @@
           <div class="content has-text-justified">
             <p>
               LMP uses a cross-attention encoder-decoder architecture. The <strong>encoder</strong> processes
-              observations
-              and actions to autoregressively produce a variable-length sequence of latent tokens.
+              observations and actions to autoregressively generate a variable-length sequence of latent tokens.
               The <strong>decoder</strong> attends to observations and latent tokens to predict action chunks.
-              A learned stop token terminates the reasoning chain, allowing the model to adaptively allocate
-              more computation.
+              A EOS token terminates the reasoning chain, allowing the model to adaptively allocate its computation.
             </p>
             <p class="has-text-centered">
               <iframe class="lmp-figframe" src="./fig_model_embed.html" title="LMP-&pi; architecture" scrolling="no"
@@ -575,10 +573,10 @@
         <div class="column">
           <div class="content has-text-justified">
             <p>
-              We train language-conditioned LMP-&pi; and DP models on the DROID dataset. In the zero-shot setting,
-              LMP-&pi; outperforms DP on block-bowl and marker-mug. We then finetune on two challenging
-              tasks: peg-hole and clean-table. LMP-&pi; demonstrates both precision and compositional generalization,
-              notably picking up at least two objects with 95% success in clean-table.
+              We train language-conditioned LMP-&pi; and DP on the DROID dataset. LMP-&pi; outperforms DP zero-shot on
+              block-bowl and marker-mug. We then finetune on two challenging tasks: peg-hole and clean-table. LMP-&pi;
+              demonstrates both precision and compositional generalization, notably picking up at least two objects with
+              95% success in clean-table.
             </p>
           </div>
         </div>

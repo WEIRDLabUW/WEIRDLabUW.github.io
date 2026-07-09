@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
   initializeBulmaComponents();
   initReasoningCarousels();
   initAdaptiveViz();
@@ -62,7 +62,7 @@ function initAdaptiveViz() {
   // pane titles match the animated method figures: 15px serif, gray, title case
   const label = (x, y, s) => make('text', { x: x, y: y, 'font-size': 15, fill: '#9A9A9A', 'font-family': SERIF }, s);
   svg.appendChild(label(24, 26, 'Latent Space'));
-  svg.appendChild(label(24, 226, 'Variance Schedule'));
+  svg.appendChild(label(24, 226, 'Standard Deviation'));
   svg.appendChild(label(430, 26, 'Data'));
 
   // playhead line spanning both left panes (behind everything else)
@@ -339,13 +339,13 @@ function groupedBarPlot(rootId, tableSel, METHODS, GROUPS) {
 }
 
 function showDroid(task, btn) {
-  document.querySelectorAll('.droid-eval-container').forEach(function(el) { el.style.display = 'none'; });
+  document.querySelectorAll('.droid-eval-container').forEach(function (el) { el.style.display = 'none'; });
   document.getElementById('droid-' + task).style.display = 'block';
   if (btn) {
     const toggle = btn.closest('.seg-toggle');
     const btns = Array.prototype.slice.call(toggle.querySelectorAll('.seg-btn'));
     const idx = btns.indexOf(btn);
-    btns.forEach(function(b, i) { b.classList.toggle('is-active', i === idx); });
+    btns.forEach(function (b, i) { b.classList.toggle('is-active', i === idx); });
     const thumb = toggle.querySelector('.seg-thumb');
     if (thumb) thumb.style.transform = 'translateX(' + (idx * 100) + '%)';   // slide pill to the active segment
   }
@@ -363,13 +363,13 @@ function initReasoningCarousels() {
   const DUR = 400;       // slide duration (ms)
   const TRANS = 'transform ' + (DUR / 1000) + 's cubic-bezier(0.4, 0, 0.2, 1)';
 
-  document.querySelectorAll('.rt-carousel').forEach(function(car) {
+  document.querySelectorAll('.rt-carousel').forEach(function (car) {
     // Build the skeleton so the markup is just <div class="rt-carousel" data-...>.
     car.innerHTML =
       '<div class="rt-row">' +
-        '<button class="rt-prev" aria-label="Previous">←</button>' +
-        '<div class="rt-viewport"><div class="rt-track"></div></div>' +
-        '<button class="rt-next" aria-label="Next">→</button>' +
+      '<button class="rt-prev" aria-label="Previous">←</button>' +
+      '<div class="rt-viewport"><div class="rt-track"></div></div>' +
+      '<button class="rt-next" aria-label="Next">→</button>' +
       '</div><div class="rt-indicator"></div>';
 
     const base = car.dataset.base;
@@ -402,7 +402,7 @@ function initReasoningCarousels() {
     track.style.transition = TRANS;
     track.style.willChange = 'transform';
 
-    const slides = ext.map(function(item) {
+    const slides = ext.map(function (item) {
       const slide = document.createElement('div');
       slide.style.cssText = 'flex:0 0 auto;';   // width set in px by computeMetrics()
       const vid = document.createElement('video');
@@ -420,7 +420,7 @@ function initReasoningCarousels() {
       if (arSet || !v.videoWidth || !v.videoHeight) return;
       arSet = true;
       const ar = v.videoWidth + ' / ' + v.videoHeight;
-      slides.forEach(function(s) { s.vid.style.aspectRatio = ar; });
+      slides.forEach(function (s) { s.vid.style.aspectRatio = ar; });
     }
 
     // Integer slide widths -> integer transform offsets (one slide step = w + gap).
@@ -428,7 +428,7 @@ function initReasoningCarousels() {
     function computeMetrics() {
       const w = Math.max(1, Math.floor((viewport.clientWidth - (perVisible - 1) * GAP) / perVisible));
       step = w + GAP;
-      slides.forEach(function(s) { s.el.style.flexBasis = w + 'px'; });
+      slides.forEach(function (s) { s.el.style.flexBasis = w + 'px'; });
     }
     function place(animate) {
       track.style.transition = animate ? TRANS : 'none';
@@ -441,13 +441,13 @@ function initReasoningCarousels() {
         if (i < 0 || i >= M || slides[i].loaded) continue;
         const s = slides[i];
         s.vid.src = s.src; s.vid.load(); s.loaded = true;
-        s.vid.addEventListener('loadedmetadata', function() { lockAR(this); }, { once: true });
+        s.vid.addEventListener('loadedmetadata', function () { lockAR(this); }, { once: true });
       }
     }
     function playVisible() {
-      slides.forEach(function(s, i) {
+      slides.forEach(function (s, i) {
         const vis = (i >= pos && i < pos + perVisible);
-        if (vis && s.loaded) s.vid.play().catch(function() {});
+        if (vis && s.loaded) s.vid.play().catch(function () { });
         else s.vid.pause();
       });
     }
@@ -455,12 +455,12 @@ function initReasoningCarousels() {
     for (let i = 0; i < N; i++) {
       const d = document.createElement('div');
       d.style.cssText = 'width:8px; height:8px; border-radius:50%; background:#ccc; cursor:pointer; transition:background 0.2s;';
-      d.addEventListener('click', function() { goTo(i); });
+      d.addEventListener('click', function () { goTo(i); });
       indicator.appendChild(d);
     }
     function setIndicator() {
       const cur = wrap ? (((pos - K) % N) + N) % N : pos;
-      Array.from(indicator.children).forEach(function(d, i) {
+      Array.from(indicator.children).forEach(function (d, i) {
         d.style.background = i === cur ? '#6a4fb4' : '#ccc';
       });
     }
@@ -474,7 +474,7 @@ function initReasoningCarousels() {
         pos += (pos < K) ? N : -N;
         for (let i = 0; i < perVisible; i++) {          // keep frames continuous across the seam
           const a = slides[old + i], b = slides[pos + i];
-          if (a && b && a.loaded && b.loaded) { try { b.vid.currentTime = a.vid.currentTime; } catch (e) {} }
+          if (a && b && a.loaded && b.loaded) { try { b.vid.currentTime = a.vid.currentTime; } catch (e) { } }
         }
         place(false);
         loadNear();
@@ -500,12 +500,12 @@ function initReasoningCarousels() {
       settleT = setTimeout(onSettle, DUR + 140);
     }
 
-    track.addEventListener('transitionend', function(e) {
+    track.addEventListener('transitionend', function (e) {
       if (e.target === track && e.propertyName === 'transform') onSettle();
     });
-    prev.addEventListener('click', function() { go(-1); });
-    next.addEventListener('click', function() { go(1); });
-    window.addEventListener('resize', function() { if (activated) { computeMetrics(); place(false); } });
+    prev.addEventListener('click', function () { go(-1); });
+    next.addEventListener('click', function () { go(1); });
+    window.addEventListener('resize', function () { if (activated) { computeMetrics(); place(false); } });
 
     function activate() {
       computeMetrics(); place(false); loadNear(); playVisible(); setIndicator();
@@ -516,8 +516,8 @@ function initReasoningCarousels() {
     if (!wrap) { prev.style.display = 'none'; next.style.display = 'none'; indicator.style.display = 'none'; }
     if (car.offsetParent !== null) activate();   // visible now; hidden tasks wait for their toggle
     // Re-measure once layout/fonts settle, in case the viewport width wasn't final at init.
-    requestAnimationFrame(function() { if (activated) { computeMetrics(); place(false); } });
-    window.addEventListener('load', function() { if (car.offsetParent !== null) activate(); });
+    requestAnimationFrame(function () { if (activated) { computeMetrics(); place(false); } });
+    window.addEventListener('load', function () { if (car.offsetParent !== null) activate(); });
   });
 }
 
@@ -525,13 +525,13 @@ function initReasoningCarousels() {
 function rtTask(groupId, idx, btn) {
   const toggle = btn.closest('.seg-toggle');
   const btns = Array.prototype.slice.call(toggle.querySelectorAll('.seg-btn'));
-  btns.forEach(function(b, i) { b.classList.toggle('is-active', i === idx); });
+  btns.forEach(function (b, i) { b.classList.toggle('is-active', i === idx); });
   const thumb = toggle.querySelector('.seg-thumb');
   if (thumb) thumb.style.transform = 'translateX(' + (idx * 100) + '%)';
   const cars = document.getElementById(groupId).querySelectorAll('.rt-carousel');
-  cars.forEach(function(c, i) {
+  cars.forEach(function (c, i) {
     c.style.display = (i === idx) ? '' : 'none';
-    if (i !== idx) c.querySelectorAll('video').forEach(function(v) { v.pause(); });
+    if (i !== idx) c.querySelectorAll('video').forEach(function (v) { v.pause(); });
   });
   if (cars[idx] && cars[idx]._activate) cars[idx]._activate();
 }
@@ -573,7 +573,7 @@ function setupLazyLoading() {
       entries.forEach(entry => {
         const video = entry.target;
         if (entry.isIntersecting && isInVisibleContainer(video)) {
-          video.play().catch(() => {});
+          video.play().catch(() => { });
         } else {
           video.pause();
         }

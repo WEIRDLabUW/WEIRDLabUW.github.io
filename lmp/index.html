@@ -929,16 +929,76 @@
   <section class="section">
     <div class="container is-max-desktop">
       <h2 class="title is-3 has-text-centered">Analysis</h2>
+
+      <!-- Does the model adaptively allocate test-time compute? -->
+      <h3 class="title is-5 mt-6 has-text-left">Does the model adaptively allocate test-time compute?</h3>
       <div class="columns is-centered">
         <div class="column">
           <div class="content has-text-justified">
             <p>
-              We ablate the design choices that contribute to LMP's performance and study the mechanism behind iterative
-              and adaptive reasoning.
+              We visualize the number of latent steps generated during rollouts. The model uses fewer reasoning steps
+              when the gripper is engaged, e.g., during grasping and release in DROID tasks or the hand-over in
+              RoboMimic transport.
             </p>
           </div>
         </div>
       </div>
+
+      <h4 class="title is-6 mt-5 has-text-left">DROID Tasks</h4>
+      <div class="content has-text-centered">
+        <div class="seg-toggle">
+          <span class="seg-thumb"></span>
+          <button class="seg-btn is-active" onclick="rtTask('droid-rt', 0, this)">Block-Bowl</button>
+          <button class="seg-btn" onclick="rtTask('droid-rt', 1, this)">Marker-Mug</button>
+          <button class="seg-btn" onclick="rtTask('droid-rt', 2, this)">Peg-Hole</button>
+          <button class="seg-btn" onclick="rtTask('droid-rt', 3, this)">Clean-Table</button>
+        </div>
+      </div>
+      <div id="droid-rt">
+        <div class="rt-carousel" data-base="./static/videos/droid_reasoning_videos" data-eps="5" data-task="block-bowl">
+        </div>
+        <div class="rt-carousel" data-base="./static/videos/droid_reasoning_videos" data-eps="5" data-task="marker-mug"
+          style="display:none"></div>
+        <div class="rt-carousel" data-base="./static/videos/droid_reasoning_videos" data-eps="5" data-task="peg-hole"
+          style="display:none"></div>
+        <div class="rt-carousel" data-base="./static/videos/droid_reasoning_videos" data-eps="5" data-task="clean-table"
+          style="display:none"></div>
+      </div>
+
+      <h4 class="title is-6 mt-5 has-text-left">Simulation Tasks</h4>
+      <div class="content has-text-centered">
+        <div class="seg-toggle">
+          <span class="seg-thumb"></span>
+          <button class="seg-btn is-active" onclick="rtTask('sim-rt', 0, this)">Stacking</button>
+          <button class="seg-btn" onclick="rtTask('sim-rt', 1, this)">Square</button>
+          <button class="seg-btn" onclick="rtTask('sim-rt', 2, this)">Tool Hang</button>
+          <button class="seg-btn" onclick="rtTask('sim-rt', 3, this)">Transport</button>
+        </div>
+      </div>
+      <div id="sim-rt">
+        <div class="rt-carousel" data-base="./static/videos/sim_reasoning_videos" data-eps="5"
+          data-task="d3il_stacking"></div>
+        <div class="rt-carousel" data-base="./static/videos/sim_reasoning_videos" data-eps="5"
+          data-task="robomimic_square" style="display:none"></div>
+        <div class="rt-carousel" data-base="./static/videos/sim_reasoning_videos" data-eps="5"
+          data-task="robomimic_tool_hang" style="display:none"></div>
+        <div class="rt-carousel" data-base="./static/videos/sim_reasoning_videos" data-eps="5"
+          data-task="robomimic_transport" style="display:none"></div>
+      </div>
+
+      <!-- Qualitative Analysis: sliding-block reasoning probe -->
+      <h4 class="title is-6 mt-5 has-text-left">Probing Task</h4>
+      <div class="columns is-centered">
+        <div class="column">
+          <div class="content has-text-justified">
+            <p>
+              We manually slide a block through the open gripper while querying the policy for the number of reasoning
+              steps at each state. The reasoning length shifts with the block's relative position to the gripper.
+            </p>
+          </div>
+        </div>
+      </div>
+      <div class="rt-carousel" data-base="./static/videos/sim_analysis_videos" data-eps="5" data-task="."></div>
 
       <!-- Does iterative computation help? -->
       <h3 class="title is-5 mt-5 has-text-left">Does iterative computation help?</h3>
@@ -1068,7 +1128,7 @@
       </div>
 
       <!-- Does compression contribute? -->
-      <h3 class="title is-5 mt-6 has-text-left">Does compression improve performance?</h3>
+      <h3 class="title is-5 mt-6 has-text-left">Does compression matter for performance?</h3>
       <div class="columns is-centered">
         <div class="column">
           <div class="content has-text-justified">
@@ -1133,76 +1193,6 @@
             alt="Effect of compression">
         </div>
       </div>
-
-      <!-- Does the model adaptively allocate test-time compute? -->
-      <h3 class="title is-5 mt-6 has-text-left">Does the model adaptively allocate test-time compute?</h3>
-      <div class="columns is-centered">
-        <div class="column">
-          <div class="content has-text-justified">
-            <p>
-              We visualize the number of latent steps generated during rollouts. The model uses fewer reasoning steps
-              when the gripper is engaged, e.g., during grasping and release in clean-table, or the hand-over in
-              RoboMimic transport.
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <h4 class="title is-6 mt-5 has-text-left">DROID Tasks</h4>
-      <div class="content has-text-centered">
-        <div class="seg-toggle">
-          <span class="seg-thumb"></span>
-          <button class="seg-btn is-active" onclick="rtTask('droid-rt', 0, this)">Block-Bowl</button>
-          <button class="seg-btn" onclick="rtTask('droid-rt', 1, this)">Marker-Mug</button>
-          <button class="seg-btn" onclick="rtTask('droid-rt', 2, this)">Peg-Hole</button>
-          <button class="seg-btn" onclick="rtTask('droid-rt', 3, this)">Clean-Table</button>
-        </div>
-      </div>
-      <div id="droid-rt">
-        <div class="rt-carousel" data-base="./static/videos/droid_reasoning_videos" data-eps="5" data-task="block-bowl">
-        </div>
-        <div class="rt-carousel" data-base="./static/videos/droid_reasoning_videos" data-eps="5" data-task="marker-mug"
-          style="display:none"></div>
-        <div class="rt-carousel" data-base="./static/videos/droid_reasoning_videos" data-eps="5" data-task="peg-hole"
-          style="display:none"></div>
-        <div class="rt-carousel" data-base="./static/videos/droid_reasoning_videos" data-eps="5" data-task="clean-table"
-          style="display:none"></div>
-      </div>
-
-      <h4 class="title is-6 mt-5 has-text-left">Simulation Tasks</h4>
-      <div class="content has-text-centered">
-        <div class="seg-toggle">
-          <span class="seg-thumb"></span>
-          <button class="seg-btn is-active" onclick="rtTask('sim-rt', 0, this)">Stacking</button>
-          <button class="seg-btn" onclick="rtTask('sim-rt', 1, this)">Square</button>
-          <button class="seg-btn" onclick="rtTask('sim-rt', 2, this)">Tool Hang</button>
-          <button class="seg-btn" onclick="rtTask('sim-rt', 3, this)">Transport</button>
-        </div>
-      </div>
-      <div id="sim-rt">
-        <div class="rt-carousel" data-base="./static/videos/sim_reasoning_videos" data-eps="5"
-          data-task="d3il_stacking"></div>
-        <div class="rt-carousel" data-base="./static/videos/sim_reasoning_videos" data-eps="5"
-          data-task="robomimic_square" style="display:none"></div>
-        <div class="rt-carousel" data-base="./static/videos/sim_reasoning_videos" data-eps="5"
-          data-task="robomimic_tool_hang" style="display:none"></div>
-        <div class="rt-carousel" data-base="./static/videos/sim_reasoning_videos" data-eps="5"
-          data-task="robomimic_transport" style="display:none"></div>
-      </div>
-
-      <!-- Qualitative Analysis: sliding-block reasoning probe -->
-      <h4 class="title is-6 mt-5 has-text-left">Probing Experiment</h4>
-      <div class="columns is-centered">
-        <div class="column">
-          <div class="content has-text-justified">
-            <p>
-              We manually slide a block through the open gripper while querying the policy for the number of reasoning
-              steps at each state. The reasoning length shifts with the block's distance to the gripper.
-            </p>
-          </div>
-        </div>
-      </div>
-      <div class="rt-carousel" data-base="./static/videos/sim_analysis_videos" data-eps="5" data-task="."></div>
 
       <!-- More Analysis: secondary results, one slide at a time (text + plot scroll together) -->
       <h4 class="title is-5 mt-5 has-text-left">More Analysis</h4>

@@ -414,11 +414,14 @@ function showDroid(task, btn) {
 // compositor quirk, absent in Safari, that we accept rather than freezing the clips.)
 function initReasoningCarousels() {
   const GAP = 16;        // px gap between slides
-  const VISIBLE = 2;     // videos shown at once
   const DUR = 400;       // slide duration (ms)
   const TRANS = 'transform ' + (DUR / 1000) + 's cubic-bezier(0.4, 0, 0.2, 1)';
+  // One video per row on mobile, two on desktop. matchMedia is the JS mirror of a CSS
+  // media query: read .matches at build time, rebuild on its change event (rotation etc.).
+  const mqMobile = window.matchMedia('(max-width: 768px)');   // Bulma's mobile breakpoint
 
-  document.querySelectorAll('.rt-carousel').forEach(function (car) {
+  function buildCarousel(car) {
+    const VISIBLE = mqMobile.matches ? 1 : 2;   // videos shown at once
     // Build the skeleton so the markup is just <div class="rt-carousel" data-...>.
     car.innerHTML =
       '<div class="rt-row">' +
@@ -560,7 +563,7 @@ function initReasoningCarousels() {
     });
     prev.addEventListener('click', function () { go(-1); });
     next.addEventListener('click', function () { go(1); });
-    window.addEventListener('resize', function () { if (activated) { computeMetrics(); place(false); } });
+    car._onResize = function () { if (activated) { computeMetrics(); place(false); } };
 
     function activate() {
       computeMetrics(); place(false); loadNear(); playVisible(); setIndicator();
@@ -572,8 +575,16 @@ function initReasoningCarousels() {
     if (car.offsetParent !== null) activate();   // visible now; hidden tasks wait for their toggle
     // Re-measure once layout/fonts settle, in case the viewport width wasn't final at init.
     requestAnimationFrame(function () { if (activated) { computeMetrics(); place(false); } });
-    window.addEventListener('load', function () { if (car.offsetParent !== null) activate(); });
-  });
+    car._onLoad = function () { if (car.offsetParent !== null) activate(); };
+  }
+
+  const cars = Array.prototype.slice.call(document.querySelectorAll('.rt-carousel'));
+  cars.forEach(buildCarousel);
+  // Single delegated listeners: rebuilds swap the per-carousel handlers, so no stale closures pile up.
+  window.addEventListener('resize', function () { cars.forEach(function (c) { if (c._onResize) c._onResize(); }); });
+  window.addEventListener('load', function () { cars.forEach(function (c) { if (c._onLoad) c._onLoad(); }); });
+  // A breakpoint flip changes the per-row count (and with it clones and widths) -> rebuild.
+  mqMobile.addEventListener('change', function () { cars.forEach(buildCarousel); });
 }
 
 // Switch the active task in a reasoning-trace group: slide the toggle thumb, reveal that task's carousel.

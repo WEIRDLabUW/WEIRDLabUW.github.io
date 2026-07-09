@@ -451,9 +451,18 @@ function initReasoningCarousels() {
         else s.vid.pause();
       });
     }
+    // Dots (one per episode), matching the teaser / More Analysis carousels.
+    for (let i = 0; i < N; i++) {
+      const d = document.createElement('div');
+      d.style.cssText = 'width:8px; height:8px; border-radius:50%; background:#ccc; cursor:pointer; transition:background 0.2s;';
+      d.addEventListener('click', function() { goTo(i); });
+      indicator.appendChild(d);
+    }
     function setIndicator() {
       const cur = wrap ? (((pos - K) % N) + N) % N : pos;
-      indicator.textContent = (cur + 1) + ' / ' + N;
+      Array.from(indicator.children).forEach(function(d, i) {
+        d.style.background = i === cur ? '#6a4fb4' : '#ccc';
+      });
     }
 
     function onSettle() {
@@ -480,6 +489,15 @@ function initReasoningCarousels() {
       place(true);
       loadNear(); playVisible(); setIndicator();
       settleT = setTimeout(onSettle, DUR + 140);   // fallback if transitionend is missed
+    }
+    function goTo(i) {                             // dot click: slide straight to episode i
+      const target = wrap ? K + i : i;
+      if (animating || target === pos) return;
+      animating = true;
+      pos = target;
+      place(true);
+      loadNear(); playVisible(); setIndicator();
+      settleT = setTimeout(onSettle, DUR + 140);
     }
 
     track.addEventListener('transitionend', function(e) {

@@ -313,3 +313,11 @@ img.inline-figure {
   margin-top: 0.5rem;
   /* minor top spacing for the name */
 }
+/* Bulma's html reset sets -webkit-font-smoothing: antialiased, which renders glyphs
+   thinner on macOS. The method-figure iframes (Figs 2/3) have no Bulma and use default
+   subpixel smoothing (heavier stems); opt the inline variance-schedule viz out so its
+   serif labels match the figures' weight. */
+#adaptive-viz {
+  -webkit-font-smoothing: subpixel-antialiased;
+  -moz-osx-font-smoothing: auto;
+}

@@ -146,7 +146,7 @@ acx=lambda c:APX+c*CP
 
 # ---------- STEP 1 : posterior input box (top-aligned with box (1)) ----------
 # obs thumbnails are tokens too: same size (42), pitch (54) and layered shadow as the action tiles
-b.append(grpbox(8,12,208,150,"",GRP_GRAY,LBL_GRAY,d=0.00))
+b.append(grpbox(8,12,208,144,"",GRP_GRAY,LBL_GRAY,d=0.00))  # bottom margin 16 below the tiles, same as the prior box
 b.append(lbl(20,32,"Posterior ","q(z|o,a)",LBL_GRAY,d=0.05))
 for i in range(4): b.append(cam(16+i*50,44,TS,i,d=0.12+i*0.05,sh=True))
 b.append(atile(16,98,TS,dy=ADY[0],d=0.36)); b.append(atile(66,98,TS,dy=ADY[1],d=0.44))
@@ -200,9 +200,9 @@ kl=(f'<text class="anim" style="--d:{6.2*SLOW:.2f}s" x="{GRIDC:.0f}" y="362" tex
 b.append(kl)
 # ---------- STEP 12 : action loss term (pred gray front  vs  GT lavender behind) ----------
 b.append(conn(f"M{ACTC:.0f} 245 V338",d=6.85))
-# the + sits midway between the two loss terms; the reconstruction term is right-aligned
-# to keep a clear margin inside box (2)'s dashed border
-b.append(f'<text class="anim" style="--d:{6.95*SLOW:.2f}s" x="656" y="362" text-anchor="middle" font-family="{SERIF}" font-size="21" fill="#222">+</text>')
+# the + sits at the midpoint of the gap between the two rendered terms (KL ends at x=620,
+# the right-aligned reconstruction term starts at x=726); the term widths are fixed text
+b.append(f'<text class="anim" style="--d:{6.95*SLOW:.2f}s" x="673" y="362" text-anchor="middle" font-family="{SERIF}" font-size="21" fill="#222">+</text>')
 act=(f'<text class="anim" style="--d:{7.0*SLOW:.2f}s" x="869" y="362" text-anchor="end" font-family="{SERIF}" font-size="21" fill="#222">'
     f'<tspan font-style="italic">&#120124;</tspan><tspan font-size="13" dy="4" font-style="italic">q</tspan><tspan dy="-4">[</tspan>'
     f'<tspan>log </tspan><tspan fill="{ARROW}" font-style="italic">p</tspan><tspan fill="{ARROW}">(</tspan><tspan fill="{ARROW}" font-style="italic">a</tspan><tspan fill="{ARROW}">|</tspan><tspan fill="{ARROW}" font-style="italic">o</tspan><tspan fill="{ARROW}">,</tspan><tspan fill="{ARROW}" font-style="italic">z</tspan><tspan fill="{ARROW}">)</tspan><tspan>]</tspan></text>')
@@ -228,8 +228,8 @@ LX=491                            # latent AR columns (4); the latents grpbox ne
 MX=703                            # mask / action-output columns (4)
 # vertical rhythm: uniform 14px seams everywhere (same as decoder -> action gap):
 # actions 24..66 | decoder 80..122 | z+query band 136..178 | encoder 192..234
-# | input boxes 248..332 (tokens 260..302)
-Y_ACT, Y_DEC, Y_OUT, Y_ENC, Y_BOX, Y_IN = 24, 80, 136, 192, 248, 260
+# | input boxes 248..334 (tokens 256..298; 8px top margin matches the sides)
+Y_ACT, Y_DEC, Y_OUT, Y_ENC, Y_BOX, Y_IN = 24, 80, 136, 192, 248, 256
 ADY4=[2,7,12,16]                  # consistent action-arrow fan
 def lx(k): return LX+k*P
 def mx(i): return MX+i*P
@@ -239,10 +239,10 @@ def camrow(bx,by,d0):             # flat 1x4 cam row on the token pitch, token-s
 # ---------- STEP 1 : encoder (shared core appears first) ----------
 m.append(bar(8,Y_ENC,683,BAR3,"Cross-Attention Encoder",d=0.55,fs=15))
 # ---------- STEP 2 : obs box (encoder context) — flat 1x4 ----------
-m.append(grpbox(8,Y_BOX,208,84,"observations",GRP_BLUE,LBL_BLUE,d=1.0))
+m.append(grpbox(8,Y_BOX,208,86,"observations",GRP_BLUE,LBL_BLUE,d=1.0))
 m+=camrow(16,Y_IN,1.05)
 # ---------- STEP 3 : actions box (posterior actions, prior MASKS peek behind) ----------
-m.append(grpbox(228,Y_BOX,243,84,"actions / masks",GRP_PURP,LBL_PURP,d=1.45))
+m.append(grpbox(228,Y_BOX,243,86,"actions (posterior) / masks (prior)",GRP_PURP,LBL_PURP,d=1.45))
 for i in range(4):
     ax=236+i*SP
     m.append(atile(ax+PK,Y_IN+PK,TS,mask=True,cls="stash",d=2.0+i*0.06))  # prior mask behind
@@ -251,7 +251,7 @@ for i in range(4):
 # ---------- STEP 4 : autoregressive z rollout ----------
 # input row (below encoder): bos z1 z2 z3   |   output row (above encoder): z1 z2 z3 eos
 ARB=2.55
-m.append(grpbox(lx(0)-8,Y_BOX,lx(3)+TS+8-(lx(0)-8),84,"latents (autoregressive)",GRP_GRAY,LBL_GRAY,d=ARB-0.15))
+m.append(grpbox(lx(0)-8,Y_BOX,lx(3)+TS+8-(lx(0)-8),86,"latents (autoregressive)",GRP_GRAY,LBL_GRAY,d=ARB-0.15))
 m.append(tok(lx(0),Y_IN,TS,text="bos",eos=True,d=ARB))                   # seed: bos
 for k in range(4):
     do_out = ARB+0.30 + k*0.70

@@ -406,6 +406,26 @@ function showDroid(task, btn) {
   }
 }
 
+// RoboMimic / LIBERO suite toggle for the tokenizer rollout grids (same pattern as showDroid);
+// hidden grids pause their videos so only the visible suite plays.
+function showTokSuite(suite, btn) {
+  document.querySelectorAll('.tok-suite-grid').forEach(function (el) {
+    const on = el.id === 'tok-' + suite;
+    el.style.display = on ? '' : 'none';
+    el.querySelectorAll('video').forEach(function (v) {
+      if (on) { v.play().catch(function () { }); } else { v.pause(); }
+    });
+  });
+  if (btn) {
+    const toggle = btn.closest('.seg-toggle');
+    const btns = Array.prototype.slice.call(toggle.querySelectorAll('.seg-btn'));
+    const idx = btns.indexOf(btn);
+    btns.forEach(function (b, i) { b.classList.toggle('is-active', i === idx); });
+    const thumb = toggle.querySelector('.seg-thumb');
+    if (thumb) thumb.style.transform = 'translateX(' + (idx * 100) + '%)';
+  }
+}
+
 // Carousel for reasoning-trace videos: a wrap-around carousel that advances one video at a
 // time (two visible). The track slides via a CSS transform transition (compositor-driven, no
 // per-frame JS), with the clips playing throughout. Cloned head/tail slides make the loop

@@ -918,6 +918,123 @@
           </table>
         </div>
       </div>
+
+      <!-- LMP-tok rollouts: all rollouts per suite shown at once, toggled by test suite -->
+      <div class="content has-text-centered" style="margin-top: 1.5rem;">
+        <div class="seg-toggle" id="tok-suite-toggle" style="max-width: 320px;">
+          <span class="seg-thumb" style="width: calc((100% - 8px) / 2);"></span>
+          <button class="seg-btn is-active" onclick="showTokSuite('robomimic', this)">RoboMimic</button>
+          <button class="seg-btn" onclick="showTokSuite('libero', this)">LIBERO</button>
+        </div>
+      </div>
+
+      <div id="tok-robomimic" class="tok-suite-grid" style="margin-top: 1rem;">
+        <div style="display:flex; flex-wrap:wrap; justify-content:center; gap:26px;">
+          <div style="flex:0 0 171px; width:171px;">
+            <h4 class="title is-6 has-text-centered" style="margin-bottom:0.6rem;">lift</h4>
+            <video autoplay muted loop playsinline loading="lazy" class="video-hover"
+              style="border-radius:6px; width:100%; display:block; margin-bottom:16px;">
+              <source src="./static/videos/tokenizer_rollouts/robomimic-lift_0.mp4" type="video/mp4">
+            </video>
+            <video autoplay muted loop playsinline loading="lazy" class="video-hover"
+              style="border-radius:6px; width:100%; display:block;">
+              <source src="./static/videos/tokenizer_rollouts/robomimic-lift_1.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div style="flex:0 0 171px; width:171px;">
+            <h4 class="title is-6 has-text-centered" style="margin-bottom:0.6rem;">can</h4>
+            <video autoplay muted loop playsinline loading="lazy" class="video-hover"
+              style="border-radius:6px; width:100%; display:block; margin-bottom:16px;">
+              <source src="./static/videos/tokenizer_rollouts/robomimic-can_0.mp4" type="video/mp4">
+            </video>
+            <video autoplay muted loop playsinline loading="lazy" class="video-hover"
+              style="border-radius:6px; width:100%; display:block;">
+              <source src="./static/videos/tokenizer_rollouts/robomimic-can_1.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div style="flex:0 0 171px; width:171px;">
+            <h4 class="title is-6 has-text-centered" style="margin-bottom:0.6rem;">square</h4>
+            <video autoplay muted loop playsinline loading="lazy" class="video-hover"
+              style="border-radius:6px; width:100%; display:block; margin-bottom:16px;">
+              <source src="./static/videos/tokenizer_rollouts/robomimic-square_0.mp4" type="video/mp4">
+            </video>
+            <video autoplay muted loop playsinline loading="lazy" class="video-hover"
+              style="border-radius:6px; width:100%; display:block;">
+              <source src="./static/videos/tokenizer_rollouts/robomimic-square_1.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div style="flex:0 0 171px; width:171px;">
+            <h4 class="title is-6 has-text-centered" style="margin-bottom:0.6rem;">tool-hang</h4>
+            <video autoplay muted loop playsinline loading="lazy" class="video-hover"
+              style="border-radius:6px; width:100%; display:block; margin-bottom:16px;">
+              <source src="./static/videos/tokenizer_rollouts/robomimic-tool-hang_0.mp4" type="video/mp4">
+            </video>
+            <video autoplay muted loop playsinline loading="lazy" class="video-hover"
+              style="border-radius:6px; width:100%; display:block;">
+              <source src="./static/videos/tokenizer_rollouts/robomimic-tool-hang_1.mp4" type="video/mp4">
+            </video>
+          </div>
+        </div>
+      </div>
+      <div id="tok-libero" class="tok-suite-grid" style="margin-top: 1rem; display:none;">
+        <div style="display:flex; flex-wrap:wrap; justify-content:center; gap:26px;">
+          <div style="flex:0 0 171px; width:171px;">
+            <h4 class="title is-6 has-text-centered" style="margin-bottom:0.6rem;">book-caddy</h4>
+            <video autoplay muted loop playsinline loading="lazy" class="video-hover"
+              style="border-radius:6px; width:100%; display:block; margin-bottom:16px;">
+              <source src="./static/videos/tokenizer_rollouts/libero-book-caddy_0.mp4" type="video/mp4">
+            </video>
+            <video autoplay muted loop playsinline loading="lazy" class="video-hover"
+              style="border-radius:6px; width:100%; display:block;">
+              <source src="./static/videos/tokenizer_rollouts/libero-book-caddy_1.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div style="flex:0 0 171px; width:171px;">
+            <h4 class="title is-6 has-text-centered" style="margin-bottom:0.6rem;">bowl-drawer</h4>
+            <video autoplay muted loop playsinline loading="lazy" class="video-hover"
+              style="border-radius:6px; width:100%; display:block; margin-bottom:16px;">
+              <source src="./static/videos/tokenizer_rollouts/libero-bowl-drawer_0.mp4" type="video/mp4">
+            </video>
+            <video autoplay muted loop playsinline loading="lazy" class="video-hover"
+              style="border-radius:6px; width:100%; display:block;">
+              <source src="./static/videos/tokenizer_rollouts/libero-bowl-drawer_1.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div style="flex:0 0 171px; width:171px;">
+            <h4 class="title is-6 has-text-centered" style="margin-bottom:0.6rem;">moka-moka</h4>
+            <video autoplay muted loop playsinline loading="lazy" class="video-hover"
+              style="border-radius:6px; width:100%; display:block; margin-bottom:16px;">
+              <source src="./static/videos/tokenizer_rollouts/libero-moka-moka_0.mp4" type="video/mp4">
+            </video>
+            <video autoplay muted loop playsinline loading="lazy" class="video-hover"
+              style="border-radius:6px; width:100%; display:block;">
+              <source src="./static/videos/tokenizer_rollouts/libero-moka-moka_1.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div style="flex:0 0 171px; width:171px;">
+            <h4 class="title is-6 has-text-centered" style="margin-bottom:0.6rem;">mug-mug</h4>
+            <video autoplay muted loop playsinline loading="lazy" class="video-hover"
+              style="border-radius:6px; width:100%; display:block; margin-bottom:16px;">
+              <source src="./static/videos/tokenizer_rollouts/libero-mug-mug_0.mp4" type="video/mp4">
+            </video>
+            <video autoplay muted loop playsinline loading="lazy" class="video-hover"
+              style="border-radius:6px; width:100%; display:block;">
+              <source src="./static/videos/tokenizer_rollouts/libero-mug-mug_1.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div style="flex:0 0 171px; width:171px;">
+            <h4 class="title is-6 has-text-centered" style="margin-bottom:0.6rem;">soup-cheese</h4>
+            <video autoplay muted loop playsinline loading="lazy" class="video-hover"
+              style="border-radius:6px; width:100%; display:block; margin-bottom:16px;">
+              <source src="./static/videos/tokenizer_rollouts/libero-soup-cheese_0.mp4" type="video/mp4">
+            </video>
+            <video autoplay muted loop playsinline loading="lazy" class="video-hover"
+              style="border-radius:6px; width:100%; display:block;">
+              <source src="./static/videos/tokenizer_rollouts/libero-soup-cheese_1.mp4" type="video/mp4">
+            </video>
+          </div>
+        </div>
+      </div>
     </div>
   </section>
 

@@ -71,9 +71,9 @@ function initAdaptiveViz() {
 
   // pane titles match the animated method figures: 15px serif, gray, title case
   const label = (x, y, s) => make('text', { x: x, y: y, 'font-size': 15, fill: '#9A9A9A', 'font-family': SERIF }, s);
-  svg.appendChild(label(24, 26, 'Latent Space'));
-  svg.appendChild(label(24, 226, 'Standard Deviation'));
-  svg.appendChild(label(430, 26, 'Data'));
+  svg.appendChild(label(24, 26, 'Latent Reasoning Trace'));
+  svg.appendChild(label(24, 226, 'Decoder Standard Deviation'));
+  svg.appendChild(label(430, 26, 'Action Distribution'));
 
   // playhead line spanning both left panes (behind everything else)
   const vline = make('line', { y1: 38, y2: SY0, stroke: '#c9c9c9', 'stroke-width': 1.2, 'stroke-dasharray': '4 4' });
@@ -91,6 +91,10 @@ function initAdaptiveViz() {
       addEdge(XS(j), ys, XS(j + 1), ROWS[2], j, j + 1, true);
     });
   }
+  // observation -> layer-1 entry edges (fan out from behind the obs tile; tgt=1 makes them
+  // light up with the sweep exactly like the layer-1 nodes)
+  [ROWS[0], ROWS[1]].forEach(yt => addEdge(40, 108, XS(1), yt, 0, 1, false));
+  addEdge(40, 108, XS(1), ROWS[2], 0, 1, true);   // obs -> immediate eos (zero-step trace)
 
   // trellis: 4 layers x (2 tokens + eos); nodes are solid-filled so edges pass behind them
   svg.appendChild(make('text', { x: 101, y: ROWS[2] + 4, 'text-anchor': 'end', 'font-size': 11, fill: '#999', 'font-family': SERIF }, 'eos'));
@@ -103,6 +107,17 @@ function initAdaptiveViz() {
     });
   }
 
+  // observation tile at the trellis root — a real camera thumbnail, matching the method
+  // figures' convention (observations are real images, latents are symbols)
+  const obsClip = make('clipPath', { id: 'av-obsclip' });
+  obsClip.appendChild(make('rect', { x: 18, y: 86, width: 44, height: 44, rx: 8 }));
+  defs.appendChild(obsClip);
+  svg.appendChild(make('image', {
+    href: './static/figanim/obs_full.png', x: 18, y: 86, width: 44, height: 44,
+    'clip-path': 'url(#av-obsclip)', preserveAspectRatio: 'xMidYMid slice'
+  }));
+  svg.appendChild(make('rect', { x: 18, y: 86, width: 44, height: 44, rx: 8, fill: 'none', stroke: '#D6D6D6', 'stroke-width': 1.2 }));
+
   // σ pane: axes, curve, step markers, playhead
   svg.appendChild(make('line', { x1: 109, y1: SY1 - 8, x2: 109, y2: SY0, stroke: '#cfcfcf', 'stroke-width': 1.4 }));
   svg.appendChild(make('line', { x1: 109, y1: SY0, x2: 392, y2: SY0, stroke: '#cfcfcf', 'stroke-width': 1.4 }));
@@ -110,7 +125,7 @@ function initAdaptiveViz() {
     svg.appendChild(make('text', { x: XS(k), y: SY0 + 18, 'text-anchor': 'middle', 'font-size': 12, fill: '#999', 'font-family': SERIF }, String(k)));
   }
   svg.appendChild(make('text', { x: (XS(1) + XS(4)) / 2, y: SY0 + 36, 'text-anchor': 'middle', 'font-size': 13, fill: '#777', 'font-family': SERIF }, 'Latent step k'));
-  svg.appendChild(make('text', { x: 91, y: (SY1 + SY0) / 2, 'text-anchor': 'middle', 'font-size': 15, fill: '#777', 'font-family': SERIF, 'font-style': 'italic', transform: 'rotate(-90 91 ' + (SY1 + SY0) / 2 + ')' }, 'σ'));
+  svg.appendChild(make('text', { x: 91, y: (SY1 + SY0) / 2, 'text-anchor': 'middle', 'font-size': 15, fill: '#777', 'font-family': SERIF, 'font-style': 'italic', transform: 'rotate(-90 91 ' + (SY1 + SY0) / 2 + ')' }, 'σ(k)'));
   let pts = '';
   for (let p = 1; p <= 4.001; p += 0.025) pts += XS(Math.min(p, 4)) + ',' + yS(sigAt(Math.min(p, 4))) + ' ';   // fine sampling: the decay is steep near step 1
   svg.appendChild(make('polyline', { points: pts.trim(), fill: 'none', stroke: 'url(#av-grad)', 'stroke-width': 2.5, 'stroke-linecap': 'round' }));
@@ -189,8 +204,10 @@ function initAdaptiveViz() {
         const par = LVL[st4 - 1][j >> 1];
         // mass conservation: two coincident children must SUM to the parent bump at the
         // moment of splitting, so each starts at half the parent's height
-        return { x: par.x + (c.x - par.x) * e, y: par.y + (c.y - par.y) * e,
-                 s: par.s + (c.s - par.s) * e, h: par.h / 2 + (c.h - par.h / 2) * e };
+        return {
+          x: par.x + (c.x - par.x) * e, y: par.y + (c.y - par.y) * e,
+          s: par.s + (c.s - par.s) * e, h: par.h / 2 + (c.h - par.h / 2) * e
+        };
       });
     }
     // Evaluate the density grid once (z = Σ h·exp(−d²/2σ²)), then draw the blanket from it.

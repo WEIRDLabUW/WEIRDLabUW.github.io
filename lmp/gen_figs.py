@@ -190,23 +190,37 @@ for i in range(4): b.append(cam(16+i*50,210,TS,i,d=4.46+i*0.05,sh=True))
 b.append(conn("M216 222 H251",d=4.75))
 GRIDC=(gcx(0)+gcx(5)+TS)/2               # grid horizontal centre
 ACTC=(acx(0)+acx(1)+TS)/2                # action-stack centre
+def ubrace(x0,x1,y,h=7):
+    m=(x0+x1)/2
+    return (f"M{x0},{y} Q{x0},{y+h} {x0+h},{y+h} H{m-h:.1f} Q{m:.1f},{y+h} {m:.1f},{y+2*h} "
+            f"Q{m:.1f},{y+h} {m+h:.1f},{y+h} H{x1-h} Q{x1},{y+h} {x1},{y}")
+
 # ---------- STEP 10 : KL loss term (q gray front  ‖  p blue behind) ----------
-b.append(conn(f"M{GRIDC:.0f} 245 V338",d=6.05))
-kl=(f'<text class="anim" style="--d:{6.2*SLOW:.2f}s" x="{GRIDC:.0f}" y="362" text-anchor="middle" font-family="{SERIF}" font-size="21" fill="#222">'
-    f'max<tspan dx="20">&#8722;</tspan><tspan font-style="italic">D</tspan><tspan font-size="13" dy="4">KL</tspan><tspan dy="-4">(</tspan>'
+b.append(conn(f"M{GRIDC:.0f} 245 V320",d=6.05))
+# "max" is its own right-anchored element; its gap to the -D_KL term (term starts x~385)
+# equals the term's gap to the + (term ends ~591, + glyph starts ~652: gap ~61) -> max ends at 324
+b.append(f'<text class="anim" style="--d:{6.2*SLOW:.2f}s" x="324" y="344" text-anchor="end" font-family="{SERIF}" font-size="21" fill="#222">max</text>')
+kl=(f'<text class="anim" style="--d:{6.2*SLOW:.2f}s" x="{GRIDC:.0f}" y="344" text-anchor="middle" font-family="{SERIF}" font-size="21" fill="#222">'
+    f'<tspan>&#8722;</tspan><tspan font-style="italic">D</tspan><tspan font-size="13" dy="4">KL</tspan><tspan dy="-4">(</tspan>'
     f'<tspan fill="{LBL_GRAY}" font-style="italic">q</tspan><tspan fill="{LBL_GRAY}">(</tspan><tspan fill="{LBL_GRAY}" font-style="italic">z</tspan><tspan fill="{LBL_GRAY}">|</tspan><tspan fill="{LBL_GRAY}" font-style="italic">o</tspan><tspan fill="{LBL_GRAY}">,</tspan><tspan fill="{LBL_GRAY}" font-style="italic">a</tspan><tspan fill="{LBL_GRAY}">)</tspan>'
     f'<tspan dx="3">&#8741;</tspan>'
     f'<tspan dx="3" fill="{LBL_BLUE}" font-style="italic">p</tspan><tspan fill="{LBL_BLUE}">(</tspan><tspan fill="{LBL_BLUE}" font-style="italic">z</tspan><tspan fill="{LBL_BLUE}">|</tspan><tspan fill="{LBL_BLUE}" font-style="italic">o</tspan><tspan fill="{LBL_BLUE}">)</tspan><tspan>)</tspan></text>')
 b.append(kl)
+# the -D_KL(..) term is centred on GRIDC (text shifted -30), so the label centres there too
+b.append(f'<path class="anim" style="--d:{6.35*SLOW:.2f}s" d="{ubrace(386,590,356)}" fill="none" stroke="{LBL_GRAY}" stroke-width="1.3" stroke-linecap="round"/>')
+b.append(f'<text class="anim" style="--d:{6.4*SLOW:.2f}s" x="{GRIDC:.0f}" y="386" text-anchor="middle" font-family="{SERIF}" font-size="15" fill="{LBL_GRAY}">KL divergence</text>')
 # ---------- STEP 12 : action loss term (pred gray front  vs  GT lavender behind) ----------
-b.append(conn(f"M{ACTC:.0f} 245 V338",d=6.85))
-# the + sits at the midpoint of the gap between the two rendered terms (KL ends at x=620,
-# the right-aligned reconstruction term starts at x=726); the term widths are fixed text
-b.append(f'<text class="anim" style="--d:{6.95*SLOW:.2f}s" x="673" y="362" text-anchor="middle" font-family="{SERIF}" font-size="21" fill="#222">+</text>')
-act=(f'<text class="anim" style="--d:{7.0*SLOW:.2f}s" x="869" y="362" text-anchor="end" font-family="{SERIF}" font-size="21" fill="#222">'
+b.append(conn(f"M{ACTC:.0f} 245 V320",d=6.85))
+# the + sits at the midpoint of the gap between the two rendered terms (KL ends at x=590
+# after the -30 shift, the right-aligned reconstruction term starts at x=726)
+b.append(f'<text class="anim" style="--d:{6.95*SLOW:.2f}s" x="658" y="344" text-anchor="middle" font-family="{SERIF}" font-size="21" fill="#222">+</text>')
+act=(f'<text class="anim" style="--d:{7.0*SLOW:.2f}s" x="869" y="344" text-anchor="end" font-family="{SERIF}" font-size="21" fill="#222">'
     f'<tspan font-style="italic">&#120124;</tspan><tspan font-size="13" dy="4" font-style="italic">q</tspan><tspan dy="-4">[</tspan>'
     f'<tspan>log </tspan><tspan fill="{ARROW}" font-style="italic">p</tspan><tspan fill="{ARROW}">(</tspan><tspan fill="{ARROW}" font-style="italic">a</tspan><tspan fill="{ARROW}">|</tspan><tspan fill="{ARROW}" font-style="italic">o</tspan><tspan fill="{ARROW}">,</tspan><tspan fill="{ARROW}" font-style="italic">z</tspan><tspan fill="{ARROW}">)</tspan><tspan>]</tspan></text>')
 b.append(act)
+# term labels sit centred under each term (recon term spans x 726..869 -> centre 798)
+b.append(f'<path class="anim" style="--d:{7.15*SLOW:.2f}s" d="{ubrace(727,868,356)}" fill="none" stroke="{LBL_GRAY}" stroke-width="1.3" stroke-linecap="round"/>')
+b.append(f'<text class="anim" style="--d:{7.2*SLOW:.2f}s" x="798" y="386" text-anchor="middle" font-family="{SERIF}" font-size="15" fill="{LBL_GRAY}">Reconstruction</text>')
 SVG2='\n'.join(b)
 TRAIN_DEFS=''.join(MASKS)
 

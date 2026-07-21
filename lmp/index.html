@@ -1049,7 +1049,7 @@
         <div class="column">
           <div class="content has-text-justified">
             <p>
-              We visualize the number of latent steps generated during rollouts. The model uses fewer reasoning steps
+              We visualize the number of reasoning steps generated during rollouts. The model uses fewer reasoning steps
               during gripper movements, e.g., grasping and releasing in DROID tasks or hand-over in
               RoboMimic transport.
             </p>
@@ -1249,7 +1249,7 @@
               We ablate compression strength by controlling the decoder variance schedule. A smaller
               &sigma;<sub>min</sub> penalizes prediction errors more heavily, yielding shorter latent traces. Across
               LIBERO tasks, increasing compression (smaller &sigma;<sub>min</sub>) improves performance, showing that
-              parsimonious allocation of latent-step compute is crucial for generalization.
+              parsimonious allocation of latent tokens is crucial for generalization.
             </p>
           </div>
         </div>
@@ -1320,8 +1320,8 @@
             <div style="flex:0 0 100%; min-width:0; padding:0 6px;">
               <div class="content has-text-justified">
                 <p>
-                  <strong>Latent length over training</strong> We find the number of reasoning steps to increase
-                  spontaneously throughout training. The latent length is initially low because of high
+                  <strong>Latent length over training</strong> We find the reasoning length to increase
+                  spontaneously throughout training. The length is initially low because of high
                   reconstruction errors, then increases as training converges.
                 </p>
               </div>

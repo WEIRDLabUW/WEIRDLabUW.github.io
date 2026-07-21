@@ -97,7 +97,7 @@ function initAdaptiveViz() {
   addEdge(40, 108, XS(1), ROWS[2], 0, 1, true);   // obs -> immediate eos (zero-step trace)
 
   // trellis: 4 layers x (2 tokens + eos); nodes are solid-filled so edges pass behind them
-  svg.appendChild(make('text', { x: 101, y: ROWS[2] + 4, 'text-anchor': 'end', 'font-size': 11, fill: '#999', 'font-family': SERIF }, 'eos'));
+  svg.appendChild(make('text', { x: 101, y: ROWS[2] + 4, 'text-anchor': 'end', 'font-size': 13, fill: '#999', 'font-family': SERIF }, 'eos'));
   const nodes = [];   // {el, layer, isEos}
   for (let j = 1; j <= 4; j++) {
     ROWS.forEach((y, ri) => {
@@ -124,8 +124,8 @@ function initAdaptiveViz() {
   for (let k = 1; k <= 4; k++) {
     svg.appendChild(make('text', { x: XS(k), y: SY0 + 18, 'text-anchor': 'middle', 'font-size': 12, fill: '#999', 'font-family': SERIF }, String(k)));
   }
-  svg.appendChild(make('text', { x: (XS(1) + XS(4)) / 2, y: SY0 + 36, 'text-anchor': 'middle', 'font-size': 13, fill: '#777', 'font-family': SERIF }, 'Latent step k'));
-  svg.appendChild(make('text', { x: 91, y: (SY1 + SY0) / 2, 'text-anchor': 'middle', 'font-size': 15, fill: '#777', 'font-family': SERIF, 'font-style': 'italic', transform: 'rotate(-90 91 ' + (SY1 + SY0) / 2 + ')' }, 'σ(k)'));
+  svg.appendChild(make('text', { x: (XS(1) + XS(4)) / 2, y: SY0 + 36, 'text-anchor': 'middle', 'font-size': 13, fill: '#999', 'font-family': SERIF }, 'latent step k'));
+  svg.appendChild(make('text', { x: 91, y: (SY1 + SY0) / 2, 'text-anchor': 'middle', 'font-size': 13, fill: '#999', 'font-family': SERIF, 'font-style': 'italic', transform: 'rotate(-90 91 ' + (SY1 + SY0) / 2 + ')' }, 'σ(k)'));
   let pts = '';
   for (let p = 1; p <= 4.001; p += 0.025) pts += XS(Math.min(p, 4)) + ',' + yS(sigAt(Math.min(p, 4))) + ' ';   // fine sampling: the decay is steep near step 1
   svg.appendChild(make('polyline', { points: pts.trim(), fill: 'none', stroke: 'url(#av-grad)', 'stroke-width': 2.5, 'stroke-linecap': 'round' }));
@@ -169,7 +169,18 @@ function initAdaptiveViz() {
   axisLine(px3(-EXT, -EXT), py3(-EXT, -EXT, 0));  // y edge (up-right)
   axisLine(ox, zTop);                             // z (vertical)
   svg.appendChild(make('path', { d: 'M' + (ox - 3.5) + ' ' + (zTop + 7) + ' L' + ox + ' ' + zTop + ' L' + (ox + 3.5) + ' ' + (zTop + 7), fill: 'none', stroke: '#b0b0b0', 'stroke-width': 1.2 }));
-  svg.appendChild(make('text', { x: ox - 8, y: (oy + zTop) / 2, 'text-anchor': 'middle', 'font-size': 11, fill: '#999', 'font-family': SERIF, transform: 'rotate(-90 ' + (ox - 8) + ' ' + (oy + zTop) / 2 + ')' }, 'density'));
+  svg.appendChild(make('text', { x: ox - 8, y: (oy + zTop) / 2, 'text-anchor': 'middle', 'font-size': 13, fill: '#999', 'font-family': SERIF, transform: 'rotate(-90 ' + (ox - 8) + ' ' + (oy + zTop) / 2 + ')' }, 'density'));
+  // "data" label painted ON the ground plane: baseline follows the x edge and glyph
+  // verticals stay parallel to the receding y axis, via the plane's exact affine projection
+  // (e_x = (KX,KY), glyph-up = e_{-y} = (KX,-KY); local y offset pushes it outside the sheet)
+  {
+    const ex = px3(EXT, EXT), ey = py3(EXT, EXT, 0);
+    const mx = (ox + ex) / 2, my = (oy + ey) / 2;
+    const L = Math.hypot(KX, KY), ux = KX / L, uy = KY / L;
+    svg.appendChild(make('text', { x: 0, y: 17, 'text-anchor': 'middle', 'font-size': 13, fill: '#999',
+      'font-family': SERIF,
+      transform: 'matrix(' + [ux, uy, -ux, uy, mx, my].map(v => v.toFixed(4)).join(' ') + ')' }, 'action space'));
+  }
 
   // --- render everything for a continuous position p ∈ [1,4] ---
   let lastP = NaN;

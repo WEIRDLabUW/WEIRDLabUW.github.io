@@ -220,7 +220,7 @@ act=(f'<text class="anim" style="--d:{7.0*SLOW:.2f}s" x="869" y="344" text-ancho
 b.append(act)
 # term labels sit centred under each term (recon term spans x 726..869 -> centre 798)
 b.append(f'<path class="anim" style="--d:{7.15*SLOW:.2f}s" d="{ubrace(727,868,356)}" fill="none" stroke="{LBL_GRAY}" stroke-width="1.3" stroke-linecap="round"/>')
-b.append(f'<text class="anim" style="--d:{7.2*SLOW:.2f}s" x="798" y="386" text-anchor="middle" font-family="{SERIF}" font-size="15" fill="{LBL_GRAY}">Reconstruction</text>')
+b.append(f'<text class="anim" style="--d:{7.2*SLOW:.2f}s" x="798" y="386" text-anchor="middle" font-family="{SERIF}" font-size="15" fill="{LBL_GRAY}">reconstruction</text>')
 SVG2='\n'.join(b)
 TRAIN_DEFS=''.join(MASKS)
 

@@ -4,7 +4,7 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { omnireset as omniProto } from './proto/omnireset.js';
 
-const API_BASE_URL = 'https://ok5l57ql5gmct9-8000.proxy.runpod.net';
+const API_BASE_URL = 'https://u39m5sh5pzrwbb-8000.proxy.runpod.net';
 const ASSETS_BASE = 'https://omnireset-website.s3.us-west-004.backblazeb2.com/interactive_assets';
 
 const scene = new THREE.Scene();

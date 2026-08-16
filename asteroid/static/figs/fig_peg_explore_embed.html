@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>figPegExplore</title>
+<script src="https://cdn.plot.ly/plotly-gl3d-2.35.2.min.js" charset="utf-8"></script>
+<script src="explore_viz/cmp_data.js"></script>
+<script>window.TACTILE_DATA = window.TACTILE_DATA || { _fmax: (window.CMP_DATA||{})._fmax };</script>
+<script src="explore_viz/viz_common.js"></script>
+<style>
+html,body{margin:0;padding:0;background:transparent;font-family:'Google Sans','Noto Sans',sans-serif;}
+.viz{padding:4px 6px 8px;}
+.prow{display:flex;gap:10px;margin-bottom:10px;}
+.vcell{flex:1;height:200px;border-radius:12px;overflow:hidden;background:#000;min-width:0;
+       position:relative;transition:opacity .45s ease;}
+.vcell video{width:100%;height:100%;object-fit:contain;display:block;border-radius:12px;}
+.vcell .tag{position:absolute;left:8px;top:8px;background:rgba(255,255,255,0.88);color:#454250;
+     font-size:11.5px;font-weight:600;border-radius:6px;padding:2px 8px;z-index:5;}
+.vcell.ph{background:#fafafa;border:1px dashed #d5d2dd;display:flex;align-items:center;justify-content:center;
+     color:#a8a4b2;font-size:13px;}
+.fadeout{opacity:0;}
+.mainplot{width:100%;height:195px;transition:opacity .45s ease;}
+</style>
+</head>
+<body>
+<div class="viz">
+  <div class="prow">
+    <div class="vcell" id="wristcell"><span class="tag">wrist camera (policy input)</span>
+      <video id="wristvid" muted playsinline preload="metadata"></video></div>
+    <div class="vcell" id="scenecell">
+      <video id="scenevid" muted playsinline preload="metadata"></video></div>
+  </div>
+  <div id="mainplot" class="mainplot"></div>
+</div>
+
+<script>
+(function(){
+  // ASTEROID peg-insertion rollouts (top-3 longest); cycles with a crossfade on each loop.
+  // Wrist view expects a *_wrist.mp4 sibling of each scene video (rendered separately);
+  // until it exists the cell shows a labeled placeholder.
+  var ROLLS = window.CMP_DATA.tasks.peg.methods.asteroid.rolls;
+  var scene = document.getElementById('scenevid');
+  var wrist = document.getElementById('wristvid');
+  var wristCell = document.getElementById('wristcell');
+  var sceneCell = document.getElementById('scenecell');
+  var plotEl = document.getElementById('mainplot');
+  var ri = 0, ref = null, wristOk = false;
+
+  function wristSrcFor(vid){ return vid.replace(/\.mp4$/, '_wrist.mp4'); }
+
+  function build(){
+    var roll = ROLLS[ri % ROLLS.length];
+    plotEl.innerHTML = '';
+    scene.loop = false;
+    scene.src = roll.vid;
+    scene.playbackRate = 0.7;
+    wristOk = false;
+    wristCell.classList.remove('ph');
+    wrist.style.display = '';
+    wrist.onerror = function(){
+      wristOk = false; wrist.style.display = 'none';
+      wristCell.classList.add('ph');
+      if (!wristCell.querySelector('.phmsg')){
+        var m=document.createElement('span'); m.className='phmsg';
+        m.textContent='wrist view — rendering soon';
+        wristCell.appendChild(m);
+      }
+    };
+    wrist.onloadeddata = function(){
+      wristOk = true;
+      var m=wristCell.querySelector('.phmsg'); if(m) m.remove();
+      wristCell.classList.remove('ph');
+    };
+    wrist.loop = false;
+    wrist.src = wristSrcFor(roll.vid);
+    wrist.playbackRate = 0.7;
+    VIZ.buildPair(null, 'mainplot', roll, false);
+    ref = { D: roll, n: roll.traj.length, last: -1 };
+    VIZ.bindSeek('mainplot', function(){ return scene; }, function(){ return ref.n; });
+    scene.play().catch(function(){});
+    if (wristOk || wrist.readyState >= 2) wrist.play().catch(function(){});
+  }
+
+  // advance: swap the videos' sources and restyle the plot in place —
+  // nothing is torn down or rebuilt, so there's no flash
+  function swapNext(){
+    ri++;
+    var roll = ROLLS[ri % ROLLS.length];
+    scene.src = roll.vid; scene.playbackRate = 0.7;
+    wrist.src = wristSrcFor(roll.vid); wrist.playbackRate = 0.7;
+    VIZ.updateData(null, 'mainplot', roll, false);
+    ref = { D: roll, n: roll.traj.length, last: -1 };
+    scene.play().catch(function(){});
+  }
+  var pendingNext = false;
+  scene.addEventListener('ended', function(){
+    // hold the final frame, then advance
+    setTimeout(function(){
+      if (!VIZ.isVisible()) { pendingNext = true; return; }
+      swapNext();
+    }, 1000);
+  });
+  // after any seek (e.g. clicking the 3D trajectory), re-align the wrist view once
+  scene.addEventListener('seeked', function(){
+    if (wristOk && scene.duration && wrist.duration) {
+      wrist.currentTime = scene.currentTime / scene.duration * wrist.duration;
+      if (!scene.paused) wrist.play().catch(function(){});
+    }
+  });
+  scene.addEventListener('play', function(){ if (wristOk) wrist.play().catch(function(){}); });
+
+  function frame(){
+    if (ref && VIZ.isVisible()) {
+      var d = scene.duration;
+      if (d && isFinite(d) && d > 0) {
+        var k = Math.min(ref.n-1, Math.floor(scene.currentTime / d * ref.n));
+        if (k !== ref.last) { ref.last = k; VIZ.step(null, 'mainplot', ref.D, k); }
+        // wrist and scene are matched renders of the same rollout — let them
+        // free-run; continuous seek "corrections" caused visible stutter
+      }
+    }
+    requestAnimationFrame(frame);
+  }
+  var builtOnce = false;
+  VIZ.onVisible(function(v){
+    if (v && !builtOnce) { builtOnce = true; build(); requestAnimationFrame(frame); return; }
+    if (!builtOnce) return;
+    if (!v) { scene.pause(); wrist.pause(); }
+    else if (pendingNext) { pendingNext = false; swapNext(); }
+    else if (scene.paused && !scene.ended) { scene.play().catch(function(){}); if (wristOk) wrist.play().catch(function(){}); }
+  });
+
+  function reportH(){
+    try { window.parent.postMessage({ type:'lmp-figheight', height: document.body.scrollHeight }, '*'); } catch(e){}
+  }
+  window.addEventListener('load', function(){ reportH(); setTimeout(reportH, 400); });
+  window.addEventListener('resize', reportH);
+}());
+</script>
+</body>
+</html>

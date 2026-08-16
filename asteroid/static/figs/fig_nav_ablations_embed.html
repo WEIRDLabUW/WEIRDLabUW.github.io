@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>figNavAblations</title>
+<style>
+html,body{margin:0;padding:0;background:transparent;font-family:'Google Sans','Noto Sans',sans-serif;}
+#tabs{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:2px 0 10px;}
+.tab{border:1.5px solid #d5d2dd;background:#fff;color:#454250;border-radius:999px;
+     padding:7px 16px;font-family:inherit;font-size:14.5px;font-weight:600;cursor:pointer;
+     transition:all .18s ease;}
+.tab:hover{border-color:#003366;color:#003366;}
+.tab.active{background:#003366;border-color:#003366;color:#fff;}
+#blurb{max-width:760px;margin:0 auto 10px;text-align:center;font-size:14.5px;color:#55525e;
+       line-height:1.45;min-height:2.9em;}
+#panel{text-align:center;}
+#panel img{max-width:100%;max-height:430px;border-radius:10px;border:1px solid #eee;
+           opacity:0;transition:opacity .25s ease;}
+#panel img.show{opacity:1;}
+</style>
+</head>
+<body>
+<div id="tabs"></div>
+<div id="blurb"></div>
+<div id="panel"><img id="fig" alt=""></div>
+<script>
+(function(){
+  var TABS=[
+    {label:'Ant Navigation', img:'paper/ant_nav_v2.png',
+     blurb:'ASTEROID performs posterior sampling over goals while controlling the 8-dof ant; RL² and DPT fail to learn control and exploration in higher dimensions.'},
+    {label:'Fixed Maze', img:'paper/maze_high_temp.png',
+     blurb:'Fixed-maze navigation: the same recipe holds when the maze layout is fixed and only the goal moves.'},
+    {label:'Test-Time Iterations', img:'paper/iteration_ablation.png',
+     blurb:'Test-time efficiency grows with more training iterations — as the context dataset grows, the policy adapts over longer horizons and explores more efficiently.'}
+  ];
+  var tabsEl=document.getElementById('tabs'), blurbEl=document.getElementById('blurb'),
+      img=document.getElementById('fig'), active=0;
+  TABS.forEach(function(t,i){
+    var b=document.createElement('button');
+    b.className='tab'+(i===0?' active':''); b.textContent=t.label;
+    b.addEventListener('click',function(){ if(active!==i){active=i; render();} });
+    tabsEl.appendChild(b);
+  });
+  function reportH(){
+    try{window.parent.postMessage({type:'lmp-figheight',height:document.body.scrollHeight},'*');}catch(e){}
+  }
+  function render(){
+    Array.prototype.forEach.call(tabsEl.children,function(b,i){
+      b.className='tab'+(i===active?' active':'');
+    });
+    var t=TABS[active];
+    blurbEl.textContent=t.blurb;
+    img.classList.remove('show');
+    img.onload=function(){ img.classList.add('show'); reportH(); };
+    img.src=t.img; img.alt=t.label;
+  }
+  window.addEventListener('load',function(){render(); setTimeout(reportH,500);});
+  window.addEventListener('resize',reportH);
+}());
+</script>
+</body>
+</html>

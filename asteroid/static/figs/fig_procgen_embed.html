@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>figProcgen</title>
+<script src="https://cdn.plot.ly/plotly-basic-2.35.2.min.js" charset="utf-8"></script>
+<style>
+html,body{margin:0;padding:0;background:transparent;font-family:'Google Sans','Noto Sans',sans-serif;}
+#plot{width:100%;height:400px;}
+#wrap{position:relative;}
+.ttl{position:absolute;top:8px;transform:translateX(-50%);white-space:nowrap;z-index:20;
+     font-size:17.5px;font-weight:700;color:#2b2b2b;cursor:default;}
+.ttl>span{border-bottom:2px dotted #a8a4b2;padding-bottom:1px;}
+.ttl .vbub{position:absolute;left:50%;top:calc(100% + 9px);transform:translateX(-50%) scale(.97);
+     opacity:0;pointer-events:none;transition:opacity .22s ease,transform .22s ease;
+     background:#fff;border:1px solid #ddd;border-radius:12px;
+     box-shadow:0 10px 30px rgba(20,20,40,.20);padding:6px;width:300px;z-index:40;}
+.ttl:hover .vbub, .ttl.force .vbub{opacity:1;pointer-events:auto;transform:translateX(-50%) scale(1);}
+.vbub video{width:100%;border-radius:8px;display:block;background:#000;}
+.vbub .cap{font-size:11.5px;font-weight:400;color:#737373;text-align:center;padding:4px 2px 1px;white-space:normal;}
+</style>
+</head>
+<body>
+<div id="wrap">
+<div id="plot"></div>
+<div class="ttl" id="ttl0" style="left:50%;"><span>Procgen Maze</span>
+  <div class="vbub"><video muted loop playsinline preload="metadata" src="../../assets/procgen_maze.mp4"></video>
+  <div class="cap">maze navigation from 3&times;3 local observations</div></div></div>
+</div>
+<script>
+(function(){
+  var FONT = "'Google Sans','Noto Sans',sans-serif";
+  var DIM = 0.12;
+  // 3-iteration eval, 2 seeds (wandb: asteroid-procgen aid90cu2/glglchks), stderr = std/sqrt(2).
+  // Baselines from asteroid_procgen_ablation2.py: BC = iteration-0 policy, DPT & expert fixed.
+  var PANELS = [
+    { title:'Success Rate', fmt:'.0%', ylim:[-0.05,1.05],
+      ours:{mean:[0.76,0.955,0.99], stderr:[0.0,0.0035,0.0]},
+      flats:[ {m:'Expert', v:1.0,   se:0,      dash:'dash',    c:'#000000'},
+              {m:'BC',     v:0.76,  se:0.0,    dash:'dot',     c:'#1f77b4'},
+              {m:'DPT',    v:0.29,  se:0,      dash:'dashdot', c:'#2ca02c'} ] },
+    { title:'Mean Episode Length', fmt:'.0f', ylim:[0,380],
+      ours:{mean:[164.69,92.205,96.145], stderr:[5.2892,4.727,0.2157]},
+      flats:[ {m:'Expert', v:11.07,  se:0,      dash:'dash',    c:'#000000'},
+              {m:'BC',     v:164.69, se:5.2892, dash:'dot',     c:'#1f77b4'},
+              {m:'DPT',    v:357.23, se:0,      dash:'dashdot', c:'#2ca02c'} ] }
+  ];
+  var NAVY='#003366', X=[0,1,2];
+  function hexA(hex,a){
+    var r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
+    return 'rgba('+r+','+g+','+b+','+a+')';
+  }
+  var traces=[];
+  PANELS.forEach(function(p, ti){
+    var xa = ti===0?'x':'x2', ya = ti===0?'y':'y2';
+    function add(t){ t.xaxis=xa; t.yaxis=ya; traces.push(t); }
+    var xr=[-0.2,2.2];
+    p.flats.forEach(function(f){
+      if (f.se>0){
+        add({x:xr, y:[f.v-f.se,f.v-f.se], mode:'lines', line:{width:0}, hoverinfo:'skip', showlegend:false, legendgroup:f.m});
+        add({x:xr, y:[f.v+f.se,f.v+f.se], mode:'lines', line:{width:0}, fill:'tonexty',
+             fillcolor:hexA(f.c,0.14), hoverinfo:'skip', showlegend:false, legendgroup:f.m});
+      }
+      var lab = f.m==='Expert'?'Expert':f.m;
+      var hv = p.fmt==='.0%' ? Math.round(f.v*100)+'%' : f.v.toFixed(1);
+      add({x:xr, y:[f.v,f.v], mode:'lines', name:lab,
+           line:{color:f.m==='Expert'?f.c:hexA(f.c,0.75), dash:f.dash, width:f.m==='Expert'?1.6:2},
+           legendgroup:f.m, showlegend: ti===0,
+           hovertemplate:hv+'<extra>'+lab+'</extra>'});
+    });
+    var lo=p.ours.mean.map(function(v,i){return v-p.ours.stderr[i];});
+    var hi=p.ours.mean.map(function(v,i){return v+p.ours.stderr[i];});
+    add({x:X, y:lo, mode:'lines', line:{width:0}, hoverinfo:'skip', showlegend:false, legendgroup:'Ours'});
+    add({x:X, y:hi, mode:'lines', line:{width:0}, fill:'tonexty', fillcolor:hexA(NAVY,0.15),
+         hoverinfo:'skip', showlegend:false, legendgroup:'Ours'});
+    add({x:X, y:p.ours.mean, mode:'lines+markers', name:'ASTEROID (ours)',
+         line:{color:NAVY, width:3}, marker:{size:10, color:NAVY, line:{color:'#fff', width:1.2}},
+         legendgroup:'Ours', showlegend: ti===0,
+         hovertemplate:(p.fmt==='.0%'?'%{y:.0%}':'%{y:.1f}')+'<extra>ASTEROID</extra>'});
+  });
+  function ax(){ return {tickvals:X, ticktext:['0','1','2'], range:[-0.2,2.2],
+    title:{text:'iteration', font:{size:16, color:'#55525e'}, standoff:5},
+    tickfont:{size:14, color:'#737373'}, gridcolor:'#e9e9e9', zeroline:false,
+    linecolor:'#c9c9c9', mirror:true}; }
+  var layout = {
+    font:{family:FONT}, paper_bgcolor:'rgba(0,0,0,0)', plot_bgcolor:'#fff',
+    margin:{l:64,r:22,t:44,b:92}, hovermode:'closest',
+    hoverlabel:{font:{family:FONT, size:14}, bgcolor:'#fff', bordercolor:'#c9c9c9'},
+    xaxis:  Object.assign(ax(), {domain:[0,0.44]}),
+    xaxis2: Object.assign(ax(), {domain:[0.60,1]}),
+    yaxis:  {range:PANELS[0].ylim, tickformat:'.0%', tickfont:{size:14, color:'#737373'},
+             title:{text:'success rate', font:{size:16, color:'#55525e'}, standoff:4},
+             gridcolor:'#e9e9e9', zeroline:false, linecolor:'#c9c9c9', mirror:true, domain:[0,1]},
+    yaxis2: {range:PANELS[1].ylim, tickfont:{size:14, color:'#737373'}, anchor:'x2',
+             title:{text:'path length', font:{size:16, color:'#55525e'}, standoff:4},
+             gridcolor:'#e9e9e9', zeroline:false, linecolor:'#c9c9c9', mirror:true, domain:[0,1]},
+    showlegend:true,
+    showlegend:false,
+    // typeset one-line legend in the curves-figure box style (see fig_habitat_embed)
+    annotations: [{xref:'paper', yref:'paper', x:0.5, y:-0.24, xanchor:'center', yanchor:'top',
+      showarrow:false, align:'center', font:{size:13.5, color:'#454250'},
+      bgcolor:'rgba(255,255,255,0.9)', bordercolor:'#dddddd', borderwidth:1, borderpad:5,
+      text:'<span style="color:#000000">\u2012\u2009\u2012</span> Expert\u00a0\u00a0\u00a0' +
+           '<span style="color:#1f77b4">\u00b7\u00b7\u00b7\u00b7</span> BC\u00a0\u00a0\u00a0' +
+           '<span style="color:#2ca02c">\u2012\u00b7\u2012</span> DPT\u00a0\u00a0\u00a0' +
+           '<span style="color:#003366">\u2500\u25cf\u2500</span> ASTEROID (ours)'}]
+  };
+  var gd=document.getElementById('plot');
+  Plotly.newPlot(gd, traces, layout, {displayModeBar:false, responsive:true}).then(function(){
+    var restoreTimer=null;
+    var baseFills=gd.data.map(function(t){return t.fillcolor||null;});
+    function fade(rgba,f){
+      return rgba.replace(/rgba\(([^)]+),([^,)]+)\)/, function(_,rgb,a){
+        return 'rgba('+rgb+','+(parseFloat(a)*f)+')';
+      });
+    }
+    function setDim(group){
+      var ops=[], fills=[];
+      gd.data.forEach(function(t,i){
+        var on=(group===null||t.legendgroup===group);
+        ops.push(on?1:DIM);
+        fills.push(baseFills[i]?(on?baseFills[i]:fade(baseFills[i],DIM)):null);
+      });
+      Plotly.restyle(gd, {opacity:ops, fillcolor:fills});
+    }
+    gd.on('plotly_hover', function(ev){
+      if(restoreTimer){clearTimeout(restoreTimer);restoreTimer=null;}
+      var t=gd.data[ev.points[0].curveNumber];
+      if(t&&t.legendgroup) setDim(t.legendgroup);
+    });
+    gd.on('plotly_unhover', function(){
+      restoreTimer=setTimeout(function(){setDim(null);},120);
+    });
+  });
+  document.querySelectorAll('.ttl').forEach(function(el){
+    var v = el.querySelector('video');
+    el.addEventListener('mouseenter', function(){ v.play().catch(function(){}); });
+    el.addEventListener('mouseleave', function(){ v.pause(); });
+  });
+  function reportH(){
+    try{window.parent.postMessage({type:'lmp-figheight', height:document.body.scrollHeight}, '*');}catch(e){}
+  }
+  window.addEventListener('load', function(){reportH(); setTimeout(reportH,400);});
+  window.addEventListener('resize', reportH);
+}());
+</script>
+</body>
+</html>

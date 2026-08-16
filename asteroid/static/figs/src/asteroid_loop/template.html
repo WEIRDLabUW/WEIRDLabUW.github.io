@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>figASTEROIDLoop</title>
+<style>
+html,body{margin:0;padding:0;background:transparent;}
+.fig{width:100%;height:auto;display:block;cursor:pointer;}
+
+.fig .anim{opacity:0;}
+.fig.play .anim{animation:riseIn 1.0s cubic-bezier(.2,.75,.25,1) both;animation-delay:var(--d,0s);}
+@keyframes riseIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+
+/* token cubes / actors pop in (nested inside a positioning <g> — CSS transform
+   animations override the SVG transform attribute, so never merge the two) */
+.fig .tok{opacity:0;transform-box:fill-box;transform-origin:50% 100%;}
+.fig.play .tok{animation:tokIn .55s cubic-bezier(.34,1.4,.64,1) both;animation-delay:var(--d,0s);}
+@keyframes tokIn{0%{opacity:0;transform:scale(.2);}60%{opacity:1;transform:scale(1.12);}100%{opacity:1;transform:scale(1);}}
+
+/* solid arrows draw via stroke-dashoffset (--len set by JS) */
+.fig .grow{opacity:0;}
+.fig.play .grow{animation:growDraw var(--dur,.45s) linear both;animation-delay:var(--d,0s);}
+@keyframes growDraw{0%{opacity:1;stroke-dashoffset:var(--len,200);}100%{opacity:1;stroke-dashoffset:0;}}
+
+/* dashed strokes just fade in (dash-array + dashoffset don't mix) */
+.fig .dfade{opacity:0;}
+.fig.play .dfade{animation:dIn .45s linear both;animation-delay:var(--d,0s);}
+@keyframes dIn{from{opacity:0;}to{opacity:1;}}
+
+/* arrowheads pop after their line lands */
+.fig .pop{opacity:0;}
+.fig.play .pop{animation:dIn .22s linear both;animation-delay:var(--d,0s);}
+
+/* tokens fly from the collected strips into the loss and STAY as its arguments:
+   context cubes land as the condition, then the observation, then the expert
+   action as the target (0% keeps opacity 0 so fill-mode backfill can't reveal
+   them before their delay) */
+.fig .flyLand{opacity:0;}
+.fig.play .flyLand{animation:flyLand .85s cubic-bezier(.35,.1,.35,1) both;animation-delay:var(--d,0s);}
+@keyframes flyLand{
+  0%{opacity:0;transform:translate(var(--x0),var(--y0)) scale(1);}
+  10%{opacity:1;}
+  100%{opacity:1;transform:translate(var(--x1),var(--y1)) scale(var(--s1,1));}
+}
+
+/* gold ring marking the sampled world: pops and stays */
+.fig .ring{opacity:0;transform-box:fill-box;transform-origin:50% 50%;}
+.fig.play .ring{animation:ringIn .6s cubic-bezier(.34,1.3,.64,1) both;animation-delay:var(--d,0s);}
+@keyframes ringIn{0%{opacity:0;transform:scale(.4);}60%{opacity:1;transform:scale(1.18);}100%{opacity:1;transform:scale(1);}}
+</style>
+</head>
+<body>
+<style>body.animoff svg *{animation-play-state:paused!important;}</style>
+<script>
+(function(){
+  var si = window.setInterval;
+  window.setInterval = function(fn, ms){
+    return si(function(){ if (!document.body.classList.contains('animoff')) fn(); }, ms);
+  };
+  function apply(vis){ document.body.classList.toggle('animoff', !vis); }
+  var inView = true;
+  if ('IntersectionObserver' in window) {
+    new IntersectionObserver(function(es){
+      inView = es[0].isIntersecting; apply(inView && !document.hidden);
+    }, {threshold: 0.05}).observe(document.documentElement);
+  }
+  document.addEventListener('visibilitychange', function(){ apply(inView && !document.hidden); });
+}());
+</script>
+
+<svg class="fig play" id="figLoop" viewBox="0 0 1680 1000" role="img"
+  aria-label="ASTEROID training loop: sample a world z, roll out the student pi-theta-k to collect multi-step trajectories that form context h, collect privileged expert action labels in the same world, then update theta_k to theta_k+1 by distillation: the loss is built from the tokens themselves — context cubes land as the condition, then the observation, then the expert action as the target — and a fresh world is sampled each round">
+<defs>
+  <filter id="halo" x="-20%" y="-20%" width="140%" height="150%">
+    <feDropShadow dx="0" dy="1" stdDeviation="2" flood-color="#1f2a4d" flood-opacity="0.16"/>
+    <feDropShadow dx="0" dy="8" stdDeviation="16" flood-color="#1f2a4d" flood-opacity="0.16"/>
+  </filter>
+
+  <!-- the environment: a globe; the hidden parameters z: a shape badge on it.
+       The student interacts with the bare globe, the expert with globe + badge. -->
+  <g id="globe"><text text-anchor="middle" x="0" y="19" font-size="54"
+    font-family="'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji',sans-serif">&#127757;</text></g>
+  <g id="badge1"><circle r="11" fill="#fff" stroke="#4d4d4d" stroke-width="1.8"/><rect x="-5.5" y="-5.5" width="11" height="11" fill="#e3a730"/></g>
+  <g id="badge2"><circle r="11" fill="#fff" stroke="#4d4d4d" stroke-width="1.8"/><circle r="6" fill="#c0392b"/></g>
+  <g id="badge3"><circle r="11" fill="#fff" stroke="#4d4d4d" stroke-width="1.8"/><path d="M0,-6.5 L6,4.5 L-6,4.5 Z" fill="#2f9e44"/></g>
+
+  <!-- 3D token cubes: rust = context trajectories, white = observations, teal = expert labels -->
+  <g id="cubeC">
+    <path d="M0,0 L10,-10 L62,-10 L52,0 Z" fill="#eec4b4" stroke="#a3492f" stroke-width="1.6"/>
+    <path d="M52,0 L62,-10 L62,42 L52,52 Z" fill="#e0a68d" stroke="#a3492f" stroke-width="1.6"/>
+    <rect width="52" height="52" fill="#f8e0d8" stroke="#a3492f" stroke-width="1.8"/>
+  </g>
+  <g id="cubeW">
+    <path d="M0,0 L10,-10 L62,-10 L52,0 Z" fill="#dcdcdc" stroke="#4d4d4d" stroke-width="1.6"/>
+    <path d="M52,0 L62,-10 L62,42 L52,52 Z" fill="#cfcfcf" stroke="#4d4d4d" stroke-width="1.6"/>
+    <rect width="52" height="52" fill="#ffffff" stroke="#4d4d4d" stroke-width="1.8"/>
+  </g>
+  <g id="cubeT">
+    <path d="M0,0 L10,-10 L62,-10 L52,0 Z" fill="#b3d9d9" stroke="#004646" stroke-width="1.6"/>
+    <path d="M52,0 L62,-10 L62,42 L52,52 Z" fill="#8cc6c6" stroke="#004646" stroke-width="1.6"/>
+    <rect width="52" height="52" fill="#e0f0f0" stroke="#004646" stroke-width="1.8"/>
+  </g>
+
+  <!-- arrowheads (placed + rotated at path tips, popped in after the draw) -->
+  <g id="headInk"><path d="M0,0 L-13,5.5 L-13,-5.5 Z" fill="#666666"/></g>
+  <g id="headSoft"><path d="M0,0 L-12,5 L-12,-5 Z" fill="#8c8c8c"/></g>
+</defs>
+<!--TEXDEFS-->
+
+  <!-- card -->
+  <rect x="6" y="6" width="1668" height="984" rx="20" fill="#fff" stroke="#e3e0ea" stroke-width="1.5" filter="url(#halo)"/>
+
+  <!-- ================= world sampling: a band on top of the three panels ================= -->
+  <g class="anim" style="--d:0.1s"><use xlink:href="#tex-zpz" transform="{{T:zpz:60,105,2.8,w}}" fill="#4d4d4d"/></g>
+  <g transform="translate(230,105)"><g class="tok" style="--d:0.4s"><use xlink:href="#globe"/><use xlink:href="#badge1" transform="translate(20,20)"/></g></g>
+  <g transform="translate(340,105)"><g class="tok" style="--d:0.55s"><use xlink:href="#globe"/><use xlink:href="#badge2" transform="translate(20,20)"/></g></g>
+  <g transform="translate(450,105)"><g class="tok" style="--d:0.7s"><use xlink:href="#globe"/><use xlink:href="#badge3" transform="translate(20,20)"/></g></g>
+  <g class="anim" style="--d:0.85s"><use xlink:href="#tex-cdots" transform="{{T:cdots:535,105,3.0,c}}" fill="#8c8c8c"/></g>
+  <circle class="ring" style="--d:1.0s" id="pick" cx="230" cy="105" r="38" fill="none" stroke="#e3a730" stroke-width="4"/>
+
+  <!-- ================= panel 1: on-policy rollouts ================= -->
+  <rect class="anim" style="--d:0.05s" x="60" y="195" width="1560" height="250" rx="14"
+    fill="none" stroke="#8b8698" stroke-width="2.2" stroke-dasharray="9 8"/>
+  <g class="anim" style="--d:0.15s">
+    <use xlink:href="#tex-n1" transform="{{T:n1:96,231,2.6,c}}" fill="#8c8c8c"/>
+    <use xlink:href="#tex-hdrA" transform="{{T:hdrA:122,231,2.5,w}}" fill="#737373"/>
+  </g>
+
+  <!-- student sees the bare globe: no badge -->
+  <g transform="translate(150,335)"><g class="tok" style="--d:1.3s"><use xlink:href="#globe"/></g></g>
+  <g transform="translate(285,335)"><g class="tok" style="--d:1.5s">
+    <circle r="44" fill="none" stroke="#c9d4e8" stroke-width="3"/>
+    <circle r="38" fill="#f2f5fb" stroke="#35507d" stroke-width="3.2"/>
+    <use xlink:href="#tex-pith" transform="{{T:pith:0,0,3.4,c}}" fill="#1a1a1a"/>
+  </g></g>
+  <g class="anim" style="--d:1.7s"><use xlink:href="#tex-stud" transform="{{T:stud:293,410,2.0,c}}" fill="#35507d"/></g>
+
+  <!-- one interaction loop: act, observe -->
+  <g class="anim" style="--d:1.7s">
+    <path d="M254,306 C235,284 199,284 180,306" fill="none" stroke="#b9b4c4" stroke-width="2.4"/>
+    <use xlink:href="#headSoft" transform="translate(180,306) rotate(132)" opacity="0.75"/>
+    <path d="M180,364 C199,386 235,386 254,364" fill="none" stroke="#b9b4c4" stroke-width="2.4"/>
+    <use xlink:href="#headSoft" transform="translate(254,364) rotate(-48)" opacity="0.75"/>
+    <use xlink:href="#tex-at" transform="{{T:at:217,272,2.8,c}}" fill="#737373"/>
+    <use xlink:href="#tex-ort" transform="{{T:ort:217,400,2.8,c}}" fill="#737373"/>
+  </g>
+
+  <path class="grow" style="--d:1.85s" d="M328,335 L372,335" fill="none" stroke="#666" stroke-width="2.8"/>
+  <g class="pop" style="--d:2.0s"><use xlink:href="#headInk" transform="translate(378,335)"/></g>
+
+  <!-- context = several trajectories, each trajectory several steps -->
+  <g class="anim" style="--d:2.0s">
+    <rect x="400" y="293" width="396" height="86" rx="10" fill="#fdf3ef" stroke="#d98a70" stroke-width="1.8"/>
+    <use xlink:href="#tex-tau0" transform="{{T:tau0:410,282,2.5,sw}}" fill="#a3492f"/>
+  </g>
+  <g transform="translate(416,309)"><g class="tok" style="--d:2.1s"><use xlink:href="#cubeC"/><use xlink:href="#tex-o0" transform="{{T:o0:26,27,3.0,c}}" fill="#8a3418"/></g></g>
+  <g transform="translate(472,309)"><g class="tok" style="--d:2.25s"><use xlink:href="#cubeC"/><use xlink:href="#tex-a0" transform="{{T:a0:26,27,3.0,c}}" fill="#8a3418"/></g></g>
+  <g transform="translate(528,309)"><g class="tok" style="--d:2.4s"><use xlink:href="#cubeC"/><use xlink:href="#tex-r0" transform="{{T:r0:26,27,3.0,c}}" fill="#8a3418"/></g></g>
+  <g transform="translate(584,309)"><g class="tok" style="--d:2.55s"><use xlink:href="#cubeC"/><use xlink:href="#tex-o1" transform="{{T:o1:26,27,3.0,c}}" fill="#8a3418"/></g></g>
+  <g transform="translate(640,309)"><g class="tok" style="--d:2.7s"><use xlink:href="#cubeC"/><use xlink:href="#tex-a1" transform="{{T:a1:26,27,3.0,c}}" fill="#8a3418"/></g></g>
+  <g transform="translate(696,309)"><g class="tok" style="--d:2.85s"><use xlink:href="#cubeC"/><use xlink:href="#tex-r1" transform="{{T:r1:26,27,3.0,c}}" fill="#8a3418"/></g></g>
+  <g class="anim" style="--d:3.0s"><use xlink:href="#tex-cdots" transform="{{T:cdots:772,335,2.2,c}}" fill="#a3492f"/></g>
+
+  <g class="anim" style="--d:3.25s">
+    <rect x="830" y="293" width="396" height="86" rx="10" fill="#fdf3ef" stroke="#d98a70" stroke-width="1.8"/>
+    <use xlink:href="#tex-tau1" transform="{{T:tau1:840,282,2.5,sw}}" fill="#a3492f"/>
+  </g>
+  <g transform="translate(846,309)"><g class="tok" style="--d:3.35s"><use xlink:href="#cubeC"/><use xlink:href="#tex-o0" transform="{{T:o0:26,27,3.0,c}}" fill="#8a3418"/></g></g>
+  <g transform="translate(902,309)"><g class="tok" style="--d:3.5s"><use xlink:href="#cubeC"/><use xlink:href="#tex-a0" transform="{{T:a0:26,27,3.0,c}}" fill="#8a3418"/></g></g>
+  <g transform="translate(958,309)"><g class="tok" style="--d:3.65s"><use xlink:href="#cubeC"/><use xlink:href="#tex-r0" transform="{{T:r0:26,27,3.0,c}}" fill="#8a3418"/></g></g>
+  <g transform="translate(1014,309)"><g class="tok" style="--d:3.8s"><use xlink:href="#cubeC"/><use xlink:href="#tex-o1" transform="{{T:o1:26,27,3.0,c}}" fill="#8a3418"/></g></g>
+  <g transform="translate(1070,309)"><g class="tok" style="--d:3.95s"><use xlink:href="#cubeC"/><use xlink:href="#tex-a1" transform="{{T:a1:26,27,3.0,c}}" fill="#8a3418"/></g></g>
+  <g transform="translate(1126,309)"><g class="tok" style="--d:4.1s"><use xlink:href="#cubeC"/><use xlink:href="#tex-r1" transform="{{T:r1:26,27,3.0,c}}" fill="#8a3418"/></g></g>
+  <g class="anim" style="--d:4.25s"><use xlink:href="#tex-cdots" transform="{{T:cdots:1202,335,2.2,c}}" fill="#a3492f"/></g>
+
+  <g class="anim" style="--d:4.45s"><use xlink:href="#tex-cdots" transform="{{T:cdots:1290,335,3.2,c}}" fill="#a3492f"/></g>
+
+  <path class="anim" style="--d:4.6s" d="{{BRACE:395,1345,392,7}}" fill="none" stroke="#a3492f" stroke-width="1.8"/>
+  <g class="anim" style="--d:4.7s"><use xlink:href="#tex-ctxh" transform="{{T:ctxh:870,421,2.6,c}}" fill="#a3492f"/></g>
+
+  <!-- ================= panel 2: expert rollouts ================= -->
+  <rect class="anim" style="--d:0.05s" x="60" y="470" width="1560" height="250" rx="14"
+    fill="none" stroke="#7fa8a8" stroke-width="2.2" stroke-dasharray="9 8"/>
+  <g class="anim" style="--d:0.15s">
+    <use xlink:href="#tex-n2" transform="{{T:n2:96,506,2.6,c}}" fill="#8c8c8c"/>
+    <use xlink:href="#tex-hdrB" transform="{{T:hdrB:122,506,2.5,w}}" fill="#737373"/>
+  </g>
+
+  <!-- the teacher sees the SAME globe plus the privileged badge z -->
+  <g transform="translate(150,600)"><g class="tok" style="--d:5.0s"><use xlink:href="#globe"/><use class="badgeSlot" xlink:href="#badge1" transform="translate(20,20)"/></g></g>
+  <path class="dfade" style="--d:5.15s" d="M158,655 L166,631" fill="none" stroke="#004646" stroke-width="2.0" stroke-dasharray="5 4"/>
+  <g class="anim" style="--d:5.15s"><use xlink:href="#tex-zlab" transform="{{T:zlab:150,673,2.8,c}}" fill="#004646"/></g>
+
+  <g transform="translate(285,600)"><g class="tok" style="--d:5.3s">
+    <circle r="44" fill="none" stroke="#b3d9d9" stroke-width="3"/>
+    <circle r="38" fill="#e0f0f0" stroke="#004646" stroke-width="3.2"/>
+    <use xlink:href="#tex-pistar" transform="{{T:pistar:0,0,3.8,c}}" fill="#004646"/>
+  </g></g>
+  <g class="anim" style="--d:5.45s"><use xlink:href="#tex-tch" transform="{{T:tch:293,675,2.0,c}}" fill="#0a5c5c"/></g>
+
+  <g class="anim" style="--d:5.45s">
+    <path d="M254,571 C235,549 199,549 180,571" fill="none" stroke="#9fc0c0" stroke-width="2.4"/>
+    <use xlink:href="#headSoft" transform="translate(180,571) rotate(132)" opacity="0.75"/>
+    <path d="M180,629 C199,651 235,651 254,629" fill="none" stroke="#9fc0c0" stroke-width="2.4"/>
+    <use xlink:href="#headSoft" transform="translate(254,629) rotate(-48)" opacity="0.75"/>
+    <use xlink:href="#tex-astart" transform="{{T:astart:217,537,2.8,c}}" fill="#004646"/>
+    <use xlink:href="#tex-ot" transform="{{T:ot:217,665,2.8,c}}" fill="#737373"/>
+  </g>
+
+  <path class="grow" style="--d:5.6s" d="M328,600 L372,600" fill="none" stroke="#666" stroke-width="2.8"/>
+  <g class="pop" style="--d:5.75s"><use xlink:href="#headInk" transform="translate(378,600)"/></g>
+
+  <!-- expert labels: one privileged trajectory tau* of (o_t, a*_t) pairs -->
+  <g class="anim" style="--d:5.65s">
+    <rect x="392" y="548" width="758" height="92" rx="10" fill="#f0f8f8" stroke="#8fbcbc" stroke-width="1.8"/>
+    <use xlink:href="#tex-taustar" transform="{{T:taustar:402,537,2.5,sw}}" fill="#0a5c5c"/>
+  </g>
+  <g transform="translate(400,574)"><g class="tok" style="--d:5.75s"><use xlink:href="#cubeW"/><use xlink:href="#tex-o0" transform="{{T:o0:26,27,3.0,c}}" fill="#4d4d4d"/></g></g>
+  <g transform="translate(458,574)"><g class="tok" style="--d:5.9s"><use xlink:href="#cubeT"/><use xlink:href="#tex-as0" transform="{{T:as0:26,27,3.0,c}}" fill="#004646"/></g></g>
+
+  <g transform="translate(660,574)"><g class="tok" style="--d:6.2s"><use xlink:href="#cubeW"/><use xlink:href="#tex-o1" transform="{{T:o1:26,27,3.0,c}}" fill="#4d4d4d"/></g></g>
+  <g transform="translate(718,574)"><g class="tok" style="--d:6.35s"><use xlink:href="#cubeT"/><use xlink:href="#tex-as1" transform="{{T:as1:26,27,3.0,c}}" fill="#004646"/></g></g>
+
+  <g transform="translate(920,574)"><g class="tok" style="--d:6.65s"><use xlink:href="#cubeW"/><use xlink:href="#tex-o2" transform="{{T:o2:26,27,3.0,c}}" fill="#4d4d4d"/></g></g>
+  <g transform="translate(978,574)"><g class="tok" style="--d:6.8s"><use xlink:href="#cubeT"/><use xlink:href="#tex-as2" transform="{{T:as2:26,27,3.0,c}}" fill="#004646"/></g></g>
+
+  <g class="anim" style="--d:7.0s"><use xlink:href="#tex-cdots" transform="{{T:cdots:1090,600,3.2,c}}" fill="#5f8f8f"/></g>
+
+  <path class="anim" style="--d:7.15s" d="{{BRACE:395,1140,657,7}}" fill="none" stroke="#5f8f8f" stroke-width="1.8"/>
+  <g class="anim" style="--d:7.25s"><use xlink:href="#tex-pairlab" transform="{{T:pairlab:767,690,2.6,c}}" fill="#0a5c5c"/></g>
+
+  <!-- ================= panel 3: conditional imitation ================= -->
+  <rect class="anim" style="--d:0.05s" x="60" y="745" width="1560" height="210" rx="14"
+    fill="none" stroke="#8b8698" stroke-width="2.2" stroke-dasharray="9 8"/>
+  <g class="anim" style="--d:0.15s">
+    <use xlink:href="#tex-n3" transform="{{T:n3:96,781,2.6,c}}" fill="#8c8c8c"/>
+    <use xlink:href="#tex-hdrC" transform="{{T:hdrC:122,781,2.3,w}}" fill="#737373"/>
+  </g>
+
+  <!-- the loss built out of the tokens themselves: skeleton first, then the
+       context cubes land as the condition, then the observation, then the
+       expert action as the target -->
+  <g class="anim" style="--d:10.5s">
+    <use xlink:href="#tex-lossL" transform="{{T:lossL:585,880,4.0,w}}" fill="#1a1a1a"/>
+    <use xlink:href="#tex-lbar" transform="{{T:lbar:908,880,4.0,c}}" fill="#1a1a1a"/>
+    <use xlink:href="#tex-lcomma" transform="{{T:lcomma:975,892,4.0,c}}" fill="#1a1a1a"/>
+    <use xlink:href="#tex-lrp" transform="{{T:lrp:1108,880,4.0,c}}" fill="#1a1a1a"/>
+  </g>
+  <g class="flyLand" style="--d:10.8s;--x0:500px;--y0:335px;--x1:1006px;--y1:868px;--s1:.72"><use xlink:href="#cubeC" transform="translate(-26,-26)"/><use xlink:href="#tex-tau0" transform="{{T:tau0:0,0,2.6,c}}" fill="#8a3418"/></g>
+  <g class="flyLand" style="--d:11.1s;--x0:900px;--y0:335px;--x1:1040px;--y1:868px;--s1:.72"><use xlink:href="#cubeC" transform="translate(-26,-26)"/><use xlink:href="#tex-tau1" transform="{{T:tau1:0,0,2.6,c}}" fill="#8a3418"/></g>
+  <g class="flyLand" style="--d:11.4s;--x0:1270px;--y0:335px;--x1:1074px;--y1:868px;--s1:.72"><use xlink:href="#cubeC" transform="translate(-26,-26)"/><use xlink:href="#tex-cdots" transform="{{T:cdots:0,0,2.2,c}}" fill="#8a3418"/></g>
+  <g class="flyLand" style="--d:11.9s;--x0:426px;--y0:600px;--x1:940px;--y1:868px;--s1:.9"><use xlink:href="#cubeW" transform="translate(-26,-26)"/><use xlink:href="#tex-ot" transform="{{T:ot:0,0,2.8,c}}" fill="#4d4d4d"/></g>
+  <g class="flyLand" style="--d:12.4s;--x0:744px;--y0:600px;--x1:863px;--y1:868px;--s1:.95"><use xlink:href="#cubeT" transform="translate(-26,-26)"/><use xlink:href="#tex-astart" transform="{{T:astart:0,0,2.8,c}}" fill="#004646"/></g>
+  <g class="anim" style="--d:12.95s"><use xlink:href="#tex-tgt" transform="{{T:tgt:863,812,2.0,c}}" fill="#004646"/></g>
+  <g class="anim" style="--d:13.1s"><use xlink:href="#tex-ctxw" transform="{{T:ctxw:1046,812,2.0,c}}" fill="#a3492f"/></g>
+
+  <!-- the update: theta_k improves to theta_{k+1}; a fresh world is sampled next round -->
+  <g class="anim" style="--d:13.5s"><use xlink:href="#tex-grad" transform="{{T:grad:1360,880,2.6,c}}" fill="#4d4d4d"/></g>
+
+</svg>
+<script>
+(function(){
+  var WX=[230,340,450];
+  var figs=[].slice.call(document.querySelectorAll('.fig'));
+  var k=0;
+  function applyWorld(f){
+    f.querySelector('#pick').setAttribute('cx',WX[k]);
+    [].forEach.call(f.querySelectorAll('.badgeSlot'),function(u){
+      u.setAttribute('xlink:href','#badge'+(k+1));u.setAttribute('href','#badge'+(k+1));
+    });
+  }
+  function prep(f){f.querySelectorAll('.grow').forEach(function(p){try{var l=p.getTotalLength();p.style.strokeDasharray=l;p.style.strokeDashoffset=l;p.style.setProperty('--len',l);}catch(e){}});}
+  function play(f){applyWorld(f);f.classList.remove('play');void f.getBoundingClientRect();f.classList.add('play');k=(k+1)%3;}
+  figs.forEach(function(f){try{applyWorld(f);prep(f);}catch(e){}f.addEventListener('click',function(){play(f);});});
+  var played=false, timer=null, LOOP_MS=19600; // ~14.6s of animation + a 5s hold, then a fresh world is sampled
+  function schedule(){if(timer)clearInterval(timer);timer=setInterval(function(){figs.forEach(play);},LOOP_MS);}
+  function start(){if(played)return;played=true;figs.forEach(play);schedule();}
+  window.addEventListener('message',function(e){
+    if(e.data&&e.data.type==='lmp-play'){start();}
+    if(e.data&&e.data.type==='lmp-replay'){if(!played){start();}else{figs.forEach(play);schedule();}}
+  });
+  if('IntersectionObserver' in window){
+    new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){start();}});},{threshold:0.4}).observe(document.querySelector('.fig'));
+  }
+}());
+</script>
+</body>
+</html>

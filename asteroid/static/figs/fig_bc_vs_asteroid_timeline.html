@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>figTimeline</title>
+<style>
+html,body{margin:0;padding:0;background:transparent;font-family:'Google Sans','Noto Sans',sans-serif;overflow-x:hidden;}
+.scale-outer{width:100%;overflow:hidden;}
+.wrap{width:1786px;margin:0;padding:10px 28px 6px 28px;box-sizing:border-box;transform-origin:top left;cursor:pointer;}
+
+.row-block{display:flex;align-items:center;gap:26px;padding:18px 0;}
+.row-divider{height:1px;background:#e2e2e2;margin:2px 0;}
+
+/* ---- method header column ---- */
+.mhead{flex:0 0 236px;display:flex;flex-direction:column;justify-content:center;gap:10px;}
+.mhead .mname{font-size:46px;font-weight:800;line-height:1.05;color:#33303c;letter-spacing:.5px;}
+.mhead .mname.grad{
+  background:linear-gradient(to right,#1a5ba8,#003366,#0a1f44);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  font-size:40px;
+}
+.mhead .msub{font-size:21px;color:#737373;line-height:1.25;}
+
+/* ---- banner: the task is vision-denied ---- */
+.nocam{display:flex;align-items:center;justify-content:center;gap:16px;padding:4px 0 10px;font-size:31px;font-weight:700;color:#33303c;}
+.nocam b{font-weight:800;}
+.nocam .camwrap{position:relative;font-size:42px;line-height:1;}
+.nocam .camwrap .camx{position:absolute;left:50%;top:50%;transform:translate(-50%,-52%);font-size:50px;font-weight:800;color:#cc2222;text-shadow:0 1px 3px rgba(255,255,255,.9);}
+
+/* ---- chapter cards ---- */
+.cards{display:flex;align-items:center;gap:0;}
+.chev{flex:0 0 34px;text-align:center;font-size:30px;color:#c9c5d2;user-select:none;}
+.card{
+  flex:0 0 460px;border:3px solid #d8d5df;border-radius:12px;overflow:hidden;background:#fff;
+  transition:border-color .3s ease,box-shadow .3s ease,filter .35s ease,opacity .35s ease,transform .3s ease;
+  position:relative;
+}
+.card .vbox{position:relative;width:460px;height:345px;overflow:hidden;background:#eceaf0;}
+.card video{position:absolute;top:0;display:block;}
+.card .chnum{
+  position:absolute;top:10px;left:10px;z-index:3;width:34px;height:34px;border-radius:50%;
+  background:rgba(255,255,255,.94);border:2px solid #464646;color:#33303c;
+  font-size:19px;font-weight:700;display:flex;align-items:center;justify-content:center;
+}
+.card .prog{position:absolute;left:0;bottom:0;height:5px;width:0%;background:#35507d;z-index:3;}
+.card .cap{
+  padding:14px 16px 16px;min-height:66px;box-sizing:border-box;text-align:center;
+  font-size:24px;line-height:1.3;color:#454250;background:#fff;
+  display:flex;align-items:center;justify-content:center;
+  transition:opacity .35s ease;
+}
+.card .cap b{font-weight:700;}
+.hlb{color:#35507d;} /* method/action */
+.hlx{color:#cc2222;} /* failure */
+.hlc{color:#a3492f;} /* context / feedback */
+.hlg{color:#1d8a1d;} /* success */
+
+.card.up{filter:grayscale(.85);opacity:.4;}
+.card.up .cap{opacity:.3;}
+.card.up .chnum{border-color:#b7b3c2;color:#8b8698;}
+.card.act{
+  border-color:#35507d;
+  box-shadow:0 6px 26px rgba(53,80,125,.35);
+  transform:translateY(-4px);
+}
+.card.done{border-color:#464646;}
+.card.done .prog{width:100%!important;opacity:0;}
+.card.final-good{border-color:#1d8a1d;border-width:7px;box-shadow:0 6px 30px rgba(29,138,29,.4);}
+.card.final-bad{border-color:#cc2222;border-width:4px;box-shadow:0 6px 26px rgba(204,34,34,.28);}
+</style>
+</head>
+<body>
+<div class="scale-outer" id="scaleOuter">
+<div class="wrap" id="figWrap" title="Click to replay">
+
+  <div class="nocam"><span class="camwrap">&#128247;<span class="camx">&#10005;</span></span><span>robots <b class="hlx">can&rsquo;t see</b> the object!</span></div>
+
+  <div class="row-block" data-row="bc">
+    <div class="mhead">
+      <div class="mname">BC</div>
+      <div class="msub">imitates the expert</div>
+    </div>
+    <div class="cards" data-cards></div>
+  </div>
+
+  <div class="row-divider"></div>
+
+  <div class="row-block" data-row="ast">
+    <div class="mhead">
+      <div class="mname grad">ASTEROID</div>
+      <div class="msub">explores in context</div>
+    </div>
+    <div class="cards" data-cards></div>
+  </div>
+
+</div>
+</div>
+
+<script>
+(function(){
+  // 720p sources, center-cropped to 4:3 (crop x=160, w=960) and shown at 460x345
+  // Initial poster seeks are serialized: six simultaneous first-seeks spin up
+  // six decoders at once and can jank the scroll. One at a time is smooth.
+  var seekQ = [], seeking = false;
+  function queueSeek(v){ seekQ.push(v); if (!seeking) pumpSeek(); }
+  function pumpSeek(){
+    var v = seekQ.shift();
+    if (!v) { seeking = false; return; }
+    seeking = true;
+    var done = false;
+    var next = function(){ if (done) return; done = true; setTimeout(pumpSeek, 100); };
+    v.addEventListener('seeked', next, { once: true });
+    setTimeout(next, 1200);
+    if (v.__want != null) { try { v.currentTime = v.__want; } catch(e){ next(); } }
+    else next();
+  }
+
+  var CARD_W = 460, CARD_H = 345;
+  var CROP_X = 160, SRC_W = 1280, SRC_H = 720;
+  var s = CARD_H / SRC_H;                 // video scale so full height fits the card
+  var VID_W = SRC_W * s, VID_H = SRC_H * s;
+  var OFF_X = CROP_X * s;
+
+  var ROWS = [
+    {
+      row:'bc', src:'timeline_assets/bc_src.mp4', good:false,
+      chapters:[
+        { t:[0.0,3.2], cap:'<b class="hlb">attempts a grasp</b>' },
+        { t:[3.2,5.6], cap:'fails to grasp &rarr; <b class="hlx">goes OOD</b> as <b class="hlx">experts never fail</b>' },
+        { t:[5.6,8.78], cap:'out-of-distribution: <b class="hlx">no recovery, no retry</b>' }
+      ]
+    },
+    {
+      row:'ast', src:'timeline_assets/asteroid_probe3.mp4', good:true,
+      chapters:[
+        { t:[0.0,3.3], cap:'<b class="hlb">attempts a grasp</b>' },
+        { t:[3.3,6.4], cap:'uses <b class="hlc">feedback and history as context</b> to adapt exploration' },
+        { t:[6.4,9.4], cap:'<b class="hlg">grasps and lifts the cube</b>' }
+      ]
+    }
+  ];
+
+  var N_CH = 3;
+  var HOLD_MS = 2200;   // linger on the final frame before the race loops
+  var RESET_MS = 450;   // beat between reset and chapter 1
+
+  function buildRow(cfg){
+    var block = document.querySelector('.row-block[data-row="'+cfg.row+'"]');
+    var holder = block.querySelector('[data-cards]');
+    var cards = [], videos = [], progs = [];
+
+    cfg.chapters.forEach(function(ch, i){
+      if (i > 0) {
+        var chev = document.createElement('div');
+        chev.className = 'chev'; chev.innerHTML = '&#8250;';
+        holder.appendChild(chev);
+      }
+      var card = document.createElement('div');
+      card.className = 'card up';
+      var vbox = document.createElement('div');
+      vbox.className = 'vbox';
+      var v = document.createElement('video');
+      v.src = cfg.src; v.muted = true; v.playsInline = true; v.preload = 'metadata';
+      v.style.width = VID_W+'px'; v.style.height = VID_H+'px'; v.style.left = (-OFF_X)+'px';
+      // seeks requested before metadata arrives are ignored by the browser, so
+      // remember the latest target and apply it once the video can seek
+      v.__want = ch.t[0];
+      v.addEventListener('loadedmetadata', function(){ queueSeek(v); });
+      vbox.appendChild(v);
+      var num = document.createElement('div');
+      num.className = 'chnum'; num.textContent = (i+1);
+      vbox.appendChild(num);
+      var prog = document.createElement('div');
+      prog.className = 'prog';
+      vbox.appendChild(prog);
+      var cap = document.createElement('div');
+      // wrap in one span: .cap is a flex container, and bare inline children
+      // would have their inter-element whitespace collapsed away
+      cap.className = 'cap'; cap.innerHTML = '<span>' + ch.cap + '</span>';
+      card.appendChild(vbox); card.appendChild(cap);
+      holder.appendChild(card);
+      cards.push(card); videos.push(v); progs.push(prog);
+    });
+
+    var raf = null, curK = -1;
+    function stopRaf(){ if (raf) { cancelAnimationFrame(raf); raf = null; } }
+    function setState(i, cls){ cards[i].className = 'card ' + cls; }
+    function seek(v, t){
+      v.__want = t;
+      if (v.readyState >= 1) { try { v.currentTime = t; } catch(e){} }
+    }
+
+    // dim posters: every card parked on its chapter's first frame
+    function toPosters(){
+      stopRaf();
+      cfg.chapters.forEach(function(ch, i){
+        setState(i, 'up');
+        progs[i].style.width = '0%';
+        videos[i].pause();
+        seek(videos[i], ch.t[0]);
+      });
+    }
+
+    // play this row's chapter-k segment; when it ends, hold the last frame,
+    // mark the card done, and report back to the conductor
+    function playSeg(k, onDone){
+      stopRaf();
+      curK = k;
+      cfg.chapters.forEach(function(ch, i){
+        if (i < k) { setState(i, 'done'); videos[i].pause(); }
+        else if (i === k) { setState(i, 'act'); }
+        else { setState(i, 'up'); videos[i].pause(); }
+      });
+      var ch = cfg.chapters[k], v = videos[k];
+      seek(v, ch.t[0]);
+      v.play().catch(function(){});
+      function watch(){
+        var span = ch.t[1] - ch.t[0];
+        var frac = Math.max(0, Math.min(1, (v.currentTime - ch.t[0]) / span));
+        progs[k].style.width = (frac*100) + '%';
+        if (v.currentTime >= ch.t[1] - 0.03) {
+          v.pause(); seek(v, ch.t[1]);
+          setState(k, 'done');   // finished early: pause here and wait for the other row
+          onDone();
+          return;
+        }
+        raf = requestAnimationFrame(watch);
+      }
+      raf = requestAnimationFrame(watch);
+    }
+
+    function finishLook(){
+      cfg.chapters.forEach(function(ch,i){ setState(i, 'done'); });
+      setState(N_CH-1, 'done ' + (cfg.good ? 'final-good' : 'final-bad'));
+    }
+
+    // static state for debugging/screenshots: k chapters completed
+    function forceState(k){
+      stopRaf();
+      cfg.chapters.forEach(function(ch, i){
+        videos[i].pause();
+        if (i < k) { setState(i, 'done'); seek(videos[i], ch.t[1]); }
+        else if (i === k) { setState(i, 'act'); seek(videos[i], ch.t[0]); }
+        else { setState(i, 'up'); seek(videos[i], ch.t[0]); }
+      });
+      if (k >= N_CH) finishLook();
+    }
+
+    function pauseAll(){ videos.forEach(function(v){ v.pause(); }); }
+    function resumeCur(){
+      if (curK >= 0 && !videos[curK].ended) videos[curK].play().catch(function(){});
+    }
+    return { toPosters: toPosters, playSeg: playSeg, finishLook: finishLook,
+             forceState: forceState, stopRaf: stopRaf, videos: videos,
+             pauseAll: pauseAll, resumeCur: resumeCur };
+  }
+
+  var rows = ROWS.map(buildRow);
+
+  // ---- conductor: chapter k starts on BOTH rows at the same instant; the row
+  // whose segment ends first pauses on its last frame until the other finishes ----
+  var holdTimer = null;
+  function clearHold(){ if (holdTimer) { clearTimeout(holdTimer); holdTimer = null; } }
+
+  function startChapter(k){
+    var pending = rows.length;
+    rows.forEach(function(r){
+      r.playSeg(k, function(){
+        pending--;
+        if (pending === 0) {
+          if (k < N_CH - 1) startChapter(k + 1);
+          else finishAll();
+        }
+      });
+    });
+  }
+  function finishAll(){
+    rows.forEach(function(r){ r.finishLook(); });
+    holdTimer = setTimeout(function(){
+      rows.forEach(function(r){ r.toPosters(); });
+      holdTimer = setTimeout(function(){ startChapter(0); }, RESET_MS);
+    }, HOLD_MS);
+  }
+  function restart(){
+    clearHold();
+    rows.forEach(function(r){ r.stopRaf(); r.toPosters(); });
+    holdTimer = setTimeout(function(){ startChapter(0); }, 120);
+  }
+
+  document.getElementById('figWrap').addEventListener('click', restart);
+
+  // pause the whole race while off-screen; a paused video never fires its
+  // end condition, so the conductor stalls naturally and resumes in place
+  var raceInView = true, raceTabShown = !document.hidden;
+  function raceVis(){ return raceInView && raceTabShown; }
+  function applyRaceVis(){
+    if (raceVis()) rows.forEach(function(r){ r.resumeCur(); });
+    else rows.forEach(function(r){ r.pauseAll(); });
+  }
+  if ('IntersectionObserver' in window) {
+    new IntersectionObserver(function(es){
+      raceInView = es[0].isIntersecting; applyRaceVis();
+    }, {threshold: 0.05}).observe(document.body);
+  }
+  document.addEventListener('visibilitychange', function(){
+    raceTabShown = !document.hidden; applyRaceVis();
+  });
+
+  var params = new URLSearchParams(location.search);
+  var dbg = params.get('dbg');
+  if (dbg !== null) {
+    var ks = dbg.split(',').map(function(x){ return parseInt(x,10) || 0; });
+    var applyDbg = function(){ rows.forEach(function(r,i){ r.forceState(ks[i] || 0); }); };
+    applyDbg();
+    window.addEventListener('load', function(){ setTimeout(applyDbg, 300); });
+  } else {
+    var started = false;
+    var begin = function(){ if (started) return; started = true; restart(); };
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver(function(es){
+        es.forEach(function(e){ if (e.isIntersecting) begin(); });
+      }, { threshold: 0.25 }).observe(document.body);
+    }
+    window.addEventListener('load', function(){ setTimeout(function(){ if (raceInView) begin(); }, 1200); });
+  }
+
+  // corner markers for offline frame compositing: magenta 4x4 dots at each
+  // video box's corners (?markers=1, debug only)
+  if (params.get('markers')) {
+    document.querySelectorAll('.card .vbox').forEach(function(vb){
+      [[0,0],[1,0],[0,1],[1,1]].forEach(function(c){
+        var m = document.createElement('div');
+        m.style.cssText = 'position:absolute;width:4px;height:4px;background:#f0f;z-index:9;'
+          + 'left:' + (c[0] ? 'auto' : '0') + ';right:' + (c[0] ? '0' : 'auto') + ';'
+          + 'top:' + (c[1] ? 'auto' : '0') + ';bottom:' + (c[1] ? '0' : 'auto') + ';';
+        vb.appendChild(m);
+      });
+    });
+  }
+
+  // ---- responsive scale-to-fit: fixed 1786px design width, shrink to host ----
+  var scaleOuter = document.getElementById('scaleOuter');
+  var figWrap = document.getElementById('figWrap');
+  function rescale(){
+    var hostWidth = scaleOuter.clientWidth;
+    var sc = Math.min(1, hostWidth / 1786);
+    var marginLeft = Math.max(0, (hostWidth - 1786 * sc) / 2);
+    figWrap.style.transform = 'scale(' + sc + ')';
+    figWrap.style.marginLeft = marginLeft + 'px';
+    var h = figWrap.offsetHeight * sc;
+    scaleOuter.style.height = h + 'px';
+    // report the real rendered height so the host page sizes the iframe exactly
+    try { window.parent.postMessage({ type: 'lmp-figheight', height: Math.ceil(h) }, '*'); } catch (e) {}
+  }
+  window.addEventListener('resize', rescale);
+  window.addEventListener('load', rescale);
+  setTimeout(rescale, 50);
+  setTimeout(rescale, 400);
+}());
+</script>
+<script>
+// success-rate hover bridge: highlight one method's row, dim the other. Never touches playback.
+window.addEventListener('message', function (e) {
+  if (!e.data || e.data.type !== 'lmp-hl') return;
+  var map = { ASTEROID: 'ast', BC: 'bc' };
+  var act = map[e.data.method] || null;
+  [].forEach.call(document.querySelectorAll('.row-block'), function (rb) {
+    rb.style.transition = 'opacity .2s';
+    rb.style.opacity = (!act || rb.getAttribute('data-row') === act) ? 1 : 0.25;
+  });
+});
+</script>
+</body>
+</html>

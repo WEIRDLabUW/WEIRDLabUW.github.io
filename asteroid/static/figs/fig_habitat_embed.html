@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>figHabitat</title>
+<script src="https://cdn.plot.ly/plotly-basic-2.35.2.min.js" charset="utf-8"></script>
+<style>
+html,body{margin:0;padding:0;background:transparent;font-family:'Google Sans','Noto Sans',sans-serif;}
+#plot{width:100%;height:400px;}
+#wrap{position:relative;}
+.ttl{position:absolute;top:8px;left:50%;transform:translateX(-50%);white-space:nowrap;z-index:20;
+     font-size:17.5px;font-weight:700;color:#2b2b2b;cursor:default;}
+.ttl>span{border-bottom:2px dotted #a8a4b2;padding-bottom:1px;}
+.ttl .vbub{position:absolute;left:50%;top:calc(100% + 9px);transform:translateX(-50%) scale(.97);
+     opacity:0;pointer-events:none;transition:opacity .22s ease,transform .22s ease;
+     background:#fff;border:1px solid #ddd;border-radius:12px;
+     box-shadow:0 10px 30px rgba(20,20,40,.20);padding:6px;width:300px;z-index:40;}
+.ttl:hover .vbub, .ttl.force .vbub{opacity:1;pointer-events:auto;transform:translateX(-50%) scale(1);}
+.vbub video{width:100%;border-radius:8px;display:block;background:#000;}
+.vbub .cap{font-size:11.5px;font-weight:400;color:#737373;text-align:center;padding:4px 2px 1px;white-space:normal;}
+</style>
+</head>
+<body>
+<div id="wrap">
+<div id="plot"></div>
+<div class="ttl" id="ttl0"><span>Habitat Object Search</span>
+  <div class="vbub"><video muted loop playsinline preload="metadata" src="../../assets/habitat_annotated.mp4"></video>
+  <div class="cap">object search from egocentric images — third-person and egocentric views</div></div></div>
+</div>
+<script>
+(function(){
+  var FONT="'Google Sans','Noto Sans',sans-serif", DIM=0.12;
+  // iteration_progress_bar.py: success over 5 iterations; gradient #a6cee3 -> #003366
+  var VALS=[0.25,0.41,0.53,0.60,0.70], DP=0.8, BC=0.25;
+  function lerp(a,b,t){return Math.round(a+(b-a)*t);}
+  function grad(t){
+    var A=[0xa6,0xce,0xe3], B=[0x00,0x33,0x66];
+    return 'rgb('+lerp(A[0],B[0],t)+','+lerp(A[1],B[1],t)+','+lerp(A[2],B[2],t)+')';
+  }
+  var cols=VALS.map(function(_,i){return grad(i/(VALS.length-1));});
+  var traces=[
+    {x:[0.1,5.9],y:[DP,DP],mode:'lines',name:'Distilled Planner',
+     line:{color:'#000',dash:'dash',width:1.6},legendgroup:'DP',
+     hovertemplate:'80%<extra>Distilled Planner</extra>'},
+    {x:[0.1,5.9],y:[BC,BC],mode:'lines',name:'BC',
+     line:{color:'rgba(31,119,180,0.75)',dash:'dot',width:2},legendgroup:'BC',
+     hovertemplate:'25%<extra>BC</extra>'},
+    {x:[1,2,3,4,5],y:VALS,type:'bar',name:'ASTEROID (ours)',width:0.62,
+     marker:{color:cols,line:{color:'#fff',width:1}},legendgroup:'Ours',
+     hovertemplate:'%{y:.0%} at iteration %{x}<extra>ASTEROID</extra>'}
+  ];
+  var layout={
+    font:{family:FONT}, paper_bgcolor:'rgba(0,0,0,0)', plot_bgcolor:'#fff',
+    margin:{l:56,r:10,t:44,b:96}, hovermode:'closest',
+    hoverlabel:{font:{family:FONT,size:14},bgcolor:'#fff',bordercolor:'#c9c9c9'},
+    xaxis:{tickvals:[1,2,3,4,5],range:[0.1,5.9],
+           title:{text:'iteration',font:{size:16,color:'#55525e'},standoff:5},
+           tickfont:{size:14,color:'#737373'},showgrid:false,zeroline:false,
+           linecolor:'#c9c9c9',mirror:true},
+    yaxis:{range:[0,1.05],tickformat:'.0%',tickfont:{size:14,color:'#737373'},
+           title:{text:'success rate',font:{size:16,color:'#55525e'}},
+           gridcolor:'#e9e9e9',zeroline:false,linecolor:'#c9c9c9',mirror:true},
+    showlegend:false,
+    // typeset one-line legend in the curves-figure box style: Plotly's native
+    // h-legend wraps/overlaps at this width (>=30px item clamp)
+    annotations:[{xref:'paper',yref:'paper',x:0.5,y:-0.25,xanchor:'center',yanchor:'top',
+      showarrow:false,align:'center',font:{size:12.5,color:'#454250'},
+      bgcolor:'rgba(255,255,255,0.9)',bordercolor:'#dddddd',borderwidth:1,borderpad:5,
+      text:'<span style="color:#000000">\u2012\u2009\u2012</span> Distilled Planner\u00a0\u00a0\u00a0' +
+           '<span style="color:rgba(31,119,180,1)">\u00b7\u00b7\u00b7\u00b7</span> BC\u00a0\u00a0\u00a0' +
+           '<span style="color:#1f4a7a">\u25a0</span> ASTEROID (ours)'}]
+  };
+  var gd=document.getElementById('plot');
+  // pin the plot to the real container width (responsive alone mis-measures here)
+  layout.width = document.body.clientWidth || 380;
+  layout.height = 400;
+  function fit(){
+    try{ Plotly.relayout(gd,{width: document.body.clientWidth, height: 400}); }catch(e){}
+  }
+  window.addEventListener('resize', fit);
+  Plotly.newPlot(gd,traces,layout,{displayModeBar:false}).then(function(){
+    setTimeout(fit, 350);
+    var restoreTimer=null;
+    function setDim(group){
+      var ops=gd.data.map(function(t){
+        return (group===null||t.legendgroup===group)?1:DIM;
+      });
+      Plotly.restyle(gd,{opacity:ops});
+    }
+    gd.on('plotly_hover',function(ev){
+      if(restoreTimer){clearTimeout(restoreTimer);restoreTimer=null;}
+      var t=gd.data[ev.points[0].curveNumber];
+      if(t&&t.legendgroup) setDim(t.legendgroup);
+    });
+    gd.on('plotly_unhover',function(){
+      restoreTimer=setTimeout(function(){setDim(null);},120);
+    });
+  });
+  var el=document.getElementById('ttl0'), v=el.querySelector('video');
+  el.addEventListener('mouseenter',function(){v.play().catch(function(){});});
+  el.addEventListener('mouseleave',function(){v.pause();});
+  function reportH(){
+    try{window.parent.postMessage({type:'lmp-figheight',height:document.body.scrollHeight},'*');}catch(e){}
+  }
+  window.addEventListener('load',function(){reportH(); setTimeout(reportH,400);});
+  window.addEventListener('resize',reportH);
+}());
+</script>
+</body>
+</html>

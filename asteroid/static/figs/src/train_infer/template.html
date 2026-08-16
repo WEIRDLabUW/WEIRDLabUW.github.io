@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>figTrainInfer</title>
+<style>
+html,body{margin:0;padding:0;background:transparent;}
+.fig{width:100%;height:auto;display:block;cursor:pointer;}
+
+.fig .anim{opacity:0;}
+.fig.play .anim{animation:riseIn 1.0s cubic-bezier(.2,.75,.25,1) both;animation-delay:var(--d,0s);}
+@keyframes riseIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+
+/* chips / doors / badges pop in (nested inside a positioning <g> — CSS transform
+   animations override the SVG transform attribute, so never merge the two) */
+.fig .tok{opacity:0;transform-box:fill-box;transform-origin:50% 100%;}
+.fig.play .tok{animation:tokIn .62s cubic-bezier(.34,1.4,.64,1) both;animation-delay:var(--d,0s);}
+@keyframes tokIn{0%{opacity:0;transform:scale(.2);}60%{opacity:1;transform:scale(1.12);}100%{opacity:1;transform:scale(1);}}
+
+/* solid arrows draw via stroke-dashoffset (--len set by JS) */
+.fig .grow{opacity:0;}
+.fig.play .grow{animation:growDraw var(--dur,.5s) linear both;animation-delay:var(--d,0s);}
+@keyframes growDraw{0%{opacity:1;stroke-dashoffset:var(--len,200);}100%{opacity:1;stroke-dashoffset:0;}}
+
+/* dashed strokes just fade in (dash-array + dashoffset don't mix) */
+.fig .dfade{opacity:0;}
+.fig.play .dfade{animation:dIn .5s linear both;animation-delay:var(--d,0s);}
+@keyframes dIn{from{opacity:0;}to{opacity:1;}}
+
+/* arrowheads pop after their line lands */
+.fig .pop{opacity:0;}
+.fig.play .pop{animation:dIn .25s linear both;animation-delay:var(--d,0s);}
+
+/* gold highlight (retrieved dataset entry): pops and stays */
+.fig .ring{opacity:0;transform-box:fill-box;transform-origin:50% 50%;}
+.fig.play .ring{animation:ringIn .68s cubic-bezier(.34,1.3,.64,1) both;animation-delay:var(--d,0s);}
+@keyframes ringIn{0%{opacity:0;transform:scale(.6);}60%{opacity:1;transform:scale(1.12);}100%{opacity:1;transform:scale(1);}}
+
+/* wrapper that recedes when its moment has passed (supervision drops after
+   training, each retrieval spotlight after its step) */
+.fig.play .lateDim{animation:lateDimA .8s linear both;animation-delay:var(--ld,0s);}
+@keyframes lateDimA{from{opacity:1;}to{opacity:var(--lo,0.35);}}
+
+/* retrieval: the expert answer flies from the dataset entry into the action slot */
+.fig .fly,.fig .flyStay{opacity:0;}
+.fig.play .fly{animation:flyOnce 1.5s cubic-bezier(.35,.1,.3,1) both;animation-delay:var(--d,0s);}
+@keyframes flyOnce{0%{opacity:0;transform:translate(var(--x0),var(--y0)) scale(.75);}12%{opacity:1;}60%{opacity:1;transform:translate(var(--x1),var(--y1)) scale(1);}85%{opacity:1;transform:translate(var(--x1),var(--y1)) scale(1);}100%{opacity:0;transform:translate(var(--x1),var(--y1)) scale(1);}}
+.fig.play .flyStay{animation:flyKeep 1.5s cubic-bezier(.35,.1,.3,1) both;animation-delay:var(--d,0s);}
+@keyframes flyKeep{0%{opacity:0;transform:translate(var(--x0),var(--y0)) scale(.75);}12%{opacity:1;}60%{opacity:1;transform:translate(var(--x1),var(--y1)) scale(1);}100%{opacity:1;transform:translate(var(--x1),var(--y1)) scale(1);}}
+</style>
+</head>
+<body>
+<style>body.animoff svg *{animation-play-state:paused!important;}</style>
+<script>
+(function(){
+  var si = window.setInterval;
+  window.setInterval = function(fn, ms){
+    return si(function(){ if (!document.body.classList.contains('animoff')) fn(); }, ms);
+  };
+  function apply(vis){ document.body.classList.toggle('animoff', !vis); }
+  var inView = true;
+  if ('IntersectionObserver' in window) {
+    new IntersectionObserver(function(es){
+      inView = es[0].isIntersecting; apply(inView && !document.hidden);
+    }, {threshold: 0.05}).observe(document.documentElement);
+  }
+  document.addEventListener('visibilitychange', function(){ apply(inView && !document.hidden); });
+}());
+</script>
+
+<svg class="fig play" id="figTI" viewBox="0 0 1680 730" role="img"
+  aria-label="Training vs inference on the three-door task. Training: over iterations 0 to 3 the context grows and the expert labels narrow — with no context any of doors A, B, C could be the goal; after A fails the goal is B or C; after A and B fail it is C; after success the label is to stay at C. Each iteration adds one entry (context | expert actions) to the in-context dataset D. Inference: the doors are unknown and the true goal C is hidden in a bubble; at every step the rest of the figure dims and a straight lookup arrow points from the policy to the one dataset entry matching its current context, whose expert answer flies into the action slot — try A, try B, open C, then stay at C.">
+<defs>
+  <filter id="halo" x="-20%" y="-20%" width="140%" height="150%">
+    <feDropShadow dx="0" dy="1" stdDeviation="2" flood-color="#1f2a4d" flood-opacity="0.16"/>
+    <feDropShadow dx="0" dy="8" stdDeviation="16" flood-color="#1f2a4d" flood-opacity="0.16"/>
+  </filter>
+
+  <!-- door icons shared with the method-comparison figures (+ a gray unknown variant) -->
+  <symbol id="doorBrown" viewBox="0 0 36 36">
+    <path fill="#8a5a34" d="M29 34c0 1.105-.895 2-2 2H9c-1.105 0-2-.895-2-2V2c0-1.105.895-2 2-2h18c1.105 0 2 .895 2 2v32z"/>
+    <circle fill="#f5ead0" cx="11" cy="18" r="1.6"/>
+    <path fill="#9c6b3f" d="M25 3c-.552 0-1 .448-1 1v9H11c-.552 0-1 .448-1 1s.448 1 1 1h14c.552 0 1-.448 1-1V4c0-.552-.448-1-1-1zm0 25c.552 0 1 .448 1 1v3c0 .552-.448 1-1 1H11c-.552 0-1-.448-1-1s.448-1 1-1h13v-2c0-.552.448-1 1-1z"/>
+    <path fill="#5f3d22" d="M11 33c-.552 0-1-.448-1-1v-3c0-.552.448-1 1-1h14c.552 0 1 .448 1 1s-.448 1-1 1H12v2c0 .552-.448 1-1 1z"/>
+    <path fill="#9c6b3f" d="M25 21c.552 0 1 .448 1 1v3c0 .552-.448 1-1 1H11c-.552 0-1-.448-1-1s.448-1 1-1h13v-2c0-.552.448-1 1-1z"/>
+    <path fill="#5f3d22" d="M11 26c-.552 0-1-.448-1-1v-3c0-.552.448-1 1-1h14c.552 0 1 .448 1 1s-.448 1-1 1H12v2c0 .552-.448 1-1 1zm0-11c-.552 0-1-.448-1-1V4c0-.552.448-1 1-1h14c.552 0 1 .448 1 1s-.448 1-1 1H12v9c0 .552-.448 1-1 1z"/>
+  </symbol>
+  <symbol id="doorGold" viewBox="0 0 36 36">
+    <path fill="#e3a730" d="M29 34c0 1.105-.895 2-2 2H9c-1.105 0-2-.895-2-2V2c0-1.105.895-2 2-2h18c1.105 0 2 .895 2 2v32z"/>
+    <circle fill="#f5ead0" cx="11" cy="18" r="1.6"/>
+    <path fill="#eebd52" d="M25 3c-.552 0-1 .448-1 1v9H11c-.552 0-1 .448-1 1s.448 1 1 1h14c.552 0 1-.448 1-1V4c0-.552-.448-1-1-1zm0 25c.552 0 1 .448 1 1v3c0 .552-.448 1-1 1H11c-.552 0-1-.448-1-1s.448-1 1-1h13v-2c0-.552.448-1 1-1z"/>
+    <path fill="#b9821f" d="M11 33c-.552 0-1-.448-1-1v-3c0-.552.448-1 1-1h14c.552 0 1 .448 1 1s-.448 1-1 1H12v2c0 .552-.448 1-1 1z"/>
+    <path fill="#eebd52" d="M25 21c.552 0 1 .448 1 1v3c0 .552-.448 1-1 1H11c-.552 0-1-.448-1-1s.448-1 1-1h13v-2c0-.552.448-1 1-1z"/>
+    <path fill="#b9821f" d="M11 26c-.552 0-1-.448-1-1v-3c0-.552.448-1 1-1h14c.552 0 1 .448 1 1s-.448 1-1 1H12v2c0 .552-.448 1-1 1zm0-11c-.552 0-1-.448-1-1V4c0-.552.448-1 1-1h14c.552 0 1 .448 1 1s-.448 1-1 1H12v9c0 .552-.448 1-1 1z"/>
+  </symbol>
+  <symbol id="doorGray" viewBox="0 0 36 36">
+    <path fill="#9a97a6" d="M29 34c0 1.105-.895 2-2 2H9c-1.105 0-2-.895-2-2V2c0-1.105.895-2 2-2h18c1.105 0 2 .895 2 2v32z"/>
+    <circle fill="#f2f1f5" cx="11" cy="18" r="1.6"/>
+    <path fill="#b3b0bd" d="M25 3c-.552 0-1 .448-1 1v9H11c-.552 0-1 .448-1 1s.448 1 1 1h14c.552 0 1-.448 1-1V4c0-.552-.448-1-1-1zm0 25c.552 0 1 .448 1 1v3c0 .552-.448 1-1 1H11c-.552 0-1-.448-1-1s.448-1 1-1h13v-2c0-.552.448-1 1-1z"/>
+    <path fill="#6f6c7c" d="M11 33c-.552 0-1-.448-1-1v-3c0-.552.448-1 1-1h14c.552 0 1 .448 1 1s-.448 1-1 1H12v2c0 .552-.448 1-1 1z"/>
+    <path fill="#b3b0bd" d="M25 21c.552 0 1 .448 1 1v3c0 .552-.448 1-1 1H11c-.552 0-1-.448-1-1s.448-1 1-1h13v-2c0-.552.448-1 1-1z"/>
+    <path fill="#6f6c7c" d="M11 26c-.552 0-1-.448-1-1v-3c0-.552.448-1 1-1h14c.552 0 1 .448 1 1s-.448 1-1 1H12v2c0 .552-.448 1-1 1zm0-11c-.552 0-1-.448-1-1V4c0-.552.448-1 1-1h14c.552 0 1 .448 1 1s-.448 1-1 1H12v9c0 .552-.448 1-1 1z"/>
+  </symbol>
+
+  <!-- letter plate for the big doors -->
+  <g id="plate"><rect x="-11" y="-11" width="22" height="22" rx="5" fill="#fff" fill-opacity="0.94" stroke="#33303c" stroke-opacity="0.25" stroke-width="1.2"/></g>
+  <!-- mini context door (gray = what the agent saw) with a letter plate -->
+  <g id="mDoorG"><use xlink:href="#doorGray" x="-17" y="-19" width="34" height="37"/><circle cy="-2" r="9.5" fill="#fff" fill-opacity="0.94" stroke="#6f6c7c" stroke-width="1.1"/></g>
+  <g id="mDoorGold"><use xlink:href="#doorGold" x="-18" y="-20" width="36" height="39"/><circle cy="-2" r="10" fill="#fff" fill-opacity="0.94" stroke="#b9821f" stroke-width="1.1"/></g>
+
+  <!-- next-action chips -->
+  <g id="chipT"><rect x="-17" y="-17" width="34" height="34" rx="7" fill="#e0f0f0" stroke="#004646" stroke-width="1.8"/></g>
+  <g id="chipQ"><rect x="-17" y="-17" width="34" height="34" rx="7" fill="#fff" stroke="#8b8698" stroke-width="1.8" stroke-dasharray="5 4"/></g>
+
+  <!-- arrowheads -->
+  <g id="headInk"><path d="M0,0 L-12,5 L-12,-5 Z" fill="#666666"/></g>
+  <g id="headTeal"><path d="M0,0 L-12,5 L-12,-5 Z" fill="#004646"/></g>
+  <g id="headGold"><path d="M0,0 L-13,5.5 L-13,-5.5 Z" fill="#b9821f"/></g>
+</defs>
+<!--TEXDEFS-->
+
+  <!-- card -->
+  <rect x="6" y="6" width="1668" height="712" rx="20" fill="#fff" stroke="#e3e0ea" stroke-width="1.5" filter="url(#halo)"/>
+
+  <!-- section titles -->
+  <g class="anim" style="--d:0.1s"><use xlink:href="#tex-httrain" transform="{{T:httrain:60,54,4.0,w}}" fill="#33303c"/></g>
+  <g class="anim" style="--d:0.1s"><use xlink:href="#tex-htinf" transform="{{T:htinf:1060,54,4.0,w}}" fill="#33303c"/></g>
+
+  <!-- ================= training panel: iterations 0-3 ================= -->
+  <rect class="anim" style="--d:0.06s" x="40" y="80" width="970" height="430" rx="14"
+    fill="none" stroke="#8b8698" stroke-width="2.2" stroke-dasharray="9 8"/>
+  <line class="anim" style="--d:0.17s" x1="283" y1="104" x2="283" y2="486" stroke="#d5d1de" stroke-width="1.8" stroke-dasharray="6 7"/>
+  <line class="anim" style="--d:0.17s" x1="525" y1="104" x2="525" y2="486" stroke="#d5d1de" stroke-width="1.8" stroke-dasharray="6 7"/>
+  <line class="anim" style="--d:0.17s" x1="768" y1="104" x2="768" y2="486" stroke="#d5d1de" stroke-width="1.8" stroke-dasharray="6 7"/>
+  <g class="anim" style="--d:0.22s"><use xlink:href="#tex-it0" transform="{{T:it0:161,112,2.9,c}}" fill="#737373"/></g>
+  <g class="anim" style="--d:0.28s"><use xlink:href="#tex-it1" transform="{{T:it1:404,112,2.9,c}}" fill="#737373"/></g>
+  <g class="anim" style="--d:0.34s"><use xlink:href="#tex-it2" transform="{{T:it2:646,112,2.9,c}}" fill="#737373"/></g>
+  <g class="anim" style="--d:0.40s"><use xlink:href="#tex-it3" transform="{{T:it3:888,112,2.9,c}}" fill="#737373"/></g>
+
+  <!-- iteration 0: no context, three possible goals -->
+  <g transform="translate(86,162)"><g class="tok" style="--d:0.55s"><use xlink:href="#doorGray" x="-32" y="-32" width="64" height="64"/><use xlink:href="#plate" transform="translate(0,-14)"/><use xlink:href="#tex-lA" transform="{{T:lA:0,-14,1.7,c}}" fill="#33303c"/></g></g>
+  <g transform="translate(161,162)"><g class="tok" style="--d:0.55s"><use xlink:href="#doorGray" x="-32" y="-32" width="64" height="64"/><use xlink:href="#plate" transform="translate(0,-14)"/><use xlink:href="#tex-lB" transform="{{T:lB:0,-14,1.7,c}}" fill="#33303c"/></g></g>
+  <g transform="translate(236,162)"><g class="tok" style="--d:0.55s"><use xlink:href="#doorGray" x="-32" y="-32" width="64" height="64"/><use xlink:href="#plate" transform="translate(0,-14)"/><use xlink:href="#tex-lC" transform="{{T:lC:0,-14,1.7,c}}" fill="#33303c"/></g></g>
+  <g transform="translate(161,300)"><g class="tok" style="--d:0.9s"><circle r="23" fill="#f2f5fb" stroke="#35507d" stroke-width="2.8"/><use xlink:href="#tex-pith" transform="{{T:pith:0,0,2.3,c}}" fill="#1a1a1a"/></g></g>
+  <path class="grow" style="--d:1.1s" d="M143,283 C121,266 99,244 89,216" fill="none" stroke="#666" stroke-width="2.6"/>
+  <g class="pop" style="--d:1.35s"><use xlink:href="#headInk" transform="translate(87,212) rotate(-122)"/></g>
+  <path class="grow" style="--d:1.22s" d="M161,276 L161,217" fill="none" stroke="#666" stroke-width="2.6"/>
+  <g class="pop" style="--d:1.47s"><use xlink:href="#headInk" transform="translate(161,211) rotate(-90)"/></g>
+  <path class="grow" style="--d:1.34s" d="M179,283 C201,266 223,244 233,216" fill="none" stroke="#666" stroke-width="2.6"/>
+  <g class="pop" style="--d:1.59s"><use xlink:href="#headInk" transform="translate(235,212) rotate(-58)"/></g>
+  <g class="anim" style="--d:1.6s"><use xlink:href="#tex-hempty" transform="{{T:hempty:161,356,3.0,c}}" fill="#737373"/></g>
+  <g class="anim" style="--d:1.95s"><use xlink:href="#tex-p0a" transform="{{T:p0a:161,404,3.1,c}}" fill="#55525e"/></g>
+  <g class="anim" style="--d:2.05s"><use xlink:href="#tex-p0b" transform="{{T:p0b:161,444,3.1,c}}" fill="#55525e"/></g>
+  <g class="lateDim" style="--ld:10.35s">
+    <path class="dfade" style="--d:2.3s" d="M161,466 L161,580" fill="none" stroke="#0a5c5c" stroke-width="2.2" stroke-dasharray="6 6"/>
+    <g class="pop" style="--d:2.55s"><use xlink:href="#headTeal" transform="translate(161,586) rotate(90)"/></g>
+    <g class="pop" style="--d:2.55s"><use xlink:href="#tex-astar2" transform="{{T:astar2:191,545,3.0,c}}" fill="#0a5c5c"/></g>
+  </g>
+
+  <!-- iteration 1: context (A,0), goal is B or C -->
+  <g transform="translate(329,162)"><g class="tok" style="--d:3.1s"><use xlink:href="#doorBrown" x="-32" y="-32" width="64" height="64"/><use xlink:href="#plate" transform="translate(0,-14)"/><use xlink:href="#tex-lA" transform="{{T:lA:0,-14,1.7,c}}" fill="#33303c"/></g></g>
+  <g transform="translate(404,162)"><g class="tok" style="--d:3.1s"><use xlink:href="#doorGray" x="-32" y="-32" width="64" height="64"/><use xlink:href="#plate" transform="translate(0,-14)"/><use xlink:href="#tex-lB" transform="{{T:lB:0,-14,1.7,c}}" fill="#33303c"/></g></g>
+  <g transform="translate(479,162)"><g class="tok" style="--d:3.1s"><use xlink:href="#doorGray" x="-32" y="-32" width="64" height="64"/><use xlink:href="#plate" transform="translate(0,-14)"/><use xlink:href="#tex-lC" transform="{{T:lC:0,-14,1.7,c}}" fill="#33303c"/></g></g>
+  <g transform="translate(359,356)"><g class="tok" style="--d:3.3s"><use xlink:href="#mDoorG"/><use xlink:href="#tex-lA" transform="{{T:lA:0,-2,1.8,c}}" fill="#33303c"/></g></g>
+  <g transform="translate(403,356)"><g class="tok" style="--d:3.3s"><circle r="14" fill="#fff" stroke="#9a97a6" stroke-width="2.4"/><use xlink:href="#tex-rp0" transform="{{T:rp0:0,0,1.6,c}}" fill="#7d7a89"/></g></g>
+  <g transform="translate(404,300)"><g class="tok" style="--d:3.5s"><circle r="23" fill="#f2f5fb" stroke="#35507d" stroke-width="2.8"/><use xlink:href="#tex-pith" transform="{{T:pith:0,0,2.3,c}}" fill="#1a1a1a"/></g></g>
+  <path class="grow" style="--d:3.7s" d="M404,276 L404,217" fill="none" stroke="#666" stroke-width="2.6"/>
+  <g class="pop" style="--d:3.95s"><use xlink:href="#headInk" transform="translate(404,211) rotate(-90)"/></g>
+  <path class="grow" style="--d:3.82s" d="M422,283 C444,266 466,244 476,216" fill="none" stroke="#666" stroke-width="2.6"/>
+  <g class="pop" style="--d:4.07s"><use xlink:href="#headInk" transform="translate(478,212) rotate(-58)"/></g>
+  <g class="anim" style="--d:4.35s"><use xlink:href="#tex-p1a" transform="{{T:p1a:404,404,3.1,c}}" fill="#55525e"/></g>
+  <g class="anim" style="--d:4.45s"><use xlink:href="#tex-p1b" transform="{{T:p1b:404,444,3.1,c}}" fill="#55525e"/></g>
+  <g class="lateDim" style="--ld:10.35s">
+    <path class="dfade" style="--d:4.7s" d="M404,466 L404,580" fill="none" stroke="#0a5c5c" stroke-width="2.2" stroke-dasharray="6 6"/>
+    <g class="pop" style="--d:4.95s"><use xlink:href="#headTeal" transform="translate(404,586) rotate(90)"/></g>
+    <g class="pop" style="--d:4.95s"><use xlink:href="#tex-astar2" transform="{{T:astar2:434,545,3.0,c}}" fill="#0a5c5c"/></g>
+  </g>
+
+  <!-- iteration 2: context (A,0,B,0), goal is C -->
+  <g transform="translate(571,162)"><g class="tok" style="--d:5.5s"><use xlink:href="#doorBrown" x="-32" y="-32" width="64" height="64"/><use xlink:href="#plate" transform="translate(0,-14)"/><use xlink:href="#tex-lA" transform="{{T:lA:0,-14,1.7,c}}" fill="#33303c"/></g></g>
+  <g transform="translate(646,162)"><g class="tok" style="--d:5.5s"><use xlink:href="#doorBrown" x="-32" y="-32" width="64" height="64"/><use xlink:href="#plate" transform="translate(0,-14)"/><use xlink:href="#tex-lB" transform="{{T:lB:0,-14,1.7,c}}" fill="#33303c"/></g></g>
+  <g transform="translate(721,162)"><g class="tok" style="--d:5.5s"><use xlink:href="#doorGray" x="-32" y="-32" width="64" height="64"/><use xlink:href="#plate" transform="translate(0,-14)"/><use xlink:href="#tex-lC" transform="{{T:lC:0,-14,1.7,c}}" fill="#33303c"/></g></g>
+  <g transform="translate(558,356)"><g class="tok" style="--d:5.7s"><use xlink:href="#mDoorG"/><use xlink:href="#tex-lA" transform="{{T:lA:0,-2,1.8,c}}" fill="#33303c"/></g></g>
+  <g transform="translate(602,356)"><g class="tok" style="--d:5.7s"><circle r="14" fill="#fff" stroke="#9a97a6" stroke-width="2.4"/><use xlink:href="#tex-rp0" transform="{{T:rp0:0,0,1.6,c}}" fill="#7d7a89"/></g></g>
+  <g transform="translate(646,356)"><g class="tok" style="--d:5.7s"><use xlink:href="#mDoorG"/><use xlink:href="#tex-lB" transform="{{T:lB:0,-2,1.8,c}}" fill="#33303c"/></g></g>
+  <g transform="translate(690,356)"><g class="tok" style="--d:5.7s"><circle r="14" fill="#fff" stroke="#9a97a6" stroke-width="2.4"/><use xlink:href="#tex-rp0" transform="{{T:rp0:0,0,1.6,c}}" fill="#7d7a89"/></g></g>
+  <g transform="translate(646,300)"><g class="tok" style="--d:5.9s"><circle r="23" fill="#f2f5fb" stroke="#35507d" stroke-width="2.8"/><use xlink:href="#tex-pith" transform="{{T:pith:0,0,2.3,c}}" fill="#1a1a1a"/></g></g>
+  <path class="grow" style="--d:6.1s" d="M664,283 C686,266 706,244 718,216" fill="none" stroke="#666" stroke-width="2.6"/>
+  <g class="pop" style="--d:6.35s"><use xlink:href="#headInk" transform="translate(720,212) rotate(-58)"/></g>
+  <g class="anim" style="--d:6.6s"><use xlink:href="#tex-p2a" transform="{{T:p2a:646,404,3.1,c}}" fill="#55525e"/></g>
+  <g class="anim" style="--d:6.7s"><use xlink:href="#tex-p2b" transform="{{T:p2b:646,444,3.1,c}}" fill="#55525e"/></g>
+  <g class="lateDim" style="--ld:10.35s">
+    <path class="dfade" style="--d:6.95s" d="M646,466 L646,580" fill="none" stroke="#0a5c5c" stroke-width="2.2" stroke-dasharray="6 6"/>
+    <g class="pop" style="--d:7.2s"><use xlink:href="#headTeal" transform="translate(646,586) rotate(90)"/></g>
+    <g class="pop" style="--d:7.2s"><use xlink:href="#tex-astar2" transform="{{T:astar2:676,545,3.0,c}}" fill="#0a5c5c"/></g>
+  </g>
+
+  <!-- iteration 3: success in context, supervision says stay -->
+  <g transform="translate(813,162)"><g class="tok" style="--d:7.75s"><use xlink:href="#doorBrown" x="-32" y="-32" width="64" height="64"/><use xlink:href="#plate" transform="translate(0,-14)"/><use xlink:href="#tex-lA" transform="{{T:lA:0,-14,1.7,c}}" fill="#33303c"/></g></g>
+  <g transform="translate(888,162)"><g class="tok" style="--d:7.75s"><use xlink:href="#doorBrown" x="-32" y="-32" width="64" height="64"/><use xlink:href="#plate" transform="translate(0,-14)"/><use xlink:href="#tex-lB" transform="{{T:lB:0,-14,1.7,c}}" fill="#33303c"/></g></g>
+  <g transform="translate(963,162)"><g class="tok" style="--d:7.75s"><use xlink:href="#doorGold" x="-32" y="-32" width="64" height="64"/><use xlink:href="#plate" transform="translate(0,-14)"/><use xlink:href="#tex-lC" transform="{{T:lC:0,-14,1.7,c}}" fill="#33303c"/></g></g>
+  <g transform="translate(790,356)"><g class="tok" style="--d:7.95s"><use xlink:href="#mDoorG"/><use xlink:href="#tex-lA" transform="{{T:lA:0,-2,1.8,c}}" fill="#33303c"/></g></g>
+  <g transform="translate(829,356)"><g class="tok" style="--d:7.95s"><circle r="14" fill="#fff" stroke="#9a97a6" stroke-width="2.4"/><use xlink:href="#tex-rp0" transform="{{T:rp0:0,0,1.6,c}}" fill="#7d7a89"/></g></g>
+  <g transform="translate(868,356)"><g class="tok" style="--d:7.95s"><use xlink:href="#mDoorG"/><use xlink:href="#tex-lB" transform="{{T:lB:0,-2,1.8,c}}" fill="#33303c"/></g></g>
+  <g transform="translate(907,356)"><g class="tok" style="--d:7.95s"><circle r="14" fill="#fff" stroke="#9a97a6" stroke-width="2.4"/><use xlink:href="#tex-rp0" transform="{{T:rp0:0,0,1.6,c}}" fill="#7d7a89"/></g></g>
+  <g transform="translate(946,356)"><g class="tok" style="--d:7.95s"><use xlink:href="#mDoorG"/><use xlink:href="#tex-lC" transform="{{T:lC:0,-2,1.8,c}}" fill="#33303c"/></g></g>
+  <g transform="translate(985,356)"><g class="tok" style="--d:7.95s"><circle r="14" fill="#fff" stroke="#b9821f" stroke-width="2.4"/><use xlink:href="#tex-rp1" transform="{{T:rp1:0,0,1.5,c}}" fill="#b9821f"/></g></g>
+  <g transform="translate(888,300)"><g class="tok" style="--d:8.15s"><circle r="23" fill="#f2f5fb" stroke="#35507d" stroke-width="2.8"/><use xlink:href="#tex-pith" transform="{{T:pith:0,0,2.3,c}}" fill="#1a1a1a"/></g></g>
+  <path class="grow" style="--d:8.35s" d="M906,283 C928,266 948,244 960,216" fill="none" stroke="#b9821f" stroke-width="3.2"/>
+  <g class="pop" style="--d:8.65s"><use xlink:href="#headGold" transform="translate(962,212) rotate(-58)"/></g>
+  <g class="anim" style="--d:8.9s"><use xlink:href="#tex-p3a" transform="{{T:p3a:888,404,3.1,c}}" fill="#55525e"/></g>
+  <g class="anim" style="--d:9.0s"><use xlink:href="#tex-p3b" transform="{{T:p3b:888,444,3.1,c}}" fill="#55525e"/></g>
+  <g class="lateDim" style="--ld:10.35s">
+    <path class="dfade" style="--d:9.25s" d="M888,466 L888,580" fill="none" stroke="#0a5c5c" stroke-width="2.2" stroke-dasharray="6 6"/>
+    <g class="pop" style="--d:9.5s"><use xlink:href="#headTeal" transform="translate(888,586) rotate(90)"/></g>
+    <g class="pop" style="--d:9.5s"><use xlink:href="#tex-astar2" transform="{{T:astar2:918,545,3.0,c}}" fill="#0a5c5c"/></g>
+  </g>
+
+  <!-- once inference begins, the finished training panel recedes -->
+  <rect class="dfade" style="--d:10.35s" x="41" y="81" width="968" height="428" rx="14" fill="#fff" fill-opacity="0.45"/>
+
+  <!-- ================= the in-context dataset: one entry per iteration ================= -->
+  <rect class="anim" style="--d:0.06s" x="40" y="540" width="970" height="150" rx="14"
+    fill="none" stroke="#8b8698" stroke-width="2.2" stroke-dasharray="9 8"/>
+  <g class="anim" style="--d:2.7s"><use xlink:href="#tex-e0" transform="{{T:e0:161,626,3.0,c}}"/></g>
+  <g class="anim" style="--d:5.1s"><use xlink:href="#tex-e1" transform="{{T:e1:404,626,3.0,c}}"/></g>
+  <g class="anim" style="--d:7.35s"><use xlink:href="#tex-e2" transform="{{T:e2:646,626,3.0,c}}"/></g>
+  <g class="anim" style="--d:9.65s"><use xlink:href="#tex-e3" transform="{{T:e3:878,626,3.0,c}}"/></g>
+  <g class="anim" style="--d:0.22s"><rect x="380" y="674" width="290" height="32" rx="8" fill="#fff" stroke="#e3e0ea" stroke-width="1"/><use xlink:href="#tex-hds" transform="{{T:hds:525,690,3.0,c}}" fill="#737373"/></g>
+
+  <!-- during retrieval, everything but the matching entry recedes -->
+  <rect class="dfade" style="--d:11.35s" x="41" y="541" width="968" height="148" rx="14" fill="#fff" fill-opacity="0.5"/>
+
+  <!-- ================= inference panel: unknown doors, true goal in a bubble ================= -->
+  <rect class="anim" style="--d:0.06s" x="1040" y="80" width="600" height="430" rx="14"
+    fill="none" stroke="#8b8698" stroke-width="2.2" stroke-dasharray="9 8"/>
+  <g transform="translate(1225,162)"><g class="tok" style="--d:10.45s"><use xlink:href="#doorGray" x="-32" y="-32" width="64" height="64"/><use xlink:href="#plate" transform="translate(0,-14)"/><use xlink:href="#tex-lA" transform="{{T:lA:0,-14,1.7,c}}" fill="#33303c"/></g></g>
+  <g transform="translate(1315,162)"><g class="tok" style="--d:10.45s"><use xlink:href="#doorGray" x="-32" y="-32" width="64" height="64"/><use xlink:href="#plate" transform="translate(0,-14)"/><use xlink:href="#tex-lB" transform="{{T:lB:0,-14,1.7,c}}" fill="#33303c"/></g></g>
+  <g transform="translate(1405,162)"><g class="tok" style="--d:10.45s"><use xlink:href="#doorGray" x="-32" y="-32" width="64" height="64"/><use xlink:href="#plate" transform="translate(0,-14)"/><use xlink:href="#tex-lC" transform="{{T:lC:0,-14,1.7,c}}" fill="#33303c"/></g></g>
+  <g class="anim" style="--d:10.65s">
+    <rect x="1506" y="106" width="106" height="104" rx="12" fill="#fffbf2" stroke="#b9821f" stroke-width="2" stroke-dasharray="6 5"/>
+    <use xlink:href="#tex-goalw" transform="{{T:goalw:1559,128,2.3,c}}" fill="#b9821f"/>
+  </g>
+  <g transform="translate(1559,172)"><g class="tok" style="--d:10.8s"><use xlink:href="#mDoorGold"/><use xlink:href="#tex-lC" transform="{{T:lC:0,-2,1.8,c}}" fill="#33303c"/></g></g>
+  <g transform="translate(1315,300)"><g class="tok" style="--d:10.95s"><circle r="23" fill="#f2f5fb" stroke="#35507d" stroke-width="2.8"/><use xlink:href="#tex-pith" transform="{{T:pith:0,0,2.3,c}}" fill="#1a1a1a"/></g></g>
+  <g transform="translate(1456,356)"><g class="tok" style="--d:11.15s"><use xlink:href="#chipQ"/><use xlink:href="#tex-qm" transform="{{T:qm:0,0,2.8,c}}" fill="#737373"/></g></g>
+
+  <!-- step 1: h = null, look up (null | {A,B,C}) -> try A: fails -->
+  <g class="lateDim" style="--ld:13.7s;--lo:0.22">
+    <rect class="ring" style="--d:11.5s" x="60" y="598" width="203" height="56" rx="10" fill="none" stroke="#e3a730" stroke-width="3"/>
+    <g class="anim" style="--d:11.5s"><use xlink:href="#tex-e0" transform="{{T:e0:161,626,3.0,c}}"/></g>
+    <path class="dfade" style="--d:11.55s" d="M1452,384 L272,592" fill="none" stroke="#b9821f" stroke-width="2.4" stroke-dasharray="8 7"/>
+    <g class="pop" style="--d:11.8s"><use xlink:href="#headGold" transform="translate(266,596) rotate(169.7)"/></g>
+  </g>
+  <g class="fly" style="--d:11.9s;--x0:161px;--y0:626px;--x1:1456px;--y1:356px"><use xlink:href="#chipT"/><use xlink:href="#tex-lA" transform="{{T:lA:0,0,2.4,c}}" fill="#004646"/></g>
+  <path class="grow" style="--d:12.85s" d="M1297,284 C1273,266 1247,242 1230,214" fill="none" stroke="#666" stroke-width="2.6"/>
+  <g class="pop" style="--d:13.1s"><use xlink:href="#headInk" transform="translate(1228,210) rotate(-120)"/></g>
+  <g transform="translate(1225,162)"><g class="tok" style="--d:13.25s"><use xlink:href="#doorBrown" x="-32" y="-32" width="64" height="64"/><use xlink:href="#plate" transform="translate(0,-14)"/><use xlink:href="#tex-lA" transform="{{T:lA:0,-14,1.7,c}}" fill="#33303c"/></g></g>
+  <g transform="translate(1225,240)"><g class="tok" style="--d:13.25s"><circle r="17" fill="#fff" stroke="#9a97a6" stroke-width="2.5"/><use xlink:href="#tex-rp0" transform="{{T:rp0:0,0,1.9,c}}" fill="#7d7a89"/></g></g>
+  <g transform="translate(1180,356)"><g class="tok" style="--d:13.45s"><use xlink:href="#mDoorG"/><use xlink:href="#tex-lA" transform="{{T:lA:0,-2,1.8,c}}" fill="#33303c"/></g></g>
+  <g transform="translate(1226,356)"><g class="tok" style="--d:13.45s"><circle r="14" fill="#fff" stroke="#9a97a6" stroke-width="2.4"/><use xlink:href="#tex-rp0" transform="{{T:rp0:0,0,1.6,c}}" fill="#7d7a89"/></g></g>
+
+  <!-- step 2: h = (A,0), look up (A,0 | {B,C}) -> try B: fails -->
+  <g class="lateDim" style="--ld:15.9s;--lo:0.22">
+    <rect class="ring" style="--d:13.7s" x="307" y="598" width="195" height="56" rx="10" fill="none" stroke="#e3a730" stroke-width="3"/>
+    <g class="anim" style="--d:13.7s"><use xlink:href="#tex-e1" transform="{{T:e1:404,626,3.0,c}}"/></g>
+    <path class="dfade" style="--d:13.75s" d="M1452,384 L510,592" fill="none" stroke="#b9821f" stroke-width="2.4" stroke-dasharray="8 7"/>
+    <g class="pop" style="--d:14.0s"><use xlink:href="#headGold" transform="translate(504,596) rotate(167.5)"/></g>
+  </g>
+  <g class="fly" style="--d:14.1s;--x0:404px;--y0:626px;--x1:1456px;--y1:356px"><use xlink:href="#chipT"/><use xlink:href="#tex-lB" transform="{{T:lB:0,0,2.4,c}}" fill="#004646"/></g>
+  <path class="grow" style="--d:15.05s" d="M1315,276 L1315,217" fill="none" stroke="#666" stroke-width="2.6"/>
+  <g class="pop" style="--d:15.3s"><use xlink:href="#headInk" transform="translate(1315,211) rotate(-90)"/></g>
+  <g transform="translate(1315,162)"><g class="tok" style="--d:15.45s"><use xlink:href="#doorBrown" x="-32" y="-32" width="64" height="64"/><use xlink:href="#plate" transform="translate(0,-14)"/><use xlink:href="#tex-lB" transform="{{T:lB:0,-14,1.7,c}}" fill="#33303c"/></g></g>
+  <g transform="translate(1315,240)"><g class="tok" style="--d:15.45s"><circle r="17" fill="#fff" stroke="#9a97a6" stroke-width="2.5"/><use xlink:href="#tex-rp0" transform="{{T:rp0:0,0,1.9,c}}" fill="#7d7a89"/></g></g>
+  <g transform="translate(1272,356)"><g class="tok" style="--d:15.65s"><use xlink:href="#mDoorG"/><use xlink:href="#tex-lB" transform="{{T:lB:0,-2,1.8,c}}" fill="#33303c"/></g></g>
+  <g transform="translate(1318,356)"><g class="tok" style="--d:15.65s"><circle r="14" fill="#fff" stroke="#9a97a6" stroke-width="2.4"/><use xlink:href="#tex-rp0" transform="{{T:rp0:0,0,1.6,c}}" fill="#7d7a89"/></g></g>
+
+  <!-- step 3: h = (A,0,B,0), look up (A,0,B,0 | C) -> open C: success -->
+  <g class="lateDim" style="--ld:18.1s;--lo:0.22">
+    <rect class="ring" style="--d:15.9s" x="549" y="598" width="193" height="56" rx="10" fill="none" stroke="#e3a730" stroke-width="3"/>
+    <g class="anim" style="--d:15.9s"><use xlink:href="#tex-e2" transform="{{T:e2:646,626,3.0,c}}"/></g>
+    <path class="dfade" style="--d:15.95s" d="M1452,384 L750,592" fill="none" stroke="#b9821f" stroke-width="2.4" stroke-dasharray="8 7"/>
+    <g class="pop" style="--d:16.2s"><use xlink:href="#headGold" transform="translate(744,596) rotate(163.5)"/></g>
+  </g>
+  <g class="fly" style="--d:16.3s;--x0:646px;--y0:626px;--x1:1456px;--y1:356px"><use xlink:href="#chipT"/><use xlink:href="#tex-lC" transform="{{T:lC:0,0,2.4,c}}" fill="#004646"/></g>
+  <path class="grow" style="--d:17.25s" d="M1333,284 C1357,266 1383,242 1400,214" fill="none" stroke="#b9821f" stroke-width="3.2"/>
+  <g class="pop" style="--d:17.55s"><use xlink:href="#headGold" transform="translate(1402,210) rotate(-58)"/></g>
+  <g transform="translate(1405,162)"><g class="tok" style="--d:17.65s"><use xlink:href="#doorGold" x="-32" y="-32" width="64" height="64"/><use xlink:href="#plate" transform="translate(0,-14)"/><use xlink:href="#tex-lC" transform="{{T:lC:0,-14,1.7,c}}" fill="#33303c"/></g></g>
+  <g transform="translate(1405,240)"><g class="tok" style="--d:17.65s"><circle r="17" fill="#fff" stroke="#b9821f" stroke-width="2.5"/><use xlink:href="#tex-rp1" transform="{{T:rp1:0,0,1.9,c}}" fill="#b9821f"/></g></g>
+  <g transform="translate(1364,356)"><g class="tok" style="--d:17.85s"><use xlink:href="#mDoorG"/><use xlink:href="#tex-lC" transform="{{T:lC:0,-2,1.8,c}}" fill="#33303c"/></g></g>
+  <g transform="translate(1410,356)"><g class="tok" style="--d:17.85s"><circle r="14" fill="#fff" stroke="#b9821f" stroke-width="2.4"/><use xlink:href="#tex-rp1" transform="{{T:rp1:0,0,1.5,c}}" fill="#b9821f"/></g></g>
+
+  <!-- step 4: success in context, look up (A,0,B,0,C,1 | C) -> stay at C -->
+  <rect class="ring" style="--d:18.1s" x="750" y="598" width="256" height="56" rx="10" fill="none" stroke="#e3a730" stroke-width="3"/>
+  <g class="anim" style="--d:18.1s"><use xlink:href="#tex-e3" transform="{{T:e3:878,626,3.0,c}}"/></g>
+  <path class="dfade" style="--d:18.15s" d="M1452,384 L1016,588" fill="none" stroke="#b9821f" stroke-width="2.4" stroke-dasharray="8 7"/>
+  <g class="pop" style="--d:18.4s"><use xlink:href="#headGold" transform="translate(1010,592) rotate(155.1)"/></g>
+  <g class="flyStay" style="--d:18.5s;--x0:878px;--y0:626px;--x1:1456px;--y1:356px"><use xlink:href="#chipT"/><use xlink:href="#tex-lC" transform="{{T:lC:0,0,2.4,c}}" fill="#004646"/></g>
+  <path class="grow" style="--d:19.5s" d="M1333,284 C1357,266 1383,242 1400,214" fill="none" stroke="#b9821f" stroke-width="3.2"/>
+  <g class="anim" style="--d:19.85s"><rect x="1188" y="408" width="254" height="38" rx="9" fill="#fff" fill-opacity="0.92"/><use xlink:href="#tex-ph3" transform="{{T:ph3:1315,428,2.9,c}}" fill="#55525e"/></g>
+
+  <!-- takeaway -->
+  <g class="anim" style="--d:20.1s"><use xlink:href="#tex-cap1" transform="{{T:cap1:1340,596,2.9,c}}" fill="#55525e"/></g>
+  <g class="anim" style="--d:20.25s"><use xlink:href="#tex-cap2" transform="{{T:cap2:1340,646,2.9,c}}" fill="#55525e"/></g>
+
+</svg>
+<script>
+(function(){
+  var figs=[].slice.call(document.querySelectorAll('.fig'));
+  function prep(f){f.querySelectorAll('.grow').forEach(function(p){try{var l=p.getTotalLength();p.style.strokeDasharray=l;p.style.strokeDashoffset=l;p.style.setProperty('--len',l);}catch(e){}});}
+  function play(f){f.classList.remove('play');void f.getBoundingClientRect();f.classList.add('play');}
+  figs.forEach(function(f){try{prep(f);}catch(e){}f.addEventListener('click',function(){play(f);});});
+  var played=false, LOOP_MS=26300; // ~21.3s of animation + a 5s hold before it loops
+  function start(){if(played)return;played=true;figs.forEach(play);setInterval(function(){figs.forEach(play);},LOOP_MS);}
+  window.addEventListener('message',function(e){
+    if(e.data&&e.data.type==='lmp-play'){start();}
+  });
+  if('IntersectionObserver' in window){
+    new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){start();}});},{threshold:0.4}).observe(document.querySelector('.fig'));
+  }
+}());
+</script>
+</body>
+</html>

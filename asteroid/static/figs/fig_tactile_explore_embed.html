@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>figTactileExplore</title>
+<script src="https://cdn.plot.ly/plotly-gl3d-2.35.2.min.js" charset="utf-8"></script>
+<script src="explore_viz/tactile_data.js"></script>
+<style>
+html,body{margin:0;padding:0;background:transparent;font-family:'Google Sans','Noto Sans',sans-serif;}
+.viz{padding:4px 6px 8px;}
+.prow{display:flex;gap:12px;margin-bottom:10px;}
+.prow .cell{flex:1;height:195px;border-radius:12px;overflow:hidden;background:#fafafa;}
+.prow video{width:100%;height:100%;object-fit:cover;display:block;border-radius:12px;}
+.mainplot{width:100%;height:195px;}
+</style>
+</head>
+<body>
+<div class="viz">
+  <div class="prow">
+    <div class="cell" id="touchplot"></div>
+    <div class="cell"><video id="scenevid" src="explore_viz/scene_method.mp4" muted playsinline preload="metadata"></video></div>
+  </div>
+  <div id="mainplot" class="mainplot"></div>
+</div>
+
+<script src="explore_viz/viz_common.js"></script>
+<script>
+(function(){
+  var D = window.TACTILE_DATA.method;
+  var vid = document.getElementById('scenevid');
+  var built = false;
+  VIZ.onVisible(function(v){
+    if (v && !built) {   // build plots only once the card is actually on screen
+      built = true;
+      var pads = VIZ.buildPair('touchplot', 'mainplot', D, false);
+      VIZ.sync(vid, pads, 'mainplot', D);
+      vid.play().catch(function(){});
+    }
+  });
+  // no hard loop: hold the final frame 2s, then restart (only while visible)
+  vid.addEventListener('ended', function(){
+    setTimeout(function(){
+      if (!VIZ.isVisible()) return;   // resumes via the next visibility change
+      vid.currentTime = 0; vid.play().catch(function(){});
+    }, 1000);
+  });
+  VIZ.onVisible(function(v){
+    if (v && built && vid.ended) { vid.currentTime = 0; vid.play().catch(function(){}); }
+  });
+
+  function reportH(){
+    try { window.parent.postMessage({ type:'lmp-figheight', height: document.body.scrollHeight }, '*'); } catch(e){}
+  }
+  window.addEventListener('load', function(){ reportH(); setTimeout(reportH, 400); });
+  window.addEventListener('resize', reportH);
+}());
+</script>
+</body>
+</html>

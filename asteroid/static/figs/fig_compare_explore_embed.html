@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>figCompareExplore</title>
+<script src="https://cdn.plot.ly/plotly-gl3d-2.35.2.min.js" charset="utf-8"></script>
+<script src="explore_viz/cmp_data.js"></script>
+<script>window.TACTILE_DATA = window.TACTILE_DATA || { _fmax: (window.CMP_DATA||{})._fmax };</script>
+<script src="explore_viz/viz_common.js"></script>
+<style>
+html,body{margin:0;padding:0;background:transparent;font-family:'Google Sans','Noto Sans',sans-serif;}
+.bar{display:flex;justify-content:center;gap:10px;padding:2px 0 12px;}
+.pill{border:1.5px solid #c9c4d4;background:#fff;color:#55525e;border-radius:999px;
+  font-family:inherit;font-size:14.5px;font-weight:600;padding:7px 16px;cursor:pointer;
+  transition:background .15s ease,color .15s ease,border-color .15s ease;}
+.pill:hover{background:#f0eef4;}
+.pill.on{background:#003366;border-color:#003366;color:#fff;}
+.cmp{display:flex;gap:14px;}
+.side{flex:1;min-width:0;}
+.mbar{display:flex;justify-content:center;gap:6px;margin-bottom:10px;flex-wrap:wrap;}
+.mbar .pill{font-size:12.5px;padding:5px 12px;}
+.prow{display:flex;gap:10px;margin-bottom:10px;}
+.cell{flex:1;height:170px;border-radius:12px;overflow:hidden;background:#fafafa;min-width:0;}
+.cell video{width:100%;height:100%;object-fit:contain;display:block;border-radius:12px;background:#000;}
+.plot3d{width:100%;height:195px;}
+</style>
+</head>
+<body>
+<div class="bar" id="taskbar"></div>
+<div class="cmp">
+  <div class="side" id="side0">
+    <div class="mbar" id="mbar0"></div>
+    <div class="prow"><div class="cell" id="pads0"></div><div class="cell" id="wcell0" style="display:none"><video id="wrist0" muted playsinline preload="metadata"></video></div><div class="cell"><video id="vid0" muted playsinline preload="metadata"></video></div></div>
+    <div class="plot3d" id="traj0"></div>
+  </div>
+  <div class="side" id="side1">
+    <div class="mbar" id="mbar1"></div>
+    <div class="prow"><div class="cell" id="pads1"></div><div class="cell" id="wcell1" style="display:none"><video id="wrist1" muted playsinline preload="metadata"></video></div><div class="cell"><video id="vid1" muted playsinline preload="metadata"></video></div></div>
+    <div class="plot3d" id="traj1"></div>
+  </div>
+</div>
+
+<script>
+(function(){
+  var DATA = window.CMP_DATA;
+  var TASKS = Object.keys(DATA.tasks);
+  var HOLD_MS = 1000;
+
+  var qTask = new URLSearchParams(location.search).get('task');
+  var state = { task: (qTask && DATA.tasks[qTask]) ? qTask : 'tact', sel:['asteroid','bc'], ri:[0,0] };
+  var refs = [null,null];
+  var holdTimer = null;
+
+  // ---- selector bars ----
+  var taskbar = document.getElementById('taskbar');
+  TASKS.forEach(function(tk){
+    var b = document.createElement('button');
+    b.className = 'pill'; b.textContent = DATA.tasks[tk].label;
+    b.addEventListener('click', function(){
+      if (state.task === tk) return;
+      state.task = tk;
+      var ms = Object.keys(DATA.tasks[tk].methods);
+      state.sel = ['asteroid', ms.indexOf('bc') >= 0 ? 'bc' : ms[1] || ms[0]];
+      state.ri = [0,0];
+      renderBars(); rebuild();
+    });
+    taskbar.appendChild(b);
+  });
+
+  function renderBars(){
+    [].forEach.call(taskbar.children, function(b, i){
+      b.className = 'pill' + (TASKS[i] === state.task ? ' on' : '');
+    });
+    [0,1].forEach(function(s){
+      var bar = document.getElementById('mbar'+s);
+      bar.innerHTML = '';
+      var methods = DATA.tasks[state.task].methods;
+      Object.keys(methods).forEach(function(mk){
+        var b = document.createElement('button');
+        b.className = 'pill' + (state.sel[s] === mk ? ' on' : '');
+        b.textContent = methods[mk].name;
+        b.addEventListener('click', function(){
+          if (state.sel[s] === mk) return;
+          state.sel[s] = mk; state.ri = [0,0];
+          renderBars();
+          if (refs[0] && refs[1]) { setRoll(0); setRoll(1); play(); }
+          else rebuild();
+        });
+        bar.appendChild(b);
+      });
+    });
+  }
+
+  // ---- per-side build ----
+  function buildSide(s){
+    var T = DATA.tasks[state.task];
+    var M = T.methods[state.sel[s]];
+    var roll = M.rolls[state.ri[s] % M.rolls.length];
+    var padDiv = document.getElementById('pads'+s);
+    var trajDiv = document.getElementById('traj'+s);
+    var video = document.getElementById('vid'+s);
+    var wcell = document.getElementById('wcell'+s);
+    var wrist = document.getElementById('wrist'+s);
+    var hasWrist = state.task === 'peg';   // wrist-camera renders exist as *_wrist.mp4 siblings
+    padDiv.style.display = T.pads ? '' : 'none';
+    wcell.style.display = hasWrist ? '' : 'none';
+    padDiv.innerHTML = '';
+    trajDiv.innerHTML = '';
+    video.loop = false;
+    video.src = roll.vid;
+    video.playbackRate = 0.7;
+    if (hasWrist) {
+      wrist.loop = false;
+      wrist.src = roll.vid.replace(/\.mp4$/, '_wrist.mp4');
+      wrist.playbackRate = 0.7;
+    }
+    var pads = VIZ.buildPair(T.pads ? 'pads'+s : null, 'traj'+s, roll, true);
+    var ref = { video:video, wrist:hasWrist ? wrist : null, pads:pads, D:roll, n:roll.traj.length, last:-1, done:false };
+    VIZ.bindSeek('traj'+s, function(){ return video; }, function(){ return ref.n; });
+    video.onended = function(){ ref.done = true; checkBoth(); };
+    video.onplay = function(){ ref.done = false; };
+    // after any seek (e.g. clicking the 3D trajectory), realign the wrist view once
+    video.onseeked = function(){
+      if (ref.wrist && video.duration && ref.wrist.duration) {
+        ref.wrist.currentTime = video.currentTime / video.duration * ref.wrist.duration;
+        if (!video.paused) ref.wrist.play().catch(function(){});
+      }
+    };
+    refs[s] = ref;
+  }
+
+  function rebuild(){
+    if (holdTimer) { clearTimeout(holdTimer); holdTimer = null; }
+    buildSide(0); buildSide(1);
+    play();
+  }
+  function play(){
+    refs.forEach(function(r){
+      try { r.video.currentTime = 0; } catch(e){}
+      r.video.play().catch(function(){});
+      if (r.wrist) {
+        try { r.wrist.currentTime = 0; } catch(e){}
+        r.wrist.play().catch(function(){});
+      }
+    });
+  }
+
+  // both rollouts finished: hold, then each side advances to its next rollout
+  // in-place rollout swap: videos change src, plots restyle — no rebuild
+  function setRoll(s){
+    var T = DATA.tasks[state.task];
+    var M = T.methods[state.sel[s]];
+    var roll = M.rolls[state.ri[s] % M.rolls.length];
+    var r = refs[s];
+    r.video.src = roll.vid; r.video.playbackRate = 0.7;
+    if (r.wrist) { r.wrist.src = roll.vid.replace(/\.mp4$/, '_wrist.mp4'); r.wrist.playbackRate = 0.7; }
+    VIZ.updateData(r.pads, 'traj'+s, roll, true);
+    r.D = roll; r.n = roll.traj.length; r.last = -1; r.done = false;
+  }
+  var pendingAdvance = false;
+  function advance(){
+    state.ri[0]++; state.ri[1]++;
+    setRoll(0); setRoll(1);
+    play();
+  }
+  function checkBoth(){
+    if (!refs[0] || !refs[1] || !refs[0].done || !refs[1].done) return;
+    holdTimer = setTimeout(function(){
+      if (!VIZ.isVisible()) { pendingAdvance = true; return; }
+      advance();
+    }, HOLD_MS);
+  }
+
+  // one clock for both sides
+  function frame(){
+    if (!VIZ.isVisible()) { requestAnimationFrame(frame); return; }
+    refs.forEach(function(r, s){
+      if (!r) return;
+      var d = r.video.duration;
+      if (d && isFinite(d) && d > 0) {
+        var k = Math.min(r.n-1, Math.floor(r.video.currentTime / d * r.n));
+        if (k !== r.last) { r.last = k; VIZ.step(r.pads, 'traj'+s, r.D, k); }
+      }
+    });
+    requestAnimationFrame(frame);
+  }
+
+  renderBars();
+  var started = false;
+  VIZ.onVisible(function(v){
+    if (v && !started) { started = true; rebuild(); requestAnimationFrame(frame); return; }
+    if (!started) return;
+    if (!v) { refs.forEach(function(r){ if (r) { r.video.pause(); if (r.wrist) r.wrist.pause(); } }); }
+    else if (pendingAdvance) { pendingAdvance = false; advance(); }
+    else { refs.forEach(function(r){ if (r && r.video.paused && !r.video.ended) { r.video.play().catch(function(){}); if (r.wrist) r.wrist.play().catch(function(){}); } }); }
+  });
+
+  function reportH(){
+    try { window.parent.postMessage({ type:'lmp-figheight', height: document.body.scrollHeight }, '*'); } catch(e){}
+  }
+  window.addEventListener('load', function(){ reportH(); setTimeout(reportH, 400); });
+  window.addEventListener('resize', reportH);
+}());
+</script>
+</body>
+</html>

@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="description"
+    content="ASTEROID: Asymmetric On-Policy Distillation Learns In-Context Exploration">
+  <meta name="keywords" content="Reinforcement Learning, Exploration, POMDP, Imitation Learning, Robotics">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Asymmetric On-Policy Distillation Learns In-Context Exploration</title>
+
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro" rel="stylesheet">
+
+  <link rel="stylesheet" href="./static/css/bulma.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-carousel.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-slider.min.css">
+  <link rel="stylesheet" href="./static/css/fontawesome.all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  <link rel="stylesheet" href="./static/css/index.css">
+  <link rel="icon" href="./static/images/favicon.svg">
+
+  <script defer src="./static/js/fontawesome.all.min.js"></script>
+  <script src="./static/js/bulma-carousel.min.js"></script>
+  <script src="./static/js/bulma-slider.min.js"></script>
+  <script src="./static/js/index.js"></script>
+
+  <!-- MathJax for native LaTeX rendering -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['\\(', '\\)']],
+        displayMath: [['\\[', '\\]']]
+      },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" id="MathJax-script" async></script>
+</head>
+
+<body>
+  <section class="hero">
+    <div class="hero-body">
+      <div class="container is-max-desktop">
+        <div class="columns is-centered">
+          <div class="column has-text-centered">
+            <h1 class="title is-1 publication-title">
+              Asymmetric On-Policy Distillation Learns </br><span class="multi-color-text">In-Context Exploration</span>
+            </h1>
+
+            <div class="is-size-5 publication-authors">
+              <span class="author-block">
+                <a href="https://sriya.sh">Sriyash Poddar</a><sup>1</sup>,
+              </span>
+              <span class="author-block">
+                <a href="https://www.linkedin.com/in/yanda-bao">Yanda Bao</a><sup>1</sup>,
+              </span>
+              <span class="author-block">
+                <a href="https://jacobkrantz.github.io/">Jacob Krantz</a><sup>2</sup>,
+              </span>
+              <span class="author-block">
+                <a href="https://matthewchang.github.io/">Matthew Chang</a><sup>2</sup>,
+              </span>
+              <span class="author-block">
+                <a href="https://www.xavierpuigf.com/">Xavier Puig</a><sup>2</sup>,
+              </span>
+              <span class="author-block">
+                <a href="https://roozbehm.info/">Roozbeh Mottaghi</a><sup>2</sup>,
+              </span>
+              <span class="author-block">
+                <a href="https://natashajaques.ai/">Natasha Jaques</a><sup>1*</sup>,
+              </span>
+              <span class="author-block">
+                <a href="https://homes.cs.washington.edu/~abhgupta/">Abhishek Gupta</a><sup>1*</sup>
+              </span>
+            </div>
+
+            <div class="is-size-5 publication-authors mt-3">
+              <span class="author-block"><sup>1</sup> University of Washington</span>
+              <span class="author-block"><sup>2</sup> Meta</span>
+            </div>
+            <div class="is-size-6 publication-authors">
+              <span class="author-block"><sup>*</sup> Equal advising</span>
+            </div>
+
+            <div class="publication-links" style="margin-top: 1rem;">
+              <!-- PDF Link. -->
+              <span class="link-block">
+                <a href="./Incontext_Exploration___NeurIPS2026__arxiv_.pdf"
+                  class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                    <i class="fas fa-file-pdf"></i>
+                  </span>
+                  <span>Paper</span>
+                </a>
+              </span>
+              <!-- arXiv Link. -->
+              <span class="link-block">
+                <a href="#" class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                    <i class="ai ai-arxiv"></i>
+                  </span>
+                  <span>arXiv</span>
+                </a>
+              </span>
+              <!-- Video Link. -->
+              <span class="link-block">
+                <a href="#" class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                    <i class="fab fa-youtube"></i>
+                  </span>
+                  <span>Video</span>
+                </a>
+              </span>
+              <!-- Code Link. -->
+              <span class="link-block">
+                <a href="https://github.com/WEIRDLabUW/asteroid" class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                    <i class="fab fa-github"></i>
+                  </span>
+                  <span>Code</span>
+                </a>
+              </span>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- Teaser: task carousel -->
+      <div class="container is-max-desktop">
+        <div class="columns is-centered has-text-centered">
+          <div class="column is-full">
+            <div style="max-width:1900px;width:100vw;margin-left:50%;transform:translateX(-50%);padding:0 3rem;box-sizing:border-box;">
+            <div id="task-carousel" class="carousel results-carousel">
+              <div class="item">
+                <video autoplay muted loop playsinline preload="metadata" style="width:100%;aspect-ratio:16/9;object-fit:contain;background:#fff;border-radius:6px;">
+                  <source src="./assets/rummaging_pair_2x.mp4" type="video/mp4">
+                </video>
+                <p class="task-cap">Rummaging</p>
+              </div>
+              <div class="item">
+                <video autoplay muted loop playsinline preload="metadata" style="width:100%;aspect-ratio:16/9;object-fit:contain;background:#fff;border-radius:6px;">
+                  <source src="./assets/robot_main_2x.mp4" type="video/mp4">
+                </video>
+                <p class="task-cap">Blind Cube Pick</p>
+              </div>
+              <div class="item">
+                <video autoplay muted loop playsinline preload="metadata" style="width:100%;aspect-ratio:16/9;object-fit:contain;background:#fff;border-radius:6px;">
+                  <source src="./static/figs/explore_viz/cmp_peg_asteroid_0.mp4" type="video/mp4">
+                </video>
+                <p class="task-cap">Wrist-Camera Peg Insertion</p>
+              </div>
+              <div class="item">
+                <video autoplay muted loop playsinline preload="metadata" style="width:100%;aspect-ratio:16/9;object-fit:contain;background:#fff;border-radius:6px;">
+                  <source src="./static/figs/explore_viz/cmp_tact_asteroid_0.mp4" type="video/mp4">
+                </video>
+                <p class="task-cap">Tactile Cube Pick</p>
+              </div>
+              <div class="item">
+                <video autoplay muted loop playsinline preload="metadata" style="width:100%;aspect-ratio:16/9;object-fit:contain;background:#000;border-radius:6px;">
+                  <source src="./assets/habitat_annotated.mp4" type="video/mp4">
+                </video>
+                <p class="task-cap">Habitat Object Search</p>
+              </div>
+              <div class="item">
+                <video autoplay muted loop playsinline preload="metadata" style="width:100%;aspect-ratio:16/9;object-fit:contain;background:#fff;border-radius:6px;">
+                  <source src="./assets/meta_learning_grid.mp4" type="video/mp4">
+                </video>
+                <p class="task-cap">Meta-Learning Benchmark</p>
+              </div>
+            </div>
+            </div>
+
+            <div class="content has-text-justified" style="margin-top: 1.5rem;">
+              <span class="multi-color-text"><strong>ASTEROID</strong></span> learns test-time exploration in partially
+              observed tasks by pairing on-policy student rollouts with privileged expert action labels. This yields
+              policies that explore, adapt, and improve during deployment &mdash; with the sample efficiency of
+              supervised learning.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="hr"></div>
+
+  <!-- Method comparison -->
+  <section class="section">
+    <div class="container is-max-desktop">
+      <h2 class="title is-3 has-text-centered">How to Learn Exploration from Experts that Don&rsquo;t?</h2>
+      <div class="columns is-centered">
+        <div class="column">
+          <div class="content has-text-justified">
+            <p>
+              A goal is hidden behind one of three doors, fixed across episodes. The agent only observes its own
+              position and must use feedback from past episodes to find the goal. Only ASTEROID learns to rule out
+              failed doors and commit to the remaining ones.
+            </p>
+          </div>
+        </div>
+      </div>
+      <div class="columns is-centered has-text-centered is-multiline is-variable is-2">
+        <div class="column is-one-quarter">
+          <h4 class="title is-6" style="font-size:1.5em;opacity:.75;">BC</h4>
+          <iframe class="lmp-figframe" src="./static/figs/fig_bc_embed.html" title="BC: i.i.d. door visits, no learning"
+            scrolling="no" loading="lazy"
+            style="opacity:.75;width:100%;aspect-ratio:640/1010;border:0;display:block;border-radius:10px;overflow:visible;"></iframe>
+        </div>
+        <div class="column is-one-quarter">
+          <h4 class="title is-6" style="font-size:1.5em;opacity:.75;">DAgger</h4>
+          <iframe class="lmp-figframe" src="./static/figs/fig_dagger_embed.html"
+            title="DAgger: per-step corrections average to a uniform policy, so the agent dithers for exponentially long"
+            scrolling="no" loading="lazy"
+            style="opacity:.75;width:100%;aspect-ratio:640/1010;border:0;display:block;border-radius:10px;overflow:visible;"></iframe>
+        </div>
+        <div class="column is-one-quarter">
+          <h4 class="title is-6" style="font-size:1.5em;opacity:.75;">DPT</h4>
+          <iframe class="lmp-figframe" src="./static/figs/fig_dpt_embed.html"
+            title="DPT: offline data can never cover the infinite space of contexts"
+            scrolling="no" loading="lazy"
+            style="opacity:.75;width:100%;aspect-ratio:640/1010;border:0;display:block;border-radius:10px;overflow:visible;"></iframe>
+        </div>
+        <div class="column is-one-quarter">
+          <h4 class="title is-6" style="font-size:1.5em;"><span class="multi-color-text"><strong>ASTEROID</strong></span></h4>
+          <a class="asteroid-hop" id="asteroid-hop" href="#asteroid-loop"
+            aria-label="Jump to the ASTEROID training-loop figure in the Method section">
+            <iframe class="lmp-figframe" src="./static/figs/fig_asteroid_embed.html"
+              title="ASTEROID: converges to the goal door in 3 steps by folding each attempt's feedback into context, then commits"
+              scrolling="no" loading="lazy" tabindex="-1"
+              style="width:100%;aspect-ratio:640/1010;border:0;display:block;border-radius:10px;overflow:visible;"></iframe>
+            <span class="hop-hit" aria-hidden="true"></span>
+            <span class="hop-pill" aria-hidden="true">how? see the training loop &darr;</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="hr"></div>
+
+  <!-- Overview -->
+  <section class="section">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered has-text-centered">
+        <div class="column">
+          <h2 class="title is-3">Overview</h2>
+          <div class="content has-text-justified">
+            <p>
+              Agents in partially observed environments must explore to infer hidden, task-relevant information before
+              acting effectively. Learning this tabula rasa via online RL is sample-inefficient, while imitating
+              clairvoyant experts fails: the expert already knows the hidden state, so it never demonstrates the
+              information-gathering the student needs. <strong>ASTEROID</strong> resolves this by decoupling the source
+              of the history from the source of the supervision &mdash; the student collects on-policy context under
+              partial observability, and the privileged expert labels actions conditioned on that context. Iterating
+              this procedure converges to Bayesian posterior sampling, a provably efficient exploration strategy.
+              Across 11 environments spanning discrete exploration, navigation, Procgen, and robot manipulation,
+              ASTEROID achieves ~2&times; higher returns under fixed exploration budgets, uses up to ~100&times; fewer
+              training interactions, and transfers to vision-denied real-world manipulation with a 40% higher success
+              rate than baselines.
+            </p>
+          </div>
+          <div class="media-ph" style="aspect-ratio:16/9;">Overview video (YouTube embed)</div>
+          <!-- Replace the placeholder above with:
+          <div class="publication-video">
+            <iframe src="https://www.youtube.com/embed/VIDEO_ID" frameborder="0" allow="autoplay; encrypted-media"
+              allowfullscreen></iframe>
+          </div>
+          -->
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="hr"></div>
+
+  <!-- Method -->
+  <section class="section">
+    <div class="container is-max-desktop">
+      <h2 class="title is-3 has-text-centered">Method</h2>
+
+      <div class="columns is-centered">
+        <div class="column">
+          <div class="content has-text-justified">
+            <p>
+              ASTEROID (<strong>A</strong>symmetric <strong>S</strong>tudent <strong>T</strong>eacher
+              <strong>R</strong>ollout <strong>I</strong>n-context <strong>D</strong>istillation) is an iterative
+              procedure that alternates between collecting on-policy histories from the student and training a
+              history-conditioned student policy on privileged expert labels.
+            </p>
+          </div>
+          <iframe class="lmp-figframe" id="asteroid-loop" src="./static/figs/fig_asteroid_loop_embed.html"
+            title="ASTEROID training loop: sample a world, collect on-policy context and privileged expert labels, train by conditional imitation, repeat"
+            scrolling="no" loading="lazy"
+            style="width:100%;aspect-ratio:1680/1000;border:0;display:block;border-radius:10px;"></iframe>
+
+          <h3 class="title is-5 mt-6 has-text-left">On-Policy Rollouts</h3>
+          <div class="content has-text-justified">
+            <p>
+              The student \(\pi_{\theta}\) is rolled out under partial observability, producing a history
+              \(h_t = (o_0, a_0, r_0, \ldots, o_t)\) of observations, actions, and rewards. In the three-door task, the
+              student tries a door and observes whether it succeeded. Failed attempts are not discarded &mdash; they
+              become training context, specifying exactly what evidence the student has accumulated. Training on
+              histories induced by the student's own behavior minimizes the distribution shift between training and
+              deployment, avoiding the intractable coverage assumptions of offline in-context methods like DPT.
+            </p>
+          </div>
+
+          <h3 class="title is-5 mt-5 has-text-left">In-Context Distillation</h3>
+          <div class="content has-text-justified">
+            <p>
+              A clairvoyant expert \(\pi^*\) that observes the hidden goal labels the correct next action from the state
+              the student reached. If the student tried door 1 and failed, the expert labels the same history
+              &ldquo;go to door 2&rdquo; when the goal is door 2, and &ldquo;go to door 3&rdquo; when it is door 3.
+              Trained with a conditional imitation loss over many tasks, the student learns to sample only from the
+              plausible hypotheses that remain, never repeating a door its own experience has ruled out. Iterating with
+              growing context length, the policy converges to posterior sampling:
+            </p>
+            <p style="overflow-x: auto;">
+              \[
+              \pi(a_t \mid h_t) \;=\; \int \pi^*(a_t \mid s)\, p(s \mid h_t)\, ds.
+              \]
+            </p>
+          </div>
+          <iframe class="lmp-figframe" src="./static/figs/fig_train_infer_embed.html"
+            title="Training vs inference on the three-door task: the in-context dataset of (context, expert action) pairs expands over iterations; at inference the policy retrieves the matching entry for any goal configuration"
+            scrolling="no" loading="lazy"
+            style="width:100%;aspect-ratio:1680/730;border:0;display:block;border-radius:10px;"></iframe>
+
+          <h3 class="title is-5 mt-5 has-text-left">Scaling to POMDPs</h3>
+          <div class="content has-text-justified">
+            <p>
+              In general POMDPs the hidden state changes within an episode &mdash; e.g., a locally observed maze where
+              the agent's global position is never revealed. ASTEROID samples a timestep \(t\), rolls out the student
+              to produce \(h_t\), and queries the expert from the reached state for the label \(a^*_t\). Each action
+              and observation prunes some plausible hidden states while keeping others, and biasing sampled timesteps
+              toward longer horizons induces a natural context-length curriculum. The recipe is unchanged: collect the
+              histories the student actually visits, then teach how those histories should guide future behavior.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="hr"></div>
+
+  <!-- Experiments -->
+  <section class="section">
+    <div class="container is-max-desktop">
+      <h2 class="title is-3 has-text-centered">Experiments</h2>
+
+      <h3 class="title is-5 mt-4 has-text-left">Robot Manipulation: 100&times; Sample Efficiency</h3>
+      <div class="columns is-centered">
+        <div class="column">
+          <div class="content has-text-justified">
+            <p>
+              On wrist-camera peg insertion and tactile picking, ASTEROID is ~100&times; more efficient in environment
+              steps than RL baselines with privileged supervision. Under extreme partial observability &mdash; tactile
+              sensing with no proprioception &mdash; it reaches 92% success. Unlike offline asymmetric methods (AAWR),
+              it requires no coverage-sensitive offline dataset.
+            </p>
+          </div>
+        </div>
+      </div>
+      <!-- interactive sample-efficiency curves (data + style from icml2026_plots/plot_main.py;
+           wandb RL curves appended by src/explore_viz/make_curves.py run on tars) -->
+      <div class="rw-block-card" style="box-shadow:0 0 14px 2px rgba(0,51,102,0.08);border-radius:20px;padding:1rem 0.9rem;">
+        <iframe id="fig-curves-frame" src="./static/figs/fig_curves_embed.html"
+          title="Training sample efficiency: success rate vs. environment steps (log scale) for ASTEROID and baselines on tactile cube pick and wrist peg insertion"
+          scrolling="no" loading="lazy"
+          style="width:100%;height:450px;border:0;display:block;"></iframe>
+      </div>
+      <div class="columns is-centered mt-2">
+        <div class="column is-10">
+          <details class="dd">
+            <summary class="multi-color-text" style="cursor:pointer;display:inline-block;font-family:'Google Sans',sans-serif;font-size:1.2rem;font-weight:700;"><span class="dd-arrow">&#9656;</span> Ablations &amp; more results:</summary>
+            <div class="mt-3">
+              <!-- tabbed interactive ablations: wandb eval aggregates via dump_ablations.py,
+                   AAWR bars from aawr_ablation_bar.py -->
+              <div class="rw-block-card" style="box-shadow:0 0 14px 2px rgba(0,51,102,0.08);border-radius:20px;padding:1rem 0.9rem;">
+                <iframe id="fig-ablations-frame" data-src="./static/figs/fig_ablations_embed.html"
+                  title="Robot manipulation ablations: noisy expert, exploration curriculum, no proprioception, offline data sensitivity"
+                  scrolling="no" loading="lazy"
+                  style="width:100%;height:500px;border:0;display:block;"></iframe>
+              </div>
+            </div>
+          </details>
+        </div>
+      </div>
+
+      <h3 class="title is-5 mt-6 has-text-left">What exploration strategies emerge in manipulation?</h3>
+      <div class="columns is-centered">
+        <div class="column">
+          <div class="content has-text-justified">
+            <p>
+              In wrist-camera peg insertion, the policy actively scans the tabletop to localize the object and target,
+              and recovers after failed attempts. With only tactile sensors &mdash; even without proprioception &mdash;
+              it probes multiple grasp points and uses contact feedback to choose the next attempt, generalizing to
+              unseen objects and colors.
+            </p>
+          </div>
+        </div>
+      </div>
+      <!-- animated 1x5 end-effector trajectory comparison on tactile cube pick
+           (gif twin of the paper figure; built by src/explore_viz/make_traj_grid_gif.py) -->
+      <div class="columns is-centered has-text-centered">
+        <div class="column is-full">
+          <div class="rw-block-card" style="box-shadow:0 0 14px 2px rgba(0,51,102,0.08);border-radius:20px;padding:1rem 0.9rem;">
+            <img src="./static/figs/tactile_traj_1x5.gif"
+              alt="End-effector trajectories on tactile cube pick: the gray privileged expert grasps directly; BC, DAgger and DPT fail to adapt under partial observability; ASTEROID sweeps the table until contact, then grasps and lifts."
+              style="width:100%;display:block;border-radius:10px;">
+          </div>
+        </div>
+      </div>
+      <!-- exploration-strategy cards: policy input + task video up top, an interactive
+           z-orbit 3D trajectory below (tactile has real data; peg is placeholders).
+           A Bonus-style tab underneath holds a carousel of baseline rollouts.
+           Iframes auto-size via lmp-figheight. -->
+      <div class="columns is-centered has-text-centered">
+        <div class="column is-half">
+          <h4 class="title is-6">Wrist-Camera Peg Insertion</h4>
+          <div class="rw-block-card" style="box-shadow:0 0 14px 2px rgba(0,51,102,0.08);border-radius:20px;padding:1rem 0.9rem;">
+            <iframe id="fig-peg-frame" src="./static/figs/fig_peg_explore_embed.html"
+              title="Peg insertion visualization (coming soon)"
+              scrolling="no" loading="lazy"
+              style="width:100%;height:620px;border:0;display:block;"></iframe>
+          </div>
+        </div>
+        <div class="column is-half">
+          <h4 class="title is-6">Tactile-Only Cube Pick</h4>
+          <div class="rw-block-card" style="box-shadow:0 0 14px 2px rgba(0,51,102,0.08);border-radius:20px;padding:1rem 0.9rem;">
+            <iframe id="fig-tactile-frame" src="./static/figs/fig_tactile_explore_embed.html"
+              title="Tactile cube pick: touch input, task video, and the interactive 3D end-effector trajectory"
+              scrolling="no" loading="lazy"
+              style="width:100%;height:620px;border:0;display:block;"></iframe>
+          </div>
+        </div>
+      </div>
+
+      <div class="columns is-centered mt-2">
+        <div class="column is-10">
+          <details class="dd">
+            <summary class="multi-color-text" style="cursor:pointer;display:inline-block;font-family:'Google Sans',sans-serif;font-size:1.2rem;font-weight:700;"><span class="dd-arrow">&#9656;</span> Compare methods:</summary>
+            <div class="mt-3">
+              <iframe id="fig-compare-frame" data-src="./static/figs/fig_compare_explore_embed.html"
+                title="Side-by-side method comparison: pick a task and two methods; synced rollouts with force pads, scene video, and clickable 3D trajectories"
+                scrolling="no" loading="lazy"
+                style="width:100%;height:520px;border:0;display:block;"></iframe>
+            </div>
+          </details>
+        </div>
+      </div>
+
+      <hr style="border:0;height:1px;background:#e9e9e9;margin:3rem 0 0;">
+
+      <h3 class="title is-5 mt-6 has-text-left">Navigation</h3>
+      <div class="columns is-centered">
+        <div class="column">
+          <div class="content has-text-justified">
+            <p>
+              In Procgen mazes with only 3&times;3 local observations, ASTEROID maintains an implicit belief over the
+              maze and goal, achieving higher success rates in nearly half as many timesteps as baselines. BC succeeds
+              only through inefficient random search; DPT fails from incomplete offline coverage of test-time
+              histories. The same recipe scales to visual navigation: Habitat object search from egocentric images and
+              ant navigation with 8-dof continuous control.
+            </p>
+          </div>
+        </div>
+      </div>
+      <!-- navigation results, 1:2 — interactive habitat bars (iteration_progress_bar.py)
+           beside the interactive procgen panels (wandb, asteroid_procgen_ablation2.py) -->
+      <div class="columns is-centered">
+        <div class="column is-two-fifths">
+          <div class="rw-block-card" style="box-shadow:0 0 14px 2px rgba(0,51,102,0.08);border-radius:20px;padding:1rem 0.9rem;height:100%;">
+            <iframe id="fig-habitat-frame" src="./static/figs/fig_habitat_embed.html"
+              title="Habitat object search: success rate per ASTEROID iteration vs. distilled planner and BC"
+              scrolling="no" loading="lazy"
+              style="width:100%;height:410px;border:0;display:block;"></iframe>
+          </div>
+        </div>
+        <div class="column is-three-fifths">
+          <div class="rw-block-card" style="box-shadow:0 0 14px 2px rgba(0,51,102,0.08);border-radius:20px;padding:1rem 0.9rem;height:100%;">
+            <iframe id="fig-procgen-frame" src="./static/figs/fig_procgen_embed.html"
+              title="Procgen Maze results: success rate and mean episode length per ASTEROID iteration vs. BC, DPT, and expert"
+              scrolling="no" loading="lazy"
+              style="width:100%;height:410px;border:0;display:block;"></iframe>
+          </div>
+        </div>
+      </div>
+      <div class="columns is-centered mt-2">
+        <div class="column is-10">
+          <details class="dd">
+            <summary class="multi-color-text" style="cursor:pointer;display:inline-block;font-family:'Google Sans',sans-serif;font-size:1.2rem;font-weight:700;"><span class="dd-arrow">&#9656;</span> Ablations &amp; more results:</summary>
+            <div class="mt-3 has-text-centered">
+              <div class="rw-block-card" style="box-shadow:0 0 14px 2px rgba(0,51,102,0.08);border-radius:20px;padding:1rem 0.9rem;">
+                <iframe id="fig-nav-ablations-frame" data-src="./static/figs/fig_nav_ablations_embed.html"
+                  title="Navigation ablations: ant navigation, fixed maze, test-time iterations"
+                  scrolling="no" loading="lazy"
+                  style="width:100%;height:560px;border:0;display:block;"></iframe>
+              </div>
+            </div>
+          </details>
+        </div>
+      </div>
+
+      <h3 class="title is-5 mt-6 has-text-left">Does the policy remember where it has searched?</h3>
+      <div class="columns is-centered">
+        <div class="column">
+          <div class="content has-text-justified">
+            <p>
+              In Procgen mazes, Habitat object search, and ant navigation, the learned policies explore
+              goal-directedly, remember failed locations through their history, and avoid redundant search &mdash;
+              behavior resembling posterior sampling, learned purely through supervision.
+            </p>
+          </div>
+        </div>
+      </div>
+      <div class="columns is-centered has-text-centered">
+        <div class="column is-one-third">
+          <h4 class="title is-6">Procgen Maze</h4>
+          <video autoplay muted loop playsinline preload="metadata" style="width:100%;aspect-ratio:16/9;object-fit:contain;background:#fff;border-radius:10px;border:1px solid #eee;">
+            <source src="./assets/procgen_maze.mp4" type="video/mp4">
+          </video>
+        </div>
+        <div class="column is-one-third">
+          <h4 class="title is-6">Habitat Object Search</h4>
+          <video autoplay muted loop playsinline preload="metadata" style="width:100%;aspect-ratio:16/9;object-fit:contain;background:#000;border-radius:10px;">
+            <source src="./assets/habitat_annotated.mp4" type="video/mp4">
+          </video>
+        </div>
+        <div class="column is-one-third">
+          <h4 class="title is-6">Ant Navigation</h4>
+          <video autoplay muted loop playsinline preload="metadata" style="width:100%;aspect-ratio:16/9;object-fit:contain;background:#fff;border-radius:10px;border:1px solid #eee;">
+            <source src="./assets/ant_navigation.mp4" type="video/mp4">
+          </video>
+        </div>
+      </div>
+
+      <hr style="border:0;height:1px;background:#e9e9e9;margin:3rem 0 0;">
+
+      <h3 class="title is-5 mt-6 has-text-left">Discrete Exploration</h3>
+      <div class="columns is-centered">
+        <div class="column">
+          <div class="content has-text-justified">
+            <p>
+              On gridworld benchmarks requiring memory and task inference (hidden goals, key-door), ASTEROID is the
+              only method to learn effective exploration and converge to true performance within the test-time budget,
+              significantly outperforming DPT, RL<sup>2</sup>, and imitation-informed RL baselines.
+            </p>
+          </div>
+        </div>
+      </div>
+      <figure style="margin:0;" class="has-text-centered">
+        <img src="./static/figs/paper/final_gridworld2.png" alt="Test-time performance on discrete exploration tasks" style="width:100%;border-radius:10px;border:1px solid #eee;">
+              </figure>
+
+      <h3 class="title is-5 mt-6 has-text-left">Does in-context learning enable memory?</h3>
+      <div class="columns is-centered">
+        <div class="column">
+          <div class="content has-text-justified">
+            <p>
+              In the KeyDoor task, the agent must find a hidden key and then a hidden door across episodes. ASTEROID
+              retains what it discovered in earlier episodes and chains this information over long horizons.
+            </p>
+          </div>
+        </div>
+      </div>
+      <!-- memory demos side by side: flex-grow matches each video's aspect ratio, so both render at exactly equal height -->
+      <div class="has-text-centered" style="display:flex;gap:1rem;align-items:flex-start;justify-content:center;">
+        <div style="flex:3.1304 1 0;min-width:0;">
+          <h4 class="title is-6">KeyDoor</h4>
+          <video autoplay muted loop playsinline preload="metadata" style="width:100%;aspect-ratio:2304/736;object-fit:contain;background:#000;border-radius:10px;">
+            <source src="./assets/keydoor_explainer.mp4" type="video/mp4">
+          </video>
+        </div>
+        <div style="flex:1.1065 1 0;min-width:0;">
+          <h4 class="title is-6">Darkroom</h4>
+          <video autoplay muted loop playsinline preload="metadata" style="width:100%;aspect-ratio:1600/1446;object-fit:contain;background:#000;border-radius:10px;">
+            <source src="./assets/darkroom_dpt_vs_asteroid.mp4" type="video/mp4">
+          </video>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <div class="hr"></div>
+
+  <!-- Real-world results -->
+  <section class="section">
+    <div class="container is-max-desktop">
+      <h2 class="title is-3 has-text-centered">Real-World Results</h2>
+      <div class="columns is-centered">
+        <div class="column">
+          <div class="content has-text-justified">
+            <p>
+              We transfer policies trained entirely in simulation to a real robot that must pick up a cube using only
+              proprioception (joint angles, gripper distance) &mdash; it cannot see the cube. ASTEROID explores grasp
+              locations and uses contact feedback to rule out empty regions, while behavior cloning goes out of
+              distribution after its first failed grasp.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- sim2real proof + behavior grid: wrapped together with a shared halo -->
+      <div class="rw-block-card" style="box-shadow:0 0 22px 4px rgba(0,51,102,0.07);border-radius:20px;padding:1.75rem 1.5rem;">
+        <!-- sim2real proof: sim training/distillation next to a real-world transfer rollout -->
+        <div class="columns is-centered has-text-centered is-vcentered">
+          <div class="column is-5">
+            <h4 class="title is-6">Large-Scale Simulation Training and Distillation</h4>
+            <video autoplay muted loop playsinline preload="metadata" style="width:100%;aspect-ratio:16/9;object-fit:contain;background:#000;border-radius:10px;border:1px solid #eee;">
+              <source src="./assets/sim_env.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div class="column is-1" style="font-size:2.75rem;line-height:1;color:#003366;">&rarr;</div>
+          <div class="column is-5">
+            <h4 class="title is-6">Proprioception Only 🙈 Real-World Transfer</h4>
+            <video autoplay muted loop playsinline preload="metadata" style="width:100%;aspect-ratio:16/9;object-fit:contain;background:#000;border-radius:10px;">
+              <source src="./assets/robot_dark_annotated.mp4" type="video/mp4">
+            </video>
+          </div>
+        </div>
+
+        <!-- wide 1x4 grid: exploration behavior + robustness conditions -->
+        <div class="columns is-centered has-text-centered mt-3">
+          <div class="column is-3">
+            <video autoplay muted loop playsinline preload="metadata" style="width:100%;aspect-ratio:16/9;object-fit:contain;background:#000;border-radius:10px;">
+              <source src="./assets/rummaging_pair_2x.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div class="column is-3">
+            <video autoplay muted loop playsinline preload="metadata" style="width:100%;aspect-ratio:16/9;object-fit:cover;background:#000;border-radius:10px;">
+              <source src="./assets/real_visual_distractors.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div class="column is-3">
+            <video autoplay muted loop playsinline preload="metadata" style="width:100%;aspect-ratio:16/9;object-fit:cover;background:#000;border-radius:10px;">
+              <source src="./assets/robot_main.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div class="column is-3">
+            <video autoplay muted loop playsinline preload="metadata" style="width:100%;aspect-ratio:16/9;object-fit:contain;background:#000;border-radius:10px;">
+              <source src="./assets/real_exploration_2.mp4" type="video/mp4">
+            </video>
+          </div>
+        </div>
+      </div>
+
+      <!-- BC vs ASTEROID chapter race: two independent looping rows of three
+           big video cards each with punchy captions; chapters start in sync across rows and the early finisher pauses; click to replay -->
+      <div class="rw-block-card" style="box-shadow:0 0 22px 4px rgba(0,51,102,0.07);border-radius:20px;padding:1.5rem 1.25rem;margin-top:1.75rem;overflow:hidden;">
+        <iframe id="fig-timeline-frame" data-src="./static/figs/fig_bc_vs_asteroid_timeline.html" title="BC vs ASTEROID keyframe timeline"
+          scrolling="no" loading="lazy"
+          style="width:105%;margin-left:-2.5%;height:820px;border:0;display:block;"></iframe>
+      </div>
+
+      <!-- interactive success-rate comparison: both rollouts always play; hovering a bar highlights one.
+           Wider-than-container flex layout: chart on the left, ASTEROID/BC rollouts stacked on the
+           right; wraps to a vertical stack on narrow (phone) viewports. -->
+      <div class="rw-block-card mt-4">
+        <div class="rw-sr-row" style="display:flex;justify-content:center;align-items:center;gap:2rem;border-radius:20px;padding:2rem 1.75rem;box-shadow:0 0 14px 2px rgba(0,51,102,0.08);margin:0 auto;">
+          <div class="has-text-centered" style="flex:0 0 285px;">
+            <div style="border:1px solid #ddd;border-radius:12px;padding:.75rem 1rem .55rem;background:#fff;">
+              <h4 class="title is-4 has-text-centered" style="margin-bottom:.4rem;">Success Rate</h4>
+              <div id="rw-barchart" style="display:flex;justify-content:center;"></div>
+            </div>
+          </div>
+
+          <div style="flex:1 1 0;min-width:0;max-width:792px;display:flex;flex-direction:column;gap:1.25rem;">
+            <div class="has-text-centered">
+              <p class="title is-4" id="rw-label-asteroid" style="margin-bottom:.3rem;transition:opacity .2s;">ASTEROID</p>
+              <video id="rw-video-asteroid" autoplay muted loop playsinline
+                style="width:100%;aspect-ratio:1600/360;object-fit:contain;background:#000;border-radius:10px;transition:opacity .2s,box-shadow .2s;" preload="metadata">
+                <source src="./assets/ASTEROID_all_rollouts.mp4" type="video/mp4">
+              </video>
+            </div>
+            <div class="has-text-centered">
+              <p class="title is-4" id="rw-label-bc" style="margin-bottom:.3rem;transition:opacity .2s;">BC</p>
+              <video id="rw-video-bc" autoplay muted loop playsinline
+                style="width:100%;aspect-ratio:1600/360;object-fit:contain;background:#000;border-radius:10px;transition:opacity .2s,box-shadow .2s;" preload="metadata">
+                <source src="./assets/BC_all_rollouts.mp4" type="video/mp4">
+              </video>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- bonus: a fun out-of-distribution transfer, tucked away -->
+      <div class="columns is-centered mt-4">
+        <div class="column is-8">
+          <details class="dd">
+            <summary class="multi-color-text" style="cursor:pointer;display:inline-block;font-family:'Google Sans',sans-serif;font-size:1.2rem;font-weight:700;"><span class="dd-arrow">&#9656;</span> Bonus:</summary>
+            <div class="has-text-centered mt-3">
+              <video autoplay muted loop playsinline preload="metadata"
+                data-src="./assets/peg_policy_transfers_to_screw.mp4"
+                style="max-width:100%;border-radius:10px;" title="Peg-insertion policy transferring to a screw"></video>
+            </div>
+          </details>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="hr"></div>
+
+  <!-- BibTeX -->
+  <section class="section" id="BibTeX">
+    <div class="container is-max-desktop content">
+      <h2 class="title has-text-centered">BibTeX</h2>
+      <pre><code>@misc{poddar2026asteroid,
+    author    = {Poddar, Sriyash and Bao, Yanda and Krantz, Jacob and Chang, Matthew and Puig, Xavier and Mottaghi, Roozbeh and Jaques, Natasha and Gupta, Abhishek},
+    title     = {Asymmetric On-Policy Distillation Learns In-Context Exploration},
+    year      = {2026},
+}</code></pre>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="columns is-centered">
+        <div class="column is-8">
+          <div class="content has-text-centered">
+            <p>
+              Website template from <a href="https://nerfies.github.io/">Nerfies</a>.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
+</body>
+
+</html>

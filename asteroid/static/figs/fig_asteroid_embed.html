@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>figASTEROID</title>
+<style>
+html,body{margin:0;padding:0;background:transparent;}
+.fig{width:100%;height:auto;display:block;cursor:pointer;}
+.fig text{font-family:'Google Sans','Noto Sans',sans-serif;}
+
+.fig .anim{opacity:0;}
+.fig.play .anim{animation:riseIn 1.0s cubic-bezier(.2,.75,.25,1) both;animation-delay:var(--d,0s);}
+@keyframes riseIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+
+/* the trajectory IS the context line now: a dotted path from agent to door (no separate solid
+   arc) — visiting a door and folding the outcome into context are the same act. */
+.fig .cline{opacity:0;stroke:#1f3f7a;stroke-linecap:round;}
+.fig.play .cline{animation:clDraw .5s linear both, clFade .4s linear both;animation-delay:var(--d,0s),calc(var(--d,0s) + .85s);}
+@keyframes clDraw{0%{opacity:1;stroke-dashoffset:var(--len,300);}100%{opacity:1;stroke-dashoffset:0;}}
+@keyframes clFade{from{opacity:1;}to{opacity:0;}}
+.fig .clinePast{opacity:0;stroke:#e2deec;stroke-linecap:round;}
+.fig.play .clinePast{animation:pastIn .35s linear both;animation-delay:var(--d,0s);}
+@keyframes pastIn{from{opacity:0;}to{opacity:1;}}
+/* the committed route: draws solid navy like any current rollout, then turns gold and STAYS —
+   it is never history, the agent keeps using it */
+.fig .cline.hit{stroke-width:4.6;}
+.fig.play .cline.hit{animation:clDraw .5s linear both, clGold .6s linear both;animation-delay:var(--d,0s),calc(var(--d,0s) + .55s);}
+@keyframes clGold{from{stroke:#1f3f7a;}to{stroke:#b9821f;}}
+
+/* reward-curve segments: paint over the ghost in navy and stay navy */
+.fig .draw{opacity:0;stroke:#e2deec;}
+.fig.play .draw{animation:drawIn .9375s linear both;animation-delay:var(--d,0s);}
+@keyframes drawIn{
+  0%{opacity:0;stroke:#1f3f7a;stroke-dashoffset:var(--len,120);}
+  16%{opacity:1;}
+  50%{opacity:1;stroke:#1f3f7a;stroke-dashoffset:0;}
+  100%{opacity:1;stroke:#1f3f7a;stroke-dashoffset:0;}
+}
+
+/* reward points: pop in navy on the current step and stay navy (gold hits stay gold) */
+.fig .pulse{opacity:0;transform-box:fill-box;transform-origin:50% 50%;fill:#1f3f7a;}
+.fig.play .pulse{animation:pulseIn .9375s cubic-bezier(.34,1.2,.64,1) both;animation-delay:var(--d,0s);}
+@keyframes pulseIn{
+  0%{opacity:0;transform:scale(.3);}
+  26%{opacity:1;transform:scale(1.5);}
+  50%{transform:scale(1);}
+  100%{opacity:1;transform:scale(1);fill:#1f3f7a;}
+}
+.fig .pulse.hit{fill:#e3a730 !important;animation-name:pulseInHit;}
+@keyframes pulseInHit{
+  0%{opacity:0;transform:scale(.3);fill:#e3a730;}
+  26%{opacity:1;transform:scale(1.5);fill:#e3a730;}
+  50%{transform:scale(1);fill:#e3a730;}
+  100%{opacity:1;transform:scale(1);fill:#e3a730;}
+}
+
+
+/* the context stream: every finished episode APPENDS tokens — nothing is replaced, the
+   stream only expands. Each token pops in as a little 3D cube. */
+.fig .tok{opacity:0;transform-box:fill-box;transform-origin:50% 100%;}
+.fig.play .tok{animation:tokIn .6s cubic-bezier(.34,1.4,.64,1) both;animation-delay:var(--d,0s);}
+@keyframes tokIn{0%{opacity:0;transform:scale(.2);}60%{opacity:1;transform:scale(1.12);}100%{opacity:1;transform:scale(1);}}
+
+/* the agent: fades in once at rest, then loops out to each door and back per episode */
+.fig .agent{opacity:0;}
+.fig.play .agent{animation:agentIn .625s ease-out both, agentMove 9.6875s linear both;}
+@keyframes agentIn{from{opacity:0;}to{opacity:1;}}
+</style>
+</head>
+<body>
+<style>body.animoff svg *{animation-play-state:paused!important;}</style>
+<script>
+(function(){
+  var si = window.setInterval;
+  window.setInterval = function(fn, ms){
+    return si(function(){ if (!document.body.classList.contains('animoff')) fn(); }, ms);
+  };
+  function apply(vis){ document.body.classList.toggle('animoff', !vis); }
+  var inView = true;
+  if ('IntersectionObserver' in window) {
+    new IntersectionObserver(function(es){
+      inView = es[0].isIntersecting; apply(inView && !document.hidden);
+    }, {threshold: 0.05}).observe(document.documentElement);
+  }
+  document.addEventListener('visibilitychange', function(){ apply(inView && !document.hidden); });
+}());
+</script>
+
+<svg class="fig play" id="figASTEROID" viewBox="0 0 640 1010" role="img"
+  aria-label="ASTEROID: each attempt and its feedback become context for the next attempt; by the third episode it has ruled out the wrong doors, commits to the right one, and reward stays high from then on">
+<defs>
+  <!-- single halo for the whole card, same layered shadow as BC/DAgger/DPT -->
+  <filter id="halo" x="-20%" y="-20%" width="140%" height="150%">
+    <feDropShadow dx="0" dy="1" stdDeviation="2" flood-color="#1f2a4d" flood-opacity="0.16"/>
+    <feDropShadow dx="0" dy="8" stdDeviation="16" flood-color="#1f2a4d" flood-opacity="0.16"/>
+  </filter>
+
+  <!-- brand gradient (matches the page's .multi-color-text) for the caption -->
+  <linearGradient id="capGrad" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0%" stop-color="#4285f4"/>
+    <stop offset="50%" stop-color="#6a4fb4"/>
+    <stop offset="100%" stop-color="#ac3f87"/>
+  </linearGradient>
+
+  <!-- door icon (paneled door + knob), recolored per variant -->
+  <symbol id="doorBrown" viewBox="0 0 36 36">
+    <path fill="#8a5a34" d="M29 34c0 1.105-.895 2-2 2H9c-1.105 0-2-.895-2-2V2c0-1.105.895-2 2-2h18c1.105 0 2 .895 2 2v32z"/>
+    <circle fill="#f5ead0" cx="11" cy="18" r="1.6"/>
+    <path fill="#9c6b3f" d="M25 3c-.552 0-1 .448-1 1v9H11c-.552 0-1 .448-1 1s.448 1 1 1h14c.552 0 1-.448 1-1V4c0-.552-.448-1-1-1zm0 25c.552 0 1 .448 1 1v3c0 .552-.448 1-1 1H11c-.552 0-1-.448-1-1s.448-1 1-1h13v-2c0-.552.448-1 1-1z"/>
+    <path fill="#5f3d22" d="M11 33c-.552 0-1-.448-1-1v-3c0-.552.448-1 1-1h14c.552 0 1 .448 1 1s-.448 1-1 1H12v2c0 .552-.448 1-1 1z"/>
+    <path fill="#9c6b3f" d="M25 21c.552 0 1 .448 1 1v3c0 .552-.448 1-1 1H11c-.552 0-1-.448-1-1s.448-1 1-1h13v-2c0-.552.448-1 1-1z"/>
+    <path fill="#5f3d22" d="M11 26c-.552 0-1-.448-1-1v-3c0-.552.448-1 1-1h14c.552 0 1 .448 1 1s-.448 1-1 1H12v2c0 .552-.448 1-1 1zm0-11c-.552 0-1-.448-1-1V4c0-.552.448-1 1-1h14c.552 0 1 .448 1 1s-.448 1-1 1H12v9c0 .552-.448 1-1 1z"/>
+  </symbol>
+  <symbol id="doorGold" viewBox="0 0 36 36">
+    <path fill="#e3a730" d="M29 34c0 1.105-.895 2-2 2H9c-1.105 0-2-.895-2-2V2c0-1.105.895-2 2-2h18c1.105 0 2 .895 2 2v32z"/>
+    <circle fill="#f5ead0" cx="11" cy="18" r="1.6"/>
+    <path fill="#eebd52" d="M25 3c-.552 0-1 .448-1 1v9H11c-.552 0-1 .448-1 1s.448 1 1 1h14c.552 0 1-.448 1-1V4c0-.552-.448-1-1-1zm0 25c.552 0 1 .448 1 1v3c0 .552-.448 1-1 1H11c-.552 0-1-.448-1-1s.448-1 1-1h13v-2c0-.552.448-1 1-1z"/>
+    <path fill="#b9821f" d="M11 33c-.552 0-1-.448-1-1v-3c0-.552.448-1 1-1h14c.552 0 1 .448 1 1s-.448 1-1 1H12v2c0 .552-.448 1-1 1z"/>
+    <path fill="#eebd52" d="M25 21c.552 0 1 .448 1 1v3c0 .552-.448 1-1 1H11c-.552 0-1-.448-1-1s.448-1 1-1h13v-2c0-.552.448-1 1-1z"/>
+    <path fill="#b9821f" d="M11 26c-.552 0-1-.448-1-1v-3c0-.552.448-1 1-1h14c.552 0 1 .448 1 1s-.448 1-1 1H12v2c0 .552-.448 1-1 1zm0-11c-.552 0-1-.448-1-1V4c0-.552.448-1 1-1h14c.552 0 1 .448 1 1s-.448 1-1 1H12v9c0 .552-.448 1-1 1z"/>
+  </symbol>
+</defs>
+
+  <!-- one unified card, one layered shadow (3D-ish elevation), no divider between behavior and reward -->
+  <rect x="6" y="6" width="628" height="998" rx="20" fill="#fff" stroke="#000" stroke-width="3" filter="url(#halo)"/>
+
+  <g class="anim" style="--d:0.0625s"><use data-pos="L" href="#doorBrown" x="37"  y="34" width="168" height="168"/></g>
+  <g class="anim" style="--d:0.0625s"><use data-pos="M" href="#doorGold"  x="236" y="34" width="168" height="168"/></g>
+  <g class="anim" style="--d:0.0625s"><use data-pos="R" href="#doorBrown" x="435" y="34" width="168" height="168"/></g>
+
+  <!-- episode 1: tries the left door — miss. The trajectory line IS the context line (dotted):
+       visiting a door and folding the outcome into context are the same act. -->
+  <path class="cline"     style="--d:0.375s"  d="M320,456 Q216,325 112,216" fill="none" stroke-width="4.2"/>
+  <path class="clinePast" style="--d:1.225s"  d="M320,456 Q216,325 112,216" fill="none" stroke-width="4.2"/>
+  <g data-ep="1" transform="translate(112,0)"><g class="anim" style="--d:0.875s">
+    <circle cx="0" cy="272" r="22" fill="#fff" stroke="#9a97a6" stroke-width="3"/>
+    <text x="0" y="281" text-anchor="middle" font-size="26" font-weight="700" fill="#7d7a89">+0</text></g></g>
+  <!-- episode 2: left door ruled out by context, tries the right door — miss -->
+  <path class="cline"     style="--d:1.3125s" d="M320,456 Q424,325 528,216" fill="none" stroke-width="4.2"/>
+  <path class="clinePast" style="--d:2.1625s" d="M320,456 Q424,325 528,216" fill="none" stroke-width="4.2"/>
+  <g data-ep="2" transform="translate(528,0)"><g class="anim" style="--d:1.8125s">
+    <circle cx="0" cy="272" r="22" fill="#fff" stroke="#9a97a6" stroke-width="3"/>
+    <text x="0" y="281" text-anchor="middle" font-size="26" font-weight="700" fill="#7d7a89">+0</text></g></g>
+  <!-- episode 3 onward: both wrong doors ruled out by context — commits to the goal door and never
+       looks back. Drawn once (thicker, gold, permanent) rather than replayed like BC's repeats. -->
+  <path class="cline hit" style="--d:2.25s"   d="M320,456 Q320,325 320,214" fill="none"/>
+  <g data-ep="3" transform="translate(320,0)"><g class="anim" style="--d:2.75s">
+    <circle cx="0" cy="272" r="22" fill="#fff" stroke="#b9821f" stroke-width="3"/>
+    <text x="0" y="281" text-anchor="middle" font-size="26" font-weight="700" fill="#b9821f">+1</text></g></g>
+
+  <!-- the context stream: every episode appends a door token and its reward token — an
+       expanding stream of 3D token cubes (the reward tokens reuse the same circled badges) -->
+  <text class="anim" style="--d:0.02s" x="30" y="521" font-size="28" fill="#7d7a89">context:</text>
+  <g class="tok" style="--d:0.95s">
+    <path d="M150,494 L158,486 L198,486 L190,494 Z" fill="#eae7f2" stroke="#c4bfd2" stroke-width="1.4"/>
+    <path d="M190,494 L198,486 L198,526 L190,534 Z" fill="#d9d4e4" stroke="#c4bfd2" stroke-width="1.4"/>
+    <rect x="150" y="494" width="40" height="40" rx="3" fill="#fbfafd" stroke="#c4bfd2" stroke-width="1.6"/>
+    <use href="#doorBrown" x="156" y="499" width="28" height="30"/>
+  </g>
+  <g class="tok" style="--d:1.15s">
+    <path d="M202,494 L210,486 L250,486 L242,494 Z" fill="#eae7f2" stroke="#c4bfd2" stroke-width="1.4"/>
+    <path d="M242,494 L250,486 L250,526 L242,534 Z" fill="#d9d4e4" stroke="#c4bfd2" stroke-width="1.4"/>
+    <rect x="202" y="494" width="40" height="40" rx="3" fill="#fbfafd" stroke="#c4bfd2" stroke-width="1.6"/>
+    <circle cx="222" cy="514" r="13" fill="#fff" stroke="#9a97a6" stroke-width="2.5"/>
+    <text x="222" y="520" text-anchor="middle" font-size="17" font-weight="700" fill="#7d7a89">+0</text>
+  </g>
+  <g class="tok" style="--d:1.89s">
+    <path d="M254,494 L262,486 L302,486 L294,494 Z" fill="#eae7f2" stroke="#c4bfd2" stroke-width="1.4"/>
+    <path d="M294,494 L302,486 L302,526 L294,534 Z" fill="#d9d4e4" stroke="#c4bfd2" stroke-width="1.4"/>
+    <rect x="254" y="494" width="40" height="40" rx="3" fill="#fbfafd" stroke="#c4bfd2" stroke-width="1.6"/>
+    <use href="#doorBrown" x="260" y="499" width="28" height="30"/>
+  </g>
+  <g class="tok" style="--d:2.09s">
+    <path d="M306,494 L314,486 L354,486 L346,494 Z" fill="#eae7f2" stroke="#c4bfd2" stroke-width="1.4"/>
+    <path d="M346,494 L354,486 L354,526 L346,534 Z" fill="#d9d4e4" stroke="#c4bfd2" stroke-width="1.4"/>
+    <rect x="306" y="494" width="40" height="40" rx="3" fill="#fbfafd" stroke="#c4bfd2" stroke-width="1.6"/>
+    <circle cx="326" cy="514" r="13" fill="#fff" stroke="#9a97a6" stroke-width="2.5"/>
+    <text x="326" y="520" text-anchor="middle" font-size="17" font-weight="700" fill="#7d7a89">+0</text>
+  </g>
+  <g class="tok" style="--d:2.83s">
+    <path d="M358,494 L366,486 L406,486 L398,494 Z" fill="#eae7f2" stroke="#c4bfd2" stroke-width="1.4"/>
+    <path d="M398,494 L406,486 L406,526 L398,534 Z" fill="#d9d4e4" stroke="#c4bfd2" stroke-width="1.4"/>
+    <rect x="358" y="494" width="40" height="40" rx="3" fill="#fbfafd" stroke="#c4bfd2" stroke-width="1.6"/>
+    <use href="#doorGold" x="364" y="499" width="28" height="30"/>
+  </g>
+  <g class="tok" style="--d:3.03s">
+    <path d="M410,494 L418,486 L458,486 L450,494 Z" fill="#eae7f2" stroke="#c4bfd2" stroke-width="1.4"/>
+    <path d="M450,494 L458,486 L458,526 L450,534 Z" fill="#d9d4e4" stroke="#c4bfd2" stroke-width="1.4"/>
+    <rect x="410" y="494" width="40" height="40" rx="3" fill="#fbfafd" stroke="#c4bfd2" stroke-width="1.6"/>
+    <circle cx="430" cy="514" r="13" fill="#fff" stroke="#b9821f" stroke-width="2.5"/>
+    <text x="430" y="520" text-anchor="middle" font-size="17" font-weight="700" fill="#b9821f">+1</text>
+  </g>
+  <text class="tok" style="--d:3.5s" x="478" y="521" font-size="30" fill="#7d7a89">&#8943;</text>
+
+  <!-- agent: drawn after the trajectories so it always renders above the lines -->
+  <circle class="anim agent" style="--d:0.2875s" cx="320" cy="456" r="28" fill="#d7e0ef" stroke="#13224d" stroke-width="4"/>
+
+  <!-- y-axis label -->
+  <g transform="rotate(-90 36 652)">
+    <text class="anim" style="--d:0.175s" x="36" y="652" text-anchor="middle" font-size="42" fill="#7d7a89">reward</text>
+  </g>
+  <text class="anim" style="--d:0.175s" x="332" y="802" text-anchor="middle" font-size="42" fill="#7d7a89">episode</text>
+
+  <!-- axis structure: y-axis, baseline, and per-episode ticks -->
+  <line class="anim" style="--d:0.125s"  x1="78" y1="552" x2="78"  y2="752" stroke="#c9c4d4" stroke-width="2.5"/>
+  <line class="anim" style="--d:0.125s"  x1="78" y1="752" x2="586" y2="752" stroke="#c9c4d4" stroke-width="2.5"/>
+  <g class="anim" style="--d:0.2s" stroke="#c9c4d4" stroke-width="2">
+    <line x1="78.0"  y1="748" x2="78.0"  y2="756"/><line x1="134.4" y1="748" x2="134.4" y2="756"/>
+    <line x1="190.9" y1="748" x2="190.9" y2="756"/><line x1="247.3" y1="748" x2="247.3" y2="756"/>
+    <line x1="303.8" y1="748" x2="303.8" y2="756"/><line x1="360.2" y1="748" x2="360.2" y2="756"/>
+    <line x1="416.7" y1="748" x2="416.7" y2="756"/><line x1="473.1" y1="748" x2="473.1" y2="756"/>
+    <line x1="529.6" y1="748" x2="529.6" y2="756"/><line x1="586.0" y1="748" x2="586.0" y2="756"/>
+  </g>
+
+  <!-- ghost of the full reward curve: low for the two exploratory misses, then rises at episode 3
+       and STAYS high — the direct contrast with BC's spiky ghost and DAgger's flat-forever ghost -->
+  <path class="anim" style="--d:0.0625s"
+    d="M78,752 L134.4,752 L190.9,552 L247.3,552 L303.8,552 L360.2,552 L416.7,552 L473.1,552 L529.6,552 L586,552"
+    fill="none" stroke="#e2deec" stroke-width="5.2"/>
+
+  <!-- the curve gets painted over the ghost in navy, in step with the episodes above, and stays navy -->
+  <path class="draw" style="--d:0.425s" d="M78,752 L134.4,752"    fill="none" stroke-width="6.5"/>
+  <path class="draw" style="--d:1.3625s" d="M134.4,752 L190.9,552" fill="none" stroke-width="6.5"/>
+  <path class="draw" style="--d:2.3s" d="M190.9,552 L247.3,552" fill="none" stroke-width="6.5"/>
+  <path class="draw" style="--d:3.2375s" d="M247.3,552 L303.8,552" fill="none" stroke-width="6.5"/>
+  <path class="draw" style="--d:4.175s" d="M303.8,552 L360.2,552" fill="none" stroke-width="6.5"/>
+  <path class="draw" style="--d:5.1125s" d="M360.2,552 L416.7,552" fill="none" stroke-width="6.5"/>
+  <path class="draw" style="--d:6.05s" d="M416.7,552 L473.1,552" fill="none" stroke-width="6.5"/>
+  <path class="draw" style="--d:6.9875s" d="M473.1,552 L529.6,552" fill="none" stroke-width="6.5"/>
+  <path class="draw" style="--d:7.925s" d="M529.6,552 L586,552"   fill="none" stroke-width="6.5"/>
+
+  <!-- future episodes: gray placeholder dots, overpainted navy (miss) or gold (success) as each lands -->
+  <g class="anim" style="--d:0.0625s" fill="#e2deec">
+    <circle cx="78" cy="752" r="8"/><circle cx="134.4" cy="752" r="8"/><circle cx="190.9" cy="552" r="8"/><circle cx="247.3" cy="552" r="8"/><circle cx="303.8" cy="552" r="8"/><circle cx="360.2" cy="552" r="8"/><circle cx="416.7" cy="552" r="8"/><circle cx="473.1" cy="552" r="8"/><circle cx="529.6" cy="552" r="8"/><circle cx="586" cy="552" r="8"/>
+  </g>
+  <!-- future episodes: gray placeholder dots, painted over navy (fail) or gold (success) as each lands -->
+  <g class="anim" style="--d:0.0625s" fill="#e2deec">
+    <circle cx="78" cy="752" r="8"/><circle cx="134.4" cy="752" r="8"/><circle cx="190.9" cy="552" r="8"/><circle cx="247.3" cy="552" r="8"/><circle cx="303.8" cy="552" r="8"/><circle cx="360.2" cy="552" r="8"/><circle cx="416.7" cy="552" r="8"/><circle cx="473.1" cy="552" r="8"/><circle cx="529.6" cy="552" r="8"/><circle cx="586" cy="552" r="8"/>
+  </g>
+  <!-- current-step marker: navy for the two misses, gold (permanent) from episode 3 on -->
+  <circle class="pulse"     style="--d:0.425s" cx="78"    cy="752" r="8"/>
+  <circle class="pulse"     style="--d:1.3625s" cx="134.4" cy="752" r="8"/>
+  <circle class="pulse hit" style="--d:2.3s" cx="190.9" cy="552" r="8"/>
+  <circle class="pulse hit" style="--d:3.2375s" cx="247.3" cy="552" r="8"/>
+  <circle class="pulse hit" style="--d:4.175s" cx="303.8" cy="552" r="8"/>
+  <circle class="pulse hit" style="--d:5.1125s" cx="360.2" cy="552" r="8"/>
+  <circle class="pulse hit" style="--d:6.05s" cx="416.7" cy="552" r="8"/>
+  <circle class="pulse hit" style="--d:6.9875s" cx="473.1" cy="552" r="8"/>
+  <circle class="pulse hit" style="--d:7.925s" cx="529.6" cy="552" r="8"/>
+  <circle class="pulse hit" style="--d:8.8625s" cx="586"   cy="552" r="8"/>
+
+  <text class="anim" style="--d:0.25s" x="320" y="884" text-anchor="middle"
+    font-size="42" fill="#1e6b1e">online histories with feedback</text>
+  <text class="anim" style="--d:0.35s" x="320" y="926" text-anchor="middle"
+    font-size="42" fill="#1e6b1e">for in-context exploration</text>
+
+</svg>
+<script>
+(function(){
+  // the goal door is shuffled on every page load: three variants (gold behind L, M or R)
+  var ROUTES={
+    L:{d:'M320,456 Q216,325 112,216',out:[[268,392],[216,330],[164,272],[112,216]],x:112},
+    M:{d:'M320,456 Q320,325 320,214',out:[[320,392],[320,330],[320,271],[320,214]],x:320},
+    R:{d:'M320,456 Q424,325 528,216',out:[[372,392],[424,330],[476,272],[528,216]],x:528}
+  };
+  var SIG={M:{L:'L',M:'M',R:'R'},L:{L:'M',M:'L',R:'R'},R:{L:'L',M:'R',R:'M'}};
+  var EPS=['L','R','M']; // two ruled-out misses, then the commit; role M is the goal
+  var MOVES=['L','R','M','M','M','M','M','M','M','M']; // after committing, every reset returns to the SAME goal
+  var DUR=9.6875,REST=[320,456];
+  function kf(t,pt){return (t/DUR*100).toFixed(2)+'%{cx:'+pt[0]+'px;cy:'+pt[1]+'px;}';}
+  function buildMove(v){
+    var s='0%{cx:'+REST[0]+'px;cy:'+REST[1]+'px;}';
+    for(var i=0;i<MOVES.length;i++){
+      var t0=0.375+0.9375*i,S=ROUTES[SIG[v][MOVES[i]]].out;
+      s+=kf(t0,REST)+kf(t0+.125,S[0])+kf(t0+.25,S[1])+kf(t0+.375,S[2])+kf(t0+.5,S[3]);
+      s+=kf(t0+.6875,S[3])+kf(t0+.875,REST);
+    }
+    return '@keyframes agentMove{'+s+'}';
+  }
+  function applyVariant(f,v){
+    [].forEach.call(f.querySelectorAll('use[data-pos]'),function(u){u.setAttribute('href',u.getAttribute('data-pos')===v?'#doorGold':'#doorBrown');});
+    [].forEach.call(f.querySelectorAll('.cline'),function(pth,i){pth.setAttribute('d',ROUTES[SIG[v][EPS[i]]].d);});
+    [].forEach.call(f.querySelectorAll('.clinePast'),function(pth,i){pth.setAttribute('d',ROUTES[SIG[v][EPS[i]]].d);});
+    [].forEach.call(f.querySelectorAll('g[data-ep]'),function(g,i){g.setAttribute('transform','translate('+ROUTES[SIG[v][EPS[i]]].x+',0)');});
+    var st=document.getElementById('vkf');
+    if(!st){st=document.createElement('style');st.id='vkf';document.head.appendChild(st);}
+    st.textContent=buildMove(v);
+  }
+  function prep(f){f.querySelectorAll('.draw,.cline').forEach(function(p){try{var l=p.getTotalLength();p.style.strokeDasharray=l;p.style.strokeDashoffset=l;p.style.setProperty('--len',l);}catch(e){}});}
+  function play(f){f.classList.remove('play');void f.getBoundingClientRect();f.classList.add('play');}
+  var figs=[].slice.call(document.querySelectorAll('.fig'));
+  var v=(location.search.match(/[?&]v=([LMR])/)||[])[1]||['L','M','R'][Math.floor(Math.random()*3)];
+  figs.forEach(function(f){try{applyVariant(f,v);prep(f);}catch(e){}f.addEventListener('click',function(){play(f);});});
+  var played=false, iv=null, LOOP_MS=25000; // shared by all four panels: longest animation (23s) + 2s hold, so replays stay in lockstep
+  function start(){if(played)return;played=true;figs.forEach(play);iv=setInterval(function(){figs.forEach(play);},LOOP_MS);}
+  window.addEventListener('message',function(e){
+    if(!e.data)return;
+    if(e.data.type==='lmp-play'){start();}
+    if(e.data.type==='lmp-sync'){played=true;if(iv){clearInterval(iv);iv=null;}figs.forEach(play);}
+    if(e.data.type==='lmp-variant'&&/^[LMR]$/.test(e.data.v)&&e.data.v!==v){
+      v=e.data.v;figs.forEach(function(f){try{applyVariant(f,v);prep(f);if(played)play(f);}catch(err){}});
+    }
+  });
+  if('IntersectionObserver' in window){
+    new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){start();}});},{threshold:0.4}).observe(document.querySelector('.fig'));
+  }
+}());
+</script>
+</body>
+</html>

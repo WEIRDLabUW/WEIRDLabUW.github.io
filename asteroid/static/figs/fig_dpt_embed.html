@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>figDPT</title>
+<style>
+html,body{margin:0;padding:0;background:transparent;}
+.fig{width:100%;height:auto;display:block;cursor:pointer;}
+.fig text{font-family:'Google Sans','Noto Sans',sans-serif;}
+
+.fig .anim{opacity:0;}
+.fig.play .anim{animation:riseIn 1.0s cubic-bezier(.2,.75,.25,1) both;animation-delay:var(--d,0s);}
+@keyframes riseIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+
+/* one recorded offline rollout per context cell: a long scribble that draws in and stays navy (it is the data) */
+.fig .scrib{opacity:0;stroke:#1f3f7a;}
+.fig.play .scrib{animation:scribDraw var(--dur,3.4s) linear both, scribFade .5s linear both;animation-delay:var(--d,0s),calc(var(--d,0s) + var(--dur,3.4s));}
+@keyframes scribDraw{
+  0%{opacity:1;stroke-dashoffset:var(--len,2000);}
+  100%{opacity:1;stroke-dashoffset:0;}
+}
+/* only the rollout being recorded right now is navy; finished recordings hand off to a
+   solid light-gray copy — same past-trajectory grammar as the other panels */
+@keyframes scribFade{from{opacity:1;}to{opacity:0;}}
+.fig .scribPast{opacity:0;stroke:#e2deec;}
+.fig.play .scribPast{animation:pastIn .5s linear both;animation-delay:calc(var(--d,0s) + var(--dur,3.4s));}
+@keyframes pastIn{from{opacity:0;}to{opacity:1;}}
+
+/* a mini agent rides each rollout while it records, then fades out as it settles */
+.fig .mini{opacity:0;offset-rotate:0deg;}
+@supports (offset-path: path("M0,0 L1,1")) {
+  .fig.play .mini{animation:miniRide var(--dur,3.4s) linear both, miniFade .45s linear forwards;animation-delay:var(--d,0s),calc(var(--d,0s) + var(--dur,3.4s));}
+}
+@keyframes miniRide{0%{opacity:0;offset-distance:0%;}4%{opacity:1;}100%{opacity:1;offset-distance:100%;}}
+@keyframes miniFade{to{opacity:0;}}
+
+/* once the four sampled contexts are in, the grid zooms out: coverage must extend to EVERY possible context */
+.fig .gz{transform:scale(1);}
+.fig.play .gz{animation:gzOut 23s both;}
+@keyframes gzOut{
+  0%{transform:scale(1);animation-timing-function:linear;}
+  52.17%{transform:scale(1);animation-timing-function:cubic-bezier(.4,0,.2,1);}
+  57.39%{transform:scale(.5);animation-timing-function:linear;}
+  100%{transform:scale(.5);}
+}
+
+/* hover bubble: the offline dataset (many recorded rollouts) plus the expert policy get
+   distilled together into a single DPT policy. Same overlay + replay-on-hover mechanism
+   as the BC and DAgger panels. */
+.fig .bubble{opacity:0;pointer-events:none;transition:opacity .28s ease;}
+.fig:hover .bubble{opacity:1;pointer-events:auto;}
+
+.fig .bubble .breveal{opacity:0;}
+.fig:hover .bubble .breveal{animation:riseIn .7s cubic-bezier(.2,.75,.25,1) both;animation-delay:var(--bd,0s);}
+
+.fig .bubble .bpulse{opacity:0;transform-box:fill-box;transform-origin:50% 50%;fill:#1f3f7a;}
+.fig:hover .bubble .bpulse{animation:pulseIn .8s cubic-bezier(.34,1.2,.64,1) both;animation-delay:var(--bd,0s);}
+@keyframes pulseIn{
+  0%{opacity:0;transform:scale(.3);}
+  26%{opacity:1;transform:scale(1.5);}
+  50%{transform:scale(1);}
+  100%{opacity:1;transform:scale(1);}
+}
+</style>
+</head>
+<body>
+<style>body.animoff svg *{animation-play-state:paused!important;}</style>
+<script>
+(function(){
+  var si = window.setInterval;
+  window.setInterval = function(fn, ms){
+    return si(function(){ if (!document.body.classList.contains('animoff')) fn(); }, ms);
+  };
+  function apply(vis){ document.body.classList.toggle('animoff', !vis); }
+  var inView = true;
+  if ('IntersectionObserver' in window) {
+    new IntersectionObserver(function(es){
+      inView = es[0].isIntersecting; apply(inView && !document.hidden);
+    }, {threshold: 0.05}).observe(document.documentElement);
+  }
+  document.addEventListener('visibilitychange', function(){ apply(inView && !document.hidden); });
+}());
+</script>
+<svg class="fig play" id="figDPT" viewBox="0 0 640 1010" role="img"
+  aria-label="DPT: offline data holds a few random-context rollouts, but the grid of possible contexts is endless — it needs infinite coverage of offline contexts">
+<defs>
+  <filter id="halo" x="-20%" y="-20%" width="140%" height="150%">
+    <feDropShadow dx="0" dy="1" stdDeviation="2" flood-color="#1f2a4d" flood-opacity="0.16"/>
+    <feDropShadow dx="0" dy="8" stdDeviation="16" flood-color="#1f2a4d" flood-opacity="0.16"/>
+  </filter>
+
+  <linearGradient id="capGrad" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0%" stop-color="#4285f4"/>
+    <stop offset="50%" stop-color="#6a4fb4"/>
+    <stop offset="100%" stop-color="#ac3f87"/>
+  </linearGradient>
+
+  <marker id="mNavyDPT" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+    <path d="M0,0 L10,5 L0,10 z" fill="#1f3f7a"/>
+  </marker>
+
+  <!-- keeps the zooming context grid inside the card -->
+  <clipPath id="gridClip"><rect x="-302" y="-322" width="604" height="644"/></clipPath>
+
+  <symbol id="doorBrown" viewBox="0 0 36 36">
+    <path fill="#8a5a34" d="M29 34c0 1.105-.895 2-2 2H9c-1.105 0-2-.895-2-2V2c0-1.105.895-2 2-2h18c1.105 0 2 .895 2 2v32z"/>
+    <circle fill="#f5ead0" cx="11" cy="18" r="1.6"/>
+    <path fill="#9c6b3f" d="M25 3c-.552 0-1 .448-1 1v9H11c-.552 0-1 .448-1 1s.448 1 1 1h14c.552 0 1-.448 1-1V4c0-.552-.448-1-1-1zm0 25c.552 0 1 .448 1 1v3c0 .552-.448 1-1 1H11c-.552 0-1-.448-1-1s.448-1 1-1h13v-2c0-.552.448-1 1-1z"/>
+    <path fill="#5f3d22" d="M11 33c-.552 0-1-.448-1-1v-3c0-.552.448-1 1-1h14c.552 0 1 .448 1 1s-.448 1-1 1H12v2c0 .552-.448 1-1 1z"/>
+    <path fill="#9c6b3f" d="M25 21c.552 0 1 .448 1 1v3c0 .552-.448 1-1 1H11c-.552 0-1-.448-1-1s.448-1 1-1h13v-2c0-.552.448-1 1-1z"/>
+    <path fill="#5f3d22" d="M11 26c-.552 0-1-.448-1-1v-3c0-.552.448-1 1-1h14c.552 0 1 .448 1 1s-.448 1-1 1H12v2c0 .552-.448 1-1 1zm0-11c-.552 0-1-.448-1-1V4c0-.552.448-1 1-1h14c.552 0 1 .448 1 1s-.448 1-1 1H12v9c0 .552-.448 1-1 1z"/>
+  </symbol>
+  <symbol id="doorGold" viewBox="0 0 36 36">
+    <path fill="#e3a730" d="M29 34c0 1.105-.895 2-2 2H9c-1.105 0-2-.895-2-2V2c0-1.105.895-2 2-2h18c1.105 0 2 .895 2 2v32z"/>
+    <circle fill="#f5ead0" cx="11" cy="18" r="1.6"/>
+    <path fill="#eebd52" d="M25 3c-.552 0-1 .448-1 1v9H11c-.552 0-1 .448-1 1s.448 1 1 1h14c.552 0 1-.448 1-1V4c0-.552-.448-1-1-1zm0 25c.552 0 1 .448 1 1v3c0 .552-.448 1-1 1H11c-.552 0-1-.448-1-1s.448-1 1-1h13v-2c0-.552.448-1 1-1z"/>
+    <path fill="#b9821f" d="M11 33c-.552 0-1-.448-1-1v-3c0-.552.448-1 1-1h14c.552 0 1 .448 1 1s-.448 1-1 1H12v2c0 .552-.448 1-1 1z"/>
+    <path fill="#eebd52" d="M25 21c.552 0 1 .448 1 1v3c0 .552-.448 1-1 1H11c-.552 0-1-.448-1-1s.448-1 1-1h13v-2c0-.552.448-1 1-1z"/>
+    <path fill="#b9821f" d="M11 26c-.552 0-1-.448-1-1v-3c0-.552.448-1 1-1h14c.552 0 1 .448 1 1s-.448 1-1 1H12v2c0 .552-.448 1-1 1zm0-11c-.552 0-1-.448-1-1V4c0-.552.448-1 1-1h14c.552 0 1 .448 1 1s-.448 1-1 1H12v9c0 .552-.448 1-1 1z"/>
+  </symbol>
+</defs>
+
+  <!-- one unified card, same layered shadow as the BC and DAgger panels -->
+  <rect x="6" y="6" width="628" height="998" rx="20" fill="#fff" stroke="#e3e0ea" stroke-width="1.5" filter="url(#halo)"/>
+
+  <!-- 2x2 grid of random offline contexts, centered so the zoom-out reveals ghost contexts on every side -->
+  <g transform="translate(320,362)" clip-path="url(#gridClip)">
+    <g class="gz">
+
+      <!-- ghost contexts: the rest of the endless grid the dataset would still have to cover -->
+      <g fill="none" stroke="#a49dbb" stroke-width="4" stroke-dasharray="14 12">
+        <rect class="anim" style="--d:13.3s" x="-590" y="-610" width="280" height="290" rx="14"/>
+        <rect class="anim" style="--d:13.4s" x="-290" y="-610" width="280" height="290" rx="14"/>
+        <rect class="anim" style="--d:13.5s" x="10"   y="-610" width="280" height="290" rx="14"/>
+        <rect class="anim" style="--d:13.6s" x="310"  y="-610" width="280" height="290" rx="14"/>
+        <rect class="anim" style="--d:13.7s" x="-590" y="-300" width="280" height="290" rx="14"/>
+        <rect class="anim" style="--d:13.8s" x="310"  y="-300" width="280" height="290" rx="14"/>
+        <rect class="anim" style="--d:13.9s" x="-590" y="10"   width="280" height="290" rx="14"/>
+        <rect class="anim" style="--d:14.0s" x="310"  y="10"   width="280" height="290" rx="14"/>
+        <rect class="anim" style="--d:14.1s" x="-590" y="320"  width="280" height="290" rx="14"/>
+        <rect class="anim" style="--d:14.2s" x="-290" y="320"  width="280" height="290" rx="14"/>
+        <rect class="anim" style="--d:14.3s" x="10"   y="320"  width="280" height="290" rx="14"/>
+        <rect class="anim" style="--d:14.4s" x="310"  y="320"  width="280" height="290" rx="14"/>
+      </g>
+      <g fill="#7d7a89" font-size="80" text-anchor="middle">
+        <text class="anim" style="--d:14.8s" x="-450" y="-445">&#8943;</text>
+        <text class="anim" style="--d:15.0s" x="450"  y="-445">&#8943;</text>
+        <text class="anim" style="--d:15.2s" x="-450" y="485">&#8943;</text>
+        <text class="anim" style="--d:15.4s" x="450"  y="485">&#8943;</text>
+      </g>
+
+      <!-- context 1: goal behind the LEFT door -->
+      <g transform="translate(-290,-300)">
+        <rect class="anim" style="--d:0.1s" x="1.5" y="1.5" width="277" height="287" rx="14" fill="#fbfafd" stroke="#e9e6f0" stroke-width="2"/>
+        <g class="anim" style="--d:0.5s">
+          <use href="#doorGold"  x="36"  y="16" width="52" height="52"/>
+          <use href="#doorBrown" x="114" y="16" width="52" height="52"/>
+          <use href="#doorBrown" x="192" y="16" width="52" height="52"/>
+        </g>
+        <path class="scrib" style="--d:0.8s;--dur:3.4s" fill="none" stroke-width="3.4" stroke-linecap="round"
+          d="M109,186 Q28,222 50,224 T79,247 T131,234 T216,166 T213,115 T153,140 T96,172 T39,129 T45,139 T73,215 T118,214 T192,146 T218,159 T175,199 T130,156 T173,110 T199,108 T158,168 T142,245 T174,245 T224,192 T218,129 T214,137 T187,199 T134,174 T129,129"/>
+        <path class="scribPast" style="--d:0.8s;--dur:3.4s" fill="none" stroke-width="3.4" stroke-linecap="round"
+          d="M109,186 Q28,222 50,224 T79,247 T131,234 T216,166 T213,115 T153,140 T96,172 T39,129 T45,139 T73,215 T118,214 T192,146 T218,159 T175,199 T130,156 T173,110 T199,108 T158,168 T142,245 T174,245 T224,192 T218,129 T214,137 T187,199 T134,174 T129,129"/>
+        <circle class="mini" r="9" fill="#d7e0ef" stroke="#13224d" stroke-width="2.5" style="--d:0.8s;--dur:3.4s;offset-path:path('M109,186 Q28,222 50,224 T79,247 T131,234 T216,166 T213,115 T153,140 T96,172 T39,129 T45,139 T73,215 T118,214 T192,146 T218,159 T175,199 T130,156 T173,110 T199,108 T158,168 T142,245 T174,245 T224,192 T218,129 T214,137 T187,199 T134,174 T129,129')"/>
+      </g>
+
+      <!-- context 2: goal behind the MIDDLE door -->
+      <g transform="translate(10,-300)">
+        <rect class="anim" style="--d:0.2s" x="1.5" y="1.5" width="277" height="287" rx="14" fill="#fbfafd" stroke="#e9e6f0" stroke-width="2"/>
+        <g class="anim" style="--d:0.6s">
+          <use href="#doorBrown" x="36"  y="16" width="52" height="52"/>
+          <use href="#doorGold"  x="114" y="16" width="52" height="52"/>
+          <use href="#doorBrown" x="192" y="16" width="52" height="52"/>
+        </g>
+        <path class="scrib" style="--d:3.4s;--dur:3.4s" fill="none" stroke-width="3.4" stroke-linecap="round"
+          d="M136,172 Q107,207 72,237 T73,246 T132,222 T196,195 T247,138 T229,117 T211,166 T180,215 T113,199 T92,147 T70,109 T78,110 T125,110 T110,114 T59,117 T84,121 T143,118 T172,106 T213,167 T234,174 T194,144 T143,130 T123,127 T114,151"/>
+        <path class="scribPast" style="--d:3.4s;--dur:3.4s" fill="none" stroke-width="3.4" stroke-linecap="round"
+          d="M136,172 Q107,207 72,237 T73,246 T132,222 T196,195 T247,138 T229,117 T211,166 T180,215 T113,199 T92,147 T70,109 T78,110 T125,110 T110,114 T59,117 T84,121 T143,118 T172,106 T213,167 T234,174 T194,144 T143,130 T123,127 T114,151"/>
+        <circle class="mini" r="9" fill="#d7e0ef" stroke="#13224d" stroke-width="2.5" style="--d:3.4s;--dur:3.4s;offset-path:path('M136,172 Q107,207 72,237 T73,246 T132,222 T196,195 T247,138 T229,117 T211,166 T180,215 T113,199 T92,147 T70,109 T78,110 T125,110 T110,114 T59,117 T84,121 T143,118 T172,106 T213,167 T234,174 T194,144 T143,130 T123,127 T114,151')"/>
+      </g>
+
+      <!-- context 3: goal behind the RIGHT door -->
+      <g transform="translate(-290,10)">
+        <rect class="anim" style="--d:0.3s" x="1.5" y="1.5" width="277" height="287" rx="14" fill="#fbfafd" stroke="#e9e6f0" stroke-width="2"/>
+        <g class="anim" style="--d:0.7s">
+          <use href="#doorBrown" x="36"  y="16" width="52" height="52"/>
+          <use href="#doorBrown" x="114" y="16" width="52" height="52"/>
+          <use href="#doorGold"  x="192" y="16" width="52" height="52"/>
+        </g>
+        <path class="scrib" style="--d:6.0s;--dur:3.4s" fill="none" stroke-width="3.4" stroke-linecap="round"
+          d="M196,143 Q84,122 88,175 T63,248 T47,240 T54,166 T40,150 T81,200 T119,243 T155,240 T229,198 T237,152 T186,148 T141,216 T106,217 T53,144 T58,126 T82,162 T91,201 T77,244 T49,236 T67,152 T70,125 T100,156 T144,203 T169,256 T189,268"/>
+        <path class="scribPast" style="--d:6.0s;--dur:3.4s" fill="none" stroke-width="3.4" stroke-linecap="round"
+          d="M196,143 Q84,122 88,175 T63,248 T47,240 T54,166 T40,150 T81,200 T119,243 T155,240 T229,198 T237,152 T186,148 T141,216 T106,217 T53,144 T58,126 T82,162 T91,201 T77,244 T49,236 T67,152 T70,125 T100,156 T144,203 T169,256 T189,268"/>
+        <circle class="mini" r="9" fill="#d7e0ef" stroke="#13224d" stroke-width="2.5" style="--d:6.0s;--dur:3.4s;offset-path:path('M196,143 Q84,122 88,175 T63,248 T47,240 T54,166 T40,150 T81,200 T119,243 T155,240 T229,198 T237,152 T186,148 T141,216 T106,217 T53,144 T58,126 T82,162 T91,201 T77,244 T49,236 T67,152 T70,125 T100,156 T144,203 T169,256 T189,268')"/>
+      </g>
+
+      <!-- context 4: goal behind the MIDDLE door again — a shorter recording; the data is uneven too -->
+      <g transform="translate(10,10)">
+        <rect class="anim" style="--d:0.4s" x="1.5" y="1.5" width="277" height="287" rx="14" fill="#fbfafd" stroke="#e9e6f0" stroke-width="2"/>
+        <g class="anim" style="--d:0.8s">
+          <use href="#doorBrown" x="36"  y="16" width="52" height="52"/>
+          <use href="#doorGold"  x="114" y="16" width="52" height="52"/>
+          <use href="#doorBrown" x="192" y="16" width="52" height="52"/>
+        </g>
+        <path class="scrib" style="--d:8.6s;--dur:2.2s" fill="none" stroke-width="3.4" stroke-linecap="round"
+          d="M100,197 Q56,155 71,125 T125,109 T181,109 T156,100 T123,153 T162,212 T201,166 T232,159 T252,208"/>
+        <path class="scribPast" style="--d:8.6s;--dur:2.2s" fill="none" stroke-width="3.4" stroke-linecap="round"
+          d="M100,197 Q56,155 71,125 T125,109 T181,109 T156,100 T123,153 T162,212 T201,166 T232,159 T252,208"/>
+        <circle class="mini" r="9" fill="#d7e0ef" stroke="#13224d" stroke-width="2.5" style="--d:8.6s;--dur:2.2s;offset-path:path('M100,197 Q56,155 71,125 T125,109 T181,109 T156,100 T123,153 T162,212 T201,166 T232,159 T252,208')"/>
+      </g>
+
+    </g>
+  </g>
+
+  <text class="anim" style="--d:0.25s" x="320" y="884" text-anchor="middle"
+    font-size="42" fill="#8b1a1a">infinite coverage</text>
+  <text class="anim" style="--d:0.35s" x="320" y="926" text-anchor="middle"
+    font-size="42" fill="#8b1a1a">of offline contexts</text>
+
+  <!-- ================= HOVER BUBBLE: offline data + expert, distilled into pi_DPT ================= -->
+  <g class="bubble">
+    <rect x="6" y="6" width="628" height="998" rx="20" fill="#fdfcff" stroke="#e3e0ea" stroke-width="1.5"/>
+
+    <text class="breveal" style="--bd:0.02s" x="320" y="64" text-anchor="middle"
+      font-size="34" font-weight="700" fill="#33303c">a large offline dataset of contexts</text>
+
+    <!-- the last frame of the main animation: the four recorded contexts, already history-gray,
+         lost in the endless grid of contexts they would still have to cover -->
+    <g transform="translate(320,390) scale(0.88)"><g class="breveal" style="--bd:0.08s">
+      <g clip-path="url(#gridClip)">
+    <g transform="scale(0.5)">
+
+      <!-- ghost contexts: the rest of the endless grid the dataset would still have to cover -->
+      <g fill="none" stroke="#a49dbb" stroke-width="4" stroke-dasharray="14 12">
+        <rect x="-590" y="-610" width="280" height="290" rx="14"/>
+        <rect x="-290" y="-610" width="280" height="290" rx="14"/>
+        <rect x="10"   y="-610" width="280" height="290" rx="14"/>
+        <rect x="310"  y="-610" width="280" height="290" rx="14"/>
+        <rect x="-590" y="-300" width="280" height="290" rx="14"/>
+        <rect x="310"  y="-300" width="280" height="290" rx="14"/>
+        <rect x="-590" y="10"   width="280" height="290" rx="14"/>
+        <rect x="310"  y="10"   width="280" height="290" rx="14"/>
+        <rect x="-590" y="320"  width="280" height="290" rx="14"/>
+        <rect x="-290" y="320"  width="280" height="290" rx="14"/>
+        <rect x="10"   y="320"  width="280" height="290" rx="14"/>
+        <rect x="310"  y="320"  width="280" height="290" rx="14"/>
+      </g>
+      <g fill="#7d7a89" font-size="80" text-anchor="middle">
+        <text x="-450" y="-445">&#8943;</text>
+        <text x="450"  y="-445">&#8943;</text>
+        <text x="-450" y="485">&#8943;</text>
+        <text x="450"  y="485">&#8943;</text>
+      </g>
+
+      <!-- context 1: goal behind the LEFT door -->
+      <g transform="translate(-290,-300)">
+        <rect x="1.5" y="1.5" width="277" height="287" rx="14" fill="#fbfafd" stroke="#e9e6f0" stroke-width="2"/>
+        <g>
+          <use href="#doorGold"  x="36"  y="16" width="52" height="52"/>
+          <use href="#doorBrown" x="114" y="16" width="52" height="52"/>
+          <use href="#doorBrown" x="192" y="16" width="52" height="52"/>
+        </g>
+        <path stroke="#e2deec" fill="none" stroke-width="3.4" stroke-linecap="round"
+          d="M109,186 Q28,222 50,224 T79,247 T131,234 T216,166 T213,115 T153,140 T96,172 T39,129 T45,139 T73,215 T118,214 T192,146 T218,159 T175,199 T130,156 T173,110 T199,108 T158,168 T142,245 T174,245 T224,192 T218,129 T214,137 T187,199 T134,174 T129,129"/>
+      </g>
+
+      <!-- context 2: goal behind the MIDDLE door -->
+      <g transform="translate(10,-300)">
+        <rect x="1.5" y="1.5" width="277" height="287" rx="14" fill="#fbfafd" stroke="#e9e6f0" stroke-width="2"/>
+        <g>
+          <use href="#doorBrown" x="36"  y="16" width="52" height="52"/>
+          <use href="#doorGold"  x="114" y="16" width="52" height="52"/>
+          <use href="#doorBrown" x="192" y="16" width="52" height="52"/>
+        </g>
+        <path stroke="#e2deec" fill="none" stroke-width="3.4" stroke-linecap="round"
+          d="M136,172 Q107,207 72,237 T73,246 T132,222 T196,195 T247,138 T229,117 T211,166 T180,215 T113,199 T92,147 T70,109 T78,110 T125,110 T110,114 T59,117 T84,121 T143,118 T172,106 T213,167 T234,174 T194,144 T143,130 T123,127 T114,151"/>
+      </g>
+
+      <!-- context 3: goal behind the RIGHT door -->
+      <g transform="translate(-290,10)">
+        <rect x="1.5" y="1.5" width="277" height="287" rx="14" fill="#fbfafd" stroke="#e9e6f0" stroke-width="2"/>
+        <g>
+          <use href="#doorBrown" x="36"  y="16" width="52" height="52"/>
+          <use href="#doorBrown" x="114" y="16" width="52" height="52"/>
+          <use href="#doorGold"  x="192" y="16" width="52" height="52"/>
+        </g>
+        <path stroke="#e2deec" fill="none" stroke-width="3.4" stroke-linecap="round"
+          d="M196,143 Q84,122 88,175 T63,248 T47,240 T54,166 T40,150 T81,200 T119,243 T155,240 T229,198 T237,152 T186,148 T141,216 T106,217 T53,144 T58,126 T82,162 T91,201 T77,244 T49,236 T67,152 T70,125 T100,156 T144,203 T169,256 T189,268"/>
+      </g>
+
+      <!-- context 4: goal behind the MIDDLE door again — a shorter recording; the data is uneven too -->
+      <g transform="translate(10,10)">
+        <rect x="1.5" y="1.5" width="277" height="287" rx="14" fill="#fbfafd" stroke="#e9e6f0" stroke-width="2"/>
+        <g>
+          <use href="#doorBrown" x="36"  y="16" width="52" height="52"/>
+          <use href="#doorGold"  x="114" y="16" width="52" height="52"/>
+          <use href="#doorBrown" x="192" y="16" width="52" height="52"/>
+        </g>
+        <path stroke="#e2deec" fill="none" stroke-width="3.4" stroke-linecap="round"
+          d="M100,197 Q56,155 71,125 T125,109 T181,109 T156,100 T123,153 T162,212 T201,166 T232,159 T252,208"/>
+      </g>
+
+    </g>
+  </g>
+    </g></g>
+
+    <!-- that dataset, plus the expert that relabels it, distills into a single in-context policy -->
+    <g class="breveal" style="--bd:0.55s">
+      <text x="195" y="734" text-anchor="middle" font-size="56" fill="#33303c">+</text>
+      <rect x="245" y="688" width="270" height="60" rx="14" fill="#fff" stroke="#1f3f7a" stroke-width="3.5"/>
+      <text x="380" y="727" text-anchor="middle" font-size="29" font-weight="700" fill="#1f3f7a">Expert Policy</text>
+    </g>
+
+    <line class="breveal" style="--bd:0.75s" x1="320" y1="772" x2="320" y2="818"
+      stroke="#1f3f7a" stroke-width="6" marker-end="url(#mNavyDPT)"/>
+
+    <g class="breveal" style="--bd:0.90s">
+      <rect x="162" y="836" width="316" height="66" rx="16" fill="#fff" stroke="#1f3f7a" stroke-width="4"/>
+      <text x="320" y="879" text-anchor="middle" font-size="30" font-weight="700" fill="#1f3f7a">In-context Policy</text>
+    </g>
+  </g>
+
+</svg>
+<script>
+(function(){
+  function prep(f){f.querySelectorAll('.scrib').forEach(function(p){try{var l=p.getTotalLength();p.style.strokeDasharray=l;p.style.strokeDashoffset=l;p.style.setProperty('--len',l);}catch(e){}});}
+  function play(f){f.classList.remove('play');void f.getBoundingClientRect();f.classList.add('play');}
+  var figs=[].slice.call(document.querySelectorAll('.fig'));
+  figs.forEach(function(f){try{prep(f);}catch(e){}f.addEventListener('click',function(){play(f);});});
+  var played=false, iv=null, LOOP_MS=25000; // shared by all four panels: longest animation (23s) + 2s hold, so replays stay in lockstep
+  function start(){if(played)return;played=true;figs.forEach(play);iv=setInterval(function(){figs.forEach(play);},LOOP_MS);}
+  window.addEventListener('message',function(e){
+    if(!e.data)return;
+    if(e.data.type==='lmp-play'){start();}
+    if(e.data.type==='lmp-sync'){played=true;if(iv){clearInterval(iv);iv=null;}figs.forEach(play);}
+  });
+  if('IntersectionObserver' in window){
+    new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){start();}});},{threshold:0.4}).observe(document.querySelector('.fig'));
+  }
+}());
+</script>
+</body>
+</html>

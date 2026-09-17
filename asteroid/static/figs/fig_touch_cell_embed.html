@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>figTouchCell</title>
+<script>
+// This tile only shows the 2D canvas pad renderer; viz_common's buildPair also
+// draws a 3D trajectory into #trajsink, which this embed hides off-screen.
+// Stub the two Plotly calls viz_common makes (newPlot, restyle) instead of
+// shipping the 1.6MB plotly-gl3d bundle + a WebGL context for an unseen plot.
+window.Plotly = {
+  newPlot: function(){ return Promise.resolve(); },
+  restyle: function(){}
+};
+</script>
+<script src="explore_viz/tactile_data.js"></script>
+<style>
+html,body{margin:0;padding:0;background:#fafafa;font-family:'Google Sans','Noto Sans',sans-serif;overflow:hidden;}
+/* the pads canvas renders at a fixed 300x225 logical size; the crop trims its
+   tiny built-in title row (the parent page supplies the label chip instead)
+   and body zoom (set by fit()) scales the window to the tile */
+#cropwin{width:240px;height:268px;overflow:hidden;margin:0 auto;}
+#touchplot{width:240px;height:300px;transform:translateY(-30px);}
+#scenevid{display:none;}
+#trajsink{position:absolute;left:-9999px;top:0;width:200px;height:150px;}
+</style>
+</head>
+<body>
+<div id="cropwin"><div id="touchplot"></div></div>
+<div id="trajsink"></div>
+<video id="scenevid" src="explore_viz/scene_method.mp4" muted playsinline preload="metadata"></video>
+<script src="explore_viz/viz_common.js"></script>
+<script>
+(function(){
+  // this compact tile shows the pads small: double the shared renderer's
+  // 'force (N)' axis label (scoped to this embed's canvases only)
+  var _ft = CanvasRenderingContext2D.prototype.fillText;
+  CanvasRenderingContext2D.prototype.fillText = function (t, x, y) {
+    if (t === 'force (N)') {
+      // the shared renderer draws this rotated along the y-axis, where a large
+      // font collides with the axis; redraw it horizontal above the sparkline
+      // instead (ctx here is translated to (axW-11, sy+sh/2) and rotated -90;
+      // offsets below are for this embed's fixed 240x300 canvas)
+      this.save();
+      this.rotate(Math.PI / 2);
+      this.font = '700 ' + this.font.replace(/^\s*10px/, '22px');
+      this.fillStyle = '#111111';
+      this.textAlign = 'left';
+      this.textBaseline = 'alphabetic';
+      _ft.call(this, t, 9, -40);
+      this.restore();
+      return;
+    }
+    return _ft.apply(this, arguments);
+  };
+  var D = window.TACTILE_DATA.method;
+  var vid = document.getElementById('scenevid');
+  var built = false;
+  function fit(){
+    var z = Math.min(window.innerWidth / 240, window.innerHeight / 268);
+    document.body.style.zoom = z;
+  }
+  fit();
+  window.addEventListener('resize', fit);
+  VIZ.onVisible(function(v){
+    if (v && !built) {
+      built = true;
+      var pads = VIZ.buildPair('touchplot', 'trajsink', D, true);
+      VIZ.sync(vid, pads, 'trajsink', D);
+      vid.play().catch(function(){});
+    }
+  });
+  vid.addEventListener('ended', function(){
+    setTimeout(function(){
+      if (!VIZ.isVisible()) return;
+      vid.currentTime = 0; vid.play().catch(function(){});
+    }, 1000);
+  });
+  VIZ.onVisible(function(v){
+    if (v && built && vid.ended) { vid.currentTime = 0; vid.play().catch(function(){}); }
+  });
+}());
+</script>
+</body>
+</html>

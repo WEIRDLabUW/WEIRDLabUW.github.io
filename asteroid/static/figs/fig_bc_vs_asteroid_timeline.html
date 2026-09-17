@@ -7,20 +7,20 @@
 <style>
 html,body{margin:0;padding:0;background:transparent;font-family:'Google Sans','Noto Sans',sans-serif;overflow-x:hidden;}
 .scale-outer{width:100%;overflow:hidden;}
-.wrap{width:1786px;margin:0;padding:10px 28px 6px 28px;box-sizing:border-box;transform-origin:top left;cursor:pointer;}
+.wrap{width:1524px;margin:0;padding:10px 28px 6px 28px;box-sizing:border-box;transform-origin:top left;cursor:pointer;}
 
-.row-block{display:flex;align-items:center;gap:26px;padding:18px 0;}
+.row-block{display:flex;flex-direction:column;align-items:flex-start;gap:12px;padding:14px 0;}
 .row-divider{height:1px;background:#e2e2e2;margin:2px 0;}
 
 /* ---- method header column ---- */
-.mhead{flex:0 0 236px;display:flex;flex-direction:column;justify-content:center;gap:10px;}
-.mhead .mname{font-size:46px;font-weight:800;line-height:1.05;color:#33303c;letter-spacing:.5px;}
+.mhead{flex:none;display:flex;flex-direction:row;align-items:baseline;gap:16px;padding-left:4px;}
+.mhead .mname{font-size:32px;font-weight:800;line-height:1.05;color:#003366;letter-spacing:.5px;}
 .mhead .mname.grad{
   background:linear-gradient(to right,#1a5ba8,#003366,#0a1f44);
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
   font-size:40px;
 }
-.mhead .msub{font-size:21px;color:#737373;line-height:1.25;}
+.mhead .msub{font-size:32px;color:#003366;line-height:1.25;}
 
 /* ---- banner: the task is vision-denied ---- */
 .nocam{display:flex;align-items:center;justify-content:center;gap:16px;padding:4px 0 10px;font-size:31px;font-weight:700;color:#33303c;}
@@ -73,8 +73,6 @@ html,body{margin:0;padding:0;background:transparent;font-family:'Google Sans','N
 <body>
 <div class="scale-outer" id="scaleOuter">
 <div class="wrap" id="figWrap" title="Click to replay">
-
-  <div class="nocam"><span class="camwrap">&#128247;<span class="camx">&#10005;</span></span><span>robots <b class="hlx">can&rsquo;t see</b> the object!</span></div>
 
   <div class="row-block" data-row="bc">
     <div class="mhead">
@@ -339,13 +337,13 @@ html,body{margin:0;padding:0;background:transparent;font-family:'Google Sans','N
     });
   }
 
-  // ---- responsive scale-to-fit: fixed 1786px design width, shrink to host ----
+  // ---- responsive scale-to-fit: fixed 1524px design width, shrink to host ----
   var scaleOuter = document.getElementById('scaleOuter');
   var figWrap = document.getElementById('figWrap');
   function rescale(){
     var hostWidth = scaleOuter.clientWidth;
-    var sc = Math.min(1, hostWidth / 1786);
-    var marginLeft = Math.max(0, (hostWidth - 1786 * sc) / 2);
+    var sc = Math.min(1, hostWidth / 1524);
+    var marginLeft = Math.max(0, (hostWidth - 1524 * sc) / 2);
     figWrap.style.transform = 'scale(' + sc + ')';
     figWrap.style.marginLeft = marginLeft + 'px';
     var h = figWrap.offsetHeight * sc;

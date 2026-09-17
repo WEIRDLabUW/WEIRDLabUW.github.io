@@ -17,6 +17,8 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 
   initRealWorldBarChart();
+  initPerfBarChart();
+  initTimelineZoom();
   initFigTimelineAutoHeight();
   initVizAutoHeight();
   initMethodPanelVariants();
@@ -44,21 +46,27 @@ function initDropdownLazyLoad() {
 // scrolled out of view and resume when they come back. Big win with a page full
 // of rollout clips (smooth playback, no decoder pile-up on fast scroll).
 function initVideoVisibilityGate() {
-  if (!('IntersectionObserver' in window)) return;
-  var vids = [].slice.call(document.querySelectorAll('video[autoplay]'));
+  // .lazy-play videos ship without the autoplay attribute so the browser never
+  // downloads them eagerly; this observer is their only play trigger
+  var vids = [].slice.call(document.querySelectorAll('video[autoplay], video.lazy-play'));
   if (!vids.length) return;
+  if (!('IntersectionObserver' in window)) {
+    vids.forEach(function (v) { v.play().catch(function () {}); });
+    return;
+  }
+  var onScreen = new WeakSet();
   var io = new IntersectionObserver(function (es) {
     es.forEach(function (e) {
       var v = e.target;
-      if (e.isIntersecting) { if (v.paused) v.play().catch(function () {}); }
-      else if (!v.paused) { v.pause(); }
+      if (e.isIntersecting) { onScreen.add(v); if (v.paused) v.play().catch(function () {}); }
+      else { onScreen.delete(v); if (!v.paused) v.pause(); }
     });
-  }, { threshold: 0.1 });
+  }, { threshold: 0.01, rootMargin: '300px 0px' });
   vids.forEach(function (v) { io.observe(v); });
   document.addEventListener('visibilitychange', function () {
     vids.forEach(function (v) {
       if (document.hidden) { if (!v.paused) v.pause(); }
-      else { v.play().catch(function () {}); }
+      else if (onScreen.has(v)) { v.play().catch(function () {}); }
     });
   });
 }
@@ -241,6 +249,131 @@ function initRealWorldBarChart() {
     label.textContent = bar.label;
     svg.appendChild(label);
   });
+
+  el.appendChild(svg);
+}
+
+// Summary scoreboard: same content as the paper's Figure-1 bar panel -- all 11
+// experiments (ASTEROID vs best baseline per task), grouped by suite, with real
+// stderr whiskers where a per-task source exists (procgen embed / curves_data.js).
+// Summary panels 3 and 4 render their embeds at a fixed natural layout width
+// and zoom to whatever width the card actually has, so the internal layout
+// (legend rows, chapter cards) is identical at every viewport and never
+// overflows. mobileAt: below this card width the embed reverts to fluid 100%.
+function initTimelineZoom() {
+  [{ sel: '.asum-eff', natural: 430, mobileAt: 0 },
+   { sel: '.asum-p2fit', natural: 430, mobileAt: 0 }].forEach(function (cfg) {
+    var f = document.querySelector(cfg.sel);
+    if (!f) return;
+    var card = f.closest('.asum-card') || f.parentElement;
+    function fit() {
+      var cs = getComputedStyle(card);
+      var w = card.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+      if (!w || w < 40) return;
+      if (cfg.mobileAt && w < cfg.mobileAt) {
+        f.style.width = '100%';
+        f.style.zoom = 1;
+      } else {
+        f.style.width = cfg.natural + 'px';
+        f.style.zoom = (w / cfg.natural).toFixed(4);
+      }
+    }
+    if ('ResizeObserver' in window) new ResizeObserver(fit).observe(card);
+    window.addEventListener('resize', fit);
+    fit();
+  });
+}
+
+function initPerfBarChart() {
+  var el = document.getElementById('perf-barchart');
+  if (!el) return;
+  var svgNS = 'http://www.w3.org/2000/svg';
+  var NAVY = '#003366', GRAY = '#b8b8b8';
+  // order: DR-Easy, DR-Hard, KD-M, KD-NM, 2DNav | Maze, Ant, Habitat | Tact, Peg, Real
+  var OURS = [0.97, 0.81, 0.97, 0.99, 0.97, 0.99, 0.73, 0.70, 0.94, 0.78, 0.60];
+  var BEST = [0.50, 0.13, 0.72, 0.95, 0.41, 0.76, 0.02, 0.25, 0.56, 0.47, 0.20];
+  var OURS_SE = [0, 0, 0, 0, 0, 0.0035, 0, 0, 0.0191, 0.0441, 0];
+  var BEST_SE = [0, 0, 0, 0, 0, 0, 0, 0, 0.0549, 0.0167, 0];
+  var GROUPS = [['Meta-Learning', 0, 5], ['Navigation', 5, 8], ['Robot Manipulation', 8, 11]];
+
+  var W = 430, H = 223, PAD = { l: 42, r: 4, t: 12, b: 30 };
+  var plotW = W - PAD.l - PAD.r, plotH = H - PAD.t - PAD.b;
+  // group gap = one extra slot between suites (mirrors the teaser figure)
+  var nSlots = OURS.length + GROUPS.length - 1;
+  var slot = plotW / nSlots, barW = slot * 0.40;
+  function slotX(i) {
+    var extra = 0;
+    GROUPS.forEach(function (g, gi) { if (gi > 0 && i >= g[1]) extra += 1; });
+    return PAD.l + slot * (i + extra) + slot / 2;
+  }
+
+  var svg = document.createElementNS(svgNS, 'svg');
+  svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
+  svg.style.width = '100%'; svg.style.display = 'block';
+
+  function yOf(v) { return PAD.t + plotH - v * plotH; }
+  [0, 0.5, 1.0].forEach(function (f) {
+    var y = yOf(f);
+    var gl = document.createElementNS(svgNS, 'line');
+    gl.setAttribute('x1', PAD.l); gl.setAttribute('x2', W - PAD.r);
+    gl.setAttribute('y1', y); gl.setAttribute('y2', y);
+    gl.setAttribute('stroke', '#e5e5e5'); gl.setAttribute('stroke-width', 1);
+    svg.appendChild(gl);
+    var tk = document.createElementNS(svgNS, 'text');
+    tk.setAttribute('x', PAD.l - 7); tk.setAttribute('y', y + 4);
+    tk.setAttribute('text-anchor', 'end');
+    tk.setAttribute('font-family', "'Google Sans',sans-serif");
+    tk.setAttribute('font-size', 12); tk.setAttribute('fill', '#737373');
+    tk.textContent = f === 0 ? '0' : f.toFixed(1);
+    svg.appendChild(tk);
+  });
+  var axisB = document.createElementNS(svgNS, 'line');
+  axisB.setAttribute('x1', PAD.l); axisB.setAttribute('x2', W - PAD.r);
+  axisB.setAttribute('y1', PAD.t + plotH); axisB.setAttribute('y2', PAD.t + plotH);
+  axisB.setAttribute('stroke', '#999'); axisB.setAttribute('stroke-width', 1);
+  svg.appendChild(axisB);
+
+  function bar(x, val, se, color) {
+    var y = yOf(val), h = PAD.t + plotH - y;
+    var rect = document.createElementNS(svgNS, 'rect');
+    rect.setAttribute('x', x); rect.setAttribute('y', y);
+    rect.setAttribute('width', barW); rect.setAttribute('height', h);
+    rect.setAttribute('rx', 1.5); rect.setAttribute('fill', color);
+    svg.appendChild(rect);
+    if (se > 0) {
+      var e = document.createElementNS(svgNS, 'line');
+      e.setAttribute('x1', x + barW / 2); e.setAttribute('x2', x + barW / 2);
+      e.setAttribute('y1', yOf(Math.min(val + se, 1))); e.setAttribute('y2', yOf(val - se));
+      e.setAttribute('stroke', '#555'); e.setAttribute('stroke-width', 1.4); e.setAttribute('opacity', 0.45);
+      svg.appendChild(e);
+    }
+  }
+
+  OURS.forEach(function (v, i) {
+    var cx = slotX(i);
+    bar(cx - barW - 0.8, v, OURS_SE[i], NAVY);
+    bar(cx + 0.8, BEST[i], BEST_SE[i], GRAY);
+  });
+
+  GROUPS.forEach(function (g) {
+    var gx = (slotX(g[1]) + slotX(g[2] - 1)) / 2;
+    gx = Math.min(gx, W - 62);   // keep the last (widest) label inside the svg
+    var lbl = document.createElementNS(svgNS, 'text');
+    lbl.setAttribute('x', gx); lbl.setAttribute('y', PAD.t + plotH + 22);
+    lbl.setAttribute('text-anchor', 'middle');
+    lbl.setAttribute('font-family', "'Google Sans',sans-serif");
+    lbl.setAttribute('font-size', 13); lbl.setAttribute('fill', '#444');
+    lbl.textContent = g[0];
+    svg.appendChild(lbl);
+  });
+
+  var yl = document.createElementNS(svgNS, 'text');
+  yl.setAttribute('transform', 'translate(13,' + (PAD.t + plotH / 2) + ') rotate(-90)');
+  yl.setAttribute('text-anchor', 'middle');
+  yl.setAttribute('font-family', "'Google Sans',sans-serif");
+  yl.setAttribute('font-size', 13.5); yl.setAttribute('fill', '#55525e');
+  yl.textContent = 'normalized return';
+  svg.appendChild(yl);
 
   el.appendChild(svg);
 }

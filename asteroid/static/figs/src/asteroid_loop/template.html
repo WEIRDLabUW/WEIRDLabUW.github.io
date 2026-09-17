@@ -77,6 +77,27 @@ html,body{margin:0;padding:0;background:transparent;}
     <feDropShadow dx="0" dy="8" stdDeviation="16" flood-color="#1f2a4d" flood-opacity="0.16"/>
   </filter>
 
+  <!-- student marker: Twemoji graduation cap (36x36); origin = bottom-centre of the crown -->
+  <g id="gradcap" transform="translate(-18,-35)">
+    <path fill="#31373D" d="M24 14H12s-5 6-5 10 11 11 11 11 11-7 11-11-5-10-5-10z"/>
+    <path fill="#292F33" d="M19.64 1.28c-.901-.704-2.377-.704-3.278 0L1.639 12.776c-.901.704-.901 1.856 0 2.56l14.722 11.495c.902.704 2.377.704 3.278 0l14.722-11.495c.902-.704.902-1.856 0-2.56L19.64 1.28z"/>
+    <path fill="#394146" d="M19.64 1.28c-.901-.704-2.377-.704-3.278 0L1.639 12.776c-.901.704-.901 1.856 0 2.56l14.722 11.495c.901.704 2.377.704 3.278 0l14.723-11.495c.901-.704.901-1.856 0-2.56L19.64 1.28z"/>
+    <path fill="#FCAB40" d="M8 25s-2 2-2 3v6s0 2 2 2 2-2 2-2v-6c0-1-2-3-2-3z"/>
+    <circle fill="#FDD888" cx="8" cy="26" r="3"/>
+    <path fill="#FCAB40" d="M8.001 27c-.552 0-1-.447-1-1v-3.958c-.042-.634.187-2.036 1.317-2.884l9.022-7.91c.416-.365 1.048-.323 1.411.093.364.415.322 1.047-.093 1.411l-9.08 7.958C8.974 21.166 9 21.982 9 21.99L9.002 26c0 .553-.448 1-1.001 1z"/>
+    <circle fill="#31373D" cx="18" cy="13" r="3"/>
+  </g>
+  <!-- teacher marker: floppy wizard hat (36x36); origin = bottom-centre of the brim -->
+  <g id="wizhat" transform="translate(-18,-24)">
+    <ellipse cx="18" cy="20" rx="16" ry="4.6" fill="#3b2a7a"/>
+    <ellipse cx="18" cy="19.4" rx="13.5" ry="3.2" fill="#5340a8"/>
+    <path fill="#6a48c4" d="M6,20 C10.5,15.5 12.6,9 13.6,3.2 C14.2,-0.4 17.6,-2.2 22,-0.6 C19.2,0.4 17.4,2.6 17.3,5 C18.6,11 23.4,16 30,20 C26,22.6 10,22.6 6,20 Z"/>
+    <path fill="none" stroke="#8d72d8" stroke-width="1.1" stroke-linecap="round" opacity=".9" d="M9.4,17.4 C11.6,13.6 12.9,9.6 13.8,5.6"/>
+    <path fill="none" stroke="#3b2a7a" stroke-width="1.8" stroke-linecap="round" d="M6.8,19.2 C11,21.8 25,21.8 29.2,19.2"/>
+    <rect x="16.3" y="18.3" width="3.4" height="2.6" rx=".5" fill="#ffd54a" stroke="#b8901e" stroke-width=".5"/>
+    <path fill="#ffd54a" d="M15.6,7.2 l.95,1.95 2.15.3 -1.55,1.5 .37,2.15 -1.92-1.02 -1.92,1.02 .37-2.15 -1.55-1.5 2.15-.3z"/>
+    <circle fill="#ffd54a" cx="22.8" cy="13.8" r=".9"/><circle fill="#ffd54a" cx="11" cy="15.6" r=".7"/>
+  </g>
   <!-- the environment: a globe; the hidden parameters z: a shape badge on it.
        The student interacts with the bare globe, the expert with globe + badge. -->
   <g id="globe"><text text-anchor="middle" x="0" y="19" font-size="54"
@@ -133,6 +154,7 @@ html,body{margin:0;padding:0;background:transparent;}
     <circle r="44" fill="none" stroke="#c9d4e8" stroke-width="3"/>
     <circle r="38" fill="#f2f5fb" stroke="#35507d" stroke-width="3.2"/>
     <use xlink:href="#tex-pith" transform="{{T:pith:0,0,3.4,c}}" fill="#1a1a1a"/>
+    <use xlink:href="#gradcap" transform="translate(-6,-34) rotate(-14) scale(1.35)"/>
   </g></g>
   <g class="anim" style="--d:1.7s"><use xlink:href="#tex-stud" transform="{{T:stud:293,410,2.0,c}}" fill="#35507d"/></g>
 
@@ -196,6 +218,7 @@ html,body{margin:0;padding:0;background:transparent;}
     <circle r="44" fill="none" stroke="#b3d9d9" stroke-width="3"/>
     <circle r="38" fill="#e0f0f0" stroke="#004646" stroke-width="3.2"/>
     <use xlink:href="#tex-pistar" transform="{{T:pistar:0,0,3.8,c}}" fill="#004646"/>
+    <use xlink:href="#wizhat" transform="translate(-4,-32) rotate(-12) scale(1.5)"/>
   </g></g>
   <g class="anim" style="--d:5.45s"><use xlink:href="#tex-tch" transform="{{T:tch:293,675,2.0,c}}" fill="#0a5c5c"/></g>
 

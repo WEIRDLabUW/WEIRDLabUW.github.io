@@ -396,6 +396,196 @@ img.inline-figure {
    page this media-heavy); intrinsic size keeps the scrollbar stable */
 .section { content-visibility: auto; contain-intrinsic-size: auto 900px; }
 
+/* hero header: title and author list each render as one line on desktop and
+   wrap naturally on narrow screens */
+.publication-authors.hero-line {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  column-gap: 0.45rem;
+}
+.publication-authors.hero-line .author-block { white-space: nowrap; }
+
+/* At-a-glance summary: four equal-height cards in one row; widths are set
+   inline per slot to match each panel's natural aspect so one shared height
+   spans the page. Wraps 2x2 on medium screens, stacks on phones. */
+.asum-row {
+  display: flex;
+  align-items: stretch;
+  gap: 12px;
+}
+@media screen and (max-width: 1215px) {
+  .asum-row { flex-wrap: wrap; }
+  .asum-row .asum-slot { flex: 1 1 47% !important; }
+}
+@media screen and (max-width: 700px) {
+  .asum-row .asum-slot { flex: 1 1 100% !important; }
+}
+
+.asum-kicker {
+  font-family: 'Google Sans', 'Noto Sans', sans-serif;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #003366;
+  margin-bottom: 1.1rem;
+}
+.asum-card {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 16px;
+  padding: 0.5rem 0.5rem 0.55rem;
+  box-shadow: 0 0 14px 2px rgba(0, 51, 102, 0.06);
+  overflow: hidden;
+}
+.asum-h {
+  font-family: 'Google Sans', 'Noto Sans', sans-serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #222;
+  text-align: center;
+  margin-bottom: 0.35rem;
+}
+.asum-h a { font-weight: 700; }
+/* panel 2 mirrors panel 3's geometry: a fixed 430px-wide, 312px-tall logical
+   block (zoom-fitted to the card by initTimelineZoom) whose chart plot area is
+   181px tall with the legend 40px below it -- so the two panels' plots and
+   legends sit on the same lines */
+.asum-p2fit {
+  width: 430px;
+  height: 312px;
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+}
+#perf-barchart { width: 430px; margin: 0 auto; }
+/* panel headings double as section links: keep the heading look, reveal
+   affordance on hover only */
+.asum-h a { color: inherit; text-decoration: none; }
+.asum-h a:hover { color: #003366; text-decoration: underline; text-underline-offset: 3px; }
+.asum-vgrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.45rem;
+  margin-top: auto;
+  margin-bottom: auto;
+}
+.asum-vgrid video {
+  width: 100%;
+  aspect-ratio: 16/9;
+  object-fit: cover;
+  border-radius: 8px;
+  background: #fff;
+  display: block;
+}
+/* show only the RIGHT half of a side-by-side pair video (1920x540 -> 960x540,
+   16:9): cover + right-edge object-position pins the crop to the right panel */
+.asum-crop-r video {
+  object-position: 100% 50%;
+}
+/* sim tiles: two views of the same task side by side (wrist+scene, touch+scene)
+   with a faint divider between the views */
+.asum-duo {
+  display: flex;
+  width: 100%;
+  aspect-ratio: 16/9;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #0d0d0d;
+}
+.asum-duo > video,
+.asum-duo > iframe {
+  flex: 1 1 50%;
+  min-width: 0;
+  width: 50%;
+  height: 100%;
+  object-fit: cover;
+  border: 0;
+  display: block;
+  border-radius: 0;
+  aspect-ratio: auto;
+}
+.asum-duo > iframe { background: #fafafa; }
+.asum-duo .duo-div { flex: 0 0 2px; background: rgba(255, 255, 255, 0.65); }
+/* small label chip on the first (input-modality) half of a duo tile */
+.asum-duo { position: relative; }
+.asum-duo .duo-tag {
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  z-index: 2;
+  background: rgba(255, 255, 255, 0.92);
+  color: #333;
+  font-family: 'Google Sans', 'Noto Sans', sans-serif;
+  font-size: 0.62rem;
+  font-weight: 600;
+  line-height: 1.25;
+  padding: 1px 7px;
+  border-radius: 6px;
+}
+.asum-cap {
+  margin-top: 0.3rem;
+  text-align: center;
+  font-family: 'Google Sans', 'Noto Sans', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #555;
+}
+/* styled to match the Plotly legends in the neighboring panels; nudged right
+   so it centers on the chart's PLOT AREA (which sits right of card center by
+   the y-axis margin: 18/560 of the chart width), like plotly legends do */
+.asum-legend {
+  display: flex;
+  justify-content: center;
+  gap: 1.4rem;
+  width: fit-content;
+  margin: 23px auto 0;
+  position: relative;
+  left: 19px;
+  padding: 0.35rem 1rem;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid #dddddd;
+  border-radius: 2px;
+  font-family: 'Google Sans', 'Noto Sans', sans-serif;
+  font-size: 14.5px;
+  color: #454250;
+}
+.asum-legend span { display: inline-flex; align-items: center; gap: 0.35rem; }
+.asum-legend i { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
+@media screen and (max-width: 768px) {
+  .asum-vgrid { grid-template-columns: 1fr 1fr; }
+}
+/* stacked (top/bottom) variant of the curves embed fits the card width natively */
+.asum-eff {
+  width: 430px;
+  height: 312px;
+  border: 0;
+  display: block;
+  margin: auto;
+}
+/* the BC-vs-ASTEROID timeline embed scales itself to its host width and
+   reports its rendered height (initFigTimelineAutoHeight sets the iframe) */
+.asum-tl {
+  width: 100%;
+  border: 0;
+  display: block;
+  margin: auto;
+}
+/* camera-with-cross icon in the panel-4 heading */
+.camwrap2 { position: relative; display: inline-block; line-height: 1; }
+.camwrap2 .camx2 {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -55%);
+  color: #cc2222;
+  font-weight: 800;
+  font-size: 1.2em;
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.9);
+}
+
 
 /* dropdown affordance: rotating arrow, native marker hidden; content sources
    are data-src and only load on first open */
@@ -404,9 +594,7 @@ details.dd > summary::-webkit-details-marker { display: none; }
 .dd-arrow { display: inline-block; transition: transform .25s ease; }
 details.dd[open] .dd-arrow { transform: rotate(90deg); }
 
-/* hero: faint collage of all experimental videos behind the title block */
+/* hero background collage removed -- it competed with the summary panels */
 .hero {
-  background:
-    linear-gradient(rgba(255,255,255,0.905), rgba(255,255,255,0.905)),
-    url("../../assets/hero_collage.gif") center / cover no-repeat;
+  background: #ffffff;
 }

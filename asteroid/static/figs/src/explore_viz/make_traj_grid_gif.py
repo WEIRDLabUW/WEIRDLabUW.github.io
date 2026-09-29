@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d.art3d import Line3DCollection
 from matplotlib.animation import FuncAnimation, PillowWriter
 
-from make_traj_grid import (from_cmp, from_pkl, style_axis, GHOST, OUT, TICK)
+from make_traj_grid import (from_cmp, from_pkl, style_axis, add_badge, GHOST, OUT, TICK)
 
 STRIDE = 2      # env steps per gif frame
 FPS = 6
@@ -71,6 +71,7 @@ def main():
             boxstyle="round,pad=0,rounding_size=0.012",
             transform=fig.transFigure, fill=False, linewidth=1.0,
             edgecolor="#2f9e44" if success else "#cc2222", alpha=0.85))
+        add_badge(fig, cell, success)
         ramp = (np.linspace(0.35, 0.8, len(segs)) if gray
                 else np.linspace(0, 1, len(segs)))
         anims.append((traj, segs, ramp, lc, mk))

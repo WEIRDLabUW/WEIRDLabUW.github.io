@@ -80,6 +80,32 @@ def style_axis(ax, lims, aspect, names=("x", "y", "z")):
     ax.view_init(elev=40, azim=-125)
 
 
+EMOJI_FONT = "/System/Library/Fonts/Apple Color Emoji.ttc"
+_emoji_cache = {}
+
+
+def _emoji(ch):
+    # Agg can't draw color-emoji glyphs; rasterize via Pillow at the font's
+    # native 160px strike and crop to the glyph
+    if ch not in _emoji_cache:
+        from PIL import Image, ImageDraw, ImageFont
+        font = ImageFont.truetype(EMOJI_FONT, 160)
+        im = Image.new("RGBA", (200, 200), (0, 0, 0, 0))
+        ImageDraw.Draw(im).text((0, 0), ch, font=font, embedded_color=True)
+        _emoji_cache[ch] = np.asarray(im.crop(im.getbbox()))
+    return _emoji_cache[ch]
+
+
+def add_badge(fig, cell, success, size_in=0.30):
+    """✅ / ❌ in the upper-left corner, inside the panel's outcome border."""
+    fw, fh = fig.get_size_inches()
+    w, h = size_in / fw, size_in / fh
+    top = 0.025 + 0.945   # border top edge (see the FancyBboxPatch in render)
+    bax = fig.add_axes([cell.x0 + 0.004 + 0.12 / fw, top - 0.10 / fh - h, w, h])
+    bax.imshow(_emoji("✅" if success else "❌"), interpolation="lanczos")
+    bax.set_axis_off()
+
+
 def draw(ax, traj, success, lims, aspect, names=("x", "y", "z"), gray=False):
     style_axis(ax, lims, aspect, names)
     ax.computed_zorder = False
@@ -127,6 +153,7 @@ def render(panels, panel_lims, aspect, perm, names, out_stem):
                 boxstyle="round,pad=0,rounding_size=0.012",
                 transform=fig.transFigure, fill=False, linewidth=1.0,
                 edgecolor="#2f9e44" if success else "#cc2222", alpha=0.85))
+            add_badge(fig, cell, success)
 
     # small gray separator between Expert and the learned policies
     x0 = (gs[0, 0].get_position(fig).x1 + gs[0, 1].get_position(fig).x0) / 2

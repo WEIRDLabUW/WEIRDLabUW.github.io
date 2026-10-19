@@ -26,7 +26,89 @@ document.addEventListener('DOMContentLoaded', function () {
   initVideoVisibilityGate();
   initDropdownLazyLoad();
   initNearViewIframe('fig-timeline-frame', 1200);
+  initPanelExpand();
 });
+
+// Summary panels expand on click: the card is translated+scaled to the viewport
+// center (no reparenting, so embeds keep their state). Closes via the X button,
+// a click on the backdrop, Esc, or following the panel's heading link.
+function initPanelExpand() {
+  var cards = [].slice.call(document.querySelectorAll('.asum-card'));
+  if (!cards.length) return;
+  var backdrop = document.createElement('div');
+  backdrop.className = 'asum-backdrop';
+  var closeBtn = document.createElement('button');
+  closeBtn.className = 'asum-close';
+  closeBtn.setAttribute('aria-label', 'Close');
+  closeBtn.innerHTML = '&#10005;';
+  document.body.appendChild(backdrop);
+  document.body.appendChild(closeBtn);
+  var open = null;
+
+  function place() {
+    if (!open) return;
+    // measure the untransformed box, then fit it into 92vw x 86vh
+    var r = open.getBoundingClientRect(), t = open.style.transform;
+    open.style.transition = 'none';
+    open.style.transform = 'none';
+    r = open.getBoundingClientRect();
+    open.style.transform = t;
+    void open.offsetWidth;
+    open.style.transition = '';
+    var vw = window.innerWidth, vh = window.innerHeight;
+    var s = Math.min(vw * 0.92 / r.width, vh * 0.86 / r.height, 3);
+    var dx = vw / 2 - (r.left + r.width / 2), dy = vh / 2 - (r.top + r.height / 2);
+    open.style.transform = 'translate(' + dx + 'px,' + dy + 'px) scale(' + s + ')';
+    var top = vh / 2 - r.height * s / 2, right = vw / 2 + r.width * s / 2;
+    closeBtn.style.top = Math.max(8, top - 19) + 'px';
+    closeBtn.style.left = Math.min(vw - 46, right - 19) + 'px';
+  }
+
+  function show(card) {
+    if (open) return;
+    open = card;
+    card.classList.add('is-raised', 'is-open');
+    backdrop.classList.add('is-on');
+    closeBtn.classList.add('is-on');
+    place();
+  }
+
+  function hide() {
+    if (!open) return;
+    var card = open;
+    open = null;
+    card.classList.remove('is-open');
+    card.style.transform = '';
+    backdrop.classList.remove('is-on');
+    closeBtn.classList.remove('is-on');
+    setTimeout(function () { if (open !== card) card.classList.remove('is-raised'); }, 400);
+  }
+
+  cards.forEach(function (card) {
+    card.setAttribute('tabindex', '0');
+    card.setAttribute('role', 'button');
+    card.addEventListener('click', function (e) {
+      if (e.target.closest('.asum-h a')) { hide(); return; }
+      show(card);
+    });
+    card.addEventListener('keydown', function (e) {
+      if ((e.key === 'Enter' || e.key === ' ') && e.target === card) { e.preventDefault(); show(card); }
+    });
+  });
+  backdrop.addEventListener('click', hide);
+  closeBtn.addEventListener('click', hide);
+  document.addEventListener('keydown', function (e) {
+    if (!open) return;
+    if (e.key === 'Escape') hide();
+    else if (['ArrowUp', 'ArrowDown', 'PageUp', 'PageDown', 'Home', 'End', ' '].indexOf(e.key) >= 0) e.preventDefault();
+  });
+  // lock page scroll while expanded (overflow:hidden would shift the layout
+  // under the card by the scrollbar width)
+  ['wheel', 'touchmove'].forEach(function (ev) {
+    document.addEventListener(ev, function (e) { if (open) e.preventDefault(); }, { passive: false });
+  });
+  window.addEventListener('resize', place);
+}
 
 // Dropdown (details) content loads only when opened: swap data-src -> src on
 // the first toggle, so closed sections cost nothing.

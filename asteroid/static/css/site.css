@@ -1,4 +1,9 @@
-/* Page layout and components, layered on top of index.css.
+/* Website design adapted from the SGS project page (https://sgs-rl.github.io/) by Mateo Guaman Castro,
+   licensed under CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/); itself inspired by Swiss design
+   (International Typographic Style). Changes were made: layout, components and content are adapted for ASTEROID.
+   Built on the Nerfies template (https://nerfies.github.io/).
+
+   Page layout and components, layered on top of index.css.
    One colour code everywhere: student = navy, expert = teal, context = rust,
    goal = gold (matches the existing door / loop figures). */
 :root {
@@ -183,7 +188,9 @@ ol.code li.m-old { background: #fbeceb; border-left-color: #e2a6a1; color: var(-
 
 /* ---------- misc ---------- */
 .d-bib { font-size: 0.85rem; border-radius: 10px; background: var(--bg-soft); }
-.d-footer { text-align: center; color: var(--ink-3); font-size: 0.85rem; padding: 3rem 0 4rem; }
+.d-footer { text-align: center; color: var(--ink-3); font-size: 0.85rem; padding: 3rem 24px 4rem; max-width: 760px; margin: 0 auto; }
+.d-footer p + p { margin-top: 0.35rem; }
+.d-footer a { color: var(--ink-2); text-decoration: underline; text-underline-offset: 2px; }
 
 /* ---------- hero panels ---------- */
 .d-hero-panels { margin-top: 2rem; }

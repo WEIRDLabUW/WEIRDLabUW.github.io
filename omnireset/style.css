@@ -3932,3 +3932,20 @@ video:-webkit-full-screen {
   box-shadow: none;
   background: #000;
 }
+
+.demo-offline-note {
+  margin: 8px 4px 24px;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.demo-offline-note a {
+  color: var(--text-secondary);
+  text-decoration: none;
+}
+
+.demo-offline-note a:hover {
+  text-decoration: underline;
+  color: var(--honey-bronze);
+}

@@ -19,16 +19,7 @@
   <link rel="preconnect" href="https://f004.backblazeb2.com">
   <link rel="preconnect" href="https://esm.sh" crossorigin>
   <link rel="preload" as="video" href="https://omnireset-website.s3.us-west-004.backblazeb2.com/intro_supercut.mp4" type="video/mp4" fetchpriority="high">
-  <!-- Preload interactive demo assets so they're cached by the time Three.js needs them -->
-  <!-- Commented out during maintenance
-  <link rel="preload" as="fetch" href="https://omnireset-website.s3.us-west-004.backblazeb2.com/interactive_assets/env_warehouse.gltf" crossorigin fetchpriority="high">
-  <link rel="preload" as="fetch" href="https://omnireset-website.s3.us-west-004.backblazeb2.com/interactive_assets/drawer_bottom.glb" crossorigin fetchpriority="high">
-  <link rel="preload" as="fetch" href="https://omnireset-website.s3.us-west-004.backblazeb2.com/interactive_assets/drawer_box.glb" crossorigin fetchpriority="high">
-  <link rel="preload" as="fetch" href="https://omnireset-website.s3.us-west-004.backblazeb2.com/interactive_assets/sky.hdr" crossorigin fetchpriority="high">
-  <link rel="preload" as="fetch" href="https://omnireset-website.s3.us-west-004.backblazeb2.com/interactive_assets/UR5e.json" crossorigin fetchpriority="high">
-  <link rel="preload" as="fetch" href="proto/omnireset.js" crossorigin fetchpriority="high">
-  -->
-  <link rel="stylesheet" href="style.css?v=38">
+  <link rel="stylesheet" href="style.css?v=40">
   <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
   <!-- Import map for main.js (Three + protobuf); must match main.js import specifiers -->
   <script type="importmap">
@@ -62,12 +53,6 @@
         <a href="#">
           <span class="progress-dot"></span>
           <span class="progress-label">Intro</span>
-        </a>
-      </div>
-      <div class="progress-item" data-section="interactive-demo">
-        <a href="#interactive-demo">
-          <span class="progress-dot"></span>
-          <span class="progress-label">Try It Yourself</span>
         </a>
       </div>
       <div class="progress-item" data-section="pipeline">
@@ -188,52 +173,7 @@
       </div>
     </div>
 
-    <div class="tagline" id="interactive-demo">Try It Yourself! <span class="interactive-badge">Interactive</span></div>
-    <div class="card-surface reconstruction-split-section">
-
-      <script type="module" src="main.js?v=23"></script>
-
-      <div class="demo-tab-bar">
-        <button class="demo-tab active" data-task="peg">Peg</button>
-        <button class="demo-tab" data-task="leg">Leg</button>
-        <button class="demo-tab" data-task="drawer">Drawer</button>
-      </div>
-      <div class="demo-viewport">
-        <div id="interactive-demo-container"></div>
-        <div class="demo-overlay" id="demoOverlay">
-          <div class="demo-overlay-content">
-            <div class="demo-loading" id="demoLoading">
-              <div class="demo-spinner"></div>
-              <p class="demo-overlay-instructions">Loading simulation...</p>
-            </div>
-            <div class="demo-ready demo-ready--hidden" id="demoReady">
-              <p class="demo-overlay-instructions">Press <strong>&lsquo;Play&rsquo;</strong> to start a new rollout.</p>
-              <button class="demo-btn demo-btn-primary demo-overlay-play-btn" id="overlayPlayBtn">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/><polygon points="10,8 16,12 10,16" fill="currentColor" stroke="none"/></svg>
-                Play
-              </button>
-            </div>
-          </div>
-        </div>
-        <div class="demo-controls demo-controls--hidden" id="demoControls">
-          <div class="demo-buttons">
-            <button id="playTrajectory" class="demo-btn demo-btn-primary">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/><polygon points="10,8 16,12 10,16" fill="currentColor" stroke="none"/></svg>
-              Reset
-            </button>
-            <button id="disturb" class="demo-btn demo-btn-secondary">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
-              Disturb
-            </button>
-          </div>
-        </div>
-        <div class="demo-hint demo-hint--hidden" id="hintDisturb">Press <strong>&lsquo;Disturb&rsquo;</strong> to open the gripper and apply a force perturbation to the object.</div>
-        <div class="demo-hint demo-hint--hidden" id="hintDrag">Now <strong>drag</strong> and <strong>scroll</strong> to rotate and zoom.</div>
-        <div class="demo-hint demo-hint--hidden" id="hintReset">Press <strong>&lsquo;Reset&rsquo;</strong> to start a new rollout.</div>
-        <div class="demo-hint demo-hint--hidden" id="hintTask">Switch tasks using the <strong>tabs</strong> above!</div>
-      </div>
-      <p class="demo-credit">Interactive demo by <a href="https://jtran-uw.github.io/" target="_blank" rel="noopener noreferrer">Joshua Tran</a></p>
-    </div>
+    <p class="demo-offline-note" id="interactive-demo">The interactive simulation demo, built by <a href="https://jtran-uw.github.io/" target="_blank" rel="noopener noreferrer">Joshua Tran</a>, has been taken offline to save on hosting costs. Reach out to him to try it.</p>
 
     <div class="tagline" id="pipeline">The OmniReset Pipeline</div>
     <div class="card-surface pipeline-section-box">
@@ -925,8 +865,8 @@
 
         autoplayVids.forEach(v => playObserver.observe(v));
       }
-      window.addEventListener('demo-ready', startQueue, { once: true });
-      setTimeout(startQueue, 8000);
+      // Interactive demo is offline; start autoplay immediately.
+      startQueue();
     });
 
     // Overlay dismiss + play is handled by main.js (module) which has direct access to playTrajectory()

@@ -226,22 +226,22 @@
 
       <div class="doors-row" id="doors-row">
         <div class="doors-card">
-          <div class="doors-title"><span class="t-expert">Expert</span> <small>sees the goal</small></div>
+          <div class="doors-title"><span class="t-expert">Expert</span> <small>&middot; sees the goal</small></div>
           <svg class="doors" data-kind="expert" viewBox="0 0 300 200"></svg>
           <div class="ep-strip"></div>
-          <p class="doors-cap">Walks straight to the goal. It <b>never demonstrates searching</b>.</p>
+          <p class="doors-res is-exp">&#10003; never searches</p>
         </div>
         <div class="doors-card is-bad">
-          <div class="doors-title"><span class="t-student">Student</span> copying the expert <small>can&rsquo;t see the goal</small></div>
+          <div class="doors-title">Copying the expert <small>&middot; can&rsquo;t see the goal</small></div>
           <svg class="doors" data-kind="bc" viewBox="0 0 300 200"></svg>
           <div class="ep-strip"></div>
-          <p class="doors-cap">Picks a door at random every episode, <b>even ones that already failed</b>.</p>
+          <p class="doors-res is-bad">&#10005; guesses, repeats failed doors</p>
         </div>
         <div class="doors-card is-good">
-          <div class="doors-title"><span class="t-student">Student</span> trained with <span class="multi-color-text"><b>ASTEROID</b></span> <small>can&rsquo;t see the goal</small></div>
+          <div class="doors-title"><span class="multi-color-text"><b>ASTEROID</b></span> <small>&middot; can&rsquo;t see the goal</small></div>
           <svg class="doors" data-kind="asteroid" viewBox="0 0 300 200"></svg>
           <div class="ep-strip"></div>
-          <p class="doors-cap"><b>Rules out</b> failed doors, then <b>commits</b> to the one that worked.</p>
+          <p class="doors-res is-good">&#10003; rules out, then commits</p>
         </div>
       </div>
     </div>
@@ -269,7 +269,7 @@
           <p class="cmp-verdict good">Learns to rule out failed doors and commit to the right one.</p>
         </div>
       </div>
-      <p class="cmp-legend"><span class="lg add">added</span><span class="lg chg">changed</span> That&rsquo;s the whole method.</p>
+      <p class="cmp-legend"><span class="lg add">added</span><span class="lg chg">changed</span></p>
 
       <div class="d-card d-loop">
         <iframe class="lmp-figframe" id="asteroid-loop" src="./static/figs/fig_asteroid_loop_embed.html"
@@ -307,7 +307,7 @@
         <p class="why-say" id="why-say"></p>
         <div class="why-stage">
           <div class="why-col">
-            <div class="why-h"><span class="t-student">Student</span> tries &rarr; <span class="t-ctx">context</span></div>
+            <div class="why-h"><span class="t-student">Student</span> tries</div>
             <svg class="why-doors" id="why-doors" viewBox="0 0 220 120"></svg>
             <div class="why-ctx" id="why-ctx"></div>
           </div>

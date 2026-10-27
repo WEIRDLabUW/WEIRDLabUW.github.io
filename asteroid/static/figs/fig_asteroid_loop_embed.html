@@ -125,7 +125,7 @@ html,body{margin:0;padding:0;background:transparent;}
 
   <!-- arrowheads (placed + rotated at path tips, popped in after the draw) -->
   <g id="headInk"><path d="M0,0 L-13,5.5 L-13,-5.5 Z" fill="#666666"/></g>
-  <g id="headSoft"><path d="M0,0 L-12,5 L-12,-5 Z" fill="#8c8c8c"/></g>
+  <g id="headSoft"><path d="M0,0 L-12,5 L-12,-5 Z" fill="#5c5c63"/></g>
 </defs>
 <defs>
 <path id='zpz-g0-24' d='M7.193026-3.327522C7.193026-3.5467 7.13325-3.646326 7.053549-3.646326C7.003736-3.646326 6.924035-3.576588 6.914072-3.387298C6.874222-2.430884 6.216687-1.882939 5.519303-1.882939C4.891656-1.882939 4.41345-2.311333 3.92528-2.739726C3.417186-3.198007 2.899128-3.656289 2.221669-3.656289C1.135741-3.656289 .547945-2.560399 .547945-1.653798C.547945-1.334994 .67746-1.334994 .687422-1.334994C.797011-1.334994 .826899-1.534247 .826899-1.564134C.86675-2.660025 1.613948-3.098381 2.221669-3.098381C2.849315-3.098381 3.327522-2.669988 3.815691-2.241594C4.323786-1.783313 4.841843-1.325031 5.519303-1.325031C6.60523-1.325031 7.193026-2.420922 7.193026-3.327522Z'/>
@@ -734,15 +734,15 @@ html,body{margin:0;padding:0;background:transparent;}
   <g transform="translate(230,105)"><g class="tok" style="--d:0.4s"><use xlink:href="#globe"/><use xlink:href="#badge1" transform="translate(20,20)"/></g></g>
   <g transform="translate(340,105)"><g class="tok" style="--d:0.55s"><use xlink:href="#globe"/><use xlink:href="#badge2" transform="translate(20,20)"/></g></g>
   <g transform="translate(450,105)"><g class="tok" style="--d:0.7s"><use xlink:href="#globe"/><use xlink:href="#badge3" transform="translate(20,20)"/></g></g>
-  <g class="anim" style="--d:0.85s"><use xlink:href="#tex-cdots" transform="translate(535.00,105.00) scale(3.0)" fill="#8c8c8c"/></g>
+  <g class="anim" style="--d:0.85s"><use xlink:href="#tex-cdots" transform="translate(535.00,105.00) scale(3.0)" fill="#5c5c63"/></g>
   <circle class="ring" style="--d:1.0s" id="pick" cx="230" cy="105" r="38" fill="none" stroke="#e3a730" stroke-width="4"/>
 
   <!-- ================= panel 1: on-policy rollouts ================= -->
   <rect class="anim" style="--d:0.05s" x="60" y="195" width="1560" height="250" rx="14"
     fill="none" stroke="#8b8698" stroke-width="2.2" stroke-dasharray="9 8"/>
   <g class="anim" style="--d:0.15s">
-    <use xlink:href="#tex-n1" transform="translate(96.00,231.00) scale(2.6)" fill="#8c8c8c"/>
-    <use xlink:href="#tex-hdrA" transform="translate(396.97,231.00) scale(2.5)" fill="#737373"/>
+    <use xlink:href="#tex-n1" transform="translate(96.00,231.00) scale(3.0)" fill="#5c5c63"/>
+    <use xlink:href="#tex-hdrA" transform="translate(451.96,231.00) scale(3.0)" fill="#4a4a50"/>
   </g>
 
   <!-- student sees the bare globe: no badge -->
@@ -753,7 +753,7 @@ html,body{margin:0;padding:0;background:transparent;}
     <use xlink:href="#tex-pith" transform="translate(0.00,0.00) scale(3.4)" fill="#1a1a1a"/>
     <use xlink:href="#gradcap" transform="translate(-6,-34) rotate(-14) scale(1.35)"/>
   </g></g>
-  <g class="anim" style="--d:1.7s"><use xlink:href="#tex-stud" transform="translate(293.00,410.00) scale(2.0)" fill="#35507d"/></g>
+  <g class="anim" style="--d:1.7s"><use xlink:href="#tex-stud" transform="translate(293.00,410.00) scale(2.5)" fill="#35507d"/></g>
 
   <!-- one interaction loop: act, observe -->
   <g class="anim" style="--d:1.7s">
@@ -761,8 +761,8 @@ html,body{margin:0;padding:0;background:transparent;}
     <use xlink:href="#headSoft" transform="translate(180,306) rotate(132)" opacity="0.75"/>
     <path d="M180,364 C199,386 235,386 254,364" fill="none" stroke="#b9b4c4" stroke-width="2.4"/>
     <use xlink:href="#headSoft" transform="translate(254,364) rotate(-48)" opacity="0.75"/>
-    <use xlink:href="#tex-at" transform="translate(217.00,272.00) scale(2.8)" fill="#737373"/>
-    <use xlink:href="#tex-ort" transform="translate(217.00,400.00) scale(2.8)" fill="#737373"/>
+    <use xlink:href="#tex-at" transform="translate(217.00,272.00) scale(2.8)" fill="#4a4a50"/>
+    <use xlink:href="#tex-ort" transform="translate(217.00,400.00) scale(2.8)" fill="#4a4a50"/>
   </g>
 
   <path class="grow" style="--d:1.85s" d="M328,335 L372,335" fill="none" stroke="#666" stroke-width="2.8"/>
@@ -802,8 +802,8 @@ html,body{margin:0;padding:0;background:transparent;}
   <rect class="anim" style="--d:0.05s" x="60" y="470" width="1560" height="250" rx="14"
     fill="none" stroke="#7fa8a8" stroke-width="2.2" stroke-dasharray="9 8"/>
   <g class="anim" style="--d:0.15s">
-    <use xlink:href="#tex-n2" transform="translate(96.00,506.00) scale(2.6)" fill="#8c8c8c"/>
-    <use xlink:href="#tex-hdrB" transform="translate(360.99,506.00) scale(2.5)" fill="#737373"/>
+    <use xlink:href="#tex-n2" transform="translate(96.00,506.00) scale(3.0)" fill="#5c5c63"/>
+    <use xlink:href="#tex-hdrB" transform="translate(408.79,506.00) scale(3.0)" fill="#4a4a50"/>
   </g>
 
   <!-- the teacher sees the SAME globe plus the privileged badge z -->
@@ -817,7 +817,7 @@ html,body{margin:0;padding:0;background:transparent;}
     <use xlink:href="#tex-pistar" transform="translate(0.00,0.00) scale(3.8)" fill="#004646"/>
     <use xlink:href="#wizhat" transform="translate(-4,-32) rotate(-12) scale(1.5)"/>
   </g></g>
-  <g class="anim" style="--d:5.45s"><use xlink:href="#tex-tch" transform="translate(293.00,675.00) scale(2.0)" fill="#0a5c5c"/></g>
+  <g class="anim" style="--d:5.45s"><use xlink:href="#tex-tch" transform="translate(293.00,675.00) scale(2.5)" fill="#0a5c5c"/></g>
 
   <g class="anim" style="--d:5.45s">
     <path d="M254,571 C235,549 199,549 180,571" fill="none" stroke="#9fc0c0" stroke-width="2.4"/>
@@ -825,7 +825,7 @@ html,body{margin:0;padding:0;background:transparent;}
     <path d="M180,629 C199,651 235,651 254,629" fill="none" stroke="#9fc0c0" stroke-width="2.4"/>
     <use xlink:href="#headSoft" transform="translate(254,629) rotate(-48)" opacity="0.75"/>
     <use xlink:href="#tex-astart" transform="translate(217.00,537.00) scale(2.8)" fill="#004646"/>
-    <use xlink:href="#tex-ot" transform="translate(217.00,665.00) scale(2.8)" fill="#737373"/>
+    <use xlink:href="#tex-ot" transform="translate(217.00,665.00) scale(2.8)" fill="#4a4a50"/>
   </g>
 
   <path class="grow" style="--d:5.6s" d="M328,600 L372,600" fill="none" stroke="#666" stroke-width="2.8"/>
@@ -854,8 +854,8 @@ html,body{margin:0;padding:0;background:transparent;}
   <rect class="anim" style="--d:0.05s" x="60" y="745" width="1560" height="210" rx="14"
     fill="none" stroke="#8b8698" stroke-width="2.2" stroke-dasharray="9 8"/>
   <g class="anim" style="--d:0.15s">
-    <use xlink:href="#tex-n3" transform="translate(96.00,781.00) scale(2.6)" fill="#8c8c8c"/>
-    <use xlink:href="#tex-hdrC" transform="translate(509.35,781.00) scale(2.3)" fill="#737373"/>
+    <use xlink:href="#tex-n3" transform="translate(96.00,781.00) scale(3.0)" fill="#5c5c63"/>
+    <use xlink:href="#tex-hdrC" transform="translate(593.56,781.00) scale(2.8)" fill="#4a4a50"/>
   </g>
 
   <!-- the loss built out of the tokens themselves: skeleton first, then the
@@ -872,8 +872,8 @@ html,body{margin:0;padding:0;background:transparent;}
   <g class="flyLand" style="--d:11.4s;--x0:1270px;--y0:335px;--x1:1074px;--y1:868px;--s1:.72"><use xlink:href="#cubeC" transform="translate(-26,-26)"/><use xlink:href="#tex-cdots" transform="translate(0.00,0.00) scale(2.2)" fill="#8a3418"/></g>
   <g class="flyLand" style="--d:11.9s;--x0:426px;--y0:600px;--x1:940px;--y1:868px;--s1:.9"><use xlink:href="#cubeW" transform="translate(-26,-26)"/><use xlink:href="#tex-ot" transform="translate(0.00,0.00) scale(2.8)" fill="#4d4d4d"/></g>
   <g class="flyLand" style="--d:12.4s;--x0:744px;--y0:600px;--x1:863px;--y1:868px;--s1:.95"><use xlink:href="#cubeT" transform="translate(-26,-26)"/><use xlink:href="#tex-astart" transform="translate(0.00,0.00) scale(2.8)" fill="#004646"/></g>
-  <g class="anim" style="--d:12.95s"><use xlink:href="#tex-tgt" transform="translate(863.00,812.00) scale(2.0)" fill="#004646"/></g>
-  <g class="anim" style="--d:13.1s"><use xlink:href="#tex-ctxw" transform="translate(1046.00,812.00) scale(2.0)" fill="#a3492f"/></g>
+  <g class="anim" style="--d:12.95s"><use xlink:href="#tex-tgt" transform="translate(863.00,812.00) scale(2.4)" fill="#004646"/></g>
+  <g class="anim" style="--d:13.1s"><use xlink:href="#tex-ctxw" transform="translate(1046.00,812.00) scale(2.4)" fill="#a3492f"/></g>
 
   <!-- the update: theta_k improves to theta_{k+1}; a fresh world is sampled next round -->
   <g class="anim" style="--d:13.5s"><use xlink:href="#tex-grad" transform="translate(1360.00,880.00) scale(2.6)" fill="#4d4d4d"/></g>

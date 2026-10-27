@@ -157,8 +157,6 @@ function buildDoorPanel(svg) {
     var g = svgEl('g', { 'class': 'door' + (kind === 'expert' && i === GOAL ? ' is-goal' : '') }, svg);
     svgEl('rect', { x: x - 22, y: 16, width: 44, height: 62, rx: 4 }, g);
     svgEl('circle', { cx: x + 12, cy: 50, r: 2.6, 'class': 'knob' }, g);
-    var t = svgEl('text', { x: x, y: 11, 'text-anchor': 'middle', 'class': 'door-n' }, g);
-    t.textContent = i + 1;
     var x1 = svgEl('text', { x: x, y: 58, 'text-anchor': 'middle', 'class': 'door-x' }, g);
     x1.textContent = '✕';
     return g;
@@ -191,7 +189,6 @@ function initDoorAnims() {
     if (ep === 0) reset();
     panels.forEach(function (p) {
       var d = SEQ[p.kind][ep], x = DOOR_X[d], hit = d === GOAL;
-      svgEl('line', { x1: 150, y1: 172, x2: x, y2: 96, 'class': 'trail' }, p.trails);
       p.agent.style.transition = 'transform .7s cubic-bezier(.45,0,.3,1)';
       p.agent.style.transform = 'translate(' + x + 'px,96px)';
       setTimeout(function () {
@@ -299,7 +296,7 @@ function initWhyPlayer() {
       labels.innerHTML = '<div class="why-empty">&hellip;</div>';
     } else {
       labels.innerHTML = [0, 1, 2].filter(function (z) { return st.labels[z] !== null; }).map(function (z, k) {
-        return '<div class="lab" style="animation-delay:' + (0.15 + k * 0.3) + 's">goal behind ' + doorChip(z, 'goal') +
+        return '<div class="lab" style="animation-delay:' + (0.15 + k * 0.3) + 's">goal ' + doorChip(z, 'goal') +
                '<span class="lab-a">&rarr; ' + doorChip(st.labels[z], 'pick') + '</span></div>';
       }).join('');
     }

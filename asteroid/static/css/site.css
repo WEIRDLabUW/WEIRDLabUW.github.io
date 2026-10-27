@@ -62,11 +62,8 @@ body.site { color: var(--ink); background: #fff; }
 .doors-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; }
 @media (max-width: 760px) { .doors-row { grid-template-columns: 1fr; } }
 .doors-card { border: 1px solid var(--line); border-radius: 16px; padding: 1rem 1rem 0.75rem; background: #fff; }
-.doors-card.is-bad { border-top: 4px solid var(--bad); }
-.doors-card.is-good { border-top: 4px solid var(--good); }
-.doors-card:first-child { border-top: 4px solid var(--expert); }
 .doors-title { font: 600 1.05rem 'Google Sans', sans-serif; margin-bottom: 0.25rem; }
-.doors-title small { display: block; color: var(--ink-3); font-weight: 400; font-size: 0.85rem; }
+.doors-title small { color: var(--ink-3); font-weight: 400; font-size: 0.9rem; }
 svg.doors { width: 100%; display: block; }
 svg.doors .door rect { fill: #9a6b45; transition: fill .3s; }
 svg.doors .door .knob { fill: #f3e2c7; }
@@ -85,7 +82,10 @@ svg.doors .agent-expert { fill: var(--expert); }
 .ep-strip .ep.ok { background: #fbefd2; color: #9a6a0d; }
 .ep-strip .ep.no { background: #eeeef0; color: #8a8c95; }
 @keyframes epIn { from { transform: scale(.4); opacity: 0; } to { transform: none; opacity: 1; } }
-.doors-cap { color: var(--ink-2); font-size: 0.95rem; }
+.doors-res { font: 600 0.98rem 'Google Sans', sans-serif; margin: 0; }
+.doors-res.is-exp { color: var(--expert); }
+.doors-res.is-bad { color: var(--bad); }
+.doors-res.is-good { color: var(--good); }
 
 /* ---------- 02 pseudocode diff ---------- */
 .cmp-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1.25rem; }
@@ -216,7 +216,8 @@ svg.why-doors .agent-student { fill: var(--student); }
 @media (max-width: 600px) { .why-chapters span { display: none; } }
 
 /* ---------- 04 results layout ---------- */
-.d-loop { margin-top: 1.75rem; }
+/* the loop figure has its own card: show it wider than the text column, no second frame */
+.d-loop { margin: 1.75rem calc(50% - min(50vw, 680px)) 0; padding: 0 16px; border: 0; box-shadow: none; background: none; }
 .d-fine { font-size: 0.78rem; color: var(--ink-3); margin-top: 0.6rem; max-width: 940px; }
 #results .d-sub { margin-top: 3.25rem; }
 #results .d-sub:first-of-type { margin-top: 0.5rem; }
@@ -338,3 +339,15 @@ html.tp-locked { overflow: hidden; }
 .d-timeline { margin-top: 1rem; }
 .tp-vid { width: 100%; aspect-ratio: 16/9; object-fit: cover; border-radius: 10px; background: #000; display: block; margin-top: auto; }
 .tp-cap .tp-num { color: var(--navy); }
+
+/* why-it-works, decluttered: one frame, no inner boxes, the doors carry the context,
+   chapter bar without repeated labels */
+.why-col { background: none; border: 0; padding: 0.25rem 0.5rem; }
+.why-ctx { display: none; }
+.why-h { text-align: center; margin-bottom: 0.9rem; }
+.why-labels .lab { max-width: 190px; background: #fff; }
+.why-chapters span { display: none; }
+.why-chapters button::before { margin-bottom: 0; height: 5px; }
+.why-chapters button i { height: 5px; }
+.why-player { margin-top: 1.4rem; }
+.why-bars { margin-top: 1.4rem; }

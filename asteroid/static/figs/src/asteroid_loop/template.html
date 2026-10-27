@@ -125,7 +125,7 @@ html,body{margin:0;padding:0;background:transparent;}
 
   <!-- arrowheads (placed + rotated at path tips, popped in after the draw) -->
   <g id="headInk"><path d="M0,0 L-13,5.5 L-13,-5.5 Z" fill="#666666"/></g>
-  <g id="headSoft"><path d="M0,0 L-12,5 L-12,-5 Z" fill="#8c8c8c"/></g>
+  <g id="headSoft"><path d="M0,0 L-12,5 L-12,-5 Z" fill="#5c5c63"/></g>
 </defs>
 <!--TEXDEFS-->
 
@@ -137,15 +137,15 @@ html,body{margin:0;padding:0;background:transparent;}
   <g transform="translate(230,105)"><g class="tok" style="--d:0.4s"><use xlink:href="#globe"/><use xlink:href="#badge1" transform="translate(20,20)"/></g></g>
   <g transform="translate(340,105)"><g class="tok" style="--d:0.55s"><use xlink:href="#globe"/><use xlink:href="#badge2" transform="translate(20,20)"/></g></g>
   <g transform="translate(450,105)"><g class="tok" style="--d:0.7s"><use xlink:href="#globe"/><use xlink:href="#badge3" transform="translate(20,20)"/></g></g>
-  <g class="anim" style="--d:0.85s"><use xlink:href="#tex-cdots" transform="{{T:cdots:535,105,3.0,c}}" fill="#8c8c8c"/></g>
+  <g class="anim" style="--d:0.85s"><use xlink:href="#tex-cdots" transform="{{T:cdots:535,105,3.0,c}}" fill="#5c5c63"/></g>
   <circle class="ring" style="--d:1.0s" id="pick" cx="230" cy="105" r="38" fill="none" stroke="#e3a730" stroke-width="4"/>
 
   <!-- ================= panel 1: on-policy rollouts ================= -->
   <rect class="anim" style="--d:0.05s" x="60" y="195" width="1560" height="250" rx="14"
     fill="none" stroke="#8b8698" stroke-width="2.2" stroke-dasharray="9 8"/>
   <g class="anim" style="--d:0.15s">
-    <use xlink:href="#tex-n1" transform="{{T:n1:96,231,2.6,c}}" fill="#8c8c8c"/>
-    <use xlink:href="#tex-hdrA" transform="{{T:hdrA:122,231,2.5,w}}" fill="#737373"/>
+    <use xlink:href="#tex-n1" transform="{{T:n1:96,231,3.0,c}}" fill="#5c5c63"/>
+    <use xlink:href="#tex-hdrA" transform="{{T:hdrA:122,231,3.0,w}}" fill="#4a4a50"/>
   </g>
 
   <!-- student sees the bare globe: no badge -->
@@ -156,7 +156,7 @@ html,body{margin:0;padding:0;background:transparent;}
     <use xlink:href="#tex-pith" transform="{{T:pith:0,0,3.4,c}}" fill="#1a1a1a"/>
     <use xlink:href="#gradcap" transform="translate(-6,-34) rotate(-14) scale(1.35)"/>
   </g></g>
-  <g class="anim" style="--d:1.7s"><use xlink:href="#tex-stud" transform="{{T:stud:293,410,2.0,c}}" fill="#35507d"/></g>
+  <g class="anim" style="--d:1.7s"><use xlink:href="#tex-stud" transform="{{T:stud:293,410,2.5,c}}" fill="#35507d"/></g>
 
   <!-- one interaction loop: act, observe -->
   <g class="anim" style="--d:1.7s">
@@ -164,8 +164,8 @@ html,body{margin:0;padding:0;background:transparent;}
     <use xlink:href="#headSoft" transform="translate(180,306) rotate(132)" opacity="0.75"/>
     <path d="M180,364 C199,386 235,386 254,364" fill="none" stroke="#b9b4c4" stroke-width="2.4"/>
     <use xlink:href="#headSoft" transform="translate(254,364) rotate(-48)" opacity="0.75"/>
-    <use xlink:href="#tex-at" transform="{{T:at:217,272,2.8,c}}" fill="#737373"/>
-    <use xlink:href="#tex-ort" transform="{{T:ort:217,400,2.8,c}}" fill="#737373"/>
+    <use xlink:href="#tex-at" transform="{{T:at:217,272,2.8,c}}" fill="#4a4a50"/>
+    <use xlink:href="#tex-ort" transform="{{T:ort:217,400,2.8,c}}" fill="#4a4a50"/>
   </g>
 
   <path class="grow" style="--d:1.85s" d="M328,335 L372,335" fill="none" stroke="#666" stroke-width="2.8"/>
@@ -205,8 +205,8 @@ html,body{margin:0;padding:0;background:transparent;}
   <rect class="anim" style="--d:0.05s" x="60" y="470" width="1560" height="250" rx="14"
     fill="none" stroke="#7fa8a8" stroke-width="2.2" stroke-dasharray="9 8"/>
   <g class="anim" style="--d:0.15s">
-    <use xlink:href="#tex-n2" transform="{{T:n2:96,506,2.6,c}}" fill="#8c8c8c"/>
-    <use xlink:href="#tex-hdrB" transform="{{T:hdrB:122,506,2.5,w}}" fill="#737373"/>
+    <use xlink:href="#tex-n2" transform="{{T:n2:96,506,3.0,c}}" fill="#5c5c63"/>
+    <use xlink:href="#tex-hdrB" transform="{{T:hdrB:122,506,3.0,w}}" fill="#4a4a50"/>
   </g>
 
   <!-- the teacher sees the SAME globe plus the privileged badge z -->
@@ -220,7 +220,7 @@ html,body{margin:0;padding:0;background:transparent;}
     <use xlink:href="#tex-pistar" transform="{{T:pistar:0,0,3.8,c}}" fill="#004646"/>
     <use xlink:href="#wizhat" transform="translate(-4,-32) rotate(-12) scale(1.5)"/>
   </g></g>
-  <g class="anim" style="--d:5.45s"><use xlink:href="#tex-tch" transform="{{T:tch:293,675,2.0,c}}" fill="#0a5c5c"/></g>
+  <g class="anim" style="--d:5.45s"><use xlink:href="#tex-tch" transform="{{T:tch:293,675,2.5,c}}" fill="#0a5c5c"/></g>
 
   <g class="anim" style="--d:5.45s">
     <path d="M254,571 C235,549 199,549 180,571" fill="none" stroke="#9fc0c0" stroke-width="2.4"/>
@@ -228,7 +228,7 @@ html,body{margin:0;padding:0;background:transparent;}
     <path d="M180,629 C199,651 235,651 254,629" fill="none" stroke="#9fc0c0" stroke-width="2.4"/>
     <use xlink:href="#headSoft" transform="translate(254,629) rotate(-48)" opacity="0.75"/>
     <use xlink:href="#tex-astart" transform="{{T:astart:217,537,2.8,c}}" fill="#004646"/>
-    <use xlink:href="#tex-ot" transform="{{T:ot:217,665,2.8,c}}" fill="#737373"/>
+    <use xlink:href="#tex-ot" transform="{{T:ot:217,665,2.8,c}}" fill="#4a4a50"/>
   </g>
 
   <path class="grow" style="--d:5.6s" d="M328,600 L372,600" fill="none" stroke="#666" stroke-width="2.8"/>
@@ -257,8 +257,8 @@ html,body{margin:0;padding:0;background:transparent;}
   <rect class="anim" style="--d:0.05s" x="60" y="745" width="1560" height="210" rx="14"
     fill="none" stroke="#8b8698" stroke-width="2.2" stroke-dasharray="9 8"/>
   <g class="anim" style="--d:0.15s">
-    <use xlink:href="#tex-n3" transform="{{T:n3:96,781,2.6,c}}" fill="#8c8c8c"/>
-    <use xlink:href="#tex-hdrC" transform="{{T:hdrC:122,781,2.3,w}}" fill="#737373"/>
+    <use xlink:href="#tex-n3" transform="{{T:n3:96,781,3.0,c}}" fill="#5c5c63"/>
+    <use xlink:href="#tex-hdrC" transform="{{T:hdrC:122,781,2.8,w}}" fill="#4a4a50"/>
   </g>
 
   <!-- the loss built out of the tokens themselves: skeleton first, then the
@@ -275,8 +275,8 @@ html,body{margin:0;padding:0;background:transparent;}
   <g class="flyLand" style="--d:11.4s;--x0:1270px;--y0:335px;--x1:1074px;--y1:868px;--s1:.72"><use xlink:href="#cubeC" transform="translate(-26,-26)"/><use xlink:href="#tex-cdots" transform="{{T:cdots:0,0,2.2,c}}" fill="#8a3418"/></g>
   <g class="flyLand" style="--d:11.9s;--x0:426px;--y0:600px;--x1:940px;--y1:868px;--s1:.9"><use xlink:href="#cubeW" transform="translate(-26,-26)"/><use xlink:href="#tex-ot" transform="{{T:ot:0,0,2.8,c}}" fill="#4d4d4d"/></g>
   <g class="flyLand" style="--d:12.4s;--x0:744px;--y0:600px;--x1:863px;--y1:868px;--s1:.95"><use xlink:href="#cubeT" transform="translate(-26,-26)"/><use xlink:href="#tex-astart" transform="{{T:astart:0,0,2.8,c}}" fill="#004646"/></g>
-  <g class="anim" style="--d:12.95s"><use xlink:href="#tex-tgt" transform="{{T:tgt:863,812,2.0,c}}" fill="#004646"/></g>
-  <g class="anim" style="--d:13.1s"><use xlink:href="#tex-ctxw" transform="{{T:ctxw:1046,812,2.0,c}}" fill="#a3492f"/></g>
+  <g class="anim" style="--d:12.95s"><use xlink:href="#tex-tgt" transform="{{T:tgt:863,812,2.4,c}}" fill="#004646"/></g>
+  <g class="anim" style="--d:13.1s"><use xlink:href="#tex-ctxw" transform="{{T:ctxw:1046,812,2.4,c}}" fill="#a3492f"/></g>
 
   <!-- the update: theta_k improves to theta_{k+1}; a fresh world is sampled next round -->
   <g class="anim" style="--d:13.5s"><use xlink:href="#tex-grad" transform="{{T:grad:1360,880,2.6,c}}" fill="#4d4d4d"/></g>

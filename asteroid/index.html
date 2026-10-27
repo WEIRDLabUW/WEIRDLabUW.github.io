@@ -106,80 +106,98 @@
               </span>
             </div>
     </div>
+    <!-- top summary: three simple panels; clicking one opens its detailed version (site.js) -->
     <div class="d-bleed d-hero-panels">
-      <div class="asum-row">
-        <div class="asum-slot" style="flex:1 1 21.5%;min-width:0;">
-<div class="asum-card">
-            <h4 class="asum-h"><a href="#real-world">Learns In-Context Exploration</a></h4>
-            <div class="asum-vgrid">
-              <div>
-                <div class="asum-duo">
-                  <video autoplay muted loop playsinline preload="metadata">
-                    <source src="./static/figs/explore_viz/cmp_peg_asteroid_0_wrist.mp4" type="video/mp4">
-                  </video>
-                  <span class="duo-div"></span>
-                  <video autoplay muted loop playsinline preload="metadata">
-                    <source src="./static/figs/explore_viz/cmp_peg_asteroid_0.mp4" type="video/mp4">
-                  </video>
-                  <span class="duo-tag">wrist camera</span>
-                </div>
-                <p class="asum-cap">Peg Insertion (sim)</p>
-              </div>
-              <div>
-                <div class="asum-duo">
-                  <iframe src="./static/figs/fig_touch_cell_embed.html" loading="lazy" title="tactile force pads"></iframe>
-                  <span class="duo-div"></span>
-                  <video autoplay muted loop playsinline preload="metadata">
-                    <source src="./static/figs/explore_viz/cmp_tact_asteroid_0.mp4" type="video/mp4">
-                  </video>
-                  <span class="duo-tag">fingertip contact force</span>
-                </div>
-                <p class="asum-cap">Tactile Pick (sim)</p>
-              </div>
-              <div>
-                <div class="asum-crop-r">
-                  <video autoplay muted loop playsinline preload="metadata">
-                    <source src="./assets/rummaging_pair_2x.mp4" type="video/mp4">
-                  </video>
-                </div>
-                <p class="asum-cap">Real Robot</p>
-              </div>
-              <div>
-                <video autoplay muted loop playsinline preload="metadata" style="background:#000;">
-                  <source src="./assets/habitat_annotated.mp4" type="video/mp4">
+      <div class="tp-row">
+        <div class="tp-card" data-detail="tp-d1" tabindex="0" role="button">
+          <h4 class="tp-h">Learns to <b>explore in context</b></h4>
+          <div class="asum-duo tp-duo">
+            <video autoplay muted loop playsinline preload="metadata">
+              <source src="./static/figs/explore_viz/cmp_peg_asteroid_0_wrist.mp4" type="video/mp4">
+            </video>
+            <span class="duo-div"></span>
+            <video autoplay muted loop playsinline preload="metadata">
+              <source src="./static/figs/explore_viz/cmp_peg_asteroid_0.mp4" type="video/mp4">
+            </video>
+            <span class="duo-tag">wrist camera (policy input)</span>
+          </div>
+        </div>
+        <div class="tp-card" data-detail="tp-d2" tabindex="0" role="button">
+          <h4 class="tp-h"><b>~2&times;</b> higher return than meta-RL baselines</h4>
+          <svg class="tp-svg" id="tp-bars" viewBox="0 0 300 180" role="img"
+            aria-label="Average normalized return per suite: meta-learning 0.94 vs 0.54, navigation 0.81 vs 0.34, manipulation 0.77 vs 0.41"></svg>
+        </div>
+        <div class="tp-card" data-detail="tp-d3" tabindex="0" role="button">
+          <h4 class="tp-h"><b>~100&times;</b> fewer samples than RL</h4>
+          <svg class="tp-svg" id="tp-curve" viewBox="0 0 300 180" role="img"
+            aria-label="Tactile cube pick: ASTEROID reaches 90% success at about 0.65M environment steps, BC+PPO at about 82M"></svg>
+        </div>
+        <div class="tp-card" data-detail="tp-d4" tabindex="0" role="button">
+          <h4 class="tp-h">Works on a real robot with <b>no camera</b></h4>
+          <video class="tp-vid" autoplay muted loop playsinline preload="metadata">
+            <source src="./assets/robot_dark_annotated_darker.mp4" type="video/mp4">
+          </video>
+        </div>
+      </div>
+
+      <!-- detailed versions, shown in the panel modal -->
+      <div class="tp-details" hidden>
+        <div id="tp-d1" class="tp-detail" data-title="Learns in-context exploration">
+          <div class="asum-vgrid">
+            <div>
+              <div class="asum-duo">
+                <video autoplay muted loop playsinline preload="metadata">
+                  <source src="./static/figs/explore_viz/cmp_peg_asteroid_0_wrist.mp4" type="video/mp4">
                 </video>
-                <p class="asum-cap">Habitat Navigation</p>
+                <span class="duo-div"></span>
+                <video autoplay muted loop playsinline preload="metadata">
+                  <source src="./static/figs/explore_viz/cmp_peg_asteroid_0.mp4" type="video/mp4">
+                </video>
+                <span class="duo-tag">wrist camera</span>
               </div>
+              <p class="asum-cap">Peg Insertion (sim)</p>
+            </div>
+            <div>
+              <div class="asum-duo">
+                <iframe data-src="./static/figs/fig_touch_cell_embed.html" title="tactile force pads"></iframe>
+                <span class="duo-div"></span>
+                <video autoplay muted loop playsinline preload="metadata">
+                  <source src="./static/figs/explore_viz/cmp_tact_asteroid_0.mp4" type="video/mp4">
+                </video>
+                <span class="duo-tag">fingertip contact force</span>
+              </div>
+              <p class="asum-cap">Tactile Pick (sim)</p>
+            </div>
+            <div>
+              <video autoplay muted loop playsinline preload="metadata" style="aspect-ratio:32/9;object-fit:contain;background:#fff;">
+                <source src="./assets/rummaging_pair_2x.mp4" type="video/mp4">
+              </video>
+              <p class="asum-cap">Real Robot</p>
+            </div>
+            <div>
+              <video autoplay muted loop playsinline preload="metadata" style="background:#000;">
+                <source src="./assets/habitat_annotated.mp4" type="video/mp4">
+              </video>
+              <p class="asum-cap">Habitat Navigation</p>
             </div>
           </div>
         </div>
-        <div class="asum-slot" style="flex:1 1 24.25%;min-width:0;">
-<div class="asum-card">
-            <h4 class="asum-h"><a href="#experiments">Outperforms Strong Meta-RL Baselines</a></h4>
-            <div class="asum-p2fit">
-              <div id="perf-barchart"></div>
-              <div class="asum-legend">
-                <span><i style="background:#003366;"></i>ASTEROID</span>
-                <span><i style="background:#b8b8b8;"></i>Best baseline</span>
-              </div>
+        <div id="tp-d2" class="tp-detail" data-title="Outperforms strong meta-RL baselines on all 11 environments">
+          <div class="tp-perf">
+            <div id="perf-barchart"></div>
+            <div class="asum-legend">
+              <span><i style="background:#003366;"></i>ASTEROID</span>
+              <span><i style="background:#b8b8b8;"></i>Best baseline</span>
             </div>
           </div>
         </div>
-        <div class="asum-slot" style="flex:1 1 24.25%;min-width:0;">
-<div class="asum-card">
-            <h4 class="asum-h"><a href="#sample-efficiency">Is Significantly More Efficient</a></h4>
-            <iframe class="asum-eff" src="./static/figs/fig_curves_embed_stacked.html" loading="lazy"
-              title="Sample efficiency: ASTEROID vs. BC+RL baselines"></iframe>
-          </div>
+        <div id="tp-d3" class="tp-detail" data-title="Significantly more sample-efficient">
+          <iframe id="tp-curves-detail" data-src="./static/figs/fig_curves_embed.html" scrolling="no"
+            title="Learning curves" style="width:100%;height:450px;border:0;display:block;"></iframe>
         </div>
-        <div class="asum-slot" style="flex:1 1 28%;min-width:0;">
-<div class="asum-card">
-            <h4 class="asum-h"><a href="#real-world">Transfers to Real-World Robots with No Cameras!
-                <span class="camwrap2">&#128247;<span class="camx2">&#10005;</span></span></a></h4>
-            <iframe id="fig-timeline-frame" data-src="./static/figs/fig_bc_vs_asteroid_timeline.html" title="BC vs ASTEROID keyframe timeline"
-          scrolling="no" loading="lazy" class="asum-tl"
-          style="height:560px;"></iframe>
-          </div>
+        <div id="tp-d4" class="tp-detail" data-title="Transfers to a real robot with no cameras">
+          <iframe id="tp-timeline-detail" data-src="./static/figs/fig_bc_vs_asteroid_timeline.html" scrolling="no"
+            title="BC vs ASTEROID keyframe timeline" style="width:100%;height:560px;border:0;display:block;"></iframe>
         </div>
       </div>
     </div>
@@ -366,6 +384,10 @@
         <figure><video class="lazy-play" muted loop playsinline preload="metadata"><source src="./assets/sim_env.mp4" type="video/mp4"></video><figcaption>Large-scale simulation training and distillation</figcaption></figure>
         <div class="d-s2r-arrow">&rarr;</div>
         <figure><video class="lazy-play" muted loop playsinline preload="metadata"><source src="./assets/robot_dark_annotated_darker.mp4" type="video/mp4"></video><figcaption>Real robot, lights off: it searches by touch</figcaption></figure>
+      </div>
+      <div class="d-card d-timeline">
+        <iframe id="fig-timeline-frame" data-src="./static/figs/fig_bc_vs_asteroid_timeline.html" title="BC vs ASTEROID keyframe timeline"
+          scrolling="no" loading="lazy" class="asum-tl" style="height:560px;"></iframe>
       </div>
       <div class="d-grid4">
         <video class="lazy-play d-wide" muted loop playsinline preload="metadata"><source src="./assets/rummaging_pair_2x.mp4" type="video/mp4"></video>

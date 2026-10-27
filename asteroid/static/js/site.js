@@ -7,6 +7,8 @@ document.addEventListener('DOMContentLoaded', function () {
   initWhyPlayer();
   initBaselineDropdown();
   initDemoFrameHeights();
+  initTopPanels();
+  initPanelModal();
 });
 
 // ---------------------------------------------------------------- pseudocode
@@ -366,4 +368,138 @@ function initWhyPlayer() {
     }, { threshold: 0.35 }).observe(root);
     playBtn.addEventListener('click', function () { playBtn.setAttribute('data-user-paused', playing ? '0' : '1'); });
   } else play();
+}
+
+// ------------------------------------------------------ top summary panels
+// Two small, legend-free charts for the top row. Per-suite averages of the
+// Figure-1 scores (initPerfBarChart in index.js), and the tactile-pick learning
+// curves from explore_viz/curves_data.js (BC+PPO log-resampled to 41 points).
+var TP_SUITES = [
+  { name: 'Meta-learning', ours: 0.942, best: 0.542 },
+  { name: 'Navigation', ours: 0.807, best: 0.343 },
+  { name: 'Manipulation', ours: 0.773, best: 0.410 }
+];
+var TP_OURS = [[145718, 0.484], [390863, 0.805], [796268, 0.945]];
+var TP_RL = [[65536, 0], [139290, 0], [296045, 0.001], [629211, 0.01], [1337320, 0.016], [2842329, 0.026],
+  [6041061, 0.03], [12839618, 0.017], [18718521, 0.03], [22601187, 0.064], [27289210, 0.195], [32949641, 0.394],
+  [39784180, 0.617], [48036364, 0.774], [58000247, 0.826], [70030877, 0.871], [84556946, 0.904],
+  [102096066, 0.932], [123273216, 0.949]];
+var TP_EXPERT = 0.96;
+
+function tpText(svg, x, y, str, attrs) {
+  var t = svgEl('text', Object.assign({ x: x, y: y }, attrs || {}), svg);
+  t.textContent = str;
+  return t;
+}
+
+function initTopPanels() {
+  var bars = document.getElementById('tp-bars');
+  if (bars) {
+    var top = 22, bot = 146, h = bot - top, gw = 88, x0 = 24, bw = 24;
+    svgEl('line', { x1: 12, x2: 292, y1: bot, y2: bot, 'class': 'tp-axis' }, bars);
+    TP_SUITES.forEach(function (g, i) {
+      var gx = x0 + i * (gw + 4);
+      [['ours', g.ours, 'tp-ours'], ['best', g.best, 'tp-base']].forEach(function (b, k) {
+        var bx = gx + 12 + k * (bw + 6), bh = b[1] * h;
+        svgEl('rect', { x: bx, y: bot - bh, width: bw, height: bh, rx: 2, 'class': b[2] }, bars);
+        tpText(bars, bx + bw / 2, bot - bh - 5, b[1].toFixed(2), { 'class': 'tp-val ' + b[2], 'text-anchor': 'middle' });
+      });
+      tpText(bars, gx + 12 + bw + 3, bot + 17, g.name, { 'class': 'tp-tick', 'text-anchor': 'middle' });
+    });
+    // inline key instead of a legend box
+    svgEl('rect', { x: 150, y: 4, width: 9, height: 9, rx: 1.5, 'class': 'tp-ours' }, bars);
+    tpText(bars, 163, 12, 'ASTEROID', { 'class': 'tp-key' });
+    svgEl('rect', { x: 216, y: 4, width: 9, height: 9, rx: 1.5, 'class': 'tp-base' }, bars);
+    tpText(bars, 229, 12, 'best baseline', { 'class': 'tp-key' });
+  }
+
+  var cv = document.getElementById('tp-curve');
+  if (cv) {
+    var L = 34, R = 292, T = 14, B = 146, lx0 = 5, lx1 = 8.15;
+    var X = function (v) { return L + (Math.log10(v) - lx0) / (lx1 - lx0) * (R - L); };
+    var Y = function (v) { return B - v * (B - T); };
+    [0, 0.5, 1].forEach(function (v) {
+      svgEl('line', { x1: L, x2: R, y1: Y(v), y2: Y(v), 'class': v ? 'tp-grid' : 'tp-axis' }, cv);
+      tpText(cv, L - 5, Y(v) + 3.5, v ? (v * 100) + '%' : '0', { 'class': 'tp-tick', 'text-anchor': 'end' });
+    });
+    [[1e5, '100k'], [1e6, '1M'], [1e7, '10M'], [1e8, '100M']].forEach(function (t) {
+      tpText(cv, X(t[0]), B + 14, t[1], { 'class': 'tp-tick', 'text-anchor': 'middle' });
+    });
+    svgEl('line', { x1: L, x2: R, y1: Y(TP_EXPERT), y2: Y(TP_EXPERT), 'class': 'tp-expert' }, cv);
+    tpText(cv, R, Y(TP_EXPERT) - 4, 'expert', { 'class': 'tp-key', 'text-anchor': 'end' });
+    var path = function (pts) {
+      return pts.map(function (p, i) { return (i ? 'L' : 'M') + X(p[0]).toFixed(1) + ' ' + Y(p[1]).toFixed(1); }).join(' ');
+    };
+    svgEl('path', { d: path(TP_RL), 'class': 'tp-line tp-base-line' }, cv);
+    svgEl('path', { d: path(TP_OURS), 'class': 'tp-line tp-ours-line' }, cv);
+    TP_OURS.forEach(function (p) { svgEl('circle', { cx: X(p[0]), cy: Y(p[1]), r: 3, 'class': 'tp-ours' }, cv); });
+    tpText(cv, X(4.2e5) + 6, Y(0.62), 'ASTEROID', { 'class': 'tp-lab tp-ours' });
+    tpText(cv, X(3.0e6), Y(0.14), 'RL (BC+PPO)', { 'class': 'tp-lab tp-base-txt' });
+    // the gap at 90% success: ~0.65M vs ~82M steps
+    var ya = Y(0.88), xa = X(6.5e5) + 6, xb = X(8.2e7) - 6;
+    svgEl('line', { x1: xa, x2: xb, y1: ya, y2: ya, 'class': 'tp-gap', 'marker-end': 'url(#tp-arrow)', 'marker-start': 'url(#tp-arrow-s)' }, cv);
+    var defs = svgEl('defs', {}, cv);
+    var m1 = svgEl('marker', { id: 'tp-arrow', viewBox: '0 0 8 8', refX: 7, refY: 4, markerWidth: 6, markerHeight: 6, orient: 'auto' }, defs);
+    svgEl('path', { d: 'M0 0 L8 4 L0 8 z', 'class': 'tp-gap-head' }, m1);
+    var m2 = svgEl('marker', { id: 'tp-arrow-s', viewBox: '0 0 8 8', refX: 1, refY: 4, markerWidth: 6, markerHeight: 6, orient: 'auto' }, defs);
+    svgEl('path', { d: 'M8 0 L0 4 L8 8 z', 'class': 'tp-gap-head' }, m2);
+    tpText(cv, (xa + xb) / 2, ya + 15, '~100× fewer steps', { 'class': 'tp-gap-txt', 'text-anchor': 'middle' });
+  }
+}
+
+// Clicking a top panel opens its detailed version in a centred modal. The
+// detail node is moved into the modal (lazy iframes load on first open) and
+// moved back on close; X, backdrop click and Esc all close it.
+function initPanelModal() {
+  var cards = [].slice.call(document.querySelectorAll('.tp-card[data-detail]'));
+  if (!cards.length) return;
+  var shell = document.createElement('div');
+  shell.className = 'tp-modal';
+  shell.innerHTML = '<div class="tp-modal-box" role="dialog" aria-modal="true">' +
+    '<button class="tp-modal-x" aria-label="Close">&#10005;</button><h3 class="tp-modal-h"></h3><div class="tp-modal-body"></div></div>';
+  document.body.appendChild(shell);
+  var box = shell.querySelector('.tp-modal-box'), body = shell.querySelector('.tp-modal-body'),
+      head = shell.querySelector('.tp-modal-h'), home = document.querySelector('.tp-details');
+  var open = null, lastFocus = null;
+
+  function show(card) {
+    var d = document.getElementById(card.getAttribute('data-detail'));
+    if (!d) return;
+    open = d; lastFocus = card;
+    head.textContent = d.getAttribute('data-title') || '';
+    body.appendChild(d);
+    [].forEach.call(d.querySelectorAll('[data-src]'), function (el) {
+      el.src = el.getAttribute('data-src'); el.removeAttribute('data-src');
+    });
+    [].forEach.call(d.querySelectorAll('video'), function (v) { v.play().catch(function () {}); });
+    shell.classList.add('is-on');
+    document.documentElement.classList.add('tp-locked');
+    box.querySelector('.tp-modal-x').focus();
+  }
+  function hide() {
+    if (!open) return;
+    [].forEach.call(open.querySelectorAll('video'), function (v) { v.pause(); });
+    home.appendChild(open);
+    open = null;
+    shell.classList.remove('is-on');
+    document.documentElement.classList.remove('tp-locked');
+    if (lastFocus) lastFocus.focus();
+  }
+
+  cards.forEach(function (c) {
+    c.addEventListener('click', function () { show(c); });
+    c.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); show(c); }
+    });
+  });
+  shell.addEventListener('click', function (e) { if (e.target === shell) hide(); });
+  shell.querySelector('.tp-modal-x').addEventListener('click', hide);
+  document.addEventListener('keydown', function (e) { if (open && e.key === 'Escape') hide(); });
+
+  // the detailed learning curves and keyframe timeline report their own height
+  var sized = ['tp-curves-detail', 'tp-timeline-detail'].map(function (id) { return document.getElementById(id); });
+  window.addEventListener('message', function (e) {
+    if (!e.data || e.data.type !== 'lmp-figheight') return;
+    sized.forEach(function (f) { if (f && e.source === f.contentWindow) f.style.height = e.data.height + 'px'; });
+  });
 }

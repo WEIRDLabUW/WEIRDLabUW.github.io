@@ -1,0 +1,776 @@
+/* ==========================================================================
+   Page widgets: D&A-Bench explorer (#bench-widget) and CaP feedback explorer
+   (#feedback-widget). Everything comes from the tokens in index.css; the only
+   literals are data colors (model lines) and overlays that sit on top of video.
+   ========================================================================== */
+
+#bench-widget,
+#feedback-widget {
+  --dna: var(--c-dna);
+  font-family: var(--font-text);
+  /* index.css clips cards with overflow:hidden for the old stripe; sticky controls need it off */
+  overflow: visible;
+}
+
+#bench-widget [hidden],
+#feedback-widget [hidden] {
+  display: none !important;
+}
+
+/* ---- intro, picker, hint ------------------------------------------------ */
+.widget-intro {
+  max-width: var(--measure);
+  margin: 0 auto var(--space-4);
+  font-size: var(--fs-2);
+  line-height: var(--lh-body);
+  color: var(--text);
+  text-align: center;
+  text-wrap: balance;
+}
+
+.picker-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  margin-top: var(--space-4);
+}
+
+.picker-row .picker-label {
+  flex: none;
+  font-family: var(--font-display);
+  font-size: var(--fs-1);
+  font-weight: 600;
+  line-height: var(--lh-ui);
+  color: var(--text-muted);
+}
+
+.picker-row .select {
+  flex: 0 1 28rem;
+  min-width: 0;
+}
+
+.picker-row .select select {
+  width: 100%;
+  font-family: var(--font-display);
+  font-size: var(--fs-2);
+}
+
+.dice-btn {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.5rem;
+  height: 2.5rem;
+  padding: 0 var(--space-2);
+  font-size: 1.35rem;
+  line-height: 1;
+  color: var(--ink);
+  background: var(--surface-sunken);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  transition: background-color var(--motion-fast) var(--ease-out), transform var(--motion-fast) var(--ease-out);
+}
+
+.dice-btn:active:not(:disabled) {
+  transform: scale(0.92);
+}
+
+.dice-btn:disabled {
+  cursor: default;
+  opacity: 0.5;
+}
+
+.widget-hint {
+  margin: var(--space-2) auto 0;
+  max-width: var(--measure);
+  text-align: center;
+}
+
+/* ---- panels ------------------------------------------------------------- */
+#bench-widget .panel-card,
+#feedback-widget .panel-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-width: 0;
+  padding: var(--space-4);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: none;
+}
+
+.panel-label {
+  margin-bottom: var(--space-2);
+  font-family: var(--font-display);
+  font-size: var(--fs-1);
+  font-weight: 600;
+  line-height: var(--lh-ui);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.video-frame-wrap {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius-md);
+  background: var(--media-bg);
+}
+
+.video-frame-wrap video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* "Loading video..." while the clip has no frame yet */
+.video-frame-wrap.is-loading::after {
+  content: "Loading video\2026";
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-size: var(--fs-1);
+  color: #fff;
+  pointer-events: none;
+}
+
+.tag.is-model,
+#bench-widget .tag,
+#feedback-widget .tag {
+  font-family: var(--font-display);
+}
+
+/* ======================================================================
+   D&A-Bench explorer
+   ====================================================================== */
+#bench-widget .instruction-line {
+  margin-top: var(--space-4);
+  font-size: var(--fs-2);
+  line-height: var(--lh-body);
+  color: var(--text);
+  text-align: center;
+}
+
+#bench-widget .instruction-line b {
+  color: var(--ink);
+}
+
+#bench-widget .badges {
+  display: inline-flex;
+  align-items: center;
+  margin-left: var(--space-2);
+  vertical-align: middle;
+}
+
+#bench-widget .instruction-line:empty,
+#bench-widget .badges:empty {
+  display: none;
+}
+
+.bench-stage {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--space-4);
+  margin-top: var(--space-4);
+}
+
+#bench-widget .video-frame-wrap {
+  aspect-ratio: 640 / 368;
+  cursor: pointer;
+}
+
+#bench-widget .step-badge {
+  position: absolute;
+  top: var(--space-2);
+  left: var(--space-2);
+  padding: 2px var(--space-2);
+  border-radius: var(--radius-pill);
+  background: rgba(0, 0, 0, 0.65);
+  color: #fff;
+  font-family: var(--font-display);
+  font-size: var(--fs-1);
+  line-height: var(--lh-ui);
+  pointer-events: none;
+}
+
+/* play glyph while paused: says "click to play" */
+#bench-widget .play-overlay {
+  position: absolute;
+  right: var(--space-3);
+  bottom: var(--space-3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: var(--radius-pill);
+  background: rgba(0, 0, 0, 0.65);
+  color: #fff;
+  pointer-events: none;
+  transition: opacity var(--motion-fast) var(--ease-out);
+}
+
+#bench-widget .video-frame-wrap.is-playing .play-overlay {
+  opacity: 0;
+}
+
+#bench-widget .chart-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 13 / 6;
+  touch-action: none;
+  cursor: grab;
+  user-select: none;
+}
+
+#bench-widget .chart-svg:active {
+  cursor: grabbing;
+}
+
+#bench-widget .grid-line {
+  stroke: var(--chart-grid);
+  stroke-width: 1;
+}
+
+#bench-widget .axis-text {
+  font-family: var(--font-display);
+  font-size: 12px;
+  fill: var(--chart-tick);
+}
+
+#bench-widget .axis-title {
+  font-family: var(--font-display);
+  font-size: 12px;
+  font-weight: 600;
+  fill: var(--chart-tick);
+}
+
+#bench-widget .model-line {
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0.9;
+}
+
+#bench-widget .dna-line {
+  fill: none;
+  stroke: var(--dna);
+  stroke-width: 3.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+#bench-widget .dna-dot {
+  fill: var(--dna);
+  opacity: 0.7;
+}
+
+#bench-widget .playhead-line {
+  stroke: var(--playhead);
+  stroke-width: 1.25;
+  stroke-dasharray: 3 3;
+  opacity: 0.7;
+}
+
+#bench-widget .playhead-dot {
+  fill: var(--dna);
+  stroke: var(--marker-halo);
+  stroke-width: 2;
+}
+
+#bench-widget .slider-row {
+  margin-top: var(--space-2);
+}
+
+#bench-widget input[type="range"],
+#feedback-widget input[type="range"] {
+  display: block;
+  width: 100%;
+  margin: 0;
+  accent-color: var(--dna);
+}
+
+#bench-widget .legend {
+  margin-top: var(--space-3);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--border);
+}
+
+#bench-widget .legend-chips {
+  gap: var(--space-2);
+}
+
+#bench-widget .legend-chip.is-model {
+  min-height: 2rem;
+  padding: var(--space-1) var(--space-3);
+  border: 0;
+  border-radius: var(--radius-sm);
+  background-color: var(--c, var(--surface-sunken));
+  color: var(--on-c, #fff);
+  font-size: var(--fs-1);
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
+  transition: opacity var(--motion-fast) var(--ease-out), filter var(--motion-fast) var(--ease-out);
+}
+
+#bench-widget .legend-chip.is-model.is-off {
+  filter: grayscale(0.7);
+  opacity: 0.55;
+  text-decoration: none;
+}
+
+/* the always-on D&A entry is a label, not a control */
+#bench-widget .legend-chip.is-static {
+  cursor: default;
+  filter: none;
+}
+
+/* controls: one row under the video and chart */
+.bench-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: var(--space-3) var(--space-5);
+  margin-top: var(--space-4);
+}
+
+#bench-widget .transport,
+#bench-widget .speed-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+#bench-widget .transport .button {
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0;
+  border-radius: var(--radius-pill);
+}
+
+#bench-widget .speed-btn {
+  min-width: 2.75rem;
+  min-height: 2rem;
+  padding: 0 var(--space-3);
+  font-family: var(--font-display);
+  font-size: var(--fs-1);
+  font-weight: 600;
+  color: var(--text);
+  background: var(--surface-sunken);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  transition: background-color var(--motion-fast) var(--ease-out), color var(--motion-fast) var(--ease-out),
+    border-color var(--motion-fast) var(--ease-out);
+}
+
+/* the active speed is a selection: the UI accent, not the D&A pink */
+#bench-widget .speed-btn.is-active,
+#bench-widget .speed-btn[aria-pressed="true"] {
+  background: var(--link);
+  border-color: var(--link);
+  color: var(--bg);
+}
+
+#bench-widget .description-panel {
+  margin-top: var(--space-4);
+}
+
+#bench-widget .description-text {
+  max-width: var(--measure);
+  min-height: 6.5rem;
+  font-size: var(--fs-2);
+  line-height: var(--lh-body);
+  color: var(--ink);
+}
+
+#bench-widget .outcome-box {
+  margin-top: var(--space-4);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--border);
+}
+
+#bench-widget .outcome-grid {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: var(--space-2) var(--space-3);
+  align-items: baseline;
+}
+
+#bench-widget .outcome-row {
+  display: contents;
+  font-size: var(--fs-2);
+  line-height: var(--lh-body);
+}
+
+#bench-widget .outcome-row > span:last-child {
+  max-width: var(--measure);
+}
+
+/* ======================================================================
+   CaP feedback explorer
+   ====================================================================== */
+#feedback-widget .stat-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3) var(--space-5);
+  margin: var(--space-4) 0 var(--space-2);
+}
+
+#feedback-widget .stat-tile {
+  text-align: center;
+}
+
+#feedback-widget .stat-value {
+  font-family: var(--font-display);
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--text-muted);
+}
+
+#feedback-widget .stat-value.is-dna {
+  color: var(--c-dna-text);
+}
+
+#feedback-widget .stat-label {
+  margin-top: var(--space-1);
+  font-family: var(--font-display);
+  font-size: var(--fs-1);
+  line-height: var(--lh-ui);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+#feedback-widget .stat-label.is-dna {
+  color: var(--c-dna-text);
+}
+
+#feedback-widget .stat-arrow {
+  color: var(--text-muted);
+  font-size: 1.1rem;
+}
+
+#feedback-widget .case-caption {
+  max-width: var(--measure);
+  margin: var(--space-3) auto 0;
+  min-height: 3.2rem;
+  font-size: var(--fs-2);
+  line-height: var(--lh-body);
+  color: var(--text);
+  text-align: center;
+}
+
+#feedback-widget .case-caption b {
+  color: var(--ink);
+}
+
+#fb-compare-root {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: var(--space-4);
+  margin-top: var(--space-4);
+}
+
+#feedback-widget .arm-title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0 0 var(--space-2);
+  font-family: var(--font-display);
+  font-size: var(--fs-2);
+  font-weight: 700;
+  line-height: var(--lh-ui);
+  color: var(--ink);
+}
+
+#feedback-widget .arm-dot {
+  flex: none;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+#feedback-widget .arm-dot.is-base {
+  background: var(--c-gvl);
+}
+
+#feedback-widget .arm-dot.is-dna {
+  background: var(--c-dna);
+}
+
+#feedback-widget .video-frame-wrap {
+  aspect-ratio: 448 / 224;
+}
+
+#feedback-widget .outcome-tag-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  margin-top: var(--space-3);
+  min-height: 1.5rem;
+}
+
+/* one cell per attempt: where the successes are, at a glance (click a cell to jump) */
+#feedback-widget .outcome-strip {
+  display: flex;
+  gap: 2px;
+  margin-top: var(--space-3);
+}
+
+#feedback-widget .outcome-strip .cell {
+  flex: 1 1 0;
+  min-width: 0;
+  height: 14px;
+  box-sizing: border-box;
+  border-radius: 2px;
+  border: 1px solid var(--danger-fg);
+  background: var(--danger-bg);
+  cursor: pointer;
+}
+
+#feedback-widget .outcome-strip .cell.is-success {
+  border-color: var(--success-fg);
+  background: var(--success-fg);
+}
+
+#feedback-widget .outcome-strip .cell.is-current {
+  outline: 2px solid var(--ink);
+  outline-offset: 1px;
+}
+
+#feedback-widget .strip-caption {
+  margin-top: var(--space-1);
+  font-size: var(--fs-1);
+  line-height: var(--lh-ui);
+  color: var(--text-muted);
+}
+
+#feedback-widget .dna-text-box,
+#feedback-widget .base-empty-note {
+  flex: 1;
+  margin-top: var(--space-3);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--border);
+}
+
+#feedback-widget .dna-text-row {
+  margin-bottom: var(--space-2);
+  font-size: var(--fs-2);
+  line-height: var(--lh-body);
+  color: var(--text);
+}
+
+#feedback-widget .dna-text-row .tag {
+  margin-right: var(--space-2);
+}
+
+#feedback-widget #fb-dna-carried-row {
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+#feedback-widget .base-empty-note {
+  color: var(--text-muted);
+  font-size: var(--fs-2);
+  line-height: var(--lh-body);
+  font-style: italic;
+}
+
+/* transport: sits under the two videos; on narrow screens it stays pinned to the bottom of the viewport */
+#feedback-widget .shared-transport {
+  margin-top: var(--space-4);
+  padding: var(--space-3) 0;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+}
+
+#feedback-widget .transport-main {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  max-width: 34rem;
+  margin: 0 auto;
+}
+
+#feedback-widget .transport-main .button {
+  flex: none;
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0;
+  border-radius: var(--radius-pill);
+}
+
+#feedback-widget #fb-attempt-slider {
+  flex: 1 1 8rem;
+  min-width: 0;
+  width: auto;
+}
+
+#feedback-widget .transport-meta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  margin-top: var(--space-2);
+}
+
+#feedback-widget .attempt-readout {
+  min-width: 7.5rem;
+  font-family: var(--font-display);
+  font-size: var(--fs-1);
+  font-variant-numeric: tabular-nums;
+  line-height: var(--lh-ui);
+  color: var(--text);
+  text-align: center;
+}
+
+#feedback-widget #fb-btn-play {
+  gap: var(--space-2);
+  font-family: var(--font-display);
+  font-size: var(--fs-1);
+  font-weight: 600;
+}
+
+/* ---- hover only where a pointer can hover ------------------------------ */
+@media (hover: hover) {
+  .dice-btn:hover:not(:disabled) {
+    background: var(--surface-hover);
+  }
+
+  #bench-widget .speed-btn:hover:not(.is-active) {
+    background: var(--surface-hover);
+  }
+
+  #bench-widget .legend-chip.is-model:hover:not(.is-static) {
+    filter: brightness(1.12);
+  }
+
+  #bench-widget .legend-chip.is-model.is-off:hover {
+    filter: grayscale(0.4);
+    opacity: 0.8;
+  }
+
+  #feedback-widget .outcome-strip .cell:hover {
+    outline: 2px solid var(--text-muted);
+    outline-offset: 1px;
+  }
+}
+
+/* ---- touch: 44px targets, 8px gaps ------------------------------------- */
+@media (pointer: coarse) {
+  .dice-btn,
+  #bench-widget .transport .button,
+  #feedback-widget .transport-main .button {
+    min-width: 44px;
+    width: 44px;
+    height: 44px;
+  }
+
+  .dice-btn {
+    width: auto;
+  }
+
+  #feedback-widget #fb-btn-play {
+    min-height: 44px;
+    width: auto;
+    padding-inline: var(--space-4);
+  }
+
+  #bench-widget .speed-btn {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  #bench-widget .legend-chip.is-model {
+    min-height: 40px;
+  }
+
+  #bench-widget input[type="range"],
+  #feedback-widget input[type="range"] {
+    height: 44px;
+  }
+
+  #feedback-widget .outcome-strip .cell {
+    height: 20px;
+  }
+
+  .picker-row .select select {
+    min-height: 44px;
+  }
+}
+
+/* ---- narrow screens: less nesting, controls stay near what they change -- */
+@media (max-width: 600px) {
+  #bench-widget.section-card,
+  #feedback-widget.section-card {
+    padding: var(--space-3);
+  }
+
+  #bench-widget .panel-card,
+  #feedback-widget .panel-card {
+    padding: var(--space-3);
+  }
+
+  .bench-stage .panel-card {
+    padding: 0;
+    border: 0;
+  }
+
+  .picker-row {
+    flex-wrap: wrap;
+  }
+
+  .picker-row .picker-label {
+    flex-basis: 100%;
+  }
+
+  #feedback-widget .stat-value {
+    font-size: 1.5rem;
+  }
+
+  #feedback-widget .stat-bar {
+    gap: var(--space-3);
+  }
+
+  #bench-widget .outcome-grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-1);
+  }
+
+  #bench-widget .outcome-row > .tag {
+    justify-self: start;
+    margin-top: var(--space-2);
+  }
+}
+
+@media (max-width: 768px) {
+  #feedback-widget .shared-transport {
+    position: sticky;
+    bottom: 0;
+    z-index: 5;
+    box-shadow: 0 -6px 12px -8px rgba(0, 0, 0, 0.25);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #bench-widget .play-overlay {
+    transition: none;
+  }
+}

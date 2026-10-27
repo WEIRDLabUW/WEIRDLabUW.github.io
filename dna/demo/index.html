@@ -1,0 +1,1778 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="description" content="Annotate a recorded or uploaded video with D&A progress, descriptions and feedback">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>D&A Live Demo</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Noto+Sans:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../static/css/bulma.min.css">
+  <link rel="stylesheet" href="../static/css/fontawesome.all.min.css">
+  <link rel="stylesheet" href="../static/css/index.css">
+  <link rel="icon" href="../static/images/favicon.png">
+
+  <style>
+    /* Page styles only. Colors, type, space and motion come from the tokens in index.css.
+       The UI accent is --link (blue); D&A pink (--c-dna) is a data color: the progress number, bar and line. */
+    body { background: var(--bg); }
+
+    /* --- layout --- */
+    .demo-hero { text-align: center; padding: var(--space-6) var(--space-4) var(--space-5); }
+    .demo-hero h1 { margin: 0; font-size: var(--fs-display); }
+    .demo-hero .home-link { color: var(--ink); text-decoration: none; }
+    .demo-hero .home-link:hover { color: var(--ink); }
+    .hero-sub { max-width: var(--measure); margin: var(--space-3) auto var(--space-4); font-size: var(--fs-2); line-height: var(--lh-body); color: var(--text); text-wrap: balance; }
+    html.is-embedded .demo-hero { display: none; }
+    .demo-main { padding: 0 var(--space-5) var(--space-8); }
+    .demo-main > * + * { margin-top: var(--space-4); }
+    @media (max-width: 768px) { .demo-main { padding: 0 var(--space-3) var(--space-7); } }
+
+    .panel-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: var(--space-5);
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+    @media (max-width: 768px) { .panel-card { padding: var(--space-4); } }
+    .panel-label {
+      font-family: var(--font-display);
+      font-size: var(--fs-1);
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin: 0 0 var(--space-3);
+      line-height: var(--lh-ui);
+    }
+    .hint { font-size: var(--fs-1); line-height: var(--lh-ui); color: var(--text-muted); }
+    .top-grid { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: var(--space-4); align-items: stretch; }
+    @media (max-width: 860px) { .top-grid { grid-template-columns: minmax(0, 1fr); } }
+    .result-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--space-4); align-items: stretch; }
+    @media (max-width: 768px) { .result-grid { grid-template-columns: minmax(0, 1fr); } }
+    #app:not(.has-results) .results-only { display: none; }
+    #app[data-mode="naive"] .needs-desc { display: none; }
+    #app:not([data-mode="dna_feedback"]) .needs-fb { display: none; }
+
+    /* --- examples --- */
+    .examples-grid { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: var(--space-2); }
+    @media (max-width: 860px) { .examples-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+    @media (max-width: 480px) { .examples-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    /* cards fill their grid cell, so the strip lines up with the boxes below; thumbnail on top */
+    .examples-grid .example-card { flex-direction: column; align-items: stretch; width: 100%; min-height: 0; gap: var(--space-2); }
+    .examples-grid .ex-thumb { width: 100%; height: auto; aspect-ratio: 16 / 9; }
+    /* compact cards: title + outcome only (the task is in the aria-label and shows once loaded) */
+    .examples-grid .example-card { padding: var(--space-1); }
+    .examples-grid .ex-title { font-size: var(--fs-1); }
+    .examples-grid .ex-task { display: none; }
+    .examples-grid .ex-body { display: flex; align-items: center; justify-content: space-between; gap: var(--space-1); padding: 0 var(--space-1) var(--space-1); }
+    .examples-grid .ex-meta { flex-wrap: nowrap; }
+    .example-card {
+      display: flex; align-items: center; gap: var(--space-3); text-align: left;
+      width: min(100%, 360px); min-height: 70px; padding: var(--space-2);
+      background: var(--surface); border: 1px solid var(--border-strong); border-radius: var(--radius-lg);
+      color: var(--ink); font: inherit; cursor: pointer;
+      transition: background-color var(--motion-fast) var(--ease-out), border-color var(--motion-fast) var(--ease-out), box-shadow var(--motion-fast) var(--ease-out);
+    }
+    @media (hover: hover) { .example-card:not(:disabled):hover { background: var(--surface-2); border-color: var(--text-muted); } }
+    .example-card:active:not(:disabled) { background: var(--surface-hover); }
+    .example-card[aria-pressed="true"] { border-color: var(--link); box-shadow: 0 0 0 1px var(--link); }
+    .example-card:disabled { opacity: 0.55; cursor: not-allowed; }
+    .ex-thumb { position: relative; flex: none; width: 96px; height: 54px; border-radius: var(--radius-md); overflow: hidden; background: var(--media-bg); }
+    .ex-thumb video { width: 100%; height: 100%; object-fit: cover; display: block; pointer-events: none; }
+    .ex-dur { position: absolute; right: 3px; bottom: 3px; background: rgba(0, 0, 0, 0.72); color: #fff; font-size: 11px; line-height: 1.3; padding: 0 var(--space-1); border-radius: var(--radius-sm); font-variant-numeric: tabular-nums; }
+    .ex-body { min-width: 0; display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-1); }
+    .ex-title { font-family: var(--font-display); font-weight: 600; font-size: var(--fs-2); line-height: var(--lh-ui); }
+    .ex-meta { display: flex; align-items: center; gap: var(--space-2); flex-wrap: wrap; font-size: var(--fs-1); color: var(--text-muted); }
+    .ex-meta .tag { font-family: var(--font-display); font-weight: 600; margin: 0; }
+
+    /* --- source panel --- */
+    .toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); margin-bottom: var(--space-3); }
+    .toolbar .reset-btn { margin-left: auto; color: var(--text-muted); }
+    @media (hover: hover) { .toolbar .reset-btn:hover { color: var(--danger-fg); background: var(--danger-bg); } }
+    .file-btn { position: relative; }
+    .file-btn input { position: absolute; width: 1px; height: 1px; opacity: 0; overflow: hidden; clip-path: inset(50%); }
+    .file-btn:focus-within { outline: 2px solid var(--focus); outline-offset: 2px; }
+    .file-btn.is-disabled { opacity: 0.5; pointer-events: none; }
+    .rec-btn .icon { color: var(--danger-fg); }
+    .rec-btn.is-recording, .rec-btn.is-recording:hover { background: var(--danger-fg); border-color: var(--danger-fg); color: var(--bg); }
+    .rec-btn.is-recording .icon { color: var(--bg); }
+    .field-label, .field label {
+      font-family: var(--font-display); font-size: var(--fs-1); font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-muted);
+    }
+    .task-field { margin: 0 0 var(--space-3); }
+    .video-frame-wrap { position: relative; border-radius: var(--radius-md); overflow: hidden; background: var(--media-bg); aspect-ratio: 16 / 9; }
+    .video-frame-wrap video { width: 100%; height: 100%; object-fit: contain; display: block; }
+    .step-badge {
+      position: absolute; top: var(--space-2); left: var(--space-2); z-index: 2;
+      background: rgba(0, 0, 0, 0.66); color: #fff; font-size: var(--fs-1); line-height: var(--lh-ui);
+      padding: 2px var(--space-3); border-radius: var(--radius-pill);
+      font-family: var(--font-display); max-width: 80%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; pointer-events: none;
+    }
+    .live-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #bbb; margin-right: var(--space-1); vertical-align: middle; }
+    .live-dot.is-live { background: #ff5a5f; animation: pulse 1.2s infinite; }
+    @keyframes pulse { 50% { opacity: 0.3; } }
+    .video-empty {
+      position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--space-3);
+      color: rgba(255, 255, 255, 0.86); font-size: var(--fs-2); text-align: center; padding: var(--space-4);
+    }
+    .video-empty b { color: #fff; font-weight: 600; }
+    .video-empty .button { pointer-events: auto; }
+    .drop-icon { display: block; font-size: 1.6rem; opacity: 0.7; }
+    .video-frame-wrap.is-drop { outline: 3px dashed var(--link); outline-offset: -6px; }
+    .drop-overlay { position: fixed; inset: 0; z-index: 200; display: flex; align-items: center; justify-content: center; padding: var(--space-5);
+      background: rgba(255, 255, 255, 0.82); pointer-events: none; }
+    .drop-overlay[hidden] { display: none; }
+    .drop-overlay-card { display: flex; flex-direction: column; align-items: center; gap: var(--space-3); width: min(100%, 520px); padding: var(--space-7) var(--space-5);
+      border: 3px dashed var(--link); border-radius: var(--radius-lg); background: var(--surface); color: var(--ink);
+      font-family: var(--font-display); font-size: var(--fs-3); font-weight: 600; text-align: center; box-shadow: var(--shadow-2); }
+    .drop-overlay-icon { font-size: 2.5rem; color: var(--link); }
+    .drop-overlay.is-blocked .drop-overlay-card { border-color: var(--border-strong); color: var(--text-muted); }
+    .drop-overlay.is-blocked .drop-overlay-icon { color: var(--text-muted); }
+    .video-frame-wrap.is-drop .video-empty { display: flex !important; background: var(--accent-soft); color: #fff; }
+    .source-status { margin-top: var(--space-3); font-size: var(--fs-1); line-height: var(--lh-ui); color: var(--text-muted); min-height: calc(var(--fs-1) * var(--lh-ui) * 2); }
+    .source-status.is-error { color: var(--danger-fg); }
+
+    /* --- progress readout + chart --- */
+    .big-progress { font-family: var(--font-display); font-size: 2.1rem; font-weight: 700; line-height: 1; color: var(--c-dna-text); }
+    .big-progress small { font-size: var(--fs-1); color: var(--text-muted); font-weight: 400; margin-left: var(--space-2); }
+    .compute-time { font-size: var(--fs-1); line-height: var(--lh-ui); color: var(--text-muted); margin-top: var(--space-2); min-height: var(--space-5); }
+    .progress-bar-track { height: 8px; background: var(--surface-sunken); border-radius: var(--radius-pill); margin: var(--space-1) 0 var(--space-3); overflow: hidden; }
+    .progress-bar-fill { height: 100%; width: 0; background: var(--c-dna); transition: width var(--motion) var(--ease-out); }
+    .chart-svg { width: 100%; display: block; touch-action: none; cursor: crosshair; user-select: none; }
+    .chart-svg:focus:not(:focus-visible) { outline: none; }
+    .chart-svg:focus-visible { outline: 2px solid var(--focus); outline-offset: 4px; border-radius: var(--radius-md); }
+    .grid-line { stroke: var(--chart-grid); stroke-width: 1; }
+    .axis-text { fill: var(--chart-tick); font-family: var(--font-display); }
+    .dna-line { fill: none; stroke: var(--c-dna); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+    .dna-dot { fill: var(--c-dna); opacity: 0.65; }
+    .sel-line { stroke: var(--playhead); stroke-width: 1.25; stroke-dasharray: 3 3; }
+    .sel-dot { fill: var(--c-dna); stroke: var(--marker-halo); stroke-width: 2; }
+    .legend { margin-top: var(--space-3); padding-top: var(--space-3); border-top: 1px dashed var(--border-strong); font-size: var(--fs-1); line-height: var(--lh-ui); color: var(--text-muted); }
+    #app.has-results .progress-empty, #app:not(.has-results) .legend-drag { display: none; }
+
+    /* --- description / outcome --- */
+    .desc-head { display: flex; justify-content: space-between; align-items: center; gap: var(--space-3); margin-bottom: var(--space-3); }
+    .desc-head .panel-label { margin: 0; }
+    #desc-time { text-transform: none; letter-spacing: 0; }
+    .frame-nav { display: flex; gap: var(--space-2); flex: none; }
+    .frame-nav .button { min-width: 36px; }
+    .desc-thumb { max-height: 160px; max-width: 100%; object-fit: contain; border-radius: var(--radius-md); background: var(--media-bg); display: none; margin-bottom: var(--space-3); align-self: flex-start; }
+    .description-text { font-size: var(--fs-2); line-height: var(--lh-body); color: var(--ink); min-height: 4.5rem; flex: 1; }
+    .outcome-row { font-size: var(--fs-2); line-height: var(--lh-ui); margin-bottom: var(--space-4); color: var(--text); }
+    .outcome-row:last-child { margin-bottom: 0; }
+    .outcome-row .tag { font-family: var(--font-display); font-weight: 600; font-size: var(--fs-1); display: flex; width: fit-content; margin-bottom: var(--space-1); }
+    .outcome-row > span:not(.tag) { display: block; }
+
+    /* --- run on your own video --- */
+    .run-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--space-3) var(--space-4); }
+    .run-grid .field { margin-bottom: 0; min-width: 0; }
+    .run-grid .wide { grid-column: 1 / -1; }
+    @media (max-width: 640px) { .run-grid { grid-template-columns: minmax(0, 1fr); } }
+    .label-row { display: flex; justify-content: space-between; align-items: baseline; gap: var(--space-3); }
+    .label-link { font-size: var(--fs-1); display: inline-flex; align-items: center; min-height: 32px; padding: 0 var(--space-1); text-decoration: underline; text-underline-offset: 0.18em; }
+    .key-control { position: relative; }
+    .key-control .input { padding-right: 5.6rem; }
+    .key-icon { position: absolute; right: 3rem; top: 50%; transform: translateY(-50%); font-size: 1.05rem; line-height: 1; pointer-events: none; }
+    .key-icon.ok { color: var(--success-fg); }
+    .key-icon.bad { color: var(--danger-fg); }
+    .key-icon.wait { color: var(--text-muted); }
+    .key-eye { position: absolute; right: 0; top: 0; bottom: 0; width: 2.75rem; display: flex; align-items: center; justify-content: center; border: 0; background: none; color: var(--text-muted); cursor: pointer; border-radius: var(--radius-md); }
+    @media (hover: hover) { .key-eye:hover { color: var(--ink); } }
+    .key-msg { font-size: var(--fs-1); line-height: var(--lh-ui); min-height: var(--space-4); margin-top: var(--space-1); color: var(--text-muted); }
+    .key-msg.ok { color: var(--success-fg); }
+    .key-msg.bad { color: var(--danger-fg); }
+    .advanced { grid-column: 1 / -1; border-top: 1px solid var(--border); padding-top: var(--space-2); }
+    .advanced summary { cursor: pointer; display: flex; align-items: center; gap: var(--space-2); min-height: 40px; font-family: var(--font-display); font-size: var(--fs-1); color: var(--link); list-style: none; }
+    .advanced summary::-webkit-details-marker { display: none; }
+    .advanced summary::before { content: "\25B8"; display: inline-block; transition: transform var(--motion-fast) var(--ease-out); }
+    .advanced[open] summary::before { transform: rotate(90deg); }
+    @media (hover: hover) { .advanced summary:hover { color: var(--link-hover); } }
+    .advanced .adv-body { display: grid; gap: var(--space-3); padding-top: var(--space-3); }
+    .slider { width: 100%; accent-color: var(--link); margin: var(--space-1) 0 0; display: block; height: 28px; }
+    .slider-ticks { display: flex; justify-content: space-between; padding: 0 3px; font-size: var(--fs-1); line-height: var(--lh-ui); color: var(--text-muted); }
+    .slider-ticks span { text-align: center; }
+    .slider-field label b { color: var(--ink); text-transform: none; letter-spacing: 0; font-weight: 600; }
+    .run-actions { display: flex; align-items: center; gap: var(--space-4); flex-wrap: wrap; margin-top: var(--space-4); }
+    .annotate-btn { min-width: 220px; }
+    .button.annotate-btn.is-cancel, .button.annotate-btn.is-cancel:hover, .button.annotate-btn.is-cancel:focus, .button.annotate-btn.is-cancel:active {
+      background: var(--surface); color: var(--danger-fg); border-color: var(--danger-fg); box-shadow: none;
+    }
+    @media (hover: hover) { .button.annotate-btn.is-cancel:hover { background: var(--danger-bg); } }
+    #key-hint { font-size: var(--fs-1); text-decoration: underline; text-underline-offset: 0.18em; }
+    .pipeline { display: flex; gap: var(--space-2); list-style: none; margin: var(--space-3) 0 0; padding: 0; flex-wrap: wrap; }
+    .pipeline:empty { display: none; }
+    .pipeline li { font-size: var(--fs-1); line-height: var(--lh-ui); font-family: var(--font-display); padding: 2px var(--space-3); border-radius: var(--radius-pill); background: var(--surface-sunken); color: var(--text-muted); }
+    .pipeline li.is-active { background: var(--accent-soft); color: var(--link); font-weight: 600; }
+    .pipeline li.is-active::after { content: '…'; }
+    .pipeline li.is-done { background: var(--success-bg); color: var(--success-fg); }
+    .pipeline li.is-done::before { content: '✓ '; }
+    .pipeline li.is-failed { background: var(--danger-bg); color: var(--danger-fg); }
+    .pipeline li.is-failed::before { content: '✕ '; }
+    .status-line { margin-top: var(--space-3); font-size: var(--fs-1); line-height: var(--lh-ui); color: var(--text-muted); min-height: var(--space-5); }
+    .status-line.is-error { display: inline-block; background: var(--danger-bg); color: var(--danger-fg); padding: var(--space-1) var(--space-3); border-radius: var(--radius-md); }
+    .status-line a { color: var(--link); font-weight: 600; margin-left: var(--space-2); text-decoration: underline; }
+
+    /* --- annotated video, intermediate steps --- */
+    .transport { margin-top: var(--space-3); display: flex; align-items: center; gap: var(--space-3); flex-wrap: wrap; }
+    #export-video { display: none; width: 100%; max-width: 960px; border-radius: var(--radius-md); margin-top: var(--space-3); background: var(--media-bg); }
+    .steps-panel { display: block; }
+    .steps-panel summary { cursor: pointer; display: flex; align-items: center; gap: var(--space-2); min-height: 32px; list-style: none; }
+    .steps-panel summary::-webkit-details-marker { display: none; }
+    .steps-panel summary::before { content: "\25B8"; color: var(--link); transition: transform var(--motion-fast) var(--ease-out); }
+    .steps-panel[open] summary::before { transform: rotate(90deg); }
+    .steps-panel summary .panel-label { margin: 0; }
+    .steps-panel .steps-body { margin-top: var(--space-3); }
+    .code-block { border: 1px solid var(--border); border-radius: var(--radius-md); overflow: hidden; }
+    .code-head { display: flex; align-items: center; justify-content: space-between; padding: var(--space-2) var(--space-3); background: var(--surface-2); border-bottom: 1px solid var(--border); }
+    .code-head .panel-label { margin: 0; }
+    .code-block pre { margin: 0; padding: var(--space-3) var(--space-4); max-height: 260px; overflow: auto; background: var(--surface); font-size: var(--fs-1); line-height: 1.45; white-space: pre-wrap; word-break: break-word; }
+    .code-block code { background: none; color: var(--text); padding: 0; font-family: var(--font-mono); }
+
+    @media (max-width: 480px) {
+      .toolbar .reset-btn span:last-child { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+      .annotate-btn { width: 100%; }
+    }
+    @media (pointer: coarse) {
+      .button { min-height: 44px; }
+      .frame-nav .button { min-width: 44px; }
+      .label-link { min-height: 44px; }
+      .advanced summary, .steps-panel summary { min-height: 44px; }
+      .slider { height: 44px; }
+      .key-eye { width: 3rem; }
+    }
+    html.is-embedded .demo-main { padding-top: var(--space-5); }
+  </style>
+</head>
+
+<body>
+  <script>
+    if (window.self !== window.top) document.documentElement.classList.add('is-embedded');
+  </script>
+
+  <div class="drop-overlay" id="drop-overlay" aria-hidden="true" hidden>
+    <div class="drop-overlay-card"><span class="drop-overlay-icon"><i class="fas fa-file-video"></i></span><span id="drop-overlay-msg">Drop a video to load it</span></div>
+  </div>
+  <div id="app" data-mode="dna_feedback">
+  <header class="demo-hero">
+    <div class="container is-max-desktop">
+      <h1 class="title publication-title">
+        <a class="home-link" href="../index.html"><img class="title-icon" src="../static/images/dna_emoji_icon.png" alt="" width="64" height="64" />D&amp;A Live Demo</a>
+      </h1>
+      <p><a class="button is-rounded" href="../index.html"><span class="icon is-small"><i class="fas fa-arrow-left"></i></span><span>Back to project page</span></a></p>
+    </div>
+  </header>
+
+  <main class="container is-max-desktop demo-main">
+
+    <!-- saved example: the page opens on a finished run -->
+    <section aria-labelledby="examples-label">
+      <h2 class="panel-label" id="examples-label">Examples</h2>
+      <div class="examples-grid" id="examples"></div>
+    </section>
+
+    <!-- source video | progress -->
+    <div class="top-grid">
+      <section class="panel-card" aria-label="Video">
+        <div class="toolbar">
+          <button class="button is-rounded rec-btn" id="btn-record" type="button">
+            <span class="icon is-small"><i class="fas fa-circle" id="rec-icon"></i></span><span id="rec-label">Record</span></button>
+          <label class="button is-rounded file-btn" id="file-btn"><span class="icon is-small"><i class="fas fa-upload"></i></span><span>Upload video</span>
+            <input type="file" id="file-in" accept="video/*"></label>
+          <button class="button is-rounded is-white reset-btn" id="btn-reset" type="button" aria-label="Reset" title="Clear the video and all results">
+            <span class="icon is-small"><i class="fas fa-redo"></i></span><span>Reset</span></button>
+        </div>
+        <div class="field task-field">
+          <label for="task">Task</label>
+          <input class="input" id="task" type="text" value="pick up the red block and place it in the bowl">
+        </div>
+        <div class="video-frame-wrap">
+          <video id="video" muted playsinline></video>
+          <div class="step-badge" id="badge-wrap"><span class="live-dot" id="live-dot"></span><span id="step-badge">no video</span></div>
+          <div class="video-empty" id="video-empty"><span class="drop-icon"><i class="fas fa-file-video"></i></span><span>Drop a video here, or use <b>Record</b> / <b>Upload video</b>.</span>
+            <button class="button is-rounded is-small" id="btn-load-example" type="button">Load the example</button></div>
+        </div>
+        <div class="source-status" id="source-status" role="status" aria-live="polite"></div>
+      </section>
+
+      <section class="panel-card" aria-label="Progress">
+        <h2 class="panel-label">Progress</h2>
+        <div class="big-progress"><span id="big-progress">&ndash;</span><small id="big-sub"></small></div>
+        <div class="compute-time" id="compute-time"></div>
+        <div class="progress-bar-track"><div class="progress-bar-fill" id="bar"></div></div>
+        <svg class="chart-svg" id="chart" viewBox="0 0 520 240" tabindex="0" role="img" aria-label="Progress over time"></svg>
+        <div class="legend legend-drag">Click or drag the chart (or use ← →) to step through frames; the video follows.</div>
+        <div class="legend progress-empty">Load the example or annotate a video to see progress here.</div>
+      </section>
+    </div>
+
+    <!-- description | outcome -->
+    <div class="result-grid results-only needs-desc">
+      <section class="panel-card" aria-label="Description">
+        <div class="desc-head">
+          <h2 class="panel-label">Description <span id="desc-time"></span></h2>
+          <div class="frame-nav">
+            <button class="button is-rounded" id="frame-prev" type="button" aria-label="Previous frame" title="Previous frame (←)"><i class="fas fa-chevron-left"></i></button>
+            <button class="button is-rounded" id="frame-next" type="button" aria-label="Next frame" title="Next frame (→)"><i class="fas fa-chevron-right"></i></button>
+          </div>
+        </div>
+        <img class="desc-thumb" id="desc-thumb" alt="">
+        <div class="description-text" id="description-text">Annotate a video to see results.</div>
+      </section>
+      <section class="panel-card" aria-label="Outcome">
+        <h2 class="panel-label">Outcome</h2>
+        <div class="outcome-row needs-fb"><span class="tag is-danger is-light">failure</span><span id="outcome-failure">&ndash;</span></div>
+        <div class="outcome-row needs-fb"><span class="tag is-warning is-light">feedback</span><span id="outcome-feedback">&ndash;</span></div>
+        <div class="outcome-row"><span class="tag is-success is-light">success criterion</span><span id="outcome-completion">&ndash;</span></div>
+      </section>
+    </div>
+
+    <!-- run D&A on your own video -->
+    <section class="panel-card" aria-labelledby="run-label">
+      <h2 class="panel-label" id="run-label">Run D&amp;A on your own video</h2>
+      <div class="run-grid">
+        <div class="field wide">
+          <div class="label-row"><label for="api-key">OpenRouter API key</label>
+            <a class="label-link" href="https://openrouter.ai/keys" target="_blank" rel="noopener">Get a key <i class="fas fa-external-link-alt" aria-hidden="true"></i></a></div>
+          <div class="key-control">
+            <input class="input" id="api-key" type="password" autocomplete="off" spellcheck="false" placeholder="sk-or-v1-…" aria-describedby="key-msg">
+            <button class="key-eye" id="key-eye" type="button" aria-label="Show key" title="Show key"><i class="fas fa-eye"></i></button>
+            <span class="key-icon" id="key-icon"></span>
+          </div>
+          <div class="key-msg" id="key-msg" aria-live="polite"></div>
+        </div>
+        <div class="field">
+          <label for="model-preset">Model</label>
+          <div class="select is-fullwidth"><select id="model-preset" style="width:100%">
+            <optgroup label="Anthropic">
+              <option value="anthropic/claude-opus-5">Claude Opus 5</option>
+            </optgroup>
+            <optgroup label="Google">
+              <option value="google/gemini-3.8-flash" selected>Gemini 3.8 Flash</option>
+              <option value="google/gemini-4-argon">Gemini 4 Argon</option>
+            </optgroup>
+            <optgroup label="OpenAI">
+              <option value="openai/gpt-5.6-sol">GPT-5.6 Sol</option>
+              <option value="openai/gpt-6-astra">GPT-6 Astra</option>
+            </optgroup>
+            <optgroup label="Qwen">
+              <option value="qwen/qwen3.6-plus">Qwen3.6 Plus</option>
+            </optgroup>
+            <option value="">Custom</option>
+          </select></div>
+        </div>
+        <div class="field">
+          <label for="mode">Method</label>
+          <div class="select is-fullwidth"><select id="mode" style="width:100%">
+            <option value="naive">Naive VLM (frames &rarr; progress)</option>
+            <option value="dna">D&amp;A (describe &rarr; assess)</option>
+            <option value="dna_feedback" selected>D&amp;A + Feedback (adds failure &amp; feedback)</option>
+          </select></div>
+        </div>
+        <details class="advanced" id="advanced">
+          <summary>Advanced &middot; <span id="adv-sum"></span></summary>
+          <div class="adv-body">
+            <div class="field">
+              <label for="model">Model ID</label>
+              <input class="input" id="model" type="text" placeholder="vendor/model" spellcheck="false">
+              <div class="key-msg" id="model-msg" aria-live="polite"></div>
+            </div>
+            <div class="field slider-field" data-slider="thinking"></div>
+            <div class="field slider-field" data-slider="nframes"></div>
+            <div class="field slider-field" data-slider="downsample"></div>
+            <div class="hint">Processing time varies with the selected model, reasoning effort, number of frames scored and frame resolution.</div>
+          </div>
+        </details>
+      </div>
+      <div class="run-actions">
+        <button class="button is-rounded is-dark is-medium annotate-btn" id="btn-annotate" type="button" disabled title="Load a video first">
+          <span class="icon is-small"><i class="fas fa-magic" id="annotate-icon"></i></span><span id="annotate-label">Annotate</span></button>
+        <a class="hint" id="key-hint" href="#api-key" hidden>Needs your OpenRouter API key</a>
+      </div>
+      <ol class="pipeline" id="pipeline" aria-label="Pipeline progress"></ol>
+      <div class="status-line" id="status" role="status" aria-live="polite"></div>
+    </section>
+
+    <!-- annotated video -->
+    <section class="panel-card results-only" aria-labelledby="export-label">
+      <h2 class="panel-label" id="export-label">Annotated video</h2>
+      <div class="hint">A 1080p video with the task, the progress plot next to the source video, and the description, success criterion and feedback below.
+        Rendered in real time in your browser, so keep this tab visible while it runs. <span id="export-eta"></span></div>
+      <div class="transport">
+        <button class="button is-rounded is-dark" id="btn-export" type="button" disabled>
+          <span class="icon is-small"><i class="fas fa-film"></i></span><span>Create video</span></button>
+        <a class="button is-rounded" id="export-dl" style="display:none;"><span class="icon is-small"><i class="fas fa-download"></i></span><span>Download</span></a>
+      </div>
+      <div class="status-line" id="export-msg" aria-live="polite"></div>
+      <video id="export-video" controls playsinline></video>
+    </section>
+
+    <!-- intermediate steps -->
+    <details class="panel-card results-only steps-panel" id="steps-panel">
+      <summary><span class="panel-label">Intermediate steps</span></summary>
+      <div class="steps-body">
+        <div class="hint" id="steps-empty">One JSON with the objects, descriptions, success criterion and reward appears here as each step finishes.</div>
+        <div id="steps"></div>
+      </div>
+    </details>
+
+  </main>
+  </div>
+
+  <script src="examples/examples.js"></script>
+  <!-- the base64 copy of the clip is only the file:// fallback; over http(s) the clip is fetched once as a blob -->
+  <script>if (location.protocol === 'file:') document.write('<script src="examples/examples-video.js"><\/script>');</script>
+  <script>
+  (function () {
+    // ---------------------------------------------------------------- config
+    // the chart is drawn in CSS pixels (viewBox = rendered size), so its text is a true 12 px at every width
+    let CHART_W = 520, CHART_H = 240;
+    const PAD_L = 44, PAD_R = 16, PAD_T = 14, PAD_B = 26, AXIS_PX = 12;
+    const MODES = { naive: 'Naive VLM', dna: 'D&A', dna_feedback: 'D&A + Feedback' };
+    const SCROLL = matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth';
+
+    const $ = (id) => document.getElementById(id);
+    const el = {
+      app: $('app'), key: $('api-key'), keyIcon: $('key-icon'), keyMsg: $('key-msg'),
+      task: $('task'), mode: $('mode'), preset: $('model-preset'), model: $('model'), advanced: $('advanced'), advSum: $('adv-sum'),
+      keyHint: $('key-hint'), sourceStatus: $('source-status'), loadExampleBtn: $('btn-load-example'),
+      video: $('video'), videoEmpty: $('video-empty'), badge: $('step-badge'), dot: $('live-dot'), status: $('status'),
+      btnRecord: $('btn-record'), recIcon: $('rec-icon'), annotateIcon: $('annotate-icon'), recLabel: $('rec-label'),
+      fileIn: $('file-in'), fileBtn: $('file-btn'),
+      btnAnnotate: $('btn-annotate'), btnReset: $('btn-reset'),
+      big: $('big-progress'), bigSub: $('big-sub'), bar: $('bar'), chart: $('chart'), computeTime: $('compute-time'),
+      desc: $('description-text'), descTime: $('desc-time'), thumb: $('desc-thumb'),
+      failure: $('outcome-failure'), feedback: $('outcome-feedback'), completion: $('outcome-completion'),
+      steps: $('steps'), stepsEmpty: $('steps-empty'),
+      btnExport: $('btn-export'), exportDl: $('export-dl'), exportMsg: $('export-msg'), exportVideo: $('export-video'),
+    };
+
+    // ---------------------------------------------------------------- sliders
+    const SLIDERS = {
+      thinking: { title: 'Reasoning effort', vals: ['LOW', 'MEDIUM', 'HIGH'], labels: ['Low', 'Medium', 'High'], def: 1 },
+      nframes: { title: 'Frames scored', vals: [4, 8, 16, 32, 64], labels: ['4', '8', '16', '32', '64'], def: 1 },
+      downsample: { title: 'Downsample factor', vals: [1, 2, 4, 8], labels: ['1×', '2×', '4×', '8×'], def: 0, res: true },
+    };
+    Object.keys(SLIDERS).forEach((name) => {
+      const cfg = SLIDERS[name], box = document.querySelector(`[data-slider="${name}"]`);
+      box.innerHTML = `<label for="sl-${name}">${cfg.title}: <b class="slider-val"></b></label>` +
+        `<input class="slider" id="sl-${name}" type="range" min="0" max="${cfg.vals.length - 1}" step="1" value="${cfg.def}">` +
+        `<div class="slider-ticks">${cfg.labels.map((l) => `<span>${l}</span>`).join('')}</div>`;
+      cfg.input = box.querySelector('input');
+      const val = box.querySelector('.slider-val');
+      cfg.ticks = Array.from(box.querySelectorAll('.slider-ticks span'));
+      // the downsample slider also shows the resolution each factor gives for the current video
+      const dims = (i) => (cfg.res && el.video.videoWidth ? `${Math.round(el.video.videoWidth / cfg.vals[i])}×${Math.round(el.video.videoHeight / cfg.vals[i])}` : '');
+      cfg.sync = () => {
+        const i = +cfg.input.value, r = dims(i);
+        val.textContent = cfg.labels[i] + (r ? ` → ${r}` : '');
+        cfg.input.setAttribute('aria-valuetext', val.textContent);
+        cfg.ticks.forEach((sp, k) => { sp.innerHTML = cfg.labels[k] + (dims(k) ? `<br>${dims(k)}` : ''); });
+        updateAdvSum();
+      };
+      cfg.input.addEventListener('input', cfg.sync); cfg.sync();
+    });
+    // the collapsed "Advanced" summary keeps the current values visible
+    function updateAdvSum() {
+      if (!SLIDERS.thinking.input || !SLIDERS.nframes.input || !SLIDERS.downsample.input) return;
+      const v = (n) => SLIDERS[n].labels[+SLIDERS[n].input.value];
+      el.advSum.textContent = `${v('nframes')} frames · ${v('thinking')} effort · ${v('downsample')}`;
+    }
+    const refreshRes = () => SLIDERS.downsample.sync();
+    const slider = (name) => SLIDERS[name].vals[+SLIDERS[name].input.value];
+
+    const state = {
+      keyOk: null,           // null = unchecked, true/false = result of the last check
+      stream: null, recorder: null, recording: false, recStart: 0, recDuration: 0, recTimer: null,
+      src: null, srcName: '',  // object URL of the current video (recorded or uploaded)
+      scoring: false, exporting: false,
+      items: [],             // {t, desc, thumb, progress}
+      analysis: null,        // {failure, feedback, completion}
+      run: null,             // {mode, model, task, example?, illustrative?} of the displayed results
+      userTask: null,        // the visitor's own task text while an example's task is shown
+      srcKeep: false,        // the current video URL is a shared example blob: do not revoke it
+      saved: false,          // the displayed results were downloaded
+      selected: null,        // index inspected on chart, null = last
+      exportUrl: null,
+    };
+
+    const exampleCards = [];   // {ex, btn}, filled when the example strip is built
+
+    // --------------------------------------------------------------- helpers
+    // run messages go under the Annotate button; video-source messages under the video
+    function setStatus(msg, isErr) { el.status.textContent = msg; el.status.classList.toggle('is-error', !!isErr); }
+    function setSourceStatus(msg, isErr) { el.sourceStatus.textContent = msg; el.sourceStatus.classList.toggle('is-error', !!isErr); }
+    // paid results (a real run, not the saved example) are never replaced without asking
+    const hasPaid = () => !!(state.run && !state.run.example && state.items.some((i) => i.progress !== null));
+    const confirmReplace = () => !hasPaid() || window.confirm('Replace the current results? They are not saved.');
+    // an example brings its own task text; the visitor's own task comes back when the example goes away
+    const taskIsExample = () => !!(state.run && state.run.example && el.task.value === state.run.task);
+    function releaseTask() { if (taskIsExample() && state.userTask !== null) el.task.value = state.userTask; }
+    const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+    function once(target, evt, ms) {
+      return new Promise((res, rej) => {
+        const to = setTimeout(() => { target.removeEventListener(evt, ok); target.removeEventListener('error', bad); rej(new Error(`timed out waiting for video ${evt}`)); }, ms || 15000);
+        const ok = () => { clearTimeout(to); target.removeEventListener('error', bad); res(); };
+        const bad = () => { clearTimeout(to); target.removeEventListener(evt, ok); rej(new Error('could not load video')); };
+        target.addEventListener(evt, ok, { once: true });
+        target.addEventListener('error', bad, { once: true });
+      });
+    }
+    function seekTo(v, t) {
+      return new Promise((res) => {
+        if (Math.abs(v.currentTime - t) < 1e-3 && v.readyState >= 2) { res(); return; }
+        const done = () => { v.removeEventListener('seeked', done); clearTimeout(to); res(); };
+        const to = setTimeout(done, 4000);
+        v.addEventListener('seeked', done);
+        v.currentTime = t;
+      });
+    }
+    // MediaRecorder webm files report duration Infinity until scanned to the end, which breaks seeking
+    async function fixedDuration(v) {
+      if (isFinite(v.duration) && v.duration > 0) return v.duration;
+      await new Promise((res) => {
+        const done = () => { v.removeEventListener('timeupdate', done); clearTimeout(to); res(); };
+        const to = setTimeout(done, 3000);
+        v.addEventListener('timeupdate', done);
+        v.currentTime = 1e101;
+      });
+      const d = isFinite(v.duration) && v.duration > 0 ? v.duration : state.recDuration;
+      await seekTo(v, 0);
+      return d;
+    }
+    async function openVideo(url) {
+      const v = document.createElement('video');
+      v.muted = true; v.playsInline = true; v.preload = 'auto';
+      // attached (but invisible) so every browser keeps decoding frames while we seek
+      v.style.cssText = 'position:fixed;left:0;top:0;width:2px;height:2px;opacity:0;pointer-events:none;';
+      document.body.appendChild(v);
+      const meta = once(v, 'loadedmetadata');
+      v.src = url;
+      await meta;
+      if (v.readyState < 2) await once(v, 'loadeddata');
+      return v;
+    }
+
+    // ---------------------------------------------------------------- API key
+    const KEY_ICONS = { ok: 'fa-check-circle', bad: 'fa-times-circle', wait: 'fa-spinner fa-spin' };
+    const KEY_HELP = 'Kept in this tab only, never stored; sent only to OpenRouter.';
+    function setKeyState(kind, msg) {
+      el.keyIcon.className = 'key-icon' + (kind ? ' ' + kind : '');
+      el.keyIcon.innerHTML = kind ? `<i class="fas ${KEY_ICONS[kind]}" aria-hidden="true"></i>` : '';
+      el.keyMsg.className = 'key-msg' + (kind === 'ok' || kind === 'bad' ? ' ' + kind : '');
+      el.keyMsg.textContent = msg || (kind ? '' : KEY_HELP);
+    }
+    $('key-eye').addEventListener('click', (e) => {
+      const show = el.key.type === 'password';
+      el.key.type = show ? 'text' : 'password';
+      e.currentTarget.setAttribute('aria-label', show ? 'Hide key' : 'Show key');
+      e.currentTarget.title = show ? 'Hide key' : 'Show key';
+      e.currentTarget.firstElementChild.className = `fas ${show ? 'fa-eye-slash' : 'fa-eye'}`;
+    });
+    el.keyHint.addEventListener('click', (e) => { e.preventDefault(); el.key.scrollIntoView({ behavior: SCROLL, block: 'center' }); el.key.focus(); });
+    let keyTimer = null, keyToken = 0;
+    async function checkKey(key, token) {
+      try {
+        const r = await fetch('https://openrouter.ai/api/v1/key', { headers: { Authorization: 'Bearer ' + key } });
+        if (token !== keyToken) return;
+        if (r.ok) { state.keyOk = true; setKeyState('ok', 'Key accepted.'); }
+        else if (r.status === 401 || r.status === 403) { state.keyOk = false; setKeyState('bad', 'OpenRouter rejected that key.'); }
+        else { state.keyOk = null; setKeyState('bad', `Could not verify the key (HTTP ${r.status}).`); }
+      } catch (e) {
+        if (token !== keyToken) return;
+        state.keyOk = null; setKeyState('bad', 'Could not reach OpenRouter to check the key.');
+      }
+    }
+    el.key.addEventListener('input', () => {
+      clearTimeout(keyTimer);
+      const key = el.key.value.trim(), token = ++keyToken;
+      state.keyOk = null;
+      updateButtons();
+      if (!key) { setKeyState('', ''); return; }
+      setKeyState('wait', 'Checking…');
+      keyTimer = setTimeout(() => checkKey(key, token), 350);
+    });
+
+    // ------------------------------------------------------------ model picker
+    const PRESETS = Array.from(el.preset.options).map((o) => o.value).filter(Boolean);
+    el.model.value = el.preset.value;
+    el.preset.addEventListener('change', () => {
+      el.model.value = el.preset.value;
+      if (!el.preset.value) { el.advanced.open = true; el.model.focus(); }
+    });
+    el.model.addEventListener('input', () => {
+      const v = el.model.value.trim();
+      el.preset.value = PRESETS.indexOf(v) >= 0 ? v : '';
+      checkModelSoon();
+    });
+    el.preset.addEventListener('change', () => checkModelSoon());
+    // the model list is public, so a typo in the ID shows up before a run fails on it
+    let modelList = null, modelTimer = null;
+    const modelMsg = $('model-msg');
+    function loadModels() {
+      if (!modelList) modelList = fetch('https://openrouter.ai/api/v1/models').then((r) => r.json()).then((j) => new Set((j.data || []).map((m) => m.id))).catch(() => null);
+      return modelList;
+    }
+    function checkModelSoon() { clearTimeout(modelTimer); modelTimer = setTimeout(checkModel, 400); }
+    async function checkModel() {
+      const id = el.model.value.trim().replace(/^openrouter\//, '');
+      state.modelOk = null;
+      modelMsg.className = 'key-msg'; modelMsg.textContent = '';
+      if (!id) return;
+      const ids = await loadModels();
+      if (!ids || id !== el.model.value.trim().replace(/^openrouter\//, '')) return;
+      state.modelOk = ids.has(id);
+      modelMsg.className = 'key-msg ' + (state.modelOk ? 'ok' : 'bad');
+      modelMsg.textContent = state.modelOk ? 'Available on OpenRouter.' : 'Not found on OpenRouter. Check the ID.';
+      if (!state.modelOk) el.advanced.open = true;
+    }
+
+    // ------------------------------------------------------------ buttons / badge
+    function updateButtons() {
+      const busy = state.scoring || state.exporting;
+      el.btnRecord.disabled = state.scoring || state.exporting;
+      el.fileIn.disabled = state.recording || busy;
+      el.fileBtn.classList.toggle('is-disabled', state.recording || busy);
+      el.btnAnnotate.disabled = !state.src || state.recording || state.exporting;
+      // primary (ink) only when a run can actually start; without a key it is a plain button plus a hint
+      const noKey = !el.key.value.trim();
+      el.btnAnnotate.classList.toggle('is-cancel', state.scoring);
+      el.btnAnnotate.classList.toggle('is-dark', !state.scoring && !noKey);
+      el.keyHint.hidden = !noKey || state.scoring;
+      $('annotate-label').textContent = state.scoring ? 'Cancel' : 'Annotate';
+      el.annotateIcon.className = `fas ${state.scoring ? 'fa-times' : 'fa-magic'}`;
+      exampleCards.forEach((c) => { c.btn.disabled = busy || state.recording; });
+      const dur = el.video.duration;
+      $('export-eta').textContent = isFinite(dur) && dur > 0 ? `Takes about ${Math.ceil(dur)} s.` : '';
+      el.btnReset.disabled = state.recording || busy;
+      el.btnExport.disabled = !state.src || busy || state.recording || !state.items.some((i) => i.progress !== null);
+      el.recLabel.textContent = state.recording ? 'Stop recording' : 'Record';
+      el.btnRecord.classList.toggle('is-recording', state.recording);
+      $('badge-wrap').style.display = state.src || state.recording ? '' : 'none';
+      el.btnAnnotate.title = state.scoring ? 'Stop this run' : el.btnAnnotate.disabled ? (state.src ? 'Busy…' : 'Load a video first') : noKey ? 'Needs your OpenRouter API key' : 'Run the selected method on this video (Enter in the task field)';
+      el.videoEmpty.style.display = state.src || state.recording ? 'none' : '';
+      refreshRes();
+      el.recIcon.className = `fas ${state.recording ? 'fa-stop' : 'fa-circle'}`;
+    }
+    const fmtTime = (s) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
+    function setBadge(text, live) { el.badge.textContent = text; el.dot.classList.toggle('is-live', !!live); }
+
+    // --------------------------------------------------------------- video source
+    function markExample(ex) { exampleCards.forEach((c) => c.btn.setAttribute('aria-pressed', c.ex === ex ? 'true' : 'false')); }
+    function clearVideo() {
+      if (state.src && !state.srcKeep) URL.revokeObjectURL(state.src);
+      state.src = null; state.srcName = ''; state.srcKeep = false;
+      markExample(null);
+      el.video.pause();
+      el.video.removeAttribute('src');
+      el.video.srcObject = null;
+      el.video.load();
+      el.video.controls = false;
+    }
+    function showVideo(url, label) {
+      state.src = url; state.srcName = label;
+      el.video.srcObject = null;
+      el.video.src = url;
+      el.video.controls = true;    // native controls: keyboard, touch and mouse all work
+      el.video.muted = false;
+      el.video.loop = false;
+      setBadge(label, false);
+    }
+    // a new video invalidates every result that belonged to the old one
+    function clearResults() {
+      state.items = []; state.analysis = null; state.run = null; state.selected = null; state.saved = false;
+      clearSteps();
+      clearExport();
+      el.computeTime.textContent = '';
+      el.desc.textContent = 'Annotate a video to see results.';
+      el.thumb.style.display = 'none'; el.descTime.textContent = '';
+      el.big.textContent = '–'; el.bigSub.textContent = ''; el.bar.style.width = '0';
+      el.failure.textContent = el.feedback.textContent = el.completion.textContent = '–';
+      drawChart();
+    }
+    el.loadExampleBtn.addEventListener('click', () => { if (EXAMPLES[0]) loadExample(EXAMPLES[0]); });
+
+    function loadFile(f) {
+      if (!f || state.recording || state.scoring || state.exporting) return;
+      if (f.type && !/^video\//.test(f.type)) { setSourceStatus(`“${f.name}” is not a video file.`, true); return; }
+      if (!confirmReplace()) return;
+      releaseTask();
+      clearVideo(); clearResults();
+      showVideo(URL.createObjectURL(f), f.name);
+      setStatus(''); setSourceStatus('');
+      updateButtons();
+    }
+    el.fileIn.addEventListener('change', (e) => { const f = e.target.files[0]; e.target.value = ''; loadFile(f); });
+    // Drag and drop: a video dropped anywhere on the page loads (otherwise the browser would open the file and
+    // leave the demo). A full-page overlay shows the target; a counter avoids flicker over child elements.
+    const dropZone = el.video.parentNode;
+    const dropOverlay = $('drop-overlay'), dropMsg = $('drop-overlay-msg');
+    let dragDepth = 0;
+    const hasFiles = (e) => !!e.dataTransfer && Array.from(e.dataTransfer.types || []).indexOf('Files') >= 0;
+    const dropBlocked = () => state.recording || state.scoring || state.exporting;
+    function setDropUI(on) {
+      document.body.classList.toggle('is-dragging', on);
+      dropZone.classList.toggle('is-drop', on);
+      dropOverlay.hidden = !on;
+      if (on) dropMsg.textContent = dropBlocked() ? 'Finish the current run before loading another video' : 'Drop a video to load it';
+      dropOverlay.classList.toggle('is-blocked', on && dropBlocked());
+    }
+    window.addEventListener('dragenter', (e) => { if (!hasFiles(e)) return; e.preventDefault(); dragDepth++; setDropUI(true); });
+    window.addEventListener('dragover', (e) => {
+      if (!hasFiles(e)) return;
+      e.preventDefault();
+      e.dataTransfer.dropEffect = dropBlocked() ? 'none' : 'copy';
+    });
+    window.addEventListener('dragleave', (e) => { if (!hasFiles(e)) return; dragDepth = Math.max(0, dragDepth - 1); if (!dragDepth) setDropUI(false); });
+    window.addEventListener('drop', (e) => {
+      if (!hasFiles(e)) return;
+      e.preventDefault();
+      dragDepth = 0; setDropUI(false);
+      const files = Array.from(e.dataTransfer.files || []);
+      if (!files.length || dropBlocked()) return;
+      const video = files.find((f) => /^video\//.test(f.type));
+      if (!video) { setSourceStatus(files.length > 1 ? 'None of the dropped files is a video.' : `\u201c${files[0].name}\u201d is not a video file.`, true); return; }
+      loadFile(video);
+      if (files.length > 1) setSourceStatus('Loaded the first video; one video at a time.');
+    });
+
+    el.video.addEventListener('loadedmetadata', refreshRes);
+    el.video.addEventListener('durationchange', () => updateButtons());
+    el.video.addEventListener('loadedmetadata', () => {
+      if (el.video.srcObject || el.video.duration !== Infinity) return;
+      el.video.currentTime = 1e101;
+      el.video.addEventListener('timeupdate', function fix() {
+        el.video.removeEventListener('timeupdate', fix);
+        el.video.currentTime = 0;
+      });
+    });
+
+    async function startRecording() {
+      if (state.recording || state.scoring) return;
+      if (!navigator.mediaDevices || !window.MediaRecorder) { setSourceStatus('Webcam recording is not supported in this browser.', true); return; }
+      if (!confirmReplace()) return;
+      let stream;
+      try { stream = await navigator.mediaDevices.getUserMedia({ video: { width: 1280 }, audio: false }); }
+      catch (e) { setSourceStatus('Could not open the webcam: ' + e.message, true); return; }
+      releaseTask();
+      clearVideo(); clearResults();
+      try {
+        state.stream = stream;
+        el.video.srcObject = stream;
+        el.video.controls = false;
+        el.video.muted = true;
+        await el.video.play();
+        const rec = new MediaRecorder(stream);
+        const chunks = [];
+        rec.ondataavailable = (e) => { if (e.data && e.data.size) chunks.push(e.data); };
+        rec.onstop = () => {
+          stream.getTracks().forEach((t) => t.stop());
+          state.stream = null;
+          if (!chunks.length) { setSourceStatus('Nothing was recorded.', true); setBadge('no video', false); updateButtons(); return; }
+          el.video.srcObject = null;
+          showVideo(URL.createObjectURL(new Blob(chunks, { type: rec.mimeType || 'video/webm' })), `recorded ${fmtTime(state.recDuration)}`);
+          setSourceStatus('');
+          updateButtons();
+        };
+        rec.start(1000);
+        state.recorder = rec;
+        state.recording = true;
+        state.recStart = performance.now();
+        state.recTimer = setInterval(() => setBadge(`REC ${fmtTime((performance.now() - state.recStart) / 1000)}`, true), 250);
+        setBadge('REC 0:00', true);
+        setSourceStatus('Recording… click “Stop recording” when the robot is done.');
+      } catch (e) {
+        stream.getTracks().forEach((t) => t.stop());
+        state.stream = null;
+        setSourceStatus('Could not start recording: ' + e.message, true);
+      }
+      updateButtons();
+    }
+    function stopRecording() {
+      if (!state.recording) return;
+      state.recording = false;
+      clearInterval(state.recTimer);
+      state.recDuration = (performance.now() - state.recStart) / 1000;
+      setBadge('saving…', false);
+      setSourceStatus('Saving recording…');
+      state.recorder.stop();
+      updateButtons();
+    }
+    el.btnRecord.addEventListener('click', () => (state.recording ? stopRecording() : startRecording()));
+
+    el.btnReset.addEventListener('click', () => {
+      if (state.recording || state.scoring || state.exporting) return;
+      if (hasPaid() && !window.confirm('Clear the video and all results? They are not saved.')) return;
+      releaseTask();
+      clearVideo(); clearResults();
+      pipeEl.innerHTML = '';
+      setBadge('no video', false);
+      setStatus('');
+      setSourceStatus('Cleared. Record, upload or drop a video, or load the example.');
+      updateButtons();
+    });
+
+    // ---------------------------------------------------------- frame extraction
+    // Frames are sampled evenly across the finished video, so frame time t is video time.
+    async function extractFrames(n, onProgress, times) {
+      const v = await openVideo(state.src);
+      const dur = await fixedDuration(v);
+      const canvas = document.createElement('canvas');
+      const ds = slider('downsample');
+      const scale = 1 / ds;
+      canvas.width = Math.max(1, Math.round(v.videoWidth * scale));
+      canvas.height = Math.max(1, Math.round(v.videoHeight * scale));
+      const ctx = canvas.getContext('2d');
+      const last = Math.max(0, dur - 0.05);
+      const frames = [];
+      for (let i = 0; i < n; i++) {
+        const t = times ? times[i] : n === 1 ? 0 : (i * last) / (n - 1);
+        if (onProgress) onProgress(i + 1, n);
+        await seekTo(v, t);
+        ctx.drawImage(v, 0, 0, canvas.width, canvas.height);
+        const url = canvas.toDataURL('image/jpeg', 0.75);
+        frames.push({ t, b64: url.split(',')[1], thumb: url });
+      }
+      v.remove();
+      return frames;
+    }
+
+    // -------------------------------------------------------------- VLM calls
+    function parseJSON(text) {
+      let s = (text || '').trim().replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '');
+      const a = s.search(/[\[{]/);
+      if (a > 0) s = s.slice(a);
+      const v = JSON.parse(s);
+      // prompts ask for [ {...} ], but models sometimes answer with a bare list of
+      // numbers or one object per frame; keep the whole reply so callers can recover
+      const out = Array.isArray(v) ? (v[0] && typeof v[0] === 'object' && !Array.isArray(v[0]) ? Object.assign({}, v[0]) : {}) : Object.assign({}, v);
+      Object.defineProperty(out, '_all', { value: v });
+      Object.defineProperty(out, '_raw', { value: text });
+      return out;
+    }
+
+    // the progress list from a reply, tolerating the shapes models actually return
+    function progressOf(r) {
+      if (Array.isArray(r.progress)) return r.progress;
+      const v = r._all;
+      if (Array.isArray(v)) {
+        if (v.every((x) => typeof x === 'number' || typeof x === 'string')) return v;                       // [10, 20, ...]
+        if (v.length && v.every((x) => x && typeof x.progress === 'number')) return v.map((x) => x.progress); // [{progress: 10}, ...]
+      }
+      const key = Object.keys(r).find((k) => /progress/i.test(k) && Array.isArray(r[k]));               // e.g. "progress values"
+      return key ? r[key] : null;
+    }
+
+    const EFFORT = { LOW: 'low', MEDIUM: 'medium', HIGH: 'high' };
+    const JSON_SUFFIX = '\n\nRespond with valid JSON only (a top-level array), with no markdown fences.';
+
+    const cancelled = () => !!(state.abort && state.abort.signal.aborted);
+    const CANCELLED = 'cancelled';
+    async function postJSON(url, headers, body, label) {
+      // aborts on timeout or when the user cancels the run
+      const ctl = new AbortController(), to = setTimeout(() => ctl.abort(), 150000);
+      const onCancel = () => ctl.abort();
+      if (state.abort) state.abort.signal.addEventListener('abort', onCancel, { once: true });
+      let r;
+      try { r = await fetch(url, { method: 'POST', headers: Object.assign({ 'Content-Type': 'application/json' }, headers), body: JSON.stringify(body), signal: ctl.signal }); }
+      catch (e) {
+        if (cancelled()) throw new Error(CANCELLED);
+        throw new Error(e.name === 'AbortError' ? `${label} did not answer within 150 s` : `${label} request failed: ${e.message}`);
+      }
+      finally { clearTimeout(to); if (state.abort) state.abort.signal.removeEventListener('abort', onCancel); }
+      if (!r.ok) throw new Error(`${label} ${r.status}: ${(await r.text()).slice(0, 200)}`);
+      return r.json();
+    }
+
+    async function callVLM(model, prompt, frames) {
+      const key = el.key.value.trim();
+      if (!key) throw new Error('API key missing');
+      // same layout as dna/requests/_media.build_openai_content: images, then the text
+      const content = (frames || []).map((f) => ({ type: 'image_url', image_url: { url: f.thumb, detail: 'low' } }));
+      content.push({ type: 'text', text: prompt + JSON_SUFFIX });
+      const body = { model, messages: [{ role: 'user', content }], reasoning: { effort: EFFORT[slider('thinking')] } };
+      const j = await postJSON('https://openrouter.ai/api/v1/chat/completions', { Authorization: 'Bearer ' + key }, body, 'OpenRouter');
+      const msg = (((j.choices || [])[0] || {}).message || {}).content;
+      if (!msg) throw new Error('no content returned');
+      return parseJSON(msg);
+    }
+
+    // ------------------------------------------------------ prompts (from the dna repo)
+    // dna/functions/description.py (grounding + description), progress.py
+    // (get_progress_from_description_failure = dna_feedback; get_progress_from_video_naive = naive).
+    function promptGround(task) {
+      return `<role>
+You are an expert in object recognition.
+</role>
+
+<task>
+1. all_objects: list objects that are in the video.
+2. are some objects relevant to the following task? Task: "${task}" If yes, list them in task_objects. If no, return an empty list for task_objects.
+</task>
+
+<output_format>
+Each single object should have a unique idenitifer. Each single object should have a unique idenitifer. Respond with a list of objects in the following JSON format:
+[
+    {
+        "all_objects": [str, str, ...],
+        "task_objects": [str, str, ...],
+    }
+]
+</output_format>`;
+    }
+
+    function promptDescribe(objects, n) {
+      return `<role>
+You are an expert in scene understanding. Provide highly detailed descriptions including the robot and state of the following objects ${JSON.stringify(objects)} at each timestep. Describe robot motion and distance between robot and objects.
+Without looking at the rest of the video, describe the scene in the first and last frame to ground the descriptions.
+</role>
+
+<constraints>
+- The video may be captured from either a third-person or wrist-mounted (robot POV) camera.
+- Do not make any judgement about what the robot is trying to accomplish. The robot is imperfect and might do things that don't make any sense to you.
+- Describe the scene as objectively as possible.
+</constraints>
+
+<output_format>
+Respond with exactly ${n} descriptions, where ${n} is the number of video frames. There is only one string per frame. in the following JSON format:
+[
+    {
+        "description_first_frame": str,
+        "description_last_frame": str,
+        "descriptions": [str, str, ...],
+    }
+]
+</output_format>`;
+    }
+
+    // assess from the descriptions only (text, no images). withFeedback = dna_feedback, otherwise plain dna
+    function promptAssess(task, descs, withFeedback) {
+      const n = descs.length;
+      const dict = {}; descs.forEach((d, i) => { dict[i] = d; });
+      const feedbackSteps = withFeedback ? `
+7. If the task was not fully completed, describe the failure.
+8. If the task was not fully completed, give feedback on what the robot should have done differently.` : '';
+      const fields = withFeedback
+        ? `        "failure": str,
+        "feedback": str,
+        "completion state": str,
+        "progress": [int, int, ...]`
+        : `        "completion state": str,
+        "progress": [int, int, ...]`;
+      return `
+Task:
+"${task}"
+
+Scene descriptions:
+${JSON.stringify(dict)}
+
+1. The task text fixes which objects count (category, color, shape, and wording). Scene descriptions are the only evidence of what is in the environment. Do not "ground" the task by renaming scene objects to match the task.
+2. For each object the task requires, it may be tied only to scene mentions that refer to that same entity without contradiction. Do not substitute a different object because it could serve the same role. If attributes in the scene conflict with the task's description of that object, or no clear referent exists, treat that requirement as absent.
+3. You may align short paraphrases across timesteps only when they plainly denote the same physical object already present in the scene—not to map task nouns onto other objects.
+4. If ALL required objects are absent by these rules, the task cannot be completed in this scene: use all 0% progress and explain in "completion state". Otherwise define precisely what the environment would look like if the task were FULLY and COMPLETELY finished (not started, not halfway—entirely done). Reward partial progress if the task is only partially completed and some required objects are present.
+5. For each timestep, reason about the % progress towards that fully completed state.
+6. Progress is defined as % progress towards the fully completed state. Progress does not have to be monotonic, i.e., the robot can reverse progress.${feedbackSteps}
+
+Respond with a list of ${n} progress values (ordered by frame) in the following JSON format:
+[
+    {
+${fields}
+    }
+]
+
+Before you respond, reflect whether the task is actually fully completed, otherwise adjust the progress values!`;
+    }
+
+    // naive: frames -> progress directly, one call, no description, no feedback
+    // The prompt states the frame count, as the repo does for Qwen models (progress.py),
+    // because without it models often return fewer values than there are frames.
+    function promptNaive(task, n) {
+      return `
+Task:
+"${task}"
+
+1. The task text fixes which objects count (category, color, shape, and wording). The video frames are the only evidence of what is in the environment. Do not "ground" the task by renaming visible objects to match the task.
+2. For each object the task requires, it may be tied only to objects visible in the video that refer to that same entity without contradiction. Do not substitute a different object because it could serve the same role. If the visual appearance of an object conflicts with the task's description of that object, or no clear referent is visible, treat that requirement as absent.
+3. You may track the same physical object across frames only when it is plainly the same entity already visible in the video—not to map task nouns onto other objects.
+4. For each timestep, reason about the % progress towards that fully completed state (0-100%).
+
+Respond with a list of ${n} progress values (ordered by frame) in the following JSON format:
+[
+    {
+        "progress": [int, int, ...]
+    }
+]`;
+    }
+
+    // ---------------------------------------------------------- intermediate steps
+    const STEPS = [['objects', 'Objects'], ['descriptions', 'Descriptions'], ['success', 'Success criteria'], ['reward', 'Reward JSON']];
+    function copyText(text, btn) {
+      const label = btn.querySelector('span:last-child');
+      const orig = label.textContent;
+      const flash = (msg) => { label.textContent = msg; setTimeout(() => { label.textContent = orig; }, 1200); };
+      const fallback = () => {
+        const ta = document.createElement('textarea');
+        ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+        document.body.appendChild(ta); ta.select();
+        let ok = false;
+        try { ok = document.execCommand('copy'); } catch (e) {}
+        ta.remove(); flash(ok ? 'Copied' : 'Copy failed');
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(() => flash('Copied'), fallback);
+      else fallback();
+    }
+    // one JSON with every step; same shape as an example's predictions
+    const stepData = {};
+    const stepsBox = document.createElement('div');
+    stepsBox.className = 'code-block'; stepsBox.style.display = 'none';
+    stepsBox.innerHTML = '<div class="code-head"><span class="panel-label">JSON</span>' +
+      '<div class="buttons are-small" style="margin:0;"><button class="button is-rounded" type="button" data-act="copy" style="margin-bottom:0;"><span class="icon is-small"><i class="fas fa-copy"></i></span><span>Copy</span></button>' +
+      '<button class="button is-rounded" type="button" data-act="dl" style="margin-bottom:0;"><span class="icon is-small"><i class="fas fa-download"></i></span><span>Download</span></button></div></div>' +
+      '<pre><code></code></pre>';
+    el.steps.appendChild(stepsBox);
+    const stepsCode = stepsBox.querySelector('code');
+    stepsBox.querySelector('[data-act="copy"]').addEventListener('click', (e) => copyText(stepsCode.textContent, e.currentTarget));
+    stepsBox.querySelector('[data-act="dl"]').addEventListener('click', () => {
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(new Blob([stepsCode.textContent], { type: 'application/json' }));
+      a.download = 'dna-annotation.json'; a.click();
+      state.saved = true;
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    });
+    function renderSteps() {
+      const all = {};
+      if (state.run) {
+        all.meta = { task: state.run.task, mode: state.run.mode, model: state.run.model, timestamps: state.items.map((i) => +i.t.toFixed(3)) };
+        if (state.run.illustrative) all.meta.placeholder = true;   // data flag of the hand-written example; the UI says "illustrative example"
+      }
+      STEPS.forEach(([key]) => { if (stepData[key]) all[key] = stepData[key]; });
+      stepsCode.textContent = JSON.stringify(all, null, 2);
+      stepsBox.style.display = '';
+      el.stepsEmpty.style.display = 'none';
+    }
+    function setStep(key, obj) { stepData[key] = obj; renderSteps(); }
+    function clearSteps() {
+      STEPS.forEach(([key]) => { delete stepData[key]; });
+      stepsCode.textContent = '';
+      stepsBox.style.display = 'none';
+      el.stepsEmpty.style.display = '';
+    }
+
+    // --------------------------------------------------------------- pipeline
+    // dna/classes/main.py: a progress list whose length != frame count is an error and the sample is retried
+    function fit(r, n, lastTry) {
+      const arr = progressOf(r);
+      if (!Array.isArray(arr)) throw new Error(`no progress list in reply: ${String(r._raw || '').slice(0, 160)}`);
+      if (arr.length !== n) {
+        if (!lastTry) throw new Error(`progress length ${arr.length} != frame count ${n}`);
+        // every attempt miscounted: stretch the list over the frames rather than show nothing
+        console.warn(`resampling ${arr.length} progress values to ${n} frames`);
+        const a = arr.map((x) => +x || 0);
+        r.resampledFrom = a.length;
+        return Array.from({ length: n }, (_, i) => {
+          const x = n === 1 ? 0 : i * (a.length - 1) / (n - 1), lo = Math.floor(x), hi = Math.min(a.length - 1, lo + 1);
+          return Math.max(0, Math.min(100, Math.round(a[lo] + (a[hi] - a[lo]) * (x - lo))));
+        });
+      }
+      return arr.map((x) => Math.max(0, Math.min(100, +x || 0)));
+    }
+    async function retry(fn, tries) {
+      let err;
+      for (let i = 0; i < tries; i++) {
+        try { return await fn(i === tries - 1); }
+        catch (e) { err = e; if (cancelled()) throw e; console.warn('retry', e); }
+      }
+      throw err;
+    }
+
+    // ------------------------------------------------------- pipeline stepper
+    const PIPES = { naive: [['frames', 'Frames'], ['score', 'Score']], dna: [['frames', 'Frames'], ['ground', 'Ground'], ['describe', 'Describe'], ['assess', 'Assess']] };
+    PIPES.dna_feedback = PIPES.dna;
+    const pipeEl = $('pipeline');
+    function pipeInit(mode) {
+      pipeEl.innerHTML = PIPES[mode].map(([k, l]) => `<li data-k="${k}">${l}</li>`).join('');
+    }
+    function pipeSet(key) {
+      let seen = false;
+      pipeEl.querySelectorAll('li').forEach((li) => {
+        const me = li.dataset.k === key;
+        li.className = me ? 'is-active' : seen ? '' : 'is-done';
+        if (me) seen = true;
+      });
+    }
+    function pipeFinish(ok) {
+      const active = pipeEl.querySelector('.is-active');
+      if (ok) pipeEl.querySelectorAll('li').forEach((li) => { li.className = 'is-done'; });
+      else if (active) active.className = 'is-failed';
+    }
+    // the progress chart sits above the run controls; point at it when it is out of view
+    function showResultsLink() {
+      const target = document.querySelector('.top-grid');
+      if (!target || target.getBoundingClientRect().bottom > 80) return;
+      const a = document.createElement('a');
+      a.href = '#'; a.textContent = 'See results ↑';
+      a.addEventListener('click', (e) => { e.preventDefault(); target.scrollIntoView({ behavior: SCROLL, block: 'start' }); });
+      el.status.appendChild(a);
+    }
+
+    async function annotate() {
+      if (state.scoring) { if (state.abort) state.abort.abort(); return; }
+      try { await annotateRun(); }
+      catch (e) {
+        console.error(e);
+        clearInterval(state.procTimer);
+        state.scoring = false;
+        setStatus('Unexpected error: ' + e.message, true);
+        updateButtons();
+      }
+    }
+    async function annotateRun() {
+      if (!state.src || state.recording || state.scoring || state.exporting) return;
+      const task = el.task.value.trim();
+      const model = el.model.value.trim().replace(/^openrouter\//, '');
+      const mode = el.mode.value;
+      if (!el.key.value.trim()) {
+        setStatus('D&A runs on your own OpenRouter key. Paste it above.', true);
+        const a = document.createElement('a');
+        a.href = 'https://openrouter.ai/keys'; a.target = '_blank'; a.rel = 'noopener'; a.textContent = 'Get a key';
+        el.status.appendChild(a);
+        el.key.focus(); return;
+      }
+      if (state.keyOk === false) { setStatus('OpenRouter rejected the API key. Paste a valid one.', true); el.key.focus(); return; }
+      if (!task) { setStatus('Enter a task first.', true); el.task.focus(); return; }
+      if (!model) { setStatus('Pick a model or enter a model ID.', true); el.model.focus(); return; }
+      if (state.modelOk === false) { setStatus(`“${model}” is not a model on OpenRouter. Check the model ID.`, true); el.advanced.open = true; el.model.focus(); return; }
+
+      state.scoring = true;
+      state.abort = new AbortController();
+      el.video.pause();
+      const tStart = performance.now();
+      const N = slider('nframes'), label = MODES[mode];
+      let stage = 'extracting frames…';
+      pipeInit(mode); pipeSet('frames');
+      // "<method> · <model> · <elapsed> · <step>", refreshed ten times a second while running
+      const upd = () => setStatus(`${label} · ${model} · ${((performance.now() - tStart) / 1000).toFixed(1)} s · ${stage}`);
+      clearInterval(state.procTimer);
+      const procTimer = state.procTimer = setInterval(upd, 100);
+      // results of an earlier annotation are replaced; keep them so Cancel and failures can bring them back
+      const snap = state.items.length ? { items: state.items, analysis: state.analysis, run: state.run, steps: Object.assign({}, stepData), mode: el.app.dataset.mode, compute: el.computeTime.textContent, saved: state.saved } : null;
+      const restore = () => {
+        clearSteps();
+        Object.keys(snap.steps).forEach((k) => setStep(k, snap.steps[k]));
+        state.items = snap.items; state.analysis = snap.analysis; state.run = snap.run; state.selected = null; state.saved = snap.saved;
+        el.app.dataset.mode = snap.mode; el.computeTime.textContent = snap.compute;
+        pipeEl.innerHTML = '';
+      };
+      state.items = []; state.analysis = null; state.selected = null;
+      state.run = { mode, model, task };
+      el.app.dataset.mode = mode;
+      clearSteps(); clearExport();
+      el.computeTime.textContent = '';
+      updateButtons();
+
+      upd();
+      let frames;
+      try { frames = await extractFrames(N, (i, n) => { if (cancelled()) throw new Error(CANCELLED); stage = `extracting frame ${i}/${n}…`; upd(); }); }
+      catch (e) {
+        clearInterval(procTimer); state.scoring = false; pipeFinish(false);
+        if (e.message === CANCELLED) {
+          if (snap) restore(); else { state.items = []; state.run = null; pipeEl.innerHTML = ''; }
+          render(); setStatus(snap ? 'Cancelled. Previous results restored.' : 'Cancelled.');
+        } else {
+          console.error(e);
+          if (snap) { restore(); render(); }
+          setStatus('Could not read frames from the video: ' + e.message + (snap ? ' Previous results restored.' : ''), true);
+        }
+        updateButtons(); return;
+      }
+      state.items = frames.map((f) => ({ t: f.t, thumb: f.thumb, desc: null, progress: null }));
+      render();
+
+      const t0 = performance.now();
+      let result = null, note = '', failed = false;
+      try {
+        if (mode === 'naive') {
+          stage = 'scoring…'; pipeSet('score'); upd();
+          result = await retry(async (last) => {
+            const r = await callVLM(model, promptNaive(task, N), frames);
+            r.progress = fit(r, N, last);
+            return r;
+          }, 3);
+          if (result.resampledFrom) note = `, resampled from ${result.resampledFrom} values`;
+          setStep('reward', Object.assign({}, result));
+        } else {
+          let objects = null;   // grounding is cached across retries
+          result = await retry(async (last) => {
+            if (!objects) {
+              stage = 'grounding…'; pipeSet('ground'); upd();
+              const g = await callVLM(model, promptGround(task), frames);
+              objects = g.all_objects || [];
+              setStep('objects', Object.assign({}, g));
+            }
+            stage = 'describing…'; pipeSet('describe'); upd();
+            const d = await callVLM(model, promptDescribe(objects, N), frames);
+            let descs = d.descriptions;
+            if (!Array.isArray(descs) || !descs.length) throw new Error('no descriptions returned');
+            // one description per frame, so the assess step is asked for exactly N values too
+            if (descs.length !== N) {
+              if (!last) throw new Error(`description count ${descs.length} != frame count ${N}`);
+              descs = Array.from({ length: N }, (_, i) => descs[Math.min(descs.length - 1, Math.floor(i * descs.length / N))]);
+            }
+            descs.forEach((x, i) => { if (state.items[i]) state.items[i].desc = String(x); });
+            setStep('descriptions', Object.assign({}, d));
+            render();
+            stage = 'assessing…'; pipeSet('assess'); upd();
+            const r = await callVLM(model, promptAssess(task, descs, mode === 'dna_feedback'), null);
+            r.progress = fit(r, N, last);
+            if (r.resampledFrom) note = `, resampled from ${r.resampledFrom} values`;
+            if (d.descriptions.length !== N) note += `, ${d.descriptions.length} descriptions stretched to ${N}`;
+            return r;
+          }, 3);
+          setStep('success', { 'success criteria': result['completion state'] || '' });
+          setStep('reward', Object.assign({}, result));
+        }
+      } catch (e) {
+        console.error(label, e);
+        failed = true;
+        stage = e.message === CANCELLED ? CANCELLED : 'failed: ' + e.message;
+      }
+
+      const secs = (performance.now() - t0) / 1000;
+      if (result) {
+        result.progress.forEach((p, i) => { state.items[i].progress = p; });
+        state.analysis = { failure: result.failure || '', feedback: result.feedback || '', completion: result['completion state'] || '' };
+        el.computeTime.textContent = `${label} computed in ${secs.toFixed(1)} s`;
+        stage = 'done' + (note ? ` (${note.slice(2)})` : '');
+      }
+      clearInterval(procTimer);
+      state.scoring = false;
+      pipeFinish(!failed);
+      const discard = stage === CANCELLED || (failed && !result && !!snap);
+      if (discard) {
+        if (snap) restore(); else { state.items = []; state.run = null; clearSteps(); pipeEl.innerHTML = ''; }
+      } else state.saved = false;
+      render();
+      updateButtons();
+      upd();
+      const kept = snap ? ' Previous results restored.' : '';
+      if (stage === CANCELLED) setStatus(snap ? 'Cancelled. Previous results restored.' : 'Cancelled. Partial results discarded.');
+      else if (failed) setStatus(el.status.textContent + ' — click Annotate to retry.' + (discard ? kept : ''), true);
+      else showResultsLink();
+    }
+    el.btnAnnotate.addEventListener('click', annotate);
+    el.task.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !el.btnAnnotate.disabled && !state.scoring) annotate(); });
+
+    // ----------------------------------------------------------------- render
+    function svg(tag, attrs) {
+      const n = document.createElementNS('http://www.w3.org/2000/svg', tag);
+      Object.keys(attrs).forEach((k) => n.setAttribute(k, attrs[k]));
+      return n;
+    }
+    const yFor = (v) => CHART_H - PAD_B - Math.max(0, Math.min(1, v)) * (CHART_H - PAD_T - PAD_B);
+    let domain = [0, 10];
+    const xFor = (t) => PAD_L + ((t - domain[0]) / (domain[1] - domain[0])) * (CHART_W - PAD_L - PAD_R);
+
+    function drawChart() {
+      el.app.classList.toggle('has-results', state.items.length > 0);
+      const s = el.chart;
+      s.innerHTML = '';
+      // geometry in CSS pixels: viewBox = rendered width, so AXIS_PX is the real text size
+      const w = Math.round(s.getBoundingClientRect().width);
+      if (w > 0) { CHART_W = w; CHART_H = Math.round(Math.max(190, Math.min(280, w * 0.5))); }
+      s.setAttribute('viewBox', `0 0 ${CHART_W} ${CHART_H}`);
+      s.style.height = CHART_H + 'px';
+      const fs = `font-size:${AXIS_PX}px`;
+      [0, 25, 50, 75, 100].forEach((v) => {
+        const y = yFor(v / 100);
+        s.appendChild(svg('line', { x1: PAD_L, x2: CHART_W - PAD_R, y1: y, y2: y, class: 'grid-line' }));
+        const t = svg('text', { x: PAD_L - 8, y: y + 4, 'text-anchor': 'end', class: 'axis-text', style: fs }); t.textContent = v + '%'; s.appendChild(t);
+      });
+      const items = state.items;
+      if (!items.length) { updateChartA11y(); return; }
+      domain = [0, Math.max(items[items.length - 1].t, 1)];
+      [0, 0.25, 0.5, 0.75, 1].forEach((f) => {
+        const tv = domain[0] + f * (domain[1] - domain[0]);
+        const t = svg('text', { x: xFor(tv), y: CHART_H - 6, 'text-anchor': f === 0 ? 'start' : f === 1 ? 'end' : 'middle', class: 'axis-text', style: fs });
+        t.textContent = tv.toFixed(0) + 's'; s.appendChild(t);
+      });
+      const pts = items.filter((it) => it.progress !== null);
+      if (pts.length) s.appendChild(svg('polyline', { points: pts.map((it) => `${xFor(it.t)},${yFor(it.progress / 100)}`).join(' '), class: 'dna-line' }));
+      pts.forEach((it) => s.appendChild(svg('circle', { cx: xFor(it.t), cy: yFor(it.progress / 100), r: 4, class: 'dna-dot' })));
+      const sel = items[state.selected === null ? items.length - 1 : Math.min(state.selected, items.length - 1)];
+      s.appendChild(svg('line', { x1: xFor(sel.t), x2: xFor(sel.t), y1: PAD_T, y2: CHART_H - PAD_B, class: 'sel-line' }));
+      if (sel.progress !== null) s.appendChild(svg('circle', { cx: xFor(sel.t), cy: yFor(sel.progress / 100), r: 6, class: 'sel-dot' }));
+    }
+    // redraw when the chart's width changes (rotation, resize, layout switch)
+    let lastChartW = 0;
+    new ResizeObserver(() => {
+      const w = Math.round(el.chart.getBoundingClientRect().width);
+      if (w && w !== lastChartW) { lastChartW = w; drawChart(); updateChartA11y(); }
+    }).observe(el.chart.parentNode);
+
+    function render() {
+      const items = state.items;
+      drawChart();
+      if (!items.length) return;
+      const idx = state.selected === null ? items.length - 1 : Math.min(state.selected, items.length - 1);
+      const it = items[idx];
+      const scored = items.filter((x) => x.progress !== null);
+      const latest = scored.length ? scored[scored.length - 1] : null;
+      el.big.textContent = it.progress !== null ? it.progress + '%' : '–';
+      el.bigSub.textContent = `at t = ${it.t.toFixed(1)} s`;
+      el.bar.style.width = (it.progress || 0) + '%';
+      el.desc.textContent = it.desc || 'Waiting for description…';
+      el.descTime.textContent = `· frame ${idx + 1}/${items.length} · t = ${it.t.toFixed(1)} s`;
+      $('frame-prev').disabled = idx === 0; $('frame-next').disabled = idx === items.length - 1;
+      if (it.thumb) { el.thumb.src = it.thumb; el.thumb.alt = `Video frame ${idx + 1} of ${items.length}`; el.thumb.style.display = 'block'; } else el.thumb.style.display = 'none';
+      updateChartA11y();
+      if (state.analysis) {
+        const done = latest && latest.progress >= 100;
+        el.failure.textContent = done ? 'none — task complete' : (state.analysis.failure || '–');
+        el.feedback.textContent = done ? '–' : (state.analysis.feedback || '–');
+        el.completion.textContent = state.analysis.completion || '–';
+      }
+    }
+
+    // the chart is a slider over the frames: name, range and a readable value for screen readers
+    function updateChartA11y() {
+      const c = el.chart, n = state.items.length;
+      if (!n) {
+        c.setAttribute('role', 'img'); c.setAttribute('aria-label', 'Progress over time. Nothing to show yet.');
+        ['aria-valuemin', 'aria-valuemax', 'aria-valuenow', 'aria-valuetext'].forEach((a) => c.removeAttribute(a));
+        return;
+      }
+      const idx = state.selected === null ? n - 1 : Math.min(state.selected, n - 1), it = state.items[idx];
+      c.setAttribute('role', 'slider');
+      c.setAttribute('aria-label', 'Progress over time. Use the arrow keys to step through frames.');
+      c.setAttribute('aria-valuemin', 1); c.setAttribute('aria-valuemax', n); c.setAttribute('aria-valuenow', idx + 1);
+      c.setAttribute('aria-valuetext', `Frame ${idx + 1} of ${n}, ${it.t.toFixed(1)} s` + (it.progress !== null ? `, ${it.progress}% progress` : ', not scored yet'));
+    }
+    const nearestIdx = (t) => {
+      let best = 0;
+      state.items.forEach((it, i) => { if (Math.abs(it.t - t) < Math.abs(state.items[best].t - t)) best = i; });
+      return best;
+    };
+    function idxFromClientX(x) {
+      const r = el.chart.getBoundingClientRect();
+      const relX = ((x - r.left) / r.width) * CHART_W;
+      return nearestIdx(domain[0] + ((relX - PAD_L) / (CHART_W - PAD_L - PAD_R)) * (domain[1] - domain[0]));
+    }
+    function seekVideo() {
+      if (state.src && !state.recording && state.selected !== null && isFinite(el.video.duration)) el.video.currentTime = state.items[state.selected].t;
+    }
+    function stepFrame(to) {
+      if (!state.items.length) return;
+      const cur = state.selected === null ? state.items.length - 1 : state.selected;
+      state.selected = Math.max(0, Math.min(state.items.length - 1, typeof to === 'function' ? to(cur) : to));
+      el.video.pause(); seekVideo(); render();
+    }
+    $('frame-prev').addEventListener('click', () => stepFrame((i) => i - 1));
+    $('frame-next').addEventListener('click', () => stepFrame((i) => i + 1));
+    el.chart.addEventListener('keydown', (e) => {
+      const moves = { ArrowLeft: (i) => i - 1, ArrowRight: (i) => i + 1, Home: 0, End: state.items.length - 1 };
+      if (!(e.key in moves)) return;
+      e.preventDefault(); stepFrame(moves[e.key]);
+    });
+    let dragging = false;
+    el.chart.addEventListener('pointerdown', (e) => { if (!state.items.length) return; dragging = true; el.chart.setPointerCapture(e.pointerId); state.selected = idxFromClientX(e.clientX); seekVideo(); render(); });
+    el.chart.addEventListener('pointermove', (e) => { if (dragging) { state.selected = idxFromClientX(e.clientX); seekVideo(); render(); } });
+    const release = () => { dragging = false; };
+    el.chart.addEventListener('pointerup', release);
+    el.chart.addEventListener('pointercancel', release);
+    el.video.addEventListener('timeupdate', () => {
+      if (dragging || el.video.paused || state.recording || state.scoring || !state.items.length) return;
+      state.selected = nearestIdx(el.video.currentTime); render();
+    });
+    el.video.addEventListener('ended', () => { if (state.items.length) { state.selected = null; render(); } });
+
+    // ----------------------------------------------------------- annotated video
+    // Plays the video in real time onto a canvas next to the progress plot and the text, and records the canvas.
+    function clearExport() {
+      if (state.exportUrl) URL.revokeObjectURL(state.exportUrl);
+      state.exportUrl = null;
+      el.exportVideo.removeAttribute('src'); el.exportVideo.style.display = 'none';
+      el.exportDl.style.display = 'none';
+      el.exportMsg.textContent = ''; el.exportMsg.classList.remove('is-error');
+    }
+    function valueAt(pts, now) {
+      if (now <= pts[0].t) return pts[0].progress;
+      for (let k = 0; k < pts.length - 1; k++) {
+        if (now < pts[k + 1].t) { const a = pts[k], b = pts[k + 1]; return a.progress + (b.progress - a.progress) * (now - a.t) / ((b.t - a.t) || 1); }
+      }
+      return pts[pts.length - 1].progress;
+    }
+    const wrapCache = new Map();
+    // wraps text into w x h, shrinking from max to min px; ellipsis if it still does not fit
+    function fitText(ctx, text, w, h, max, min, weight) {
+      max = max || 17; min = min || 10; weight = weight || '';
+      const key = [text, w, h, max, min, weight].join('|');
+      if (wrapCache.has(key)) return wrapCache.get(key);
+      let size = max, lines = [];
+      for (; size >= min; size--) {
+        ctx.font = `${weight} ${size}px "Noto Sans", sans-serif`;
+        lines = [];
+        String(text).split('\n').forEach((para) => {
+          let line = '';
+          para.split(/\s+/).forEach((word) => {
+            const next = line ? line + ' ' + word : word;
+            if (line && ctx.measureText(next).width > w) { lines.push(line); line = word; } else line = next;
+          });
+          lines.push(line);
+        });
+        if (lines.length * size * 1.35 <= h) break;
+      }
+      size = Math.max(size, min);
+      const fit = Math.max(1, Math.floor(h / (size * 1.35)));
+      if (lines.length > fit) { lines = lines.slice(0, fit); lines[fit - 1] = lines[fit - 1].replace(/\s*\S*$/, '') + '…'; }
+      const out = { size, lines };
+      wrapCache.set(key, out);
+      return out;
+    }
+
+    async function exportVideo() {
+      if (state.exporting || state.scoring || !state.src || !state.run) return;
+      const pts = state.items.filter((i) => i.progress !== null);
+      if (!pts.length) return;
+      const mime = ['video/mp4;codecs=avc1', 'video/webm;codecs=vp9', 'video/webm;codecs=vp8', 'video/webm'].find((m) => window.MediaRecorder && MediaRecorder.isTypeSupported(m));
+      if (!mime) { el.exportMsg.textContent = 'Video export is not supported in this browser.'; el.exportMsg.classList.add('is-error'); return; }
+      el.video.pause();
+      clearExport();
+      state.exporting = true; updateButtons();
+      el.exportMsg.textContent = 'Preparing…';
+
+      // 1080p, 8px grid: header (task + method), chart card | video card, text cards, timeline
+      const W = 1920, H = 1080, M = 56, GAP = 24;
+      const run = state.run, analysis = state.analysis || {}, modeLabel = MODES[run.mode];
+      const C = { accent: '#D81B60', link: '#0b6bae', linkSoft: '#e3eef7', ink: '#1a1a1a', sub: '#5f5f5f', faint: '#8a8a8a', grid: '#ececec', page: '#f6f6f7', card: '#fff',
+        red: ['#fdecec', '#b71c1c'], amber: ['#fff6dc', '#8a5a00'], green: ['#e8f5ee', '#1f7a48'], gray: ['#e6e6ea', '#3d3d3d'] };
+      const SANS = '"Google Sans", "Noto Sans", sans-serif';
+      const cv = document.createElement('canvas'); cv.width = W; cv.height = H;
+      const ctx = cv.getContext('2d');
+      const rr = (x, y, w, h, r) => {
+        ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r);
+        ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath();
+      };
+      const card = (x, y, w, h, fill) => {
+        ctx.save(); ctx.shadowColor = 'rgba(0,0,0,0.07)'; ctx.shadowBlur = 24; ctx.shadowOffsetY = 6;
+        ctx.fillStyle = fill || C.card; rr(x, y, w, h, 20); ctx.fill(); ctx.restore();
+      };
+      const text = (str, x, y, font, color, align) => { ctx.font = font; ctx.fillStyle = color; ctx.textAlign = align || 'left'; ctx.fillText(str, x, y); };
+      const pill = (str, x, y, colors, size) => {   // returns width; (x, y) is the top-left corner
+        size = size || 17; ctx.font = `600 ${size}px ${SANS}`;
+        const w = ctx.measureText(str).width + size * 1.2, h = size * 1.75;
+        ctx.fillStyle = colors[0]; rr(x, y, w, h, h / 2); ctx.fill();
+        text(str, x + size * 0.6, y + h * 0.68, `600 ${size}px ${SANS}`, colors[1]);
+        return w;
+      };
+      const fmtT = (t) => `${Math.floor(t / 60)}:${(t % 60).toFixed(1).padStart(4, '0')}`;
+
+      try {
+        const v = await openVideo(state.src);
+        const dur = await fixedDuration(v);
+        await seekTo(v, 0);
+
+        // layout: the video card takes its natural aspect ratio, the chart gets the rest of the row
+        const HEAD = 132, ROW_Y = HEAD, TL_H = 40;
+        const textCards = [];
+        if (run.mode !== 'naive') textCards.push('desc', 'success');
+        if (run.mode === 'dna_feedback') textCards.push('feedback');
+        const BOT_H = textCards.length ? 300 : 0;
+        const ROW_H = H - ROW_Y - M - TL_H - (BOT_H ? BOT_H + GAP : 0);
+        const aspect = v.videoWidth && v.videoHeight ? v.videoWidth / v.videoHeight : 16 / 9;
+        const VID_W = Math.round(Math.min((W - 2 * M) * 0.58, ROW_H * aspect));
+        const CH_X = M, CH_W = W - 2 * M - GAP - VID_W, VID_X = CH_X + CH_W + GAP;
+        // chart plot area inside its card
+        const PL = CH_X + 96, PR = CH_X + CH_W - 40, PT = ROW_Y + 150, PB = ROW_Y + ROW_H - 64;
+        const px = (t) => PL + (t / dur) * (PR - PL);
+        const py = (p) => PB - (Math.max(0, Math.min(100, p)) / 100) * (PB - PT);
+        const done = pts[pts.length - 1].progress >= 100;
+        let lastIdx = -1, changedAt = 0, prevDesc = '';
+
+        const draw = (now) => {
+          // page + brand bar
+          ctx.fillStyle = C.page; ctx.fillRect(0, 0, W, H);
+          ctx.fillStyle = C.accent; ctx.fillRect(0, 0, W, 8);
+
+          // header: task is the headline, method + model as quiet pills on the right
+          text('TASK', M, 58, `600 16px ${SANS}`, C.faint);
+          const tf = fitText(ctx, run.task, W - 2 * M - 560, 44, 38, 24, '600');
+          text(tf.lines[0], M, 100, `600 ${tf.size}px "Noto Sans", sans-serif`, C.ink);
+          ctx.font = `600 17px ${SANS}`;
+          const modelText = run.illustrative ? 'illustrative example' : run.model;
+          const mw = ctx.measureText(modelText).width + 20, lw = ctx.measureText(modeLabel).width + 20;
+          pill(modelText, W - M - mw, 70, C.gray);
+          pill(modeLabel, W - M - mw - 12 - lw, 70, [C.linkSoft, C.link]);
+
+          // chart card
+          card(CH_X, ROW_Y, CH_W, ROW_H);
+          const cur = valueAt(pts, now);
+          text('PROGRESS', CH_X + 32, ROW_Y + 48, `600 16px ${SANS}`, C.faint);
+          text(Math.round(cur) + '%', CH_X + 32, ROW_Y + 118, `700 72px ${SANS}`, C.accent);
+          ctx.lineWidth = 1.5;
+          [0, 25, 50, 75, 100].forEach((p) => {
+            ctx.strokeStyle = C.grid; ctx.beginPath(); ctx.moveTo(PL, py(p)); ctx.lineTo(PR, py(p)); ctx.stroke();
+            text(p + '%', PL - 14, py(p) + 6, `18px ${SANS}`, C.faint, 'right');
+          });
+          for (let k = 0; k <= 4; k++) text(((dur * k) / 4).toFixed(1) + ' s', px((dur * k) / 4), PB + 34, `18px ${SANS}`, C.faint, k === 0 ? 'left' : k === 4 ? 'right' : 'center');
+          const seen = pts.filter((p) => p.t <= now);
+          const path = () => { ctx.beginPath(); seen.forEach((p, i) => (i ? ctx.lineTo(px(p.t), py(p.progress)) : ctx.moveTo(px(p.t), py(p.progress)))); ctx.lineTo(px(now), py(cur)); };
+          if (seen.length) {
+            // soft area under the line, then the line
+            path(); ctx.lineTo(px(now), PB); ctx.lineTo(px(seen[0].t), PB); ctx.closePath();
+            const ag = ctx.createLinearGradient(0, PT, 0, PB); ag.addColorStop(0, 'rgba(216,27,96,0.18)'); ag.addColorStop(1, 'rgba(216,27,96,0)');
+            ctx.fillStyle = ag; ctx.fill();
+            path(); ctx.strokeStyle = C.accent; ctx.lineWidth = 6; ctx.lineJoin = 'round'; ctx.lineCap = 'round'; ctx.stroke();
+          }
+          ctx.strokeStyle = 'rgba(0,0,0,0.35)'; ctx.lineWidth = 1.5; ctx.setLineDash([6, 6]);
+          ctx.beginPath(); ctx.moveTo(px(now), PT - 10); ctx.lineTo(px(now), PB); ctx.stroke(); ctx.setLineDash([]);
+          ctx.fillStyle = 'rgba(216,27,96,0.18)'; ctx.beginPath(); ctx.arc(px(now), py(cur), 16, 0, 6.2832); ctx.fill();
+          ctx.fillStyle = C.accent; ctx.strokeStyle = '#fff'; ctx.lineWidth = 3;
+          ctx.beginPath(); ctx.arc(px(now), py(cur), 9, 0, 6.2832); ctx.fill(); ctx.stroke();
+
+          // video card: dark, rounded, with a time pill
+          card(VID_X, ROW_Y, VID_W, ROW_H, '#111');
+          ctx.save(); rr(VID_X, ROW_Y, VID_W, ROW_H, 20); ctx.clip();
+          if (v.videoWidth) {
+            const sc = Math.min(VID_W / v.videoWidth, ROW_H / v.videoHeight), dw = v.videoWidth * sc, dh = v.videoHeight * sc;
+            ctx.drawImage(v, VID_X + (VID_W - dw) / 2, ROW_Y + (ROW_H - dh) / 2, dw, dh);
+          }
+          ctx.restore();
+          pill(`${fmtT(now)} / ${fmtT(dur)}`, VID_X + 20, ROW_Y + ROW_H - 56, ['rgba(0,0,0,0.65)', '#fff'], 18);
+
+          // text cards: equal widths, tags in the same colours as the page
+          if (textCards.length) {
+            const by = ROW_Y + ROW_H + GAP, bw = (W - 2 * M - GAP * (textCards.length - 1)) / textCards.length;
+            let idx = 0;
+            state.items.forEach((it, i) => { if (it.t <= now + 1e-3) idx = i; });
+            const item = state.items[idx];
+            if (idx !== lastIdx) { prevDesc = lastIdx >= 0 ? (state.items[lastIdx].desc || '') : ''; lastIdx = idx; changedAt = now; }
+            // fade the old text out, then the new one in; never both at once, so swaps do not ghost in the encode
+            const fade = Math.min(1, (now - changedAt) / 0.3);
+            textCards.forEach((kind, i) => {
+              const x = M + i * (bw + GAP), tw = bw - 64, th = BOT_H - 104;
+              card(x, by, bw, BOT_H);
+              if (kind === 'desc') {
+                pill('description', x + 32, by + 28, C.gray);
+                text(`frame ${idx + 1}/${state.items.length}`, x + bw - 32, by + 52, `18px ${SANS}`, C.faint, 'right');
+                const drawDesc = (str, alpha) => {
+                  if (!str || alpha <= 0) return;
+                  const f = fitText(ctx, str, tw, th, 26, 17);
+                  ctx.globalAlpha = alpha;
+                  f.lines.forEach((ln, k) => text(ln, x + 32, by + 104 + k * f.size * 1.35, `${f.size}px "Noto Sans", sans-serif`, C.ink));
+                  ctx.globalAlpha = 1;
+                };
+                if (fade < 0.5) drawDesc(prevDesc, 1 - fade * 2); else drawDesc(item.desc || '–', fade * 2 - 1);
+              } else if (kind === 'success') {
+                pill('success criterion', x + 32, by + 28, C.green);
+                const f = fitText(ctx, analysis.completion || '–', tw, th, 26, 17);
+                f.lines.forEach((ln, k) => text(ln, x + 32, by + 104 + k * f.size * 1.35, `${f.size}px "Noto Sans", sans-serif`, C.ink));
+              } else {
+                if (done) {
+                  pill('task complete', x + 32, by + 28, C.green);
+                } else {
+                  // failure and feedback share the card: two tagged blocks
+                  const half = (th - 40) / 2;
+                  pill('failure', x + 32, by + 28, C.red);
+                  const f1 = fitText(ctx, analysis.failure || '–', tw, half, 22, 15);
+                  f1.lines.forEach((ln, k) => text(ln, x + 32, by + 96 + k * f1.size * 1.35, `${f1.size}px "Noto Sans", sans-serif`, C.ink));
+                  const y2 = by + 96 + half + 4;
+                  pill('feedback', x + 32, y2 - 24, C.amber);
+                  const f2 = fitText(ctx, analysis.feedback || '–', tw, half, 22, 15);
+                  f2.lines.forEach((ln, k) => text(ln, x + 32, y2 + 42 + k * f2.size * 1.35, `${f2.size}px "Noto Sans", sans-serif`, C.ink));
+                }
+              }
+            });
+          }
+
+          // timeline: playhead over the whole clip, ticks at the scored frames
+          const ty = H - M - 6, tx0 = M, tx1 = W - M;
+          ctx.fillStyle = '#e2e2e6'; rr(tx0, ty, tx1 - tx0, 6, 3); ctx.fill();
+          ctx.fillStyle = C.accent; rr(tx0, ty, Math.max(6, (tx1 - tx0) * Math.min(1, now / dur)), 6, 3); ctx.fill();
+          ctx.fillStyle = 'rgba(0,0,0,0.25)';
+          pts.forEach((p) => ctx.fillRect(tx0 + (tx1 - tx0) * (p.t / dur) - 1, ty - 6, 2, 4));
+          text('D&A · Decoupling Description and Assessment', W - M, H - 18, `16px ${SANS}`, C.faint, 'right');
+        };
+
+        const chunks = [];
+        const rec = new MediaRecorder(cv.captureStream(30), { mimeType: mime, videoBitsPerSecond: 12000000 });
+        rec.ondataavailable = (e) => { if (e.data && e.data.size) chunks.push(e.data); };
+        const stopped = new Promise((res) => { rec.onstop = res; });
+        draw(0);
+        rec.start(500);
+        await v.play();
+        const begin = performance.now();
+        await new Promise((resolve) => {
+          const tick = () => {
+            const now = v.currentTime;
+            draw(now);
+            el.exportMsg.textContent = `Rendering ${Math.min(100, Math.round((now / dur) * 100))}% (real time, keep this tab visible)…`;
+            if (v.ended || now >= dur - 0.03 || performance.now() - begin > (dur + 10) * 1000) resolve();
+            else requestAnimationFrame(tick);
+          };
+          requestAnimationFrame(tick);
+        });
+        draw(dur);
+        await sleep(400);
+        rec.stop();
+        await stopped;
+        v.pause(); v.remove();
+
+        const blob = new Blob(chunks, { type: mime.split(';')[0] });
+        state.exportUrl = URL.createObjectURL(blob);
+        el.exportVideo.src = state.exportUrl; el.exportVideo.style.display = 'block';
+        el.exportDl.href = state.exportUrl;
+        el.exportDl.download = 'dna-annotated.' + (mime.indexOf('mp4') >= 0 ? 'mp4' : 'webm');
+        el.exportDl.style.display = '';
+        el.exportMsg.textContent = 'Done.';
+        el.exportDl.onclick = () => { state.saved = true; };
+      } catch (e) {
+        console.error('export', e);
+        el.exportMsg.textContent = 'Could not create the video: ' + e.message;
+        el.exportMsg.classList.add('is-error');
+      }
+      state.exporting = false; updateButtons();
+    }
+    el.btnExport.addEventListener('click', exportVideo);
+
+    // --------------------------------------------------------------- examples
+    // predictions files have the same shape as "Copy all" produces, so a real run can be pasted in as an example
+    // PLACEHOLDERS: all six cards currently point at the same clip and predictions. To add a real example, put its
+    // clip in examples/, its predictions in examples/examples.js (DNA_EXAMPLE_PREDICTIONS[key]) and, for file://,
+    // its base64 in examples/examples-video.js, then change video / videoKey / predictions / task / outcome here.
+    const PLACEHOLDER = {
+      task: 'balance on top of the ball',
+      video: 'examples/balance-ball-failure.mp4',
+      videoKey: 'balance-ball-failure',
+      predictions: 'balance-ball-failure',
+    };
+    const EXAMPLES = [
+      Object.assign({ title: 'Example 1', outcome: 'failure' }, PLACEHOLDER),
+      Object.assign({ title: 'Example 2', outcome: 'failure' }, PLACEHOLDER),
+      Object.assign({ title: 'Example 3', outcome: 'failure' }, PLACEHOLDER),
+      Object.assign({ title: 'Example 4', outcome: 'failure' }, PLACEHOLDER),
+      Object.assign({ title: 'Example 5', outcome: 'failure' }, PLACEHOLDER),
+      Object.assign({ title: 'Example 6', outcome: 'failure' }, PLACEHOLDER),
+    ];
+    // over http(s) the clip is fetched once as a same-origin blob (frames can be read back for re-annotating);
+    // from file:// the base64 copy (examples-video.js) is decoded instead
+    const exampleUrls = {};
+    function exampleUrl(ex) {
+      if (exampleUrls[ex.videoKey]) return exampleUrls[ex.videoKey];
+      const data = (window.DNA_EXAMPLE_VIDEOS || {})[ex.videoKey];
+      exampleUrls[ex.videoKey] = location.protocol === 'file:' && data
+        ? Promise.resolve().then(() => {
+          const bin = atob(data.split(',')[1]), bytes = new Uint8Array(bin.length);
+          for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+          return URL.createObjectURL(new Blob([bytes], { type: 'video/mp4' }));
+        })
+        : fetch(ex.video).then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.blob(); })
+          .then((b) => URL.createObjectURL(b)).catch((e) => { console.warn('example clip', e); return ex.video; });
+      return exampleUrls[ex.videoKey];
+    }
+    let loadToken = 0;
+    // opts.auto: the page opens on the saved run (no scrolling, no results link)
+    async function loadExample(ex, opts) {
+      if (state.recording || state.scoring || state.exporting) return false;
+      const d = (window.DNA_EXAMPLE_PREDICTIONS || {})[ex.predictions];
+      if (!d) { setSourceStatus('Could not load the example predictions.', true); return false; }
+      if (!confirmReplace()) return false;
+      const token = ++loadToken;
+      const url = await exampleUrl(ex);
+      if (token !== loadToken || state.recording || state.scoring || state.exporting) return false;
+      // the example shows its own task; the visitor's task is kept for their own video and for saved settings
+      if (!taskIsExample()) state.userTask = el.task.value;
+      clearVideo(); clearResults();
+      showVideo(url, ex.title);
+      state.srcKeep = true;
+      const m = d.meta, descs = (d.descriptions && d.descriptions.descriptions) || [];
+      // what is shown (state.run) is kept apart from what runs next (the controls): the example never overwrites the visitor's settings
+      state.run = { mode: m.mode, model: m.model, task: m.task, example: true, illustrative: !!m.placeholder };
+      el.app.dataset.mode = m.mode; el.task.value = m.task;
+      state.items = d.reward.progress.map((p, i) => ({ t: m.timestamps[i], thumb: null, desc: descs[i] || null, progress: p }));
+      state.analysis = { failure: d.reward.failure || '', feedback: d.reward.feedback || '', completion: d.reward['completion state'] || '' };
+      STEPS.forEach(([key]) => { if (d[key]) setStep(key, d[key]); });
+      el.computeTime.textContent = m.placeholder ? 'Illustrative example · hand-written, not a model run' : `Saved ${MODES[m.mode]} run · ${m.model}`;
+      setStatus(''); setSourceStatus('Saved run on an example clip. Drag the chart to step through frames. Annotate re-runs it with your OpenRouter key.');
+      pipeEl.innerHTML = '';
+      markExample(ex);
+      render(); updateButtons();
+      // thumbnails are not part of the saved predictions, so cut them from the video
+      const src = state.src;
+      extractFrames(state.items.length, null, m.timestamps).then((fr) => {
+        if (state.src !== src) return;
+        fr.forEach((f, i) => { if (state.items[i]) state.items[i].thumb = f.thumb; });
+        render();
+      }).catch((e) => console.warn('example thumbnails', e));
+      return true;
+    }
+    EXAMPLES.forEach((ex) => {
+      const b = document.createElement('button');
+      b.type = 'button'; b.className = 'example-card'; b.setAttribute('aria-pressed', 'false');
+      b.innerHTML = '<span class="ex-thumb"><video muted playsinline preload="metadata"></video><span class="ex-dur"></span></span>' +
+        '<span class="ex-body"><span class="ex-title"></span><span class="ex-meta"><span class="tag is-light"></span><span class="ex-task"></span></span></span>';
+      const thumbVid = b.querySelector('video'), tag = b.querySelector('.tag');
+      thumbVid.addEventListener('loadedmetadata', () => {
+        if (isFinite(thumbVid.duration)) { b.querySelector('.ex-dur').textContent = fmtTime(thumbVid.duration); thumbVid.currentTime = Math.min(0.5, thumbVid.duration / 2); }
+      });
+      exampleUrl(ex).then((u) => { thumbVid.src = u; });
+      b.setAttribute('aria-label', `Load example: ${ex.title}, ${ex.outcome}. Task: ${ex.task}`);
+      b.querySelector('.ex-title').textContent = ex.title;
+      tag.textContent = ex.outcome; tag.classList.add(ex.outcome === 'success' ? 'is-success' : 'is-danger');
+      b.querySelector('.ex-task').textContent = ex.task;
+      b.addEventListener('click', async () => {
+        const ran = await loadExample(ex);
+        if (!ran) return;
+        const grid = document.querySelector('.top-grid'), top = grid.getBoundingClientRect().top;
+        if (top < 0 || top > window.innerHeight * 0.6) grid.scrollIntoView({ behavior: SCROLL, block: 'start' });
+      });
+      $('examples').appendChild(b);
+      exampleCards.push({ ex, btn: b });
+    });
+
+    // ------------------------------------------------------- leave + settings
+    window.addEventListener('beforeunload', (e) => {
+      if (state.scoring || state.exporting || state.recording || (hasPaid() && !state.saved)) { e.preventDefault(); e.returnValue = ''; }
+    });
+    // non-secret settings survive a reload; the API key never touches storage
+    const SETTINGS_KEY = 'dna-demo.settings';
+    function saveSettings() {
+      // while an example's task is shown, keep the visitor's own task instead
+      const v = { mode: el.mode.value, model: el.model.value.trim(), task: taskIsExample() && state.userTask !== null ? state.userTask : el.task.value };
+      Object.keys(SLIDERS).forEach((k) => { v[k] = slider(k); });
+      try { localStorage.setItem(SETTINGS_KEY, JSON.stringify(v)); } catch (e) {}
+    }
+    try {
+      const v = JSON.parse(localStorage.getItem(SETTINGS_KEY) || 'null');
+      if (v) {
+        if (v.mode in MODES) el.mode.value = v.mode;
+        if (v.task) el.task.value = v.task;
+        if (v.model) { el.model.value = v.model; el.preset.value = PRESETS.indexOf(v.model) >= 0 ? v.model : ''; if (!el.preset.value) el.advanced.open = true; }
+        Object.keys(SLIDERS).forEach((k) => {
+          const i = SLIDERS[k].vals.findIndex((x) => String(x) === String(v[k]));
+          if (i >= 0) { SLIDERS[k].input.value = i; SLIDERS[k].sync(); }
+        });
+      }
+    } catch (e) {}
+    [el.mode, el.preset, el.model, el.task].concat(Object.keys(SLIDERS).map((k) => SLIDERS[k].input))
+      .forEach((x) => x.addEventListener('change', saveSettings));
+    checkModel();
+
+    // ------------------------------------------------------------------ init
+    setKeyState('', '');
+    drawChart();
+    updateButtons();
+    updateAdvSum();
+    // the page opens on a finished (saved) run, not an empty canvas
+  })();
+  </script>
+</body>
+
+</html>

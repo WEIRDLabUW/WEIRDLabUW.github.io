@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="description" content="Does D&A feedback help Code-as-Policies solve more LIBERO tasks?">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>D&A Rich Language Feedback Improves Code-as-Policies</title>
+
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro" rel="stylesheet">
+  <link rel="stylesheet" href="../static/css/bulma.min.css">
+  <link rel="stylesheet" href="../static/css/fontawesome.all.min.css">
+  <link rel="stylesheet" href="../static/css/index.css">
+  <link rel="icon" href="../static/images/favicon.png">
+  <script defer src="../static/js/fontawesome.all.min.js"></script>
+
+  <style>
+    :root {
+      --dna-color: #D81B60;
+      --base-color: #7F8C8D;
+    }
+
+    body {
+      background: #fff;
+    }
+
+    .widget-header {
+      font-family: 'Google Sans', sans-serif;
+    }
+
+    /* --- headline stat bar --- */
+    .stat-bar {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 2rem;
+      margin: 1.25rem 0 0.5rem;
+    }
+
+    .stat-tile {
+      text-align: center;
+    }
+
+    .stat-value {
+      font-family: 'Google Sans', sans-serif;
+      font-size: 2.1rem;
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    .stat-value.is-dna {
+      color: var(--dna-color);
+    }
+
+    .stat-value.is-base {
+      color: var(--base-color);
+    }
+
+    .stat-label {
+      font-size: 0.78rem;
+      color: #898781;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-top: 0.3rem;
+    }
+
+    .stat-arrow {
+      align-self: center;
+      color: #c3c2b7;
+      font-size: 1.4rem;
+    }
+
+    /* --- case picker --- */
+    .picker-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      margin-top: 1.25rem;
+    }
+
+    .picker-row select {
+      font-family: 'Google Sans', sans-serif;
+    }
+
+    .dice-btn {
+      font-size: 1.6rem;
+      line-height: 1;
+      background: #f5f5f4;
+      border: 1px solid #e1e0d9;
+      border-radius: 999px;
+      padding: 0.4rem 0.65rem;
+      cursor: pointer;
+      transition: background 0.12s ease, transform 0.12s ease;
+    }
+
+    .dice-btn:hover {
+      background: #ececea;
+    }
+
+    .dice-btn:active {
+      transform: scale(0.92);
+    }
+
+    .case-caption {
+      text-align: center;
+      font-size: 0.95rem;
+      color: #444;
+      margin-top: 0.85rem;
+      max-width: 720px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .case-caption b {
+      color: #111;
+    }
+
+    /* --- shared transport --- */
+    .shared-transport {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.6rem;
+      margin: 1.25rem 0;
+      flex-wrap: wrap;
+    }
+
+    .attempt-readout {
+      font-family: 'Google Sans', sans-serif;
+      font-size: 0.85rem;
+      color: #444;
+      min-width: 7.5rem;
+      text-align: center;
+    }
+
+    #attempt-slider {
+      width: 260px;
+      accent-color: var(--dna-color);
+    }
+
+    /* --- comparison panels --- */
+    .panel-card {
+      background: #fff;
+      border: 1px solid #ececec;
+      border-radius: 12px;
+      padding: 1.25rem;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .panel-card.is-dna {
+      border-color: rgba(216, 27, 96, 0.35);
+    }
+
+    .arm-title {
+      font-family: 'Google Sans', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.6rem;
+    }
+
+    .arm-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      flex: none;
+    }
+
+    .arm-dot.is-base {
+      background: var(--base-color);
+    }
+
+    .arm-dot.is-dna {
+      background: var(--dna-color);
+    }
+
+    .video-frame-wrap {
+      position: relative;
+      border-radius: 8px;
+      overflow: hidden;
+      background: #111;
+      aspect-ratio: 448 / 224;
+    }
+
+    .video-frame-wrap video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .outcome-tag-row {
+      margin-top: 0.7rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    .dna-text-box {
+      margin-top: 0.9rem;
+      padding-top: 0.8rem;
+      border-top: 1px dashed #e2e2e2;
+      flex: 1;
+    }
+
+    .dna-text-row {
+      font-size: 0.85rem;
+      margin-bottom: 0.55rem;
+      line-height: 1.4;
+    }
+
+    #dna-carried-row {
+      color: #999;
+      font-style: italic;
+    }
+
+    .dna-text-row .tag {
+      font-family: 'Google Sans', sans-serif;
+      margin-right: 0.4rem;
+    }
+
+    .base-empty-note {
+      margin-top: 0.9rem;
+      padding-top: 0.8rem;
+      border-top: 1px dashed #e2e2e2;
+      color: #aaa;
+      font-size: 0.85rem;
+      font-style: italic;
+      text-align: center;
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    /* when embedded via iframe, the host page already renders its own
+       <h2> title above the color bar, so hide this page's own title to
+       avoid it appearing twice */
+    html.is-embedded .widget-header h1 {
+      display: none;
+    }
+
+    html.is-embedded .widget-header {
+      padding-top: 1.25rem;
+    }
+  </style>
+</head>
+
+<body>
+
+  <script>
+    if (window.self !== window.top) document.documentElement.classList.add('is-embedded');
+  </script>
+
+  <section class="section widget-header">
+    <div class="container is-max-desktop">
+
+      <h1 class="title is-3 mt-2 has-text-centered">D&amp;A Rich Language Feedback Improves Code-as-Policies</h1>
+      <p class="subtitle is-6 has-text-centered">
+        <br>
+        Allowing Code-as-Policies (CaP) to iterate over its solutions improves performance from 11.4% (no history) to 40.6% (history).
+        Adding <strong>D&A's rich language feedback achieves 51.4%</strong>, showcasing how rich semantic feedback provides a more effective signal than scalar rewards for downstream refinement.
+        <br>
+        <br>
+        Interact with the widget below to explore how D&A feedback improves CaP's performance.
+        <br>
+      </p>
+
+      <!-- <div class="stat-bar">
+        <div class="stat-tile">
+          <div class="stat-value is-base">203<span style="font-size:1.1rem;color:#c3c2b7;"> / 500</span></div>
+          <div class="stat-label">Baseline solved</div>
+        </div>
+        <div class="stat-arrow"><i class="fas fa-arrow-right"></i></div>
+        <div class="stat-tile">
+          <div class="stat-value is-dna">257<span style="font-size:1.1rem;color:#f0c1d3;"> / 500</span></div>
+          <div class="stat-label">+ D&amp;A feedback solved</div>
+        </div>
+        <div class="stat-arrow" style="font-size:0.85rem; color:#898781; align-self:center;">
+          +54 initial conditions (+10.8 pts, Fisher exact p = 0.00076)
+        </div>
+      </div>
+      <p class="case-caption" style="margin-top: 0.4rem;">
+        The aggregate is a net of large per-task wins and one real loss (D&amp;A feedback hurts task 8 in
+        particular) &mdash; the 126 cases below are the initial conditions where <b>D&amp;A feedback clearly
+        helped</b>: either the baseline never solved it at all, or D&amp;A feedback solved it &ge;5 attempts
+        sooner.
+      </p> -->
+
+      <div class="picker-row">
+        <div class="select">
+          <select id="case-select"></select>
+        </div>
+        <button class="dice-btn" id="btn-random" type="button" title="sample a random case">&#x1F3B2;</button>
+      </div>
+
+      <p class="case-caption" id="case-caption"></p>
+
+      <div class="shared-transport">
+        <button class="button is-small" id="btn-prev" title="previous attempt">
+          <span class="icon is-small"><i class="fas fa-step-backward"></i></span>
+        </button>
+        <input type="range" id="attempt-slider" min="0" max="24" step="1" value="0">
+        <button class="button is-small" id="btn-next" title="next attempt">
+          <span class="icon is-small"><i class="fas fa-step-forward"></i></span>
+        </button>
+        <span class="attempt-readout" id="attempt-readout">attempt 1 / 30</span>
+      </div>
+
+      <div class="columns" id="compare-root">
+        <!-- baseline -->
+        <div class="column is-6">
+          <div class="panel-card">
+            <div class="arm-title"><span class="arm-dot is-base"></span> Baseline &mdash; Code + Binary Success</div>
+            <div class="video-frame-wrap">
+              <video id="base-video" muted playsinline autoplay loop preload="auto"></video>
+            </div>
+            <div class="outcome-tag-row">
+              <span class="tag" id="base-outcome-tag"></span>
+            </div>
+            <div class="base-empty-note">No feedback signal &mdash; the planner only sees its own past code and success/failure.</div>
+          </div>
+        </div>
+
+        <!-- dna -->
+        <div class="column is-6">
+          <div class="panel-card is-dna">
+            <div class="arm-title"><span class="arm-dot is-dna"></span> + D&amp;A Feedback</div>
+            <div class="video-frame-wrap">
+              <video id="dna-video" muted playsinline autoplay loop preload="auto"></video>
+            </div>
+            <div class="outcome-tag-row">
+              <span class="tag" id="dna-outcome-tag"></span>
+            </div>
+            <div class="dna-text-box">
+              <div class="dna-text-row"><span class="tag is-info is-light">analysis</span><span id="dna-analysis"></span></div>
+              <div id="dna-critique-rows">
+                <div class="dna-text-row"><span class="tag is-danger is-light">failure</span><span id="dna-failure"></span></div>
+                <div class="dna-text-row"><span class="tag is-warning is-light">feedback</span><span id="dna-feedback"></span></div>
+              </div>
+              <div id="dna-carried-row" class="dna-text-row" hidden>
+                <span class="tag is-light">prev. feedback</span><span id="dna-carried-feedback"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <script src="data/cases.js?v=2"></script>
+  <script>
+    (function () {
+      const state = { caseIndex: 0, attempt: 0 };
+
+      const el = {
+        select: document.getElementById('case-select'),
+        btnRandom: document.getElementById('btn-random'),
+        caption: document.getElementById('case-caption'),
+        slider: document.getElementById('attempt-slider'),
+        readout: document.getElementById('attempt-readout'),
+        btnPrev: document.getElementById('btn-prev'),
+        btnNext: document.getElementById('btn-next'),
+        baseVideo: document.getElementById('base-video'),
+        dnaVideo: document.getElementById('dna-video'),
+        baseOutcome: document.getElementById('base-outcome-tag'),
+        dnaOutcome: document.getElementById('dna-outcome-tag'),
+        dnaAnalysis: document.getElementById('dna-analysis'),
+        dnaFailure: document.getElementById('dna-failure'),
+        dnaFeedback: document.getElementById('dna-feedback'),
+        dnaCritiqueRows: document.getElementById('dna-critique-rows'),
+        dnaCarriedRow: document.getElementById('dna-carried-row'),
+        dnaCarriedFeedback: document.getElementById('dna-carried-feedback'),
+      };
+
+      function currentCase() { return CASES[state.caseIndex]; }
+
+      function firstSuccessText(v) {
+        return v === null || v === undefined ? 'never solved' : `attempt ${v}`;
+      }
+
+      // only positive (A4 > A1s) categories are showcased here
+      const CATEGORY_ORDER = ['solved_only_by_dna', 'dna_faster'];
+      const CATEGORY_LABELS = {
+        solved_only_by_dna: 'Solved only with D&A feedback',
+        dna_faster: 'Solved much faster with D&A feedback',
+      };
+
+      function buildSelect() {
+        const groups = {};
+        CASES.forEach((c, i) => { (groups[c.category] = groups[c.category] || []).push(i); });
+        el.select.innerHTML = '';
+
+        CATEGORY_ORDER.forEach((cat) => {
+          if (!groups[cat] || !groups[cat].length) return;
+          const group = document.createElement('optgroup');
+          group.label = `${CATEGORY_LABELS[cat]} (${groups[cat].length})`;
+          groups[cat].forEach((i) => {
+            const c = CASES[i];
+            const opt = document.createElement('option');
+            opt.value = i;
+            opt.textContent = `${c.task_label} · Ep. ${c.ep}`;
+            group.appendChild(opt);
+          });
+          el.select.appendChild(group);
+        });
+      }
+
+      function updateCaption() {
+        const c = currentCase();
+        let msg;
+        if (c.category === 'solved_only_by_dna') {
+          msg = `Baseline never solved &ldquo;${c.goal}&rdquo; in its available attempts. With D&amp;A feedback, it succeeded on <b>${firstSuccessText(c.dna_first_success)}</b>.`;
+        } else {
+          msg = `On &ldquo;${c.goal}&rdquo;, baseline needed <b>${firstSuccessText(c.baseline_first_success)}</b> to first succeed. D&amp;A feedback cut this to <b>${firstSuccessText(c.dna_first_success)}</b>.`;
+        }
+        el.caption.innerHTML = msg;
+      }
+
+      function selectCase(i) {
+        state.caseIndex = i;
+        el.select.value = i;
+        const c = currentCase();
+        el.slider.max = Math.max(c.baseline.attempts.length, c.dna.attempts.length) - 1;
+        updateCaption();
+        // start on the attempt where D&A first solved it, not attempt 1
+        // jump to whichever arm actually solved it (prefer D&A's solve point;
+        // fall back to baseline's for the "DNA broke it" category)
+        const startAttempt = (c.dna_first_success || c.baseline_first_success || 1) - 1;
+        setAttempt(startAttempt);
+      }
+
+      function applyOutcomeTag(el_, success, steerError) {
+        el_.textContent = steerError ? 'api error (skipped)' : (success ? 'success' : 'failure');
+        el_.className = 'tag ' + (steerError ? 'is-light' : (success ? 'is-success' : 'is-danger'));
+      }
+
+      function setAttempt(n) {
+        const c = currentCase();
+        const nMax = Math.max(c.baseline.attempts.length, c.dna.attempts.length) - 1;
+        state.attempt = Math.max(0, Math.min(nMax, n));
+        el.slider.value = state.attempt;
+        el.readout.textContent = `attempt ${state.attempt + 1} / ${nMax + 1}`;
+
+        const b = c.baseline.attempts[state.attempt];
+        const d = c.dna.attempts[state.attempt];
+
+        if (b) {
+          el.baseVideo.src = b.video || '';
+          if (b.video) el.baseVideo.load();
+          applyOutcomeTag(el.baseOutcome, b.success, b.steer_error);
+        }
+        if (d) {
+          el.dnaVideo.src = d.video || '';
+          if (d.video) el.dnaVideo.load();
+          applyOutcomeTag(el.dnaOutcome, d.success, d.steer_error);
+
+          // The environment's success/failure is ground truth; the critic's own
+          // text can disagree (e.g. it still lists a "failure" on a run the env
+          // scored as solved). On an env success, overwrite the critic's text
+          // rather than show a contradictory critique next to a "success" tag.
+          const hasCritique = !d.success && !!(d.failure || d.feedback);
+          el.dnaAnalysis.textContent = d.success ? 'Task completed successfully.' : (d.analysis || '—');
+          el.dnaCritiqueRows.hidden = !hasCritique;
+          if (hasCritique) {
+            el.dnaFailure.textContent = d.failure || '—';
+            el.dnaFeedback.textContent = d.feedback || '—';
+          }
+
+          // Nothing to correct this attempt (env success, or a clean-success
+          // critique) — show what fed into THIS attempt instead of leaving it blank.
+          const prev = c.dna.attempts[state.attempt - 1];
+          const carried = !hasCritique && prev && prev.feedback;
+          el.dnaCarriedRow.hidden = !carried;
+          if (carried) el.dnaCarriedFeedback.textContent = prev.feedback;
+        }
+      }
+
+      el.select.addEventListener('change', (e) => selectCase(parseInt(e.target.value, 10)));
+      el.slider.addEventListener('input', (e) => setAttempt(parseInt(e.target.value, 10)));
+      el.btnPrev.addEventListener('click', () => setAttempt(state.attempt - 1));
+      el.btnNext.addEventListener('click', () => setAttempt(state.attempt + 1));
+
+      el.btnRandom.addEventListener('click', () => {
+        // avoid repeating the same case twice in a row when there's more than one
+        let i = Math.floor(Math.random() * CASES.length);
+        if (CASES.length > 1 && i === state.caseIndex) i = (i + 1) % CASES.length;
+        selectCase(i);
+      });
+
+      buildSelect();
+      selectCase(0);
+    })();
+  </script>
+
+</body>
+
+</html>

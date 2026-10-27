@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="description" content="Interactive explorer for D&A grounded progress predictions">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>D&A-Bench Results</title>
+
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro" rel="stylesheet">
+  <link rel="stylesheet" href="../static/css/bulma.min.css">
+  <link rel="stylesheet" href="../static/css/fontawesome.all.min.css">
+  <link rel="stylesheet" href="../static/css/index.css">
+  <link rel="icon" href="../static/images/favicon.png">
+  <script defer src="../static/js/fontawesome.all.min.js"></script>
+
+  <style>
+    :root {
+      --accent: #D81B60;
+      --accent-soft: rgba(216, 27, 96, 0.12);
+      --track: #e6e6e6;
+      --line: #2b6f8f;
+    }
+
+    body {
+      background: #fff;
+    }
+
+    .widget-header {
+      font-family: 'Google Sans', sans-serif;
+    }
+
+    /* --- episode picker --- */
+    .picker-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      margin-top: 1rem;
+    }
+
+    .picker-row select {
+      font-family: 'Google Sans', sans-serif;
+    }
+
+    .instruction-line {
+      font-size: 1rem;
+      color: #222;
+      margin-top: 0.85rem;
+      text-align: center;
+    }
+
+    .instruction-line b {
+      color: #111;
+    }
+
+    .badges {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      margin-left: 0.6rem;
+      vertical-align: middle;
+    }
+
+    .dice-btn {
+      font-size: 1.6rem;
+      line-height: 1;
+      background: #f5f5f4;
+      border: 1px solid #e1e0d9;
+      border-radius: 999px;
+      padding: 0.4rem 0.65rem;
+      cursor: pointer;
+      transition: background 0.12s ease, transform 0.12s ease;
+    }
+
+    .dice-btn:hover {
+      background: #ececea;
+    }
+
+    .dice-btn:active {
+      transform: scale(0.92);
+    }
+
+    .panel-card {
+      background: #fff;
+      border: 1px solid #ececec;
+      border-radius: 12px;
+      padding: 1.25rem;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .placeholder-card {
+      background: #fafafa;
+      border: 1px dashed #d8d8d6;
+      border-radius: 12px;
+      padding: 1.25rem;
+      text-align: center;
+      color: #999;
+    }
+
+    .placeholder-card p {
+      margin: 0;
+      font-size: 0.95rem;
+    }
+
+    /* tighten the gap between the top (video/plot) row and the bottom
+       (description) row — Bulma's default .columns bottom margin is 1.5rem */
+    #widget-root.columns:not(:last-child) {
+      margin-bottom: 0.15rem;
+    }
+
+    #widget-root > .column {
+      padding-bottom: 0.375rem;
+    }
+
+    #widget-root-bottom > .column {
+      padding-top: 0.375rem;
+    }
+
+    .panel-label {
+      font-family: 'Google Sans', sans-serif;
+      font-size: 0.75rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #9a9a9a;
+      margin-bottom: 0.6rem;
+    }
+
+    /* --- video panel --- */
+    .video-frame-wrap {
+      position: relative;
+      border-radius: 8px;
+      overflow: hidden;
+      background: #111;
+      aspect-ratio: 640 / 368;
+    }
+
+    .video-frame-wrap video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .step-badge {
+      position: absolute;
+      top: 0.5rem;
+      left: 0.5rem;
+      background: rgba(0, 0, 0, 0.6);
+      color: #fff;
+      font-size: 0.75rem;
+      padding: 0.15rem 0.55rem;
+      border-radius: 999px;
+      font-family: 'Google Sans', sans-serif;
+    }
+
+    .transport {
+      margin-top: 0.9rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.6rem;
+    }
+
+    .transport .button {
+      border-radius: 999px;
+    }
+
+    /* --- description panel --- */
+    .description-text {
+      font-size: 1.05rem;
+      line-height: 1.5;
+      color: #1a1a1a;
+      min-height: 6.5rem;
+    }
+
+    .outcome-box {
+      margin-top: auto;
+      padding-top: 1rem;
+      border-top: 1px dashed #e2e2e2;
+    }
+
+    .outcome-row {
+      font-size: 0.85rem;
+      margin-bottom: 0.5rem;
+      line-height: 1.4;
+    }
+
+    .outcome-row .tag {
+      font-family: 'Google Sans', sans-serif;
+      margin-right: 0.4rem;
+    }
+
+    /* --- plot panel --- */
+    .chart-svg {
+      width: 100%;
+      height: auto;
+      touch-action: none;
+      cursor: grab;
+      user-select: none;
+    }
+
+    .chart-svg:active {
+      cursor: grabbing;
+    }
+
+    .grid-line {
+      stroke: #eee;
+      stroke-width: 1;
+    }
+
+    .axis-text {
+      font-size: 9px;
+      fill: #aaa;
+      font-family: 'Noto Sans', sans-serif;
+    }
+
+    .model-line {
+      fill: none;
+      stroke-width: 3.25;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      opacity: 0.85;
+    }
+
+    .dna-line {
+      fill: none;
+      stroke: var(--accent);
+      stroke-width: 4.75;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .dna-dot {
+      fill: var(--accent);
+      opacity: 0.65;
+    }
+
+    .playhead-line {
+      stroke: #333;
+      stroke-width: 1.25;
+      stroke-dasharray: 3 3;
+      opacity: 0.55;
+    }
+
+    .playhead-dot {
+      fill: var(--accent);
+      stroke: #fff;
+      stroke-width: 2;
+    }
+
+    .slider-row {
+      margin-top: 1rem;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--accent);
+    }
+
+    /* --- legend (reuses .legend-chips / .legend-chip.is-model from
+       static/css/index.css, same style as the Scaling section's model
+       badges) --- */
+    .legend {
+      margin-top: 0.9rem;
+      padding-top: 0.8rem;
+      border-top: 1px dashed #e2e2e2;
+    }
+
+    .legend-chip.is-dna {
+      cursor: default;
+    }
+
+    /* --- speed buttons --- */
+    .speed-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.35rem;
+      margin-top: 0.6rem;
+    }
+
+    .speed-btn {
+      font: inherit;
+      font-family: 'Google Sans', sans-serif;
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: #666;
+      background: #f5f5f4;
+      border: 1px solid #e1e0d9;
+      border-radius: 999px;
+      padding: 0.2rem 0.65rem;
+      cursor: pointer;
+    }
+
+    .speed-btn:hover {
+      background: #ececea;
+    }
+
+    .speed-btn.is-active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+    }
+
+    /* when embedded via iframe, the host page already renders its own
+       "D&A-Bench Results" <h2> above the color bar, so hide this page's
+       own title to avoid it appearing twice */
+    html.is-embedded .widget-header h1 {
+      display: none;
+    }
+
+    html.is-embedded .widget-header {
+      padding-top: 1.25rem;
+    }
+  </style>
+</head>
+
+<body>
+
+  <script>
+    if (window.self !== window.top) document.documentElement.classList.add('is-embedded');
+  </script>
+
+  <section class="section widget-header">
+    <div class="container is-max-desktop">
+
+      <h1 class="title is-3 mt-2 has-text-centered">D&amp;A-Bench Results</h1>
+      <br>
+      <p class="subtitle is-6 has-text-centered" >
+        D&A-Bench consists of 54 real rollouts across 14 tasks (27 success, 27 failure).
+        <br>
+        Play around with the widget below to explore the results across baselines and D&A.
+        <br>
+      </p>
+
+      <div class="picker-row">
+        <div class="select">
+          <select id="episode-select"></select>
+        </div>
+        <button class="dice-btn" id="btn-random" type="button" title="sample a random trajectory">&#x1F3B2;</button>
+      </div>
+
+      <div class="instruction-line">
+        &ldquo;<b id="instruction-label"></b>&rdquo;
+        <span class="badges">
+          <span class="tag" id="ground-truth-badge"></span>
+        </span>
+      </div>
+
+      <div class="columns mt-3" id="widget-root">
+        <!-- video -->
+        <div class="column is-6">
+          <div class="panel-card">
+            <div class="panel-label">Video</div>
+            <div class="video-frame-wrap">
+              <video id="frame-video" muted playsinline preload="auto"></video>
+              <div class="step-badge" id="step-badge">t = 0</div>
+            </div>
+            <div class="transport">
+              <button class="button is-small" id="btn-prev" title="previous key frame">
+                <span class="icon is-small"><i class="fas fa-step-backward"></i></span>
+              </button>
+              <button class="button is-small is-dark" id="btn-play" title="play">
+                <span class="icon is-small"><i class="fas fa-play"></i></span>
+              </button>
+              <button class="button is-small" id="btn-next" title="next key frame">
+                <span class="icon is-small"><i class="fas fa-step-forward"></i></span>
+              </button>
+              <button class="button is-small" id="btn-replay" title="replay from start">
+                <span class="icon is-small"><i class="fas fa-redo"></i></span>
+              </button>
+            </div>
+            <div class="speed-row">
+              <button class="speed-btn is-active" data-speed="1">1x</button>
+              <button class="speed-btn" data-speed="2">2x</button>
+              <button class="speed-btn" data-speed="4">4x</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- plot -->
+        <div class="column is-6">
+          <div class="panel-card">
+            <div class="panel-label">Progress &mdash; All Models</div>
+
+            <svg class="chart-svg" id="chart" viewBox="0 0 520 240" preserveAspectRatio="none"></svg>
+
+            <div class="slider-row">
+              <input type="range" id="step-slider" min="0" max="0" step="any" value="0">
+            </div>
+
+            <div class="legend">
+              <div class="legend-chips" id="legend"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="columns mt-0" id="widget-root-bottom">
+        <!-- description -->
+        <div class="column is-12">
+          <div class="panel-card">
+            <div class="panel-label">Current State &mdash; Grounded Description (D&amp;A)</div>
+            <div class="description-text" id="description-text"></div>
+
+            <div class="outcome-box">
+              <div class="panel-label" style="margin-bottom:0.7rem;">D&amp;A Failure &amp; Feedback Analysis</div>
+              <div class="outcome-row"><span class="tag is-danger is-light">failure</span><span id="outcome-failure"></span></div>
+              <div class="outcome-row"><span class="tag is-warning is-light">feedback</span><span id="outcome-feedback"></span></div>
+              <div class="outcome-row"><span class="tag is-success is-light">success criteria</span><span id="outcome-completion"></span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TODO: fill in with a curated set of especially interesting / wild
+           trajectories once picked -->
+      <div class="columns mt-3">
+        <div class="column is-12">
+          <div class="placeholder-card">
+            <div class="panel-label">Highlighted Examples</div>
+            <p>Coming soon &mdash; a curated set of especially interesting successes and failures.</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <script src="data/episodes.js?v=2"></script>
+  <script>
+    (function () {
+      const CHART_W = 520, CHART_H = 240;
+      const PAD_L = 30, PAD_R = 12, PAD_T = 14, PAD_B = 20;
+      const DNA_COLOR = '#D81B60';
+
+      const state = {
+        epIndex: 0,
+        stepIndex: -1, // sentinel so the first render always fires
+        rawPosition: 0,
+        playing: false,
+        hiddenModels: new Set(),
+      };
+
+      const el = {
+        select: document.getElementById('episode-select'),
+        btnRandom: document.getElementById('btn-random'),
+        instructionLabel: document.getElementById('instruction-label'),
+        groundTruthBadge: document.getElementById('ground-truth-badge'),
+        video: document.getElementById('frame-video'),
+        stepBadge: document.getElementById('step-badge'),
+        descriptionText: document.getElementById('description-text'),
+        outcomeFailure: document.getElementById('outcome-failure'),
+        outcomeFeedback: document.getElementById('outcome-feedback'),
+        outcomeCompletion: document.getElementById('outcome-completion'),
+        chart: document.getElementById('chart'),
+        slider: document.getElementById('step-slider'),
+        legend: document.getElementById('legend'),
+        btnPlay: document.getElementById('btn-play'),
+        btnPrev: document.getElementById('btn-prev'),
+        btnNext: document.getElementById('btn-next'),
+        btnReplay: document.getElementById('btn-replay'),
+        speedBtns: Array.from(document.querySelectorAll('.speed-btn')),
+      };
+
+      function currentEpisode() {
+        return EPISODES[state.epIndex];
+      }
+
+      function buildSelect() {
+        const byTask = new Map();
+        EPISODES.forEach((ep, i) => {
+          if (!byTask.has(ep.task)) byTask.set(ep.task, []);
+          byTask.get(ep.task).push(i);
+        });
+        el.select.innerHTML = '';
+        byTask.forEach((indices, task) => {
+          const group = document.createElement('optgroup');
+          group.label = EPISODES[indices[0]].task_label;
+          indices.forEach((i) => {
+            const ep = EPISODES[i];
+            const opt = document.createElement('option');
+            opt.value = i;
+            opt.textContent = `${ep.task_label} - Ep. ${ep.episode}`;
+            group.appendChild(opt);
+          });
+          el.select.appendChild(group);
+        });
+      }
+
+      // Solid-color "model badge" chips — same style as the Scaling
+      // section's legend (no checkbox, no line swatch); click to toggle.
+      function buildLegend() {
+        const ep = currentEpisode();
+        el.legend.innerHTML = '';
+
+        const dnaChip = document.createElement('div');
+        dnaChip.className = 'legend-chip is-model is-dna';
+        dnaChip.style.background = DNA_COLOR;
+        dnaChip.textContent = 'D&A';
+        el.legend.appendChild(dnaChip);
+
+        Object.keys(MODEL_META).forEach((key) => {
+          if (!ep.models[key]) return;
+          const meta = MODEL_META[key];
+          const chip = document.createElement('div');
+          chip.className = 'legend-chip is-model';
+          chip.style.background = meta.color;
+          chip.textContent = meta.label;
+          if (state.hiddenModels.has(key)) chip.classList.add('is-off');
+          chip.addEventListener('click', () => {
+            if (state.hiddenModels.has(key)) state.hiddenModels.delete(key);
+            else state.hiddenModels.add(key);
+            chip.classList.toggle('is-off', state.hiddenModels.has(key));
+            const line = document.getElementById(`model-line-${key}`);
+            if (line) line.style.display = state.hiddenModels.has(key) ? 'none' : '';
+          });
+          el.legend.appendChild(chip);
+        });
+      }
+
+      function selectEpisode(i) {
+        stopPlayback();
+        state.epIndex = i;
+        state.stepIndex = -1;
+        el.select.value = i;
+
+        const ep = currentEpisode();
+        el.instructionLabel.textContent = ep.instruction;
+        el.groundTruthBadge.textContent = `${ep.ground_truth.charAt(0).toUpperCase()}${ep.ground_truth.slice(1)} Trajectory`;
+        el.groundTruthBadge.className = 'tag ' + (ep.ground_truth === 'success' ? 'is-success' : ep.ground_truth === 'failure' ? 'is-danger' : 'is-light');
+
+        el.outcomeFailure.textContent = ep.failure;
+        el.outcomeFeedback.textContent = ep.feedback;
+        el.outcomeCompletion.textContent = ep.completion_state || '-';
+
+        // cache-bust: forces a fresh fetch instead of a browser-cached copy
+        // of a video that may have been re-encoded since it was last visited
+        el.video.src = ep.video + '?v=3';
+        el.video.load();
+
+        el.slider.max = ep.dna_progress.length - 1;
+
+        buildLegend();
+        drawChartStatic();
+        handleRawPosition(0);
+      }
+
+      // rawPosition lives in "D&A key-point" units [0, numSteps-1] — that's
+      // the only resolution D&A's captions/failure-analysis exist at. The
+      // video and the progress readout are continuous, so both are derived
+      // from rawPosition's fractional position within the full episode
+      // (frac = rawPosition / (numSteps-1)) rather than snapped to it.
+      function syncToRawPosition(rawPosition, seekVideo) {
+        const ep = currentEpisode();
+        const numSteps = ep.dna_progress.length;
+        const clamped = Math.max(0, Math.min(numSteps - 1, rawPosition));
+        const frac = numSteps > 1 ? clamped / (numSteps - 1) : 0;
+
+        state.rawPosition = clamped;
+        el.slider.value = clamped;
+
+        updatePlayhead(frac); // 0-1, interpolated from dna_continuous
+
+        if (seekVideo) el.video.currentTime = frac * ep.duration;
+
+        applyKeyPointIfChanged(Math.round(clamped));
+      }
+
+      function handleRawPosition(rawPosition) {
+        syncToRawPosition(rawPosition, true);
+      }
+
+      // Descriptions only exist at D&A's sparse caption indices, so that
+      // part of the UI still snaps — it never becomes continuous.
+      function applyKeyPointIfChanged(snapped) {
+        if (snapped === state.stepIndex) return;
+        const ep = currentEpisode();
+        state.stepIndex = snapped;
+        el.stepBadge.textContent = `key frame ${snapped + 1} / ${ep.dna_progress.length}`;
+        el.descriptionText.textContent = ep.descriptions[snapped];
+      }
+
+      function xForFrac(frac) {
+        return PAD_L + frac * (CHART_W - PAD_L - PAD_R);
+      }
+
+      function yForValue01(v) {
+        const clamped = Math.max(0, Math.min(1, v));
+        return CHART_H - PAD_B - clamped * (CHART_H - PAD_T - PAD_B);
+      }
+
+      function drawChartStatic() {
+        const ep = currentEpisode();
+        const numSteps = ep.dna_progress.length;
+        const svg = el.chart;
+        svg.innerHTML = '';
+
+        // gridlines + y labels
+        [0, 25, 50, 75, 100].forEach((v) => {
+          const y = yForValue01(v / 100);
+          const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+          line.setAttribute('x1', PAD_L);
+          line.setAttribute('x2', CHART_W - PAD_R);
+          line.setAttribute('y1', y);
+          line.setAttribute('y2', y);
+          line.setAttribute('class', 'grid-line');
+          svg.appendChild(line);
+
+          const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+          text.setAttribute('x', PAD_L - 5);
+          text.setAttribute('y', y + 3);
+          text.setAttribute('text-anchor', 'end');
+          text.setAttribute('class', 'axis-text');
+          text.textContent = v;
+          svg.appendChild(text);
+        });
+
+        // x axis labels (percent of episode duration)
+        [0, 0.25, 0.5, 0.75, 1].forEach((frac) => {
+          const x = xForFrac(frac);
+          const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+          text.setAttribute('x', x);
+          text.setAttribute('y', CHART_H - 5);
+          text.setAttribute('text-anchor', frac === 0 ? 'start' : frac === 1 ? 'end' : 'middle');
+          text.setAttribute('class', 'axis-text');
+          text.textContent = `${Math.round(frac * 100)}%`;
+          svg.appendChild(text);
+        });
+
+        // baseline model curves (drawn first, underneath D&A)
+        Object.keys(MODEL_META).forEach((key) => {
+          const vals = ep.models[key];
+          if (!vals) return;
+          const meta = MODEL_META[key];
+          const m = vals.length;
+          const points = vals.map((v, k) => `${xForFrac(k / (m - 1))},${yForValue01(v)}`).join(' ');
+          const polyline = document.createElementNS('http://www.w3.org/2000/svg', 'polyline');
+          polyline.setAttribute('points', points);
+          polyline.setAttribute('class', 'model-line');
+          polyline.setAttribute('id', `model-line-${key}`);
+          polyline.setAttribute('stroke', meta.color);
+          if (meta.dash) polyline.setAttribute('stroke-dasharray', meta.dash);
+          if (state.hiddenModels.has(key)) polyline.style.display = 'none';
+          svg.appendChild(polyline);
+        });
+
+        // D&A continuous progress polyline — a smooth interpolation of
+        // D&A's own (sparse) dna_feedback progress array, so it always
+        // agrees with the description/failure/feedback text it's paired
+        // with (deliberately not a separate plain progress-estimation
+        // curve, which comes from an independent call and can disagree).
+        const dnaVals = ep.dna_continuous;
+        const dnaM = dnaVals.length;
+        const dnaPoints = dnaVals.map((v, k) => `${xForFrac(k / (dnaM - 1))},${yForValue01(v)}`).join(' ');
+        const dnaLine = document.createElementNS('http://www.w3.org/2000/svg', 'polyline');
+        dnaLine.setAttribute('points', dnaPoints);
+        dnaLine.setAttribute('class', 'dna-line');
+        svg.appendChild(dnaLine);
+
+        // sparse markers at D&A's own caption/key-point positions — sit
+        // exactly on the line above, since that's just this same array
+        // interpolated to a smooth curve.
+        ep.dna_progress.forEach((v, i) => {
+          const c = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+          c.setAttribute('cx', xForFrac(i / (numSteps - 1)));
+          c.setAttribute('cy', yForValue01(v));
+          c.setAttribute('r', 5);
+          c.setAttribute('class', 'dna-dot');
+          svg.appendChild(c);
+        });
+
+        // playhead (created once, position updated separately)
+        const playheadLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        playheadLine.setAttribute('id', 'playhead-line');
+        playheadLine.setAttribute('y1', PAD_T);
+        playheadLine.setAttribute('y2', CHART_H - PAD_B);
+        playheadLine.setAttribute('class', 'playhead-line');
+        svg.appendChild(playheadLine);
+
+        const playheadDot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        playheadDot.setAttribute('id', 'playhead-dot');
+        playheadDot.setAttribute('r', 5);
+        playheadDot.setAttribute('class', 'playhead-dot');
+        svg.appendChild(playheadDot);
+      }
+
+      // Linearly interpolates a value from a downsampled curve at any
+      // fractional position in [0, 1].
+      function valueAtFrac(arr, frac) {
+        const m = arr.length;
+        const pos = Math.max(0, Math.min(1, frac)) * (m - 1);
+        const i0 = Math.floor(pos);
+        const i1 = Math.min(m - 1, Math.ceil(pos));
+        const t = pos - i0;
+        return arr[i0] + (arr[i1] - arr[i0]) * t;
+      }
+
+      // Moves the playhead to a continuous fractional position along the
+      // D&A continuous-progress line (glides smoothly instead of hopping
+      // between key points) and returns the interpolated value (0-1).
+      function updatePlayhead(frac) {
+        const ep = currentEpisode();
+        const x = xForFrac(frac);
+        const v = valueAtFrac(ep.dna_continuous, frac);
+        const y = yForValue01(v);
+
+        const line = document.getElementById('playhead-line');
+        const dot = document.getElementById('playhead-dot');
+        if (line) { line.setAttribute('x1', x); line.setAttribute('x2', x); }
+        if (dot) { dot.setAttribute('cx', x); dot.setAttribute('cy', y); }
+        return v;
+      }
+
+      // Discrete step navigation (buttons, keyboard) — always snaps to a
+      // whole key point.
+      function setStep(i) {
+        const ep = currentEpisode();
+        const numSteps = ep.dna_progress.length;
+        handleRawPosition(Math.max(0, Math.min(numSteps - 1, Math.round(i))));
+      }
+
+      function rawPositionFromClientX(clientX) {
+        const rect = el.chart.getBoundingClientRect();
+        const relX = ((clientX - rect.left) / rect.width) * CHART_W;
+        const ep = currentEpisode();
+        const numSteps = ep.dna_progress.length;
+        const frac = (relX - PAD_L) / (CHART_W - PAD_L - PAD_R);
+        return frac * (numSteps - 1);
+      }
+
+      function stopPlayback() {
+        state.playing = false;
+        el.video.pause();
+        el.btnPlay.innerHTML = '<span class="icon is-small"><i class="fas fa-play"></i></span>';
+      }
+
+      function startPlayback() {
+        const ep = currentEpisode();
+        if (Math.round(state.rawPosition) >= ep.dna_progress.length - 1) {
+          setStep(0); // also seeks the video back to the start
+        }
+        state.playing = true;
+        el.btnPlay.innerHTML = '<span class="icon is-small"><i class="fas fa-pause"></i></span>';
+        el.video.play();
+      }
+
+      // While the video plays natively (full fps, real time), its own clock
+      // drives the scrub position continuously — smooth and in sync for
+      // free. Descriptions still only update when we cross a key point.
+      el.video.addEventListener('timeupdate', () => {
+        if (!state.playing) return;
+        const ep = currentEpisode();
+        const numSteps = ep.dna_progress.length;
+        const frac = ep.duration > 0 ? Math.max(0, Math.min(1, el.video.currentTime / ep.duration)) : 0;
+        const rawPosition = frac * (numSteps - 1);
+        syncToRawPosition(rawPosition, false);
+      });
+      el.video.addEventListener('ended', () => stopPlayback());
+
+      // --- events ---
+      // Dragging the slider itself is continuous (step="any"); arrow/paging
+      // keys jump straight from key point to key point.
+      el.select.addEventListener('change', (e) => selectEpisode(parseInt(e.target.value, 10)));
+
+      el.btnRandom.addEventListener('click', () => {
+        // avoid repeating the same episode twice in a row when there's more than one
+        let i = Math.floor(Math.random() * EPISODES.length);
+        if (EPISODES.length > 1 && i === state.epIndex) i = (i + 1) % EPISODES.length;
+        selectEpisode(i);
+      });
+
+      el.slider.addEventListener('input', (e) => {
+        stopPlayback();
+        handleRawPosition(parseFloat(e.target.value));
+      });
+
+      el.slider.addEventListener('keydown', (e) => {
+        const stepKeys = ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'PageUp', 'PageDown', 'Home', 'End'];
+        if (!stepKeys.includes(e.key)) return;
+        e.preventDefault();
+        stopPlayback();
+        const ep = currentEpisode();
+        const numSteps = ep.dna_progress.length;
+        const current = Math.round(state.rawPosition);
+        if (e.key === 'ArrowLeft' || e.key === 'ArrowDown' || e.key === 'PageDown') setStep(current - 1);
+        else if (e.key === 'ArrowRight' || e.key === 'ArrowUp' || e.key === 'PageUp') setStep(current + 1);
+        else if (e.key === 'Home') setStep(0);
+        else if (e.key === 'End') setStep(numSteps - 1);
+      });
+
+      el.btnPrev.addEventListener('click', () => { stopPlayback(); setStep(Math.round(state.rawPosition) - 1); });
+      el.btnNext.addEventListener('click', () => { stopPlayback(); setStep(Math.round(state.rawPosition) + 1); });
+      el.btnPlay.addEventListener('click', () => { state.playing ? stopPlayback() : startPlayback(); });
+      el.btnReplay.addEventListener('click', () => {
+        stopPlayback();
+        setStep(0);
+        startPlayback();
+      });
+
+      el.speedBtns.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          el.speedBtns.forEach((b) => b.classList.toggle('is-active', b === btn));
+          el.video.playbackRate = parseFloat(btn.dataset.speed);
+        });
+      });
+
+      // Dragging on the chart itself is continuous too — the playhead glides
+      // along the line, snapping the video/description only at key points.
+      let dragging = false;
+      el.chart.addEventListener('pointerdown', (e) => {
+        dragging = true;
+        stopPlayback();
+        handleRawPosition(rawPositionFromClientX(e.clientX));
+        el.chart.setPointerCapture(e.pointerId);
+      });
+      el.chart.addEventListener('pointermove', (e) => {
+        if (!dragging) return;
+        handleRawPosition(rawPositionFromClientX(e.clientX));
+      });
+      el.chart.addEventListener('pointerup', () => { dragging = false; });
+      el.chart.addEventListener('pointercancel', () => { dragging = false; });
+
+      // --- init ---
+      buildSelect();
+      selectEpisode(0);
+    })();
+  </script>
+
+</body>
+
+</html>

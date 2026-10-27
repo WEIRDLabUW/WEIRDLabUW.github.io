@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="description"
+    content="D&A: Decoupling Description and Assessment Enables VLMs as Zero-Shot Robotic Reward Models">
+  <meta name="keywords" content="Reward Models, Vision-Language Models, Reinforcement Learning">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>D&A: Decoupling Description and Assessment Enables VLMs as Zero-Shot Robotic Reward Models</title>
+
+  <meta name="color-scheme" content="light">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Noto+Sans:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="./static/css/bulma.min.css">
+  <link rel="stylesheet" href="./static/css/fontawesome.all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1.9.4/css/academicons.min.css">
+  <link rel="stylesheet" href="./static/css/index.css">
+  <link rel="stylesheet" href="./static/css/charts.css">
+  <link rel="icon" href="./static/images/favicon.png">
+  <link rel="stylesheet" href="./static/css/widgets.css">
+
+  <script defer src="./static/js/page.js"></script>
+</head>
+
+<body>
+
+  <a class="skip-link" href="#main">Skip to content</a>
+  <nav class="site-nav" id="site-nav" aria-label="Sections">
+    <div class="container is-max-desktop site-nav-inner">
+      <a class="site-nav-brand" href="#top">D&amp;A</a>
+      <ul class="site-nav-links">
+        <li><a href="#method">Method</a></li>
+        <li><a href="#rl">Real-world RL</a></li>
+        <li><a href="#bench">D&amp;A-Bench</a></li>
+        <li><a href="#benchmarks">Benchmarks</a></li>
+        <li><a href="#scaling">Scaling</a></li>
+        <li><a href="#feedback">CaP Feedback</a></li>
+        <li><a href="#frontier">Frontier</a></li>
+        <li><a href="#embodiments">Embodiments</a></li>
+        <li><a href="#BibTeX">BibTeX</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <header class="hero" id="top">
+    <!-- Experimental: dummy background video (replace the src later). Toggle button top right. -->
+    <div class="hero-video" aria-hidden="true">
+      <video data-bg-src="./static/videos/rl/web/eval_dna_book.mp4" poster="./static/videos/rl/web/posters/eval_dna_book.jpg"
+        muted loop playsinline preload="none" tabindex="-1"></video>
+    </div>
+    <button type="button" class="button is-small is-rounded hero-video-toggle" id="hero-video-toggle" aria-pressed="false">
+      <span class="icon is-small"><i class="fas fa-play" aria-hidden="true"></i></span><span>Background video</span>
+    </button>
+    <div class="hero-body">
+      <div class="container is-max-desktop">
+        <div class="columns is-centered">
+          <div class="column has-text-centered">
+            <h1 class="title is-1 publication-title">
+              <img class="title-icon" src="./static/images/dna_emoji_icon.png" alt="" width="256" height="246" />
+              D&amp;A: Decoupling Description and Assessment Enables VLMs as Zero-Shot Robotic Reward Models
+            </h1>
+            <div class="publication-authors">
+              <span class="author-block"><a href="https://memmelma.github.io/">Marius Memmel</a><sup>1,2</sup>,</span>
+              <span class="author-block">Shawn Yin<sup>1</sup>,</span>
+              <span class="author-block"><a href="https://www.linkedin.com/in/urvi-rutia">Urvi Rutia</a><sup>1</sup>,</span>
+              <span class="author-block">Eldon Li<sup>1</sup>,</span>
+              <span class="author-block">Gavin Angeloff<sup>1</sup>,</span>
+              <span class="author-block">Angad Wadhwa<sup>1</sup>,</span>
+              <span class="author-block"><a href="https://imankgoyal.github.io/">Ankit Goyal</a><sup>2</sup>,</span>
+              <span class="author-block"><a href="https://jessezhang.net/">Jesse Zhang</a><sup>1</sup>,</span>
+              <span class="author-block"><a href="https://homes.cs.washington.edu/~fox/">Dieter Fox</a><sup>1</sup>,</span>
+              <span class="author-block"><a href="https://fabioramos.github.io/Home.html">Fabio Ramos</a><sup>2</sup>,</span>
+              <span class="author-block"><a href="https://anqili.github.io/">Anqi Li</a><sup>2,&dagger;</sup>,</span>
+              <span class="author-block"><a href="https://homes.cs.washington.edu/~abhgupta/">Abhishek Gupta</a><sup>1,&dagger;</sup></span>
+            </div>
+
+            <div class="publication-affiliations">
+              <span class="author-block"><sup>1</sup>University of Washington</span>
+              <span class="author-block"><sup>2</sup>NVIDIA</span>
+            </div>
+            <p class="publication-note"><sup>&dagger;</sup>equal advising</p>
+
+            <div class="publication-links">
+              <!-- Paper / arXiv: fill in the hrefs when available. -->
+              <span class="link-block">
+                <a href="#" class="external-link button is-normal is-rounded" title="Coming soon">
+                  <span class="icon"><i class="fas fa-file-pdf" aria-hidden="true"></i></span>
+                  <span>Paper</span>
+                </a>
+              </span>
+              <span class="link-block">
+                <a href="#" class="external-link button is-normal is-rounded" title="Coming soon">
+                  <span class="icon"><i class="ai ai-arxiv" aria-hidden="true"></i></span>
+                  <span>arXiv</span>
+                </a>
+              </span>
+              <!-- Primary action until the paper is out. -->
+              <span class="link-block">
+                <a href="./demo/index.html" class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                    <i class="fas fa-laptop" aria-hidden="true"></i>
+                  </span>
+                  <span>Demo</span>
+                </a>
+              </span>
+              <span class="link-block">
+                <a href="https://github.com/memmelma/dna" class="external-link button is-normal is-rounded">
+                  <span class="icon">
+                    <i class="fab fa-github" aria-hidden="true"></i>
+                  </span>
+                  <span>Code</span>
+                </a>
+              </span>
+              <span class="link-block">
+                <a href="https://huggingface.co/datasets/memmelma/dnabench"
+                  class="external-link button is-normal is-rounded">
+                  <span class="icon">
+                    <i class="fas fa-database" aria-hidden="true"></i>
+                  </span>
+                  <span>Data</span>
+                </a>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main id="main">
+
+  <section class="section" id="overview" aria-label="Overview">
+    <div class="container is-max-desktop has-text-centered">
+      <figure class="teaser-figure">
+        <img class="figure-img" src="./static/images/teaser.png" width="1389" height="442" decoding="async"
+          alt="Reward-over-time curves for successful and failed trajectories: Naive VLM prompting shows noisy, overlapping curves; D&amp;A cleanly separates them." />
+        <figcaption class="figure-caption">
+          Zero-shot querying causes Naive VLM prompting to hallucinate progress even on failed rollouts, producing
+          high prediction variance with no clear difference between
+          <strong class="txt-success">successful (teal)</strong> and
+          <strong class="txt-dna">failed (pink)</strong>
+          trajectories. D&amp;A's describe-then-assess process cleanly separates them.
+        </figcaption>
+      </figure>
+      <div class="abstract-boxes">
+        <div class="abstract-box is-problem">
+          <div class="abstract-box-head">
+            <span class="abstract-box-icon" aria-hidden="true"><i class="fas fa-exclamation-triangle"></i></span>
+            <h2 class="abstract-box-title"><span class="abstract-box-step">1</span>Problem</h2>
+          </div>
+          <p>
+            Existing zero-shot VLM approaches (<span class="term">GVL</span>, <span class="term">TOPReward</span>) suffer from
+            <strong>confirmation bias and hallucinated progress</strong> in failed runs when
+            estimating rewards.<br>
+            Post-trained alternatives (<span class="term">Robometer</span>, <span class="term">RoboReward</span>,
+            <span class="term">SOLE-R1</span>) require <strong>expensive real-world data</strong>.
+          </p>
+        </div>
+        <div class="abstract-box is-method">
+          <div class="abstract-box-head">
+            <span class="abstract-box-icon" aria-hidden="true"><i class="fas fa-puzzle-piece"></i></span>
+            <h2 class="abstract-box-title"><span class="abstract-box-step">2</span>Method</h2>
+          </div>
+          <p>
+            To address this, <strong>D&amp;A</strong> decouples progress estimation into a <strong>Describe</strong>
+            and <strong>Assess</strong> stage, first describing what happened in the video before assessing progress
+            with respect to a success criterion.
+          </p>
+        </div>
+        <div class="abstract-box is-results">
+          <div class="abstract-box-head">
+            <span class="abstract-box-icon" aria-hidden="true"><i class="fas fa-chart-line"></i></span>
+            <h2 class="abstract-box-title"><span class="abstract-box-step">3</span>Results</h2>
+          </div>
+          <a class="result-group" href="#rl">
+            <h3 class="result-group-title">Real-world RL success <span>DROID Franka, bimanual YAM</span></h3>
+            <dl class="abstract-stats">
+              <div><dt>vs. zero-shot</dt><dd>+15%</dd></div>
+              <div><dt>vs. post-trained</dt><dd>+90%</dd></div>
+            </dl>
+          </a>
+          <a class="result-group" href="#benchmarks">
+            <h3 class="result-group-title">Benchmarks <span>D&amp;A*, GPT-6 Astra</span></h3>
+            <ul class="result-sota">
+              <li><span class="term">D&amp;A-Bench*</span></li>
+              <li><span class="term">RBM-EVAL-OOD*</span></li>
+              <li><span class="term">RoboRewardBenchmark*</span></li>
+            </ul>
+            <p class="result-note">* state of the art</p>
+          </a>
+          <a class="result-group" href="#scaling">
+            <h3 class="result-group-title">Scaling <span>4 families, 26 models</span></h3>
+            <dl class="abstract-stats is-compact">
+              <div><dt>Gemini 2.5 Flash-Lite &rarr; 4 Argon</dt><dd>0.32 &rarr; 0.73</dd></div>
+              <div><dt>GPT-5.4 Nano &rarr; GPT-6 Astra</dt><dd>0.28 &rarr; 0.71</dd></div>
+            </dl>
+            <p class="result-note">Kendall &tau;<sub>&alpha;</sub> on RBM-EVAL-OOD, D&amp;A with weaker &rarr; stronger VLMs</p>
+          </a>
+          <a class="result-group" href="#feedback">
+            <h3 class="result-group-title">Code-as-Policies <span>rich language feedback</span></h3>
+            <dl class="abstract-stats is-compact">
+              <div><dt>no history</dt><dd class="is-muted">11.4%</dd></div>
+              <div><dt>history</dt><dd class="is-muted">40.6%</dd></div>
+              <div><dt>+ D&amp;A feedback</dt><dd>51.4%</dd></div>
+            </dl>
+          </a>
+        </div>
+      </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="method">
+    <div class="container is-max-desktop has-text-centered">
+      <h2 class="title is-3">Method Overview</h2>
+      <div class="section-card">
+        <figure>
+          <img class="figure-img" src="./static/images/method.png" width="2680" height="856" loading="lazy" decoding="async"
+            alt="Method overview: a Describer narrates the video without seeing the instruction, then an Assessor scores the description against a success criterion to produce per-frame rewards and feedback." />
+          <figcaption class="figure-caption">
+            D&amp;A decomposes reward prediction into a <strong>Describer</strong> and an <strong>Assessor</strong>. The
+            Describer narrates the trajectory blind to the instruction to avoid confirmation bias; the Assessor then
+            scores the description against an explicit, self-generated success criterion, yielding dense per-frame
+            rewards and rich failure feedback.
+          </figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="rl">
+    <div class="container is-max-desktop has-text-centered">
+      <h2 class="title is-3">Real-World Reinforcement Learning</h2>
+      <div class="section-card">
+      <p class="section-lead">D&amp;A rewards improve both online and offline real-world RL.</p>
+      <figure>
+        <img class="figure-img" src="./static/images/rl_results.png" width="3489" height="780" loading="lazy" decoding="async"
+          alt="Real-world RL results: success rates of policies trained with D&amp;A rewards versus other reward models, online (DROID Franka) and offline (bimanual YAM)." />
+        <figcaption class="figure-caption">
+          Other zero-shot reward
+          models struggle to discriminate between successful and failed trajectories, assigning high rewards to failed trajectories.
+        </figcaption>
+      </figure>
+
+      <div class="embodiment-group">
+        <div class="embodiment-title">
+          <h3 class="title is-5">Online RL Training (DSRL)</h3>
+        </div>
+        <p class="embodiment-instruction">&ldquo;put the fruit in the bowl&rdquo;<span class="embodiment-tag">DROID Franka</span></p>
+        <div class="columns is-centered is-multiline mt-2">
+          <div class="column is-6">
+            <div class="gen-video-card">
+              <div class="gen-video-wrap">
+                <video data-src="./static/videos/rl/web/rl_run_topreward.mp4" poster="./static/videos/rl/web/posters/rl_run_topreward.jpg" width="640" height="720" preload="none" muted loop playsinline controls aria-label="TOPReward online RL training run at 100 times speed"></video>
+                <span class="speed-badge">100&times;</span>
+              </div>
+              <div class="gen-video-caption">
+                <span class="tag is-model" style="--c:#9467BD; --on-c:#000;">TOPReward</span>
+                Rewards both successful and failed trajectories alike
+              </div>
+            </div>
+          </div>
+          <div class="column is-6">
+            <div class="gen-video-card">
+              <div class="gen-video-wrap">
+                <video data-src="./static/videos/rl/web/rl_run_dna.mp4" poster="./static/videos/rl/web/posters/rl_run_dna.jpg" width="640" height="720" preload="none" muted loop playsinline controls aria-label="D&amp;A online RL training run at 100 times speed"></video>
+                <span class="speed-badge">100&times;</span>
+              </div>
+              <div class="gen-video-caption">
+                <span class="tag is-model" style="--c:#D81B60; --on-c:#fff;">D&amp;A</span>
+                Zero reward for the wrong object (ice cream cone), dense reward for the correct one (banana)
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="embodiment-group">
+        <div class="embodiment-title">
+          <h3 class="title is-5">Online RL Evaluation (DSRL)</h3>
+        </div>
+        <p class="embodiment-instruction">&ldquo;put the fruit in the bowl&rdquo;<span class="embodiment-tag">DROID Franka</span></p>
+        <div class="columns is-centered is-multiline mt-2">
+          <div class="column is-4">
+            <div class="gen-video-card">
+              <div class="gen-video-wrap">
+                <video data-src="./static/videos/rl/web/eval_pi0.mp4" poster="./static/videos/rl/web/posters/eval_pi0.jpg" width="640" height="720" preload="none" muted loop playsinline controls aria-label="pi-0 baseline evaluation at 10 times speed"></video>
+                <span class="speed-badge">10&times;</span>
+              </div>
+              <div class="gen-video-caption">
+                <span class="tag is-policy">&pi;<sub>0</sub>&nbsp;baseline</span>
+                Before RL &mdash; <strong>10% success.</strong> Sometimes picks the banana, but usually grasps the ice cream cone.
+              </div>
+            </div>
+          </div>
+          <div class="column is-4">
+            <div class="gen-video-card">
+              <div class="gen-video-wrap">
+                <video data-src="./static/videos/rl/web/eval_topreward.mp4" poster="./static/videos/rl/web/posters/eval_topreward.jpg" width="640" height="720" preload="none" muted loop playsinline controls aria-label="TOPReward policy evaluation at 10 times speed"></video>
+                <span class="speed-badge">10&times;</span>
+              </div>
+              <div class="gen-video-caption">
+                <span class="tag is-model" style="--c:#9467BD; --on-c:#000;">TOPReward</span>
+                <strong>5% success.</strong> Assigns high reward to the ice cream cone (wrong object) and largely ignores the banana,
+                which is underrepresented in its training buffer.
+              </div>
+            </div>
+          </div>
+          <div class="column is-4">
+            <div class="gen-video-card">
+              <div class="gen-video-wrap">
+                <video data-src="./static/videos/rl/web/eval_dna.mp4" poster="./static/videos/rl/web/posters/eval_dna.jpg" width="640" height="720" preload="none" muted loop playsinline controls aria-label="D&amp;A policy evaluation at 10 times speed"></video>
+                <span class="speed-badge">10&times;</span>
+              </div>
+              <div class="gen-video-caption">
+                <span class="tag is-model" style="--c:#D81B60; --on-c:#fff;">D&amp;A</span>
+                <strong>100% success.</strong> Assigns zero reward to the ice cream cone, so the policy converges to
+                consistently picking the banana.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="embodiment-group">
+        <div class="embodiment-title">
+          <h3 class="title is-5">Offline RL Evaluation (RECAP)</h3>
+        </div>
+        <p class="embodiment-instruction">&ldquo;move the red book from the top shelf to the gray box&rdquo;<span class="embodiment-tag">bimanual YAM</span></p>
+        <div class="columns is-centered is-multiline mt-2">
+          <div class="column is-6">
+            <div class="gen-video-card">
+              <div class="gen-video-wrap">
+                <video data-src="./static/videos/rl/web/eval_bc_book.mp4" poster="./static/videos/rl/web/posters/eval_bc_book.jpg" width="1280" height="720" preload="none" muted loop playsinline controls aria-label="pi-0.5 behavior cloning evaluation at 10 times speed"></video>
+                <span class="speed-badge">10&times;</span>
+              </div>
+              <div class="gen-video-caption">
+                <span class="tag is-policy">&pi;<sub>0.5</sub>&nbsp;behavior cloning</span>
+                <strong>20% success.</strong>
+              </div>
+            </div>
+          </div>
+          <div class="column is-6">
+            <div class="gen-video-card">
+              <div class="gen-video-wrap">
+                <video data-src="./static/videos/rl/web/eval_topreward_book.mp4" poster="./static/videos/rl/web/posters/eval_topreward_book.jpg" width="1280" height="720" preload="none" muted loop playsinline controls aria-label="TOPReward policy evaluation on the book task at 10 times speed"></video>
+                <span class="speed-badge">10&times;</span>
+              </div>
+              <div class="gen-video-caption">
+                <span class="tag is-model" style="--c:#9467BD; --on-c:#000;">TOPReward</span>
+                <strong>80% success.</strong>
+              </div>
+            </div>
+          </div>
+          <div class="column is-6">
+            <div class="gen-video-card">
+              <div class="gen-video-wrap">
+                <video data-src="./static/videos/rl/web/eval_robometer_book.mp4" poster="./static/videos/rl/web/posters/eval_robometer_book.jpg" width="1280" height="720" preload="none" muted loop playsinline controls aria-label="Robometer policy evaluation on the book task at 10 times speed"></video>
+                <span class="speed-badge">10&times;</span>
+              </div>
+              <div class="gen-video-caption">
+                <span class="tag is-model" style="--c:#FF7F0E; --on-c:#000;">Robometer</span>
+                <strong>85% success.</strong>
+              </div>
+            </div>
+          </div>
+          <div class="column is-6">
+            <div class="gen-video-card">
+              <div class="gen-video-wrap">
+                <video data-src="./static/videos/rl/web/eval_dna_book.mp4" poster="./static/videos/rl/web/posters/eval_dna_book.jpg" width="1280" height="720" preload="none" muted loop playsinline controls aria-label="D&amp;A policy evaluation on the book task at 10 times speed"></video>
+                <span class="speed-badge">10&times;</span>
+              </div>
+              <div class="gen-video-caption">
+                <span class="tag is-model" style="--c:#D81B60; --on-c:#fff;">D&amp;A</span>
+                <strong>100% success.</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="bench">
+    <div class="container is-max-desktop has-text-centered">
+      <h2 class="title is-3">D&amp;A-Bench Results</h2>
+      <div id="bench-widget" class="section-card">
+          <p class="widget-intro">D&amp;A-Bench consists of 54 real rollouts across 14 tasks (27 success, 27 failure).</p>
+
+          <div class="picker-row">
+            <label class="picker-label" for="episode-select">Rollout</label>
+            <div class="select">
+              <select id="episode-select" disabled><option>Loading rollouts&hellip;</option></select>
+            </div>
+            <button class="dice-btn" id="btn-random" type="button" aria-label="Random rollout" title="Random rollout" disabled><span aria-hidden="true">&#x1F3B2;</span></button>
+          </div>
+          <p class="section-hint widget-hint">Pick a rollout (or the die), press play, or drag across the chart to scrub.</p>
+
+          <div class="instruction-line">
+            &ldquo;<b id="instruction-label"></b>&rdquo;
+            <span class="badges">
+              <span class="tag" id="ground-truth-badge"></span>
+            </span>
+          </div>
+
+          <div class="bench-stage" id="widget-root">
+            <!-- video -->
+            <div class="panel-card">
+              <div class="panel-label">Video</div>
+              <div class="video-frame-wrap" id="video-wrap">
+                <video id="frame-video" muted playsinline preload="auto" aria-label="Robot rollout video"></video>
+                <div class="step-badge" id="step-badge">key frame &ndash; / &ndash;</div>
+                <span class="play-overlay" aria-hidden="true"><i class="fas fa-play"></i></span>
+              </div>
+            </div>
+
+            <!-- plot -->
+            <div class="panel-card">
+              <div class="panel-label">Progress &mdash; All Models</div>
+
+              <svg class="chart-svg" id="chart" role="img"
+                aria-label="Predicted progress over the episode for D&amp;A and baseline models. Use the key frame slider to step through it."></svg>
+
+              <div class="slider-row">
+                <input type="range" id="step-slider" aria-label="Key frame" min="0" max="0" step="any" value="0" disabled>
+              </div>
+
+              <div class="legend">
+                <div class="legend-chips" id="legend" role="group" aria-label="Show or hide models"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="bench-controls">
+            <div class="transport" role="group" aria-label="Playback">
+              <button class="button is-small" id="btn-prev" type="button" aria-label="Previous key frame" title="Previous key frame" disabled>
+                <span class="icon is-small"><i class="fas fa-step-backward"></i></span>
+              </button>
+              <button class="button is-small is-dark" id="btn-play" type="button" aria-label="Play" title="Play" disabled>
+                <span class="icon is-small"><i class="fas fa-play"></i></span>
+              </button>
+              <button class="button is-small" id="btn-next" type="button" aria-label="Next key frame" title="Next key frame" disabled>
+                <span class="icon is-small"><i class="fas fa-step-forward"></i></span>
+              </button>
+            </div>
+            <div class="speed-row" role="group" aria-label="Playback speed">
+              <button class="speed-btn is-active" type="button" data-speed="1" aria-pressed="true">1x</button>
+              <button class="speed-btn" type="button" data-speed="2" aria-pressed="false">2x</button>
+              <button class="speed-btn" type="button" data-speed="4" aria-pressed="false">4x</button>
+            </div>
+          </div>
+
+          <!-- description -->
+          <div class="panel-card description-panel" id="widget-root-bottom">
+            <div class="panel-label">Current State &mdash; Grounded Description (D&amp;A)</div>
+            <div class="description-text" id="description-text"></div>
+
+            <div class="outcome-box">
+              <div class="panel-label">D&amp;A Analysis</div>
+              <div class="outcome-grid">
+                <div class="outcome-row" id="outcome-failure-row"><span class="tag is-danger is-light">failure</span><span id="outcome-failure"></span></div>
+                <div class="outcome-row" id="outcome-feedback-row"><span class="tag is-warning is-light">feedback</span><span id="outcome-feedback"></span></div>
+                <div class="outcome-row"><span class="tag is-success is-light">success criterion</span><span id="outcome-completion"></span></div>
+              </div>
+            </div>
+          </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="benchmarks">
+    <div class="container is-max-desktop has-text-centered">
+      <h2 class="title is-3">Generalization Across Tasks, Embodiments, and Benchmarks</h2>
+      <p class="section-lead">Scaling up the base VLM, D&amp;A* (GPT-6 Astra) tops every benchmark.</p>
+      <div class="section-card bar-section">
+        <div id="bench-legend" class="legend-chips bar-legend" role="group" aria-label="Show or hide models">
+          <button type="button" class="legend-chip is-model" data-key="Naive VLM" aria-pressed="true" style="--c:#007D68; --on-c:#fff;"><span>Naive VLM</span></button>
+          <button type="button" class="legend-chip is-model" data-key="GVL" aria-pressed="true" style="--c:#7F8C8D; --on-c:#000;"><span>GVL</span></button>
+          <button type="button" class="legend-chip is-model" data-key="TOPReward" aria-pressed="true" style="--c:#9467BD; --on-c:#000;"><span>TOPReward</span></button>
+          <button type="button" class="legend-chip is-model" data-key="SOLE-R1" aria-pressed="true" style="--c:#17BECF; --on-c:#000;"><span>SOLE-R1</span></button>
+          <button type="button" class="legend-chip is-model" data-key="RoboReward" aria-pressed="true" style="--c:#FCBF07; --on-c:#000;"><span>RoboReward</span></button>
+          <button type="button" class="legend-chip is-model" data-key="Robometer" aria-pressed="true" style="--c:#FF7F0E; --on-c:#000;"><span>Robometer</span></button>
+          <button type="button" class="legend-chip is-model" data-key="D&amp;A" aria-pressed="true" style="--c:#D81B60; --on-c:#fff;"><span>D&amp;A</span></button>
+          <button type="button" class="legend-chip is-model" data-key="D&amp;A*" aria-pressed="true" style="--c:#F4A9C8; --on-c:#000;"><span>D&amp;A* (GPT-6 Astra)</span></button>
+        </div>
+        <p class="section-hint bar-hint">Click a model to hide or show it in all three charts.</p>
+        <div class="bar-chart-grid">
+          <figure class="bar-chart">
+            <figcaption class="bar-chart-title">
+              <span class="bar-chart-name">D&amp;A-Bench</span>
+              <span class="bar-chart-metric">Kendall &tau;<sub>&alpha;</sub> &middot; higher is better &uarr;</span>
+            </figcaption>
+            <div class="bar-chart-wrap">
+              <svg id="bench-svg-dna" role="img" aria-label="Bar chart of Kendall tau-alpha on D&A-Bench"></svg>
+            </div>
+          </figure>
+          <figure class="bar-chart">
+            <figcaption class="bar-chart-title">
+              <span class="bar-chart-name">RBM-EVAL-OOD</span>
+              <span class="bar-chart-metric">Kendall &tau;<sub>&alpha;</sub> &middot; higher is better &uarr;</span>
+            </figcaption>
+            <div class="bar-chart-wrap">
+              <svg id="bench-svg-rbm" role="img" aria-label="Bar chart of Kendall tau-alpha on RBM-EVAL-OOD"></svg>
+            </div>
+          </figure>
+          <figure class="bar-chart">
+            <figcaption class="bar-chart-title">
+              <span class="bar-chart-name">RoboRewardBenchmark</span>
+              <span class="bar-chart-metric">MAE &middot; lower is better &darr;</span>
+            </figcaption>
+            <div class="bar-chart-wrap">
+              <svg id="bench-svg-rrb" role="img" aria-label="Bar chart of MAE on RoboRewardBenchmark"></svg>
+            </div>
+          </figure>
+        </div>
+        <p class="figure-caption">
+          D&amp;A (Gemini 3 Flash) emerges as the strongest zero-shot reward model across three offline benchmarks,
+          outperforming zero-shot baselines and matching or surpassing post-trained reward models on tasks,
+          embodiments, and language it has never seen.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="confusion">
+    <div class="container is-max-desktop has-text-centered">
+      <h2 class="title is-3">Confusion Matrices</h2>
+      <div class="section-card">
+        <p class="section-lead">D&amp;A achieves clear separation indicated by a clean diagonal while GVL and TOPReward largely fail to distinguish the pairs.</p>
+        <figure>
+          <div class="columns is-centered">
+            <div class="column">
+              <img class="figure-img" src="./static/images/confusion_matrix_rbm.png" width="2720" height="718" loading="lazy" decoding="async"
+                alt="Video-language reward confusion matrices on RBM-EVAL-OOD for each reward model" />
+            </div>
+            <div class="column">
+              <img class="figure-img" src="./static/images/confusion_matrix_dna.png" width="2720" height="718" loading="lazy" decoding="async"
+                alt="Video-language reward confusion matrices on D&amp;A-Bench for each reward model" />
+            </div>
+          </div>
+          <figcaption class="figure-caption">
+            Video&ndash;language reward confusion matrices over all trajectory/instruction pairings from
+            <span class="term">RBM-EVAL-OOD</span> (left) and <span class="term">D&amp;A-Bench</span> (right).
+            A clear diagonal indicates assignment of high rewards to the correct pairings. While strong color on the off-diagonal indicates poor separation of video&ndash;language pairs.
+            We further report column-normalized diagonal mean (fraction of reward on
+            correct matches).
+          </figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="scaling">
+    <div class="container is-max-desktop has-text-centered">
+      <h2 class="title is-3">Scaling with the Underlying VLM</h2>
+      <div class="chart-card">
+        <p class="section-hint scaling-hint">
+          <span class="hint-fine">Drag a box on the plot to zoom &middot; hover a point for details &middot; click a chip to hide or show a model family</span>
+          <span class="hint-coarse">Tap a point for details &middot; tap a chip to hide or show a model family</span>
+        </p>
+        <div class="chart-plot-wrap">
+          <svg id="scaling-svg" role="img" aria-describedby="scaling-data"
+            aria-label="Scatter plot of Kendall tau-alpha versus cost per million output tokens. The underlying values are in the table below the plot."></svg>
+          <button id="scaling-reset-zoom" class="chart-btn plot-reset" type="button" hidden>&#8634; Reset zoom</button>
+          <div id="scaling-tooltip" class="chart-tooltip" role="status" hidden></div>
+        </div>
+        <div id="scaling-legend" class="chart-legend"></div>
+        <div class="chart-toolbar">
+          <button id="scaling-show-all" class="chart-btn" type="button">Show all</button>
+          <button id="scaling-show-none" class="chart-btn" type="button">Hide all</button>
+        </div>
+      </div>
+      <details class="data-table" id="scaling-data">
+        <summary>View underlying data</summary>
+        <div class="table-container">
+        <table class="table is-bordered is-striped is-narrow is-fullwidth">
+          <thead>
+            <tr>
+              <th>Model</th>
+              <th>Family</th>
+              <th class="has-text-right">Cost ($ / 1M output tok)</th>
+              <th class="has-text-right">Kendall &tau;<sub>&alpha;</sub> (final step)</th>
+            </tr>
+          </thead>
+          <tbody id="scaling-data-table-body"></tbody>
+        </table>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section class="section" id="feedback">
+    <div class="container is-max-desktop has-text-centered">
+      <h2 class="title is-3">D&amp;A Rich Language Feedback Improves Code-as-Policies</h2>
+      <div id="feedback-widget" class="section-card">
+          <p class="widget-intro">
+            Allowing Code-as-Policies (CaP) to iterate over its solutions improves performance from 11.4% (no history) to 40.6% (history).
+            Adding <strong>D&amp;A's rich language feedback achieves 51.4%</strong>, showcasing how rich semantic feedback provides a more effective signal than scalar rewards for downstream refinement.
+          </p>
+
+          <div class="stat-bar">
+            <div class="stat-tile">
+              <div class="stat-value">11.4%</div>
+              <div class="stat-label">No history</div>
+            </div>
+            <span class="stat-arrow" aria-hidden="true"><i class="fas fa-arrow-right"></i></span>
+            <div class="stat-tile">
+              <div class="stat-value">40.6%</div>
+              <div class="stat-label">History</div>
+            </div>
+            <span class="stat-arrow" aria-hidden="true"><i class="fas fa-arrow-right"></i></span>
+            <div class="stat-tile">
+              <div class="stat-value is-dna">51.4%</div>
+              <div class="stat-label is-dna">+ D&amp;A feedback</div>
+            </div>
+          </div>
+
+          <div class="picker-row">
+            <label class="picker-label" for="fb-case-select">Case</label>
+            <div class="select">
+              <select id="fb-case-select" disabled><option>Loading cases&hellip;</option></select>
+            </div>
+            <button class="dice-btn" id="fb-btn-random" type="button" aria-label="Random case" title="Random case" disabled><span aria-hidden="true">&#x1F3B2;</span></button>
+          </div>
+          <p class="section-hint widget-hint">Pick a case, then move the attempt slider: both planners update to the same attempt.</p>
+
+          <p class="case-caption" id="fb-case-caption"></p>
+
+          <div id="fb-compare-root">
+            <!-- baseline -->
+            <div class="panel-card">
+              <h3 class="arm-title"><span class="arm-dot is-base"></span> Baseline &mdash; Code + Binary Success</h3>
+              <div class="video-frame-wrap">
+                <video id="fb-base-video" muted playsinline loop preload="auto" aria-label="Baseline rollout for the selected attempt"></video>
+              </div>
+              <div class="outcome-tag-row">
+                <span class="tag" id="fb-base-outcome-tag"></span>
+              </div>
+              <div class="outcome-strip" id="fb-base-strip" aria-hidden="true"></div>
+              <div class="base-empty-note">No feedback signal &mdash; the planner only sees its own past code and success/failure.</div>
+            </div>
+
+            <!-- dna -->
+            <div class="panel-card is-dna">
+              <h3 class="arm-title"><span class="arm-dot is-dna"></span> + D&amp;A Feedback</h3>
+              <div class="video-frame-wrap">
+                <video id="fb-dna-video" muted playsinline loop preload="auto" aria-label="D&amp;A feedback rollout for the selected attempt"></video>
+              </div>
+              <div class="outcome-tag-row">
+                <span class="tag" id="fb-dna-outcome-tag"></span>
+              </div>
+              <div class="outcome-strip" id="fb-dna-strip" aria-hidden="true"></div>
+              <div class="dna-text-box">
+                <div class="dna-text-row"><span class="tag is-info is-light">analysis</span><span id="fb-dna-analysis"></span></div>
+                <div id="fb-dna-critique-rows">
+                  <div class="dna-text-row"><span class="tag is-danger is-light">failure</span><span id="fb-dna-failure"></span></div>
+                  <div class="dna-text-row"><span class="tag is-warning is-light">feedback</span><span id="fb-dna-feedback"></span></div>
+                </div>
+                <div id="fb-dna-carried-row" class="dna-text-row" hidden>
+                  <span class="tag is-light">prev. feedback</span><span id="fb-dna-carried-feedback"></span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="shared-transport">
+            <div class="transport-main">
+              <button class="button is-small" id="fb-btn-prev" type="button" aria-label="Previous attempt" title="Previous attempt" disabled>
+                <span class="icon is-small"><i class="fas fa-step-backward"></i></span>
+              </button>
+              <input type="range" id="fb-attempt-slider" aria-label="Attempt" min="0" max="24" step="1" value="0" disabled>
+              <button class="button is-small" id="fb-btn-next" type="button" aria-label="Next attempt" title="Next attempt" disabled>
+                <span class="icon is-small"><i class="fas fa-step-forward"></i></span>
+              </button>
+            </div>
+            <div class="transport-meta">
+              <button class="button is-small" id="fb-btn-play" type="button" aria-label="Pause both videos" disabled>
+                <span class="icon is-small"><i class="fas fa-pause"></i></span><span>Pause</span>
+              </button>
+              <span class="attempt-readout" id="fb-attempt-readout" aria-live="polite">attempt &ndash; / &ndash;</span>
+            </div>
+          </div>
+
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="frontier" aria-labelledby="frontier-title">
+    <div class="container is-max-desktop has-text-centered">
+      <h2 class="title is-3" id="frontier-title">D&amp;A Scales to Frontier Models</h2>
+      <div class="section-card">
+        <p class="section-lead">D&amp;A improves on D&amp;A-Bench for every frontier model we tested, and on RBM-EVAL-OOD for two of three.</p>
+        <div class="frontier-legend" aria-hidden="true">
+          <span><span class="db-dot is-naive is-static"></span>Naive VLM</span>
+          <span><span class="db-dot is-dna is-static"></span>D&amp;A</span>
+        </div>
+        <div class="frontier-panels">
+        <div class="panel-card frontier-panel">
+          <h3 class="frontier-panel-title"><span class="term">RBM-EVAL-OOD</span></h3>
+          <p class="frontier-panel-metric">Kendall &tau;<sub>&alpha;</sub> &middot; higher is better &uarr;</p>
+          <div class="db-chart" role="group" aria-label="RBM-EVAL-OOD: Kendall tau alpha, Naive versus D&amp;A for three frontier models">
+            <div class="db-row">
+              <span class="db-label">Qwen 3.6 Plus</span>
+              <span class="db-track">
+                <span class="db-line" style="left:8.17%;width:39.0%"></span>
+                <span class="db-dot is-naive" style="left:8.17%"></span>
+                <span class="db-dot is-dna" style="left:47.17%"></span>
+              </span>
+              <span class="db-values"><span class="db-pair">0.349 &rarr; 0.583</span> <strong class="db-delta is-up">+0.234</strong></span>
+              <span class="visually-hidden">Qwen 3.6 Plus: Naive 0.349, D&amp;A 0.583, change +0.234.</span>
+            </div>
+            <div class="db-row">
+              <span class="db-label">GPT-6 Astra</span>
+              <span class="db-track">
+                <span class="db-line" style="left:61.83%;width:7.17%"></span>
+                <span class="db-dot is-naive" style="left:61.83%"></span>
+                <span class="db-dot is-dna" style="left:69.0%"></span>
+              </span>
+              <span class="db-values"><span class="db-pair">0.671 &rarr; 0.714</span> <strong class="db-delta is-up">+0.043</strong></span>
+              <span class="visually-hidden">GPT-6 Astra: Naive 0.671, D&amp;A 0.714, change +0.043.</span>
+            </div>
+            <div class="db-row">
+              <span class="db-label">Gemini 4 Argon*</span>
+              <span class="db-track">
+                <span class="db-line" style="left:70.67%;width:1.66%"></span>
+                <span class="db-dot is-naive" style="left:72.33%"></span>
+                <span class="db-dot is-dna" style="left:70.67%"></span>
+              </span>
+              <span class="db-values"><span class="db-pair">0.734 &rarr; 0.724</span> <strong class="db-delta is-down">&minus;0.010</strong></span>
+              <span class="visually-hidden">Gemini 4 Argon: Naive 0.734, D&amp;A 0.724, change &minus;0.010.</span>
+            </div>
+            <div class="db-row db-axis" aria-hidden="true">
+              <span></span>
+              <span class="db-ticks"><span style="left:16.67%">0.4</span><span style="left:50.0%">0.6</span><span style="left:83.33%">0.8</span></span>
+              <span></span>
+            </div>
+          </div>
+          <p class="frontier-panel-note">* suspected to train on RBM-EVAL-OOD</p>
+        </div>
+        <div class="panel-card frontier-panel">
+          <h3 class="frontier-panel-title"><span class="term">D&amp;A-Bench</span></h3>
+          <p class="frontier-panel-metric">Kendall &tau;<sub>&alpha;</sub> &middot; higher is better &uarr;</p>
+          <div class="db-chart" role="group" aria-label="DandA-Bench: Kendall tau alpha, Naive versus D&amp;A for three frontier models">
+            <div class="db-row">
+              <span class="db-label">Qwen 3.6 Plus</span>
+              <span class="db-track">
+                <span class="db-line" style="left:49.5%;width:26.0%"></span>
+                <span class="db-dot is-naive" style="left:49.5%"></span>
+                <span class="db-dot is-dna" style="left:75.5%"></span>
+              </span>
+              <span class="db-values"><span class="db-pair">0.597 &rarr; 0.753</span> <strong class="db-delta is-up">+0.156</strong></span>
+              <span class="visually-hidden">Qwen 3.6 Plus: Naive 0.597, D&amp;A 0.753, change +0.156.</span>
+            </div>
+            <div class="db-row">
+              <span class="db-label">GPT-6 Astra</span>
+              <span class="db-track">
+                <span class="db-line" style="left:78.0%;width:3.67%"></span>
+                <span class="db-dot is-naive" style="left:78.0%"></span>
+                <span class="db-dot is-dna" style="left:81.67%"></span>
+              </span>
+              <span class="db-values"><span class="db-pair">0.768 &rarr; 0.790</span> <strong class="db-delta is-up">+0.022</strong></span>
+              <span class="visually-hidden">GPT-6 Astra: Naive 0.768, D&amp;A 0.790, change +0.022.</span>
+            </div>
+            <div class="db-row">
+              <span class="db-label">Gemini 4 Argon</span>
+              <span class="db-track">
+                <span class="db-line" style="left:79.67%;width:12.5%"></span>
+                <span class="db-dot is-naive" style="left:79.67%"></span>
+                <span class="db-dot is-dna" style="left:92.17%"></span>
+              </span>
+              <span class="db-values"><span class="db-pair">0.778 &rarr; 0.853</span> <strong class="db-delta is-up">+0.075</strong></span>
+              <span class="visually-hidden">Gemini 4 Argon: Naive 0.778, D&amp;A 0.853, change +0.075.</span>
+            </div>
+            <div class="db-row db-axis" aria-hidden="true">
+              <span></span>
+              <span class="db-ticks"><span style="left:16.67%">0.4</span><span style="left:50.0%">0.6</span><span style="left:83.33%">0.8</span></span>
+              <span></span>
+            </div>
+          </div>
+        </div>
+        </div>
+        <p class="figure-caption">
+          Kendall &tau;<sub>&alpha;</sub> with the same VLM prompted naively (teal) versus with D&amp;A (pink), for
+          Qwen 3.6 Plus, GPT-6 Astra and Gemini 4 Argon. The number on the right of each row is the change from Naive to
+          D&amp;A. Gemini 4 Argon is the one case where D&amp;A is slightly lower (&minus;0.010 on RBM-EVAL-OOD*).
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="embodiments">
+    <div class="container is-max-desktop has-text-centered">
+      <h2 class="title is-3">D&amp;A Generalizes to New Embodiments</h2>
+      <div class="section-card">
+      <div class="embodiment-group">
+        <div class="embodiment-title">
+          <h3 class="title is-5">Humanoid</h3>
+          <span class="embodiment-source">videos from
+            <a href="https://nvlabs.github.io/GEAR-SONIC/" target="_blank" rel="noopener">GEAR-SONIC</a>
+          </span>
+        </div>
+        <div class="columns is-centered is-multiline mt-2">
+          <div class="column is-6">
+            <div class="gen-video-card">
+              <video data-src="./static/videos/generalization/kneel_success.mp4" poster="./static/videos/generalization/posters/kneel_success.jpg" width="640" height="558" preload="none" muted loop playsinline controls aria-label="Humanoid kneeling, success"></video>
+              <div class="gen-video-caption">
+                <span class="tag is-success is-light">success</span>
+                &ldquo;Kneel&rdquo;
+              </div>
+            </div>
+          </div>
+          <div class="column is-6">
+            <div class="gen-video-card">
+              <video data-src="./static/videos/generalization/kneel_failure.mp4" poster="./static/videos/generalization/posters/kneel_failure.jpg" width="640" height="558" preload="none" muted loop playsinline controls aria-label="Humanoid kneeling, failure"></video>
+              <div class="gen-video-caption">
+                <span class="tag is-danger is-light">failure</span>
+                &ldquo;Kneel&rdquo;
+              </div>
+            </div>
+          </div>
+          <div class="column is-6">
+            <div class="gen-video-card">
+              <video data-src="./static/videos/generalization/drill_shelf_success.mp4" poster="./static/videos/generalization/posters/drill_shelf_success.jpg" width="640" height="558" preload="none" muted loop playsinline controls aria-label="Humanoid placing a drill on the shelf, success"></video>
+              <div class="gen-video-caption">
+                <span class="tag is-success is-light">success</span>
+                &ldquo;Place the drill in the box and move it over to the shelf&rdquo;
+              </div>
+            </div>
+          </div>
+          <div class="column is-6">
+            <div class="gen-video-card">
+              <video data-src="./static/videos/generalization/gpu_shelf_failure.mp4" poster="./static/videos/generalization/posters/gpu_shelf_failure.jpg" width="640" height="558" preload="none" muted loop playsinline controls aria-label="Humanoid placing a GPU on the shelf, failure"></video>
+              <div class="gen-video-caption">
+                <span class="tag is-danger is-light">failure</span>
+                &ldquo;Place the GPU in the box and move it over to the shelf&rdquo;
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="embodiment-group">
+        <div class="embodiment-title">
+          <h3 class="title is-5">Quadruped</h3>
+          <span class="embodiment-source">videos from
+            <a href="https://eureka-research.github.io/dr-eureka/" target="_blank" rel="noopener">DrEureka</a>
+          </span>
+        </div>
+        <div class="columns is-centered is-multiline mt-2">
+          <div class="column is-6">
+            <div class="gen-video-card">
+              <video data-src="./static/videos/generalization/balance_ball_failure.mp4" poster="./static/videos/generalization/posters/balance_ball_failure.jpg" width="640" height="558" preload="none" muted loop playsinline controls aria-label="Quadruped balancing on a ball, failure"></video>
+              <div class="gen-video-caption">
+                <span class="tag is-danger is-light">failure</span>
+                &ldquo;Balance on top of the ball&rdquo; &mdash; progress decays as the robot loses balance
+              </div>
+            </div>
+          </div>
+          <div class="column is-6">
+            <div class="gen-video-card">
+              <video data-src="./static/videos/generalization/jump_off_ball_success.mp4" poster="./static/videos/generalization/posters/jump_off_ball_success.jpg" width="640" height="558" preload="none" muted loop playsinline controls aria-label="Quadruped jumping off a ball, success"></video>
+              <div class="gen-video-caption">
+                <span class="tag is-success is-light">success</span>
+                &ldquo;Jump off the ball&rdquo;
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="BibTeX">
+    <div class="container is-max-desktop content bibtex-block">
+      <h2 class="title has-text-centered">BibTeX</h2>
+      <div class="bibtex-wrap">
+        <button type="button" class="button is-small bibtex-copy" id="bibtex-copy" aria-label="Copy BibTeX to clipboard">
+          <span class="icon is-small"><i class="fas fa-copy" aria-hidden="true"></i></span>
+          <span class="bibtex-copy-label">Copy</span>
+        </button>
+        <pre id="bibtex-text"><code>@article{memmel2026dna,
+  title={D\&A: Decoupling Description and Assessment Enables VLMs as Zero-Shot Robotic Reward Models},
+  author={Memmel, Marius and Yin, Shawn and Rutia, Urvi and Li, Eldon and Angeloff, Gavin and Wadhwa, Angad and Goyal, Ankit and Zhang, Jesse and Fox, Dieter and Ramos, Fabio and Li, Anqi and Gupta, Abhishek},
+  journal={Conference on Robot Learning (CoRL)},
+  year={2026}
+}</code></pre>
+      </div>
+    </div>
+  </section>
+
+  </main>
+
+  <footer class="footer">
+    <div class="container is-max-desktop">
+      <p>
+        This website is based on the <a href="https://github.com/nerfies/nerfies.github.io"
+          target="_blank" rel="noopener">Nerfies website template</a>, which is licensed under a <a rel="license noopener"
+          href="http://creativecommons.org/licenses/by-sa/4.0/" target="_blank">Creative Commons
+          Attribution-ShareAlike 4.0 International License</a>.
+      </p>
+    </div>
+  </footer>
+
+  <script defer src="./static/js/bar-charts.js"></script>
+  <script defer src="./static/js/scaling-plot.js"></script>
+  <script defer src="./static/js/bench-widget.js"></script>
+  <script defer src="./static/js/feedback-widget.js"></script>
+
+</body>
+
+</html>

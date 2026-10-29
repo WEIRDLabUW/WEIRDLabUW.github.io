@@ -18,3 +18,4 @@ then open http://localhost:8000.
 - `demo/`: the in-browser pushing demo (`qoil-core.js` environment and agent, `qoil-demo.js` UI)
 - `assets/videos/`: training-run comparisons and explainer clips (H.264, web-compressed)
 - `assets/figures/`: paper figures and plots
+- `scripts/manim_humans.py`: the manim scene behind the "how do people intervene?" explainer clip (render instructions in its docstring)

@@ -69,11 +69,17 @@
                     <div class="sim-side">
                         <p class="sim-help">Push the orange puck into the ring. A simulated person takes over when progress stalls, or <b>click and drag</b> to take over yourself.</p>
                         <div class="sim-row">
+                            <span class="label">Algorithm</span>
+                            <div class="seg" role="group" aria-label="Algorithm">
+                                <button type="button" class="active" data-algo="qoil">Q-OIL</button>
+                                <button type="button" data-algo="nodec">Without decoupling</button>
+                            </div>
+                        </div>
+                        <div class="sim-row" data-show-row>
                             <span class="label">Show</span>
                             <div class="seg" role="group" aria-label="Overlay">
                                 <button type="button" class="active" data-heat="opt">Value</button>
                                 <button type="button" data-heat="bonus">Bonus</button>
-                                <button type="button" data-heat="off">Off</button>
                             </div>
                         </div>
                         <div class="sim-row">

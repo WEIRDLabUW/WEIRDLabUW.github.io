@@ -12,15 +12,16 @@
   const chart = $(".demo-chart");
   const cctx = chart.getContext("2d");
 
-  const HEAT_N = 36;
-  const ARROW_N = 11;
+  const HEAT_N = C.TAB_GRID;  // one heatmap pixel per table cell
+  const ARROW_N = C.TAB_GRID;  // one greedy-action arrow per table cell
   const REALTIME_HZ = 20;
 
   let rng, env, agent, sup, obs;
+  let algo = "qoil";  // "qoil" (decoupled critics) or "nodec" (one critic, the ablation)
   let stats;
   let useSup = true;
   let heatMode = "opt";
-  const showArrows = true;
+  const showArrows = false;
   let human = null;           // {x, y} target in arena coords while taking over
   let lastStepAt = 0;
   let heat = null, heatRange = [0, 1], arrows = null, heatDirty = true, frame = 0;
@@ -29,7 +30,7 @@
   function init() {
     rng = C.makeRng((Math.random() * 2 ** 31) | 0);
     env = new C.PushEnv(rng);
-    agent = new C.QOILAgent(rng);
+    agent = new C.TabularQOILAgent(rng, { decoupled: algo === "qoil" });
     sup = new C.SimSupervisor(rng);
     obs = env.reset();
     stats = { steps: 0, episodes: 0, successes: [], intFrac: [], interventions: 0 };
@@ -104,9 +105,26 @@
         if (v < lo) lo = v; if (v > hi) hi = v;
       }
     }
-    // Shown normalized to 0-1: colors span the current min-max of whichever map is on.
+    // Smooth the table with a 3x3 binomial kernel so it reads as a value field, then
+    // show it normalized to 0-1 over the current min-max.
+    const sm = new Float32Array(n * n), k = [1, 2, 1];
+    lo = Infinity; hi = -Infinity;
+    for (let j = 0; j < n; j++)
+      for (let i = 0; i < n; i++) {
+        let acc = 0, wsum = 0;
+        for (let dj = -1; dj <= 1; dj++)
+          for (let di = -1; di <= 1; di++) {
+            const ii = i + di, jj = j + dj;
+            if (ii < 0 || jj < 0 || ii >= n || jj >= n) continue;
+            const w = k[di + 1] * k[dj + 1];
+            acc += w * vals[jj * n + ii]; wsum += w;
+          }
+        const v = acc / wsum;
+        sm[j * n + i] = v;
+        if (v < lo) lo = v; if (v > hi) hi = v;
+      }
     heatRange = [lo, hi - lo > 1e-6 ? hi : lo + 1];
-    heat = vals;
+    heat = sm;
     if (showArrows) {
       const m = ARROW_N;
       arrows = new Int8Array(m * m);
@@ -160,7 +178,7 @@
           img.data[o] = c[0]; img.data[o + 1] = c[1]; img.data[o + 2] = c[2]; img.data[o + 3] = 255;
         }
       hctx.putImageData(img, 0, 0);
-      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingEnabled = true;   // bilinear upscaling of the smoothed table
       ctx.globalAlpha = 0.9;
       ctx.drawImage(heatCanvas, 0, 0, W, W);
       ctx.globalAlpha = 1;
@@ -189,10 +207,12 @@
 
     // goal
     const g = C.ENV.goal;
-    ctx.setLineDash([6, 5]); ctx.lineWidth = 2.5; ctx.strokeStyle = "#ffffff";
-    ctx.beginPath(); ctx.arc(X(g[0]), Y(g[1]), C.ENV.goalR * W, 0, 2 * Math.PI); ctx.stroke();
-    ctx.setLineDash([]);
-    ctx.fillStyle = "rgba(255,255,255,0.18)"; ctx.fill();
+    ctx.beginPath(); ctx.arc(X(g[0]), Y(g[1]), C.ENV.goalR * W, 0, 2 * Math.PI);
+    ctx.fillStyle = "rgba(255, 255, 255, 0.55)"; ctx.fill();
+    ctx.lineWidth = 3; ctx.strokeStyle = "#ac3f87"; ctx.stroke();
+    ctx.font = "600 13px 'Noto Sans', sans-serif"; ctx.fillStyle = "#ac3f87";
+    ctx.textAlign = "center"; ctx.textBaseline = "bottom";
+    ctx.fillText("goal", X(g[0]), Y(g[1]) - C.ENV.goalR * W - 4);
 
     // puck
     ctx.fillStyle = "#e8a33d"; ctx.strokeStyle = "#7a4f12"; ctx.lineWidth = 2;
@@ -219,9 +239,15 @@
     const bar = $(".demo-legend-bar"), labels = $(".demo-legend-labels");
     const stops = heatMode === "bonus" ? DIV : SEQ;
     bar.style.background = `linear-gradient(to right, ${stops.map((c) => `rgb(${c.map(Math.round).join(",")})`).join(",")})`;
-    const names = { opt: "Value the robot sees (normalized)", td: "Task-only value (normalized)", bonus: "Bonus from takeovers (normalized)" };
+    const names = algo === "nodec"
+      ? { opt: "Value with one critic (normalized)" }
+      : { opt: "Value the robot sees (normalized)", td: "Task-only value (normalized)", bonus: "Bonus from takeovers (normalized)" };
     $(".demo-legend-name").innerHTML = names[heatMode] || "";
-    labels.innerHTML = `<span>0</span><span>1</span>`;
+    // Raw peak of the whole table, so the blow-up without decoupling stays visible.
+    const table = { opt: agent.qopt.q, td: agent.qtd.q }[heatMode];
+    let peak = 0;
+    if (table) for (let i = 0; i < table.length; i++) if (table[i] > peak) peak = table[i];
+    labels.innerHTML = table ? `<span>0</span><span>1 = peak value ${peak.toFixed(2)}</span>` : `<span>0</span><span>1</span>`;
     $(".demo-legend").style.visibility = heatMode === "off" ? "hidden" : "visible";
   }
 
@@ -310,6 +336,16 @@
       }));
   }
   seg("data-heat", (v) => { heatMode = v; heatDirty = true; if (v !== "off") computeHeat(); else drawLegend(); });
+  // Switching the algorithm restarts training. Without decoupling there is only one
+  // critic, so the page shows its value and hides the Value/Bonus choice.
+  seg("data-algo", (v) => {
+    algo = v;
+    heatMode = "opt";
+    root.querySelectorAll("[data-heat]").forEach((b) => b.classList.toggle("active", b.dataset.heat === "opt"));
+    const showRow = root.querySelector("[data-show-row]");
+    if (showRow) showRow.hidden = algo !== "qoil";
+    init(); computeHeat();
+  });
   $('[data-action="reset"]').addEventListener("click", () => { init(); computeHeat(); });
   $('[data-action="supervisor"]').addEventListener("change", (e) => { useSup = e.target.checked; });
 

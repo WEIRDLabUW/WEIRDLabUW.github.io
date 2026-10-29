@@ -189,7 +189,8 @@ ol.code li.m-chg { background: #fdf3e2; border-left-color: var(--amber); }
 .sim .demo-legend-labels { display: flex; justify-content: space-between; font-variant-numeric: tabular-nums; }
 .sim-side { display: grid; gap: 1rem; }
 .sim-row { display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem; }
-.sim-row .label { font-size: 0.9rem; color: var(--ink-3); min-width: 3rem; }
+.sim-row[hidden] { display: none; }
+.sim-row .label { font-size: 0.9rem; color: var(--ink-3); min-width: 4.5rem; }
 .switch { display: inline-flex; align-items: center; gap: 0.55rem; font-size: 0.93rem; cursor: pointer; }
 .switch input { appearance: none; width: 2.3rem; height: 1.3rem; border-radius: 999px; background: #d4d6dc; position: relative; cursor: pointer; transition: background 0.15s; margin: 0; }
 .switch input::after { content: ""; position: absolute; top: 2px; left: 2px; width: calc(1.3rem - 4px); height: calc(1.3rem - 4px); border-radius: 50%; background: #fff; transition: transform 0.15s; }

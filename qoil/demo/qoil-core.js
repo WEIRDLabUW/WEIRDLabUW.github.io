@@ -292,7 +292,7 @@
       this.lr = opts.lr || 1e-3;
       this.batch = opts.batch || 64;
       this.tau = opts.tau || 0.01;
-      this.bonus = opts.bonus == null ? 0.05 : opts.bonus;
+      this.bonus = opts.bonus == null ? 0.5 : opts.bonus;  // large, so the effect is visible in the demo
       this.useBonus = opts.useBonus == null ? true : opts.useBonus;
       this.capacity = opts.capacity || 50000;
       this.epsStart = 0.5; this.epsEnd = 0.05; this.epsDecay = opts.epsDecay || 6000;
@@ -341,6 +341,80 @@
     }
   }
 
+  // ------------------------------------------------------- Tabular agent
+  // The same Q-OIL update, but with lookup tables over a discretized state, so a
+  // takeover raises exactly the cells it passed through (like a gridworld). The
+  // pushing physics stay continuous; only the learner's view is gridded:
+  // pusher on a TAB_GRID x TAB_GRID grid, puck on a TAB_PUCK x TAB_PUCK grid.
+  const TAB_GRID = 16, TAB_PUCK = 8;
+
+  class TabularCritic {
+    constructor() { this.q = new Float32Array(TAB_PUCK * TAB_PUCK * TAB_GRID * TAB_GRID * N_ACTIONS); }
+    // Row offset of the 8 action values for an observation from encode().
+    row(x) {
+      const cell = (v, n) => Math.min(n - 1, Math.max(0, Math.floor(((v + 1) / 2) * n)));
+      const pi = cell(x[0], TAB_GRID), pj = cell(x[1], TAB_GRID);
+      const ki = cell(x[2], TAB_PUCK), kj = cell(x[3], TAB_PUCK);
+      return (((ki * TAB_PUCK + kj) * TAB_GRID + pi) * TAB_GRID + pj) * N_ACTIONS;
+    }
+    forward(x) { const o = this.row(x); return this.q.subarray(o, o + N_ACTIONS); }
+  }
+
+  // Q_task learns r + γ Q_task(s', a'); Q_opt learns r + b·[takeover] + γ Q_task(s', a'),
+  // with a' greedy on Q_opt. Each step updates the newest transition plus a few
+  // replayed ones, so values spread along visited paths quickly.
+  class TabularQOILAgent {
+    constructor(rng, opts = {}) {
+      this.rng = rng;
+      this.gamma = opts.gamma || 0.97;
+      this.alpha = opts.alpha || 0.4;
+      this.bonus = opts.bonus == null ? 0.5 : opts.bonus;
+      // decoupled: Q_opt bootstraps from Q_task (Q-OIL). false: Q_opt bootstraps from
+      // itself, so the bonus compounds backward (the no-decoupling ablation).
+      this.decoupled = opts.decoupled == null ? true : opts.decoupled;
+      this.replay = opts.replay || 12;
+      this.capacity = opts.capacity || 20000;
+      this.epsStart = 0.4; this.epsEnd = 0.05; this.epsDecay = opts.epsDecay || 4000;
+      this.qtd = new TabularCritic();
+      this.qopt = new TabularCritic();
+      this.buf = []; this.ptr = 0; this.steps = 0;
+    }
+    epsilon() {
+      const f = Math.min(1, this.steps / this.epsDecay);
+      return this.epsStart + f * (this.epsEnd - this.epsStart);
+    }
+    greedy(obs) { return argmax(this.qopt.forward(obs)); }
+    act(obs) {
+      this.steps += 1;
+      if (this.rng() < this.epsilon()) return Math.floor(this.rng() * N_ACTIONS);
+      return this.greedy(obs);
+    }
+    store(s, a, r, s2, done, intervened) {
+      const tr = { s, a, r, s2, done: done ? 1 : 0, int: intervened ? 1 : 0 };
+      if (this.buf.length < this.capacity) this.buf.push(tr);
+      else { this.buf[this.ptr] = tr; this.ptr = (this.ptr + 1) % this.capacity; }
+      this.last = tr;
+    }
+    learn(tr) {
+      let boot = 0, bootOpt = 0;
+      if (!tr.done) {
+        const qo2 = this.qopt.forward(tr.s2), a2 = argmax(qo2);
+        boot = this.gamma * this.qtd.forward(tr.s2)[a2];
+        bootOpt = this.decoupled ? boot : this.gamma * qo2[a2];
+      }
+      const td = this.qtd.row(tr.s) + tr.a, op = this.qopt.row(tr.s) + tr.a;
+      this.qtd.q[td] += this.alpha * (tr.r + boot - this.qtd.q[td]);
+      this.qopt.q[op] += this.alpha * (tr.r + this.bonus * tr.int + bootOpt - this.qopt.q[op]);
+    }
+    update() {
+      if (!this.last) return null;
+      this.learn(this.last);
+      for (let k = 0; k < this.replay && this.buf.length > 1; k++)
+        this.learn(this.buf[Math.floor(this.rng() * this.buf.length)]);
+      return 0;
+    }
+  }
+
   function argmax(a) {
     let b = 0;
     for (let i = 1; i < a.length; i++) if (a[i] > a[b]) b = i;
@@ -348,7 +422,7 @@
   }
 
   return {
-    makeRng, PushEnv, SimSupervisor, QOILAgent, MLP,
+    makeRng, PushEnv, SimSupervisor, QOILAgent, TabularQOILAgent, TAB_GRID, MLP,
     ENV, DIRS, N_ACTIONS, encode, nearestAction, expertAction, argmax,
   };
 });

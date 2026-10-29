@@ -104,12 +104,8 @@
         if (v < lo) lo = v; if (v > hi) hi = v;
       }
     }
-    if (heatMode === "bonus") {
-      const m = Math.max(0.01, Math.abs(lo), Math.abs(hi));
-      heatRange = [-m, m];
-    } else {
-      heatRange = [Math.min(0, lo), Math.max(0.25, hi)];
-    }
+    // Shown normalized to 0-1: colors span the current min-max of whichever map is on.
+    heatRange = [lo, hi - lo > 1e-6 ? hi : lo + 1];
     heat = vals;
     if (showArrows) {
       const m = ARROW_N;
@@ -124,9 +120,9 @@
 
   function max(a) { let m = a[0]; for (let i = 1; i < a.length; i++) if (a[i] > m) m = a[i]; return m; }
 
-  // One-hue blue ramp for values; amber-gray-blue for the bonus map (gray midpoint)
+  // One-hue ramps: blue for values, purple for the bonus map (both shown normalized to 0-1)
   const SEQ = [[247, 249, 253], [208, 222, 251], [142, 180, 245], [66, 133, 244], [31, 63, 122]];
-  const DIV = [[176, 108, 32], [226, 190, 140], [236, 238, 240], [142, 180, 245], [31, 63, 122]];
+  const DIV = [[247, 246, 251], [221, 213, 240], [178, 159, 222], [129, 99, 196], [90, 62, 160]]; // one-hue purple for the bonus map
   function ramp(stops, t) {
     t = Math.max(0, Math.min(1, t)) * (stops.length - 1);
     const i = Math.min(stops.length - 2, Math.floor(t)), f = t - i;
@@ -223,10 +219,9 @@
     const bar = $(".demo-legend-bar"), labels = $(".demo-legend-labels");
     const stops = heatMode === "bonus" ? DIV : SEQ;
     bar.style.background = `linear-gradient(to right, ${stops.map((c) => `rgb(${c.map(Math.round).join(",")})`).join(",")})`;
-    const names = { opt: "Value the robot sees", td: "Task-only value", bonus: "Bonus from takeovers" };
+    const names = { opt: "Value the robot sees (normalized)", td: "Task-only value (normalized)", bonus: "Bonus from takeovers (normalized)" };
     $(".demo-legend-name").innerHTML = names[heatMode] || "";
-    const f = (v) => (Math.abs(v) < 0.005 ? 0 : v).toFixed(2);
-    labels.innerHTML = `<span>${f(lo)}</span><span>${f(hi)}</span>`;
+    labels.innerHTML = `<span>0</span><span>1</span>`;
     $(".demo-legend").style.visibility = heatMode === "off" ? "hidden" : "visible";
   }
 

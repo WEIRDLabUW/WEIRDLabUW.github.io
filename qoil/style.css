@@ -61,6 +61,7 @@ a:hover { text-decoration: underline; }
 .section-title { font-family: var(--body); font-weight: 600; font-size: 2rem; line-height: 1.2; text-align: center; margin: 0 0 0.6rem; }
 .sub-title { font-family: var(--body); font-weight: 600; font-size: 1.25rem; margin: 0 0 1rem; }
 .sub-title.center { text-align: center; }
+.sub-title + .lede { margin: -0.6rem 0 1.1rem; color: var(--ink-2); max-width: 780px; text-wrap: pretty; }
 .justified { text-align: justify; hyphens: auto; }
 .block + .block { margin-top: 3rem; }
 

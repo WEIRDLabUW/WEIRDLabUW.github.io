@@ -28,6 +28,10 @@
   text-wrap: balance;
 }
 
+.widget-outro {
+  margin: var(--space-4) auto 0;
+}
+
 .picker-row {
   display: flex;
   align-items: center;
@@ -444,7 +448,7 @@
 }
 
 #feedback-widget .stat-value.is-dna {
-  color: var(--c-dna-text);
+  color: var(--success-fg);
 }
 
 #feedback-widget .stat-label {
@@ -458,7 +462,7 @@
 }
 
 #feedback-widget .stat-label.is-dna {
-  color: var(--c-dna-text);
+  color: var(--success-fg);
 }
 
 #feedback-widget .stat-arrow {
@@ -774,3 +778,73 @@
     transition: none;
   }
 }
+
+/* ---- one style for every small subtext: captions, intros, hints and footnotes ----
+   13px, muted, centered, as wide as their box; emphasis (strong/b) is the only thing that gets the ink color. */
+.figure-caption,
+.widget-intro,
+.widget-hint,
+.section-hint,
+.ladder-note,
+.hero-grid-note,
+.hero-code-link,
+#feedback-widget .case-caption {
+  max-width: none;            /* captions use the full width of their box: one or two lines on a wide monitor */
+  margin: var(--space-4) auto 0;
+  font-family: var(--font-text);
+  font-size: var(--fs-1);
+  font-weight: 400;
+  line-height: 1.55;
+  color: var(--text-muted);
+  text-align: center;
+  text-wrap: pretty;
+}
+
+.figure-caption strong, .figure-caption b,
+.widget-intro strong, .widget-intro b,
+.widget-hint strong, .widget-hint b,
+.section-hint strong, .section-hint b,
+.ladder-note strong, .ladder-note b,
+#feedback-widget .case-caption strong,
+#feedback-widget .case-caption b {
+  font-weight: 600;
+  color: var(--ink);
+}
+
+/* a caption that introduces what follows keeps its space below instead of above */
+.widget-intro:not(.widget-outro),
+#feedback-widget .case-caption {
+  margin: 0 auto var(--space-4);
+}
+
+/* tighter pairings */
+.ladder-links { margin-top: var(--space-1); }
+.hero-code-link { margin-top: var(--space-3); }
+.widget-hint { margin-top: var(--space-2); }
+.picker-row + .widget-hint { margin-top: var(--space-2); }
+
+/* footnotes inside a panel follow the same type, just left aligned */
+.frontier-panel-note {
+  margin: var(--space-2) 0 0;
+  font-size: var(--fs-1);
+  font-weight: 400;
+  line-height: 1.55;
+  color: var(--text-muted);
+}
+
+/* the same caption type for the remaining small texts: per-video captions, task prompt lines, empty-state notes */
+.gen-video-caption,
+.embodiment-instruction,
+#feedback-widget .base-empty-note {
+  font-family: var(--font-text);
+  font-size: var(--fs-1);
+  font-style: normal;
+  font-weight: 400;
+  line-height: 1.55;
+  color: var(--text-muted);
+  text-align: center;
+  text-wrap: pretty;
+}
+
+.gen-video-caption { margin-top: var(--space-3); }
+.embodiment-instruction { margin: var(--space-2) 0 0; }

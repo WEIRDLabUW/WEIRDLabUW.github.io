@@ -24,6 +24,25 @@
     io.observe(target);
   }
 
+  // Phrases to bold in the featured rollout, keyed by episode id. Everything else renders plain.
+  const HIGHLIGHTS = {
+    cable_task_ep0045: {
+      desc: {
+        2: ["right arm's gripper is moving toward the white and black cables"],
+        5: ['the right gripper closes around the white and black cables'],
+        6: ['causing them to begin disconnecting'],
+        7: ['The white and black cables are completely unplugged'],
+      },
+      failure: ['unplugged both the white and black cables', "violating the 'only' constraint"],
+      feedback: ['specifically targeted the white cable', 'black cable remained connected'],
+      completion: ['black cable remains plugged into the black box'],
+      // critical states for the one-time auto tour: start, reach, grasp, unplug, end
+      tour: [0, 2, 5, 7, 10],
+    },
+  };
+  const DEFAULT_EPISODE = 'cable_task_ep0045';
+  const TOUR_MS = 500;
+
   function initBench() {
     const SVG_NS = 'http://www.w3.org/2000/svg';
     const PAD_L = 40, PAD_R = 12, PAD_T = 12, PAD_B = 36;
@@ -37,6 +56,9 @@
       playing: false,
       speed: 1,
       hiddenModels: new Set(),
+      touring: false,   // auto-stepping through key points (loops until the reader interacts)
+      tourOver: false,  // the reader took over; never auto-step again
+      inView: false,
     };
 
     const el = {
@@ -89,7 +111,7 @@
           const ep = EPISODES[i];
           const opt = document.createElement('option');
           opt.value = i;
-          opt.textContent = `${ep.task_label} · Ep. ${ep.episode} — ${ep.ground_truth}`;
+          opt.textContent = `${ep.task_label} · ${ep.episode} — ${ep.ground_truth}`;
           group.appendChild(opt);
         });
         el.select.appendChild(group);
@@ -135,10 +157,30 @@
       });
     }
 
-    function setOutcomeRow(row, textEl, value) {
+    // text with the given phrases wrapped in <strong>
+    function setRich(node, text, phrases) {
+      node.textContent = '';
+      if (!phrases || !phrases.length) { node.textContent = text; return; }
+      const re = new RegExp('(' + phrases.map((p) => p.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|') + ')');
+      text.split(re).forEach((part, i) => {
+        if (i % 2) {
+          const b = document.createElement('strong');
+          b.textContent = part;
+          node.appendChild(b);
+        } else if (part) {
+          node.appendChild(document.createTextNode(part));
+        }
+      });
+    }
+
+    function highlights() {
+      return HIGHLIGHTS[currentEpisode().id] || {};
+    }
+
+    function setOutcomeRow(row, textEl, value, phrases) {
       const empty = !value || value === '-';
       row.hidden = empty;
-      textEl.textContent = empty ? '' : value;
+      setRich(textEl, empty ? '' : value, phrases);
     }
 
     function selectEpisode(i) {
@@ -152,9 +194,10 @@
       el.groundTruthBadge.textContent = `${ep.ground_truth.charAt(0).toUpperCase()}${ep.ground_truth.slice(1)} Trajectory`;
       el.groundTruthBadge.className = 'tag ' + (ep.ground_truth === 'success' ? 'is-success is-light' : ep.ground_truth === 'failure' ? 'is-danger is-light' : 'is-light');
 
-      setOutcomeRow(el.outcomeFailureRow, el.outcomeFailure, ep.failure);
-      setOutcomeRow(el.outcomeFeedbackRow, el.outcomeFeedback, ep.feedback);
-      el.outcomeCompletion.textContent = ep.completion_state || '-';
+      const hl = highlights();
+      setOutcomeRow(el.outcomeFailureRow, el.outcomeFailure, ep.failure, hl.failure);
+      setOutcomeRow(el.outcomeFeedbackRow, el.outcomeFeedback, ep.feedback, hl.feedback);
+      setRich(el.outcomeCompletion, ep.completion_state || '-', hl.completion);
 
       // cache-bust: forces a fresh fetch instead of a browser-cached copy
       // of a video that may have been re-encoded since it was last visited
@@ -209,7 +252,7 @@
       const label = `key frame ${snapped + 1} / ${ep.dna_progress.length}`;
       el.stepBadge.textContent = label;
       el.slider.setAttribute('aria-valuetext', `Key frame ${snapped + 1} of ${ep.dna_progress.length}`);
-      el.descriptionText.textContent = ep.descriptions[snapped];
+      setRich(el.descriptionText, ep.descriptions[snapped], (highlights().desc || {})[snapped]);
     }
 
     function xForFrac(frac) {
@@ -406,11 +449,27 @@
     // keys jump straight from key point to key point.
     el.select.addEventListener('change', (e) => selectEpisode(parseInt(e.target.value, 10)));
 
+    // same dice animation as the grid: the die spins and the swapped content pops in
+    function rollFx(btn, panels) {
+      btn.classList.remove('is-rolling');
+      void btn.offsetWidth;
+      btn.classList.add('is-rolling');
+      setTimeout(() => btn.classList.remove('is-rolling'), 700);
+      panels.forEach((p) => {
+        if (!p) return;
+        p.classList.remove('dice-pop');
+        void p.offsetWidth;
+        p.classList.add('dice-pop');
+        setTimeout(() => p.classList.remove('dice-pop'), 400);
+      });
+    }
+
     el.btnRandom.addEventListener('click', () => {
       // avoid repeating the same episode twice in a row when there's more than one
       let i = Math.floor(Math.random() * EPISODES.length);
       if (EPISODES.length > 1 && i === state.epIndex) i = (i + 1) % EPISODES.length;
       selectEpisode(i);
+      rollFx(el.btnRandom, [el.videoWrap.closest('.bench-stage'), document.getElementById('widget-root-bottom')]);
     });
 
     el.slider.addEventListener('input', (e) => {
@@ -473,9 +532,60 @@
       }).observe(el.chart);
     }
 
+    // --- auto tour: steps through the key points until the reader touches anything ---
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    let tourTimer = 0;
+
+    function setTouring(on) {
+      state.touring = on;
+      root.classList.toggle('is-touring', on);
+    }
+
+    let tourIdx = 0;
+
+    function tourSteps() {
+      const ep = currentEpisode();
+      return (HIGHLIGHTS[ep.id] || {}).tour || ep.dna_progress.map((_, i) => i);
+    }
+
+    // loops through the critical states (resting a little on the last one) until the reader interacts
+    function tourStep() {
+      if (!state.touring) return;
+      const steps = tourSteps();
+      tourIdx = (tourIdx + 1) % steps.length;
+      setStep(steps[tourIdx]);
+      tourTimer = setTimeout(tourStep, tourIdx === steps.length - 1 ? TOUR_MS * 4 : TOUR_MS);
+    }
+
+    function startTour() {
+      if (state.tourOver || state.touring || !state.inView || reduceMotion.matches) return;
+      setTouring(true);
+      setStep(tourSteps()[tourIdx]);
+      tourTimer = setTimeout(tourStep, TOUR_MS);
+    }
+
+    function pauseTour() {
+      clearTimeout(tourTimer);
+      setTouring(false);
+    }
+
+    function endTour() {
+      state.tourOver = true;
+      pauseTour();
+    }
+
+    ['pointerdown', 'keydown', 'input', 'change'].forEach((type) => root.addEventListener(type, endTour, true));
+
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver((entries) => {
+        state.inView = entries.some((e) => e.isIntersecting);
+        if (state.inView) startTour(); else pauseTour();
+      }, { threshold: 0.5 }).observe(root);
+    }
+
     // --- init ---
     buildSelect();
-    selectEpisode(0);
+    selectEpisode(Math.max(0, EPISODES.findIndex((e) => e.id === DEFAULT_EPISODE)));
     [el.select, el.btnRandom, el.slider, el.btnPrev, el.btnNext, el.btnPlay].forEach((c) => { c.disabled = false; });
     root.removeAttribute('aria-busy');
   }

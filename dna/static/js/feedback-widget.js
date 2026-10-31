@@ -236,6 +236,11 @@
       let i = Math.floor(Math.random() * CASES.length);
       if (CASES.length > 1 && i === state.caseIndex) i = (i + 1) % CASES.length;
       selectCase(i);
+      // same dice animation as the grid: the die spins and the swapped content pops in
+      const btn = el.btnRandom, panel = document.getElementById('fb-compare-root');
+      btn.classList.remove('is-rolling'); void btn.offsetWidth; btn.classList.add('is-rolling');
+      setTimeout(() => btn.classList.remove('is-rolling'), 700);
+      if (panel) { panel.classList.remove('dice-pop'); void panel.offsetWidth; panel.classList.add('dice-pop'); setTimeout(() => panel.classList.remove('dice-pop'), 400); }
     });
 
     // pause the loops while the comparison is off screen

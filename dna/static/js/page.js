@@ -27,6 +27,8 @@
     var io = new IntersectionObserver(function (entries) {
       entries.forEach(function (e) {
         var v = e.target;
+        // clips inside a closed <details> are not visible: do not fetch or play them
+        if (v.closest && v.closest('details:not([open])')) return;
         if (e.isIntersecting) {
           load(v);
           if (!reduceMotion.matches && !v.dataset.userPaused) {
@@ -39,6 +41,13 @@
         }
       });
     }, { rootMargin: '200px 0px', threshold: 0.25 });
+
+    // opening a <details> makes its clips visible: look at them again
+    document.addEventListener('toggle', function (e) {
+      var d = e.target;
+      if (!d || !d.matches || !d.matches('details[open]')) return;
+      d.querySelectorAll('video[data-src]').forEach(function (v) { io.unobserve(v); io.observe(v); });
+    }, true);
 
     videos.forEach(function (v) {
       v.addEventListener('pause', function () {
@@ -83,7 +92,15 @@
     }
 
     // the current section is the last one whose top has passed a line near the top of the viewport
+    // the bar appears once the marquee (top of the page) has scrolled out of view
+    var marquee = document.getElementById('marquee');
+    function toggleBar() {
+      var past = marquee ? marquee.getBoundingClientRect().bottom <= 0 : window.scrollY > 0;
+      nav.classList.toggle('is-visible', past);
+    }
+
     function update() {
+      toggleBar();
       var line = nav.offsetHeight + 24;
       var current = null;
       sections.forEach(function (s) {
@@ -108,20 +125,24 @@
     update();
   }
 
-  /* ---- BibTeX copy ---- */
-  function initCopy() {
-    var btn = document.getElementById('bibtex-copy');
-    var src = document.getElementById('bibtex-text');
+  /* ---- Copy buttons (BibTeX, code snippet) ---- */
+  function initCopy(btnId, srcId) {
+    var btn = document.getElementById(btnId);
+    var src = document.getElementById(srcId);
     if (!btn || !src) return;
     var label = btn.querySelector('.bibtex-copy-label');
+    var icon = btn.querySelector('.fas');
     var timer;
 
     function done(ok) {
-      label.textContent = ok ? 'Copied' : 'Press Ctrl/Cmd+C';
+      // icon-only buttons swap their icon instead of a text label
+      if (label) label.textContent = ok ? 'Copied' : 'Press Ctrl/Cmd+C';
+      if (!label && icon) icon.className = 'fas ' + (ok ? 'fa-check' : 'fa-copy');
       btn.classList.toggle('is-copied', ok);
       clearTimeout(timer);
       timer = setTimeout(function () {
-        label.textContent = 'Copy';
+        if (label) label.textContent = 'Copy';
+        if (!label && icon) icon.className = 'fas fa-copy';
         btn.classList.remove('is-copied');
       }, 2000);
     }
@@ -147,39 +168,50 @@
     });
   }
 
-  /* ---- Experimental hero background video: opt-in toggle, remembered, off under reduced motion ---- */
-  function initHeroVideo() {
-    var hero = document.getElementById('top');
-    var btn = document.getElementById('hero-video-toggle');
-    var video = hero && hero.querySelector('.hero-video video');
-    if (!btn || !video) return;
-    var KEY = 'dna-hero-video';
-    var on = false;
-    try { on = localStorage.getItem(KEY) !== '0'; } catch (e) { on = true; }
-    if (reduceMotion.matches) on = false;
+  /* ---- "More results": collapsed by default; links into it open it first ---- */
+  function initMore() {
+    var btn = document.getElementById('more-toggle');
+    var body = document.getElementById('more-body');
+    if (!btn || !body) return;
+    var label = btn.querySelector('.more-toggle-label');
+    var icon = btn.querySelector('.fas');
 
-    function set(next) {
-      on = next;
-      hero.classList.toggle('has-bg-video', on);
-      btn.setAttribute('aria-pressed', String(on));
-      btn.querySelector('.fas').className = 'fas ' + (on ? 'fa-pause' : 'fa-play');
-      if (on) {
-        if (!video.getAttribute('src')) video.src = video.getAttribute('data-bg-src');
-        video.play().catch(function () {});
-      } else {
-        video.pause();
-      }
-      try { localStorage.setItem(KEY, on ? '1' : '0'); } catch (e) {}
+    function set(open) {
+      body.classList.toggle('is-open', open);
+      if (open) body.removeAttribute('inert'); else body.setAttribute('inert', '');
+      btn.setAttribute('aria-expanded', String(open));
+      label.textContent = open ? 'Hide results' : 'Show all results';
+      icon.className = 'fas ' + (open ? 'fa-chevron-up' : 'fa-chevron-down');
     }
-    btn.addEventListener('click', function () { set(!on); });
-    set(on);
+    btn.addEventListener('click', function () { set(!body.classList.contains('is-open')); });
+
+    function openFor(hash) {
+      var t = hash && hash.length > 1 ? document.getElementById(hash.slice(1)) : null;
+      if (!t || !body.contains(t) || body.classList.contains('is-open')) return;
+      // open without the slide, so the section is at its final position when we scroll to it
+      body.classList.add('is-instant');
+      set(true);
+      void body.offsetHeight;
+      t.scrollIntoView();
+      requestAnimationFrame(function () { body.classList.remove('is-instant'); });
+    }
+    window.addEventListener('hashchange', function () { openFor(location.hash); });
+    document.addEventListener('click', function (e) {
+      var a = e.target.closest && e.target.closest('a[href^="#"]');
+      if (a && body.contains(document.getElementById(a.getAttribute('href').slice(1)) || document.body)) {
+        var id = a.getAttribute('href').slice(1);
+        if (id && body.contains(document.getElementById(id))) openFor('#' + id);
+      }
+    });
+    openFor(location.hash);
   }
 
   function init() {
-    initHeroVideo();
     initVideos();
     initNav();
-    initCopy();
+    initMore();
+    initCopy('bibtex-copy', 'bibtex-text');
+    initCopy('code-copy', 'code-text');
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);

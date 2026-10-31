@@ -484,7 +484,7 @@ html {
 }
 
 .hero-body {
-  padding: var(--space-7) var(--gutter) var(--space-6);
+  padding: 0 var(--gutter) var(--space-6);
 }
 
 .section {
@@ -540,13 +540,29 @@ html {
 }
 
 .site-nav {
-  position: sticky;
+  position: fixed;
   top: 0;
+  left: 0;
+  right: 0;
   z-index: 30;
+  transform: translateY(-100%);
+  visibility: hidden;
+  transition: transform var(--motion) var(--ease-out), visibility 0s linear var(--motion);
   height: var(--nav-h);
   padding: 0 var(--gutter);
   background-color: var(--surface);
   border-bottom: 1px solid var(--border);
+}
+
+/* hidden until the hero marquee has scrolled past */
+.site-nav.is-visible {
+  transform: none;
+  visibility: visible;
+  transition-delay: 0s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .site-nav { transition: none; }
 }
 
 .site-nav-inner {
@@ -637,7 +653,7 @@ html {
 
 .publication-authors {
   max-width: 52rem;
-  margin: var(--space-5) auto 0;
+  margin: var(--space-4) auto 0;
   font-family: var(--font-display);
   font-size: var(--fs-3);
   line-height: 1.5;
@@ -716,14 +732,6 @@ html {
   line-height: 1.45;
   color: var(--ink);
   text-wrap: balance;
-}
-
-.teaser-figure {
-  margin: 0 auto var(--space-6);
-}
-
-.teaser-figure .figure-caption {
-  margin-top: var(--space-4);
 }
 
 .abstract-boxes {
@@ -975,11 +983,17 @@ img.figure-img {
 }
 
 .footer p {
-  max-width: var(--measure);
+  max-width: none;            /* the full width of the page container, not a single reading column */
   margin: 0;
-  font-size: var(--fs-2);
-  line-height: var(--lh-body);
+  font-size: var(--fs-1);     /* same small type as the other captions */
+  line-height: 1.55;
   color: var(--text-muted);
+  text-align: center;
+  text-wrap: pretty;
+}
+
+.footer p + p {
+  margin-top: var(--space-3);
 }
 
 /* ---------- legend chips (shared: bar charts, scaling plot, bench widget) ---------- */
@@ -1135,57 +1149,14 @@ img.figure-img {
   }
 }
 
-/* ---------- experimental hero background video ---------- */
+/* ---------- hero ---------- */
 .hero {
   position: relative;
-  overflow: hidden;
 }
 
 .hero-body {
   position: relative;
   z-index: 1;
-  padding-bottom: calc(var(--space-6) + 150px);
-}
-
-.hero-video {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity var(--motion) var(--ease-out);
-}
-
-.hero-video video {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-
-/* scrim keeps text at AA contrast over any video */
-.hero-video::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.32), rgba(255, 255, 255, 0.38) 65%, var(--bg));
-}
-
-.hero.has-bg-video .hero-video {
-  opacity: 1;
-}
-
-.hero-video-toggle {
-  position: absolute;
-  top: var(--space-3);
-  right: var(--space-3);
-  z-index: 2;
-}
-
-@media (pointer: coarse) {
-  .hero-video-toggle {
-    min-height: 44px;
-  }
 }
 
 /* ---------- TL;DR: Problem -> Method -> Results as a three-step flow ---------- */
@@ -1323,6 +1294,21 @@ img.figure-img {
   font-size: var(--fs-1);
   font-weight: 400;
   color: var(--text-muted);
+}
+
+.abstract-box .result-statement {
+  max-width: none;
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  font-weight: 600;
+  line-height: 1.35;
+  color: var(--ink);
+}
+
+.result-da {
+  color: var(--c-dna-text);
+  font-weight: 700;
 }
 
 .abstract-box .abstract-stats {
@@ -1601,4 +1587,1027 @@ a.result-group:hover::after {
 
 #frontier .section-card > .section-lead {
   margin-top: 0;
+}
+
+/* ---------- hero marquee: rollouts drifting right to left, annotated on hover ---------- */
+/* The stage is the grid plus a landing slot below it. The title card is sticky across the whole stage:
+   it rides along while the grid scrolls past and settles in the slot, above the authors. */
+.marquee {
+  /* five rows fill the window height exactly, so the top and bottom margins match */
+  --tile-h: max(90px, calc((100svh - 6 * var(--space-2)) / 5));
+  --tile-w: calc(var(--tile-h) * 16 / 9);
+  --lift: 1.35; /* hover zoom; marquee.js reads it to cut the matching hole in the title card */
+  --card-h: 370px;
+  --grid-h: calc(5 * var(--tile-h) + 6 * var(--space-2));
+  position: relative;
+  display: grid;
+  grid-template-rows: auto var(--card-h);
+}
+
+.marquee-viewport {
+  position: relative;
+  grid-area: 1 / 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-2) 0;
+  overflow: hidden;
+}
+
+/* the last row lives below the first screen; the grid fades into the page so the way down to the authors is soft */
+.marquee-viewport::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: calc(var(--tile-h) * 0.9);
+  z-index: 1;                    /* above the rows, below a hovered clip (row z-index 2+) */
+  background: linear-gradient(to bottom, transparent, var(--bg));
+  pointer-events: none;
+}
+
+/* edge fades as overlays (a mask would lump all clips into one layer and keep them under the title card) */
+.marquee::before,
+.marquee::after {
+  content: "";
+  grid-area: 1 / 1;
+  width: 5%;
+  z-index: 3;
+  pointer-events: none;
+}
+
+.marquee::before {
+  justify-self: start;
+  background: linear-gradient(to right, var(--bg), transparent);
+}
+
+.marquee::after {
+  justify-self: end;
+  background: linear-gradient(to left, var(--bg), transparent);
+}
+
+.marquee-row {
+  position: relative;
+  display: flex;
+  width: max-content;
+  animation: marquee-scroll 120s linear infinite;
+}
+
+.marquee-row:nth-child(2) { animation-duration: 150s; animation-delay: -50s; }
+.marquee-row:nth-child(3) { animation-duration: 105s; animation-delay: -20s; }
+.marquee-row:nth-child(4) { animation-duration: 140s; animation-delay: -80s; }
+.marquee-row:nth-child(5) { animation-duration: 125s; animation-delay: -35s; }
+.marquee-row:nth-child(6) { animation-duration: 135s; animation-delay: -65s; }
+
+/* edge rows grow inward so the zoom is not clipped by the viewport */
+.marquee-row:first-child .marquee-tile { transform-origin: 50% 0; }
+.marquee-row:last-child .marquee-tile { transform-origin: 50% 100%; }
+
+.marquee-row:has(.is-active),
+.marquee-row:hover,
+.marquee-row:focus-within {
+  z-index: 2;
+}
+
+/* paused only while a clip is being inspected (set from marquee.js), never by stray focus */
+.marquee.is-paused .marquee-row {
+  animation-play-state: paused;
+}
+
+@keyframes marquee-scroll {
+  to { transform: translateX(-50%); }
+}
+
+.marquee-track {
+  display: flex;
+  gap: var(--space-2);
+  padding-right: var(--space-2);
+}
+
+.marquee-tile {
+  position: relative;
+  flex: none;
+  width: var(--tile-w);
+  aspect-ratio: 16 / 9;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: var(--surface-sunken);
+  box-shadow: var(--shadow-1);
+  transition: transform var(--motion) var(--ease-out), box-shadow var(--motion) var(--ease-out);
+}
+
+.marquee-tile.is-active,
+.marquee-tile:focus-visible {
+  z-index: 3;
+  transform: scale(var(--lift));
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+.marquee-poster,
+.marquee-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* outcome of the rollout, top left */
+.marquee-mark {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  padding: 2px 8px;
+  border-radius: var(--radius-pill);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: 0.02em;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+  pointer-events: none;
+}
+
+.marquee-mark.is-success { background: #2e9e55; }
+.marquee-mark.is-failure { background: #e03131; }
+
+/* top right while a clip is inspected: open it in the demo, and a link to the original video */
+.marquee-links {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--motion) var(--ease-out);
+}
+
+.marquee-tile.is-active .marquee-links,
+.marquee-tile:focus-within .marquee-links {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.marquee-demo,
+.marquee-src {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 22px;
+  border-radius: var(--radius-pill);
+  background: rgba(0, 0, 0, 0.62);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+  text-decoration: none;
+  transition: background-color var(--motion) var(--ease-out);
+}
+
+.marquee-demo { padding: 0 8px; white-space: nowrap; }
+.marquee-src { width: 22px; }
+
+.marquee-demo:hover,
+.marquee-src:hover {
+  background: var(--link);
+  color: #fff;
+}
+
+/* D&A's reward progress over the clip: along the bottom, lifting out of the way on hover */
+.marquee-spark {
+  position: absolute;
+  bottom: 6%;
+  left: 6%;
+  width: 88%;
+  height: 30%;
+  overflow: visible;
+  pointer-events: none;
+  transition: transform var(--motion) var(--ease-out);
+}
+
+.marquee-tile.is-active .marquee-spark,
+.marquee-tile:focus-visible .marquee-spark {
+  transform: translateY(-165%);
+}
+
+.marquee-spark-line {
+  fill: none;
+  stroke: var(--c-dna);
+  stroke-width: 2.5;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+  paint-order: stroke;
+  filter: drop-shadow(0 0 1.5px #fff) drop-shadow(0 0 1.5px #fff);
+}
+
+.marquee-spark-head {
+  stroke: #fff;
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+  opacity: 0;
+}
+
+.marquee-tile.is-active .marquee-spark-head {
+  opacity: 0.9;
+}
+
+.marquee-info {
+  position: absolute;
+  inset: auto 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--space-5) var(--space-2) var(--space-1);
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.88) 40%);
+  color: #fff;
+  text-align: left;
+  opacity: 0;
+  transition: opacity var(--motion) var(--ease-out);
+  pointer-events: none;
+}
+
+.marquee-tile.is-active .marquee-info,
+.marquee-tile:focus-visible .marquee-info {
+  opacity: 1;
+}
+
+.marquee-info-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.marquee-label {
+  font-weight: 700;
+  opacity: 0.7;
+}
+
+.marquee-score {
+  flex: none;
+  font-size: 0.625rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--c-dna-star);
+}
+
+.marquee-task {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: 0.625rem;
+  line-height: 1.3;
+  font-weight: 700;
+}
+
+.marquee-text {
+  margin: 0;
+  font-size: 0.5625rem;
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.marquee-overlay {
+  grid-area: 1 / 1 / 3 / 2;
+  align-self: start;
+  justify-self: center;
+  position: sticky;
+  /* pinned exactly where it starts (centered in the first screen), so it does not move at all while the grid
+     scrolls past; it only moves again once it reaches its resting place above the authors */
+  top: calc((var(--grid-h) - var(--card-h)) / 2);
+  margin-top: calc((var(--grid-h) - var(--card-h)) / 2);
+  z-index: 4;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-5);
+  padding: var(--space-7) var(--space-8) var(--space-2);
+  /* no backdrop blur: it would be recomputed for every frame of the video playing behind the card */
+  background: color-mix(in srgb, var(--bg) 93%, transparent);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+  text-align: center;
+  /* the card catches the pointer, so clips behind it are not hovered through it */
+  transition: background-color 300ms var(--ease-out), border-color 300ms var(--ease-out), box-shadow 300ms var(--ease-out);
+}
+
+/* once it has landed above the authors it drops its box, so title and authors read as one block */
+.marquee-overlay.is-docked {
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+}
+
+/* While a clip is hovered the title card fades, so its button moves to the bottom of the grid.
+   It lingers briefly so the pointer can cross the gaps between clips on the way to it. */
+/* shared look: dark pill in a flowing gradient ring with a soft pulse */
+.cta-ring {
+  padding: 3px;
+  border-radius: var(--radius-pill);
+  background: linear-gradient(90deg, #d81b60, #ff9800, #00a98f, #1e88e5, #d81b60);
+  background-size: 300% 100%;
+  box-shadow: 0 0 0 0 rgba(216, 27, 96, 0.5), 0 8px 24px rgba(0, 0, 0, 0.35);
+  animation: cta-flow 4s linear infinite, cta-pulse 2s ease-out infinite;
+}
+
+.cta-ring .button {
+  min-height: 3rem;
+  padding-inline: var(--space-6);
+  border: 0;
+  font-size: var(--fs-3);
+  font-weight: 700;
+  gap: var(--space-2);
+}
+
+.cta-ring .cta-arrow {
+  transition: transform var(--motion) var(--ease-out);
+}
+
+.cta-ring:hover .cta-arrow {
+  transform: translateX(4px);
+}
+
+@keyframes cta-flow {
+  to { background-position: 300% 0; }
+}
+
+@keyframes cta-pulse {
+  70%, 100% { box-shadow: 0 0 0 14px rgba(216, 27, 96, 0), 0 8px 24px rgba(0, 0, 0, 0.35); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cta-ring { animation: none; }
+}
+
+/* small looping cue: a cursor glides onto a tile, which lights up like a hovered clip */
+.marquee-hint {
+  grid-area: 1 / 1;
+  justify-self: end;
+  align-self: start;
+  /* stays in the first screen even though the grid continues below it */
+  margin: calc(var(--grid-h) - 52px - var(--space-5)) var(--space-5) 0 0;
+  position: relative;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4) var(--space-2) var(--space-2);
+  background: color-mix(in srgb, var(--bg) 94%, transparent);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  box-shadow: var(--shadow-1);
+  font-size: var(--fs-2);
+  font-weight: 600;
+  color: var(--ink);
+  pointer-events: none;
+  transition: opacity var(--motion) var(--ease-out);
+}
+
+.marquee.has-used .marquee-hint {
+  opacity: 0;
+}
+
+.marquee-hint-tile {
+  position: relative;
+  width: 52px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  background: var(--surface-sunken);
+  border: 1px solid var(--border-strong);
+  animation: hint-tile 3s var(--ease-out) infinite;
+}
+
+.marquee-hint-tile i {
+  position: absolute;
+  left: 4px;
+  top: 20px;
+  font-size: 20px;
+  color: var(--ink);
+  filter: drop-shadow(0 0 1px var(--bg)) drop-shadow(0 0 1px var(--bg));
+  animation: hint-cursor 3s var(--ease-out) infinite;
+}
+
+@keyframes hint-cursor {
+  0%, 10%   { transform: translate(0, 0); }
+  40%, 80%  { transform: translate(24px, -12px); }
+  100%      { transform: translate(0, 0); }
+}
+
+@keyframes hint-tile {
+  0%, 38%   { transform: none; background: var(--surface-sunken); box-shadow: none; }
+  45%, 80%  { transform: scale(1.3); background: var(--c-dna-star); box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25); }
+  90%, 100% { transform: none; background: var(--surface-sunken); box-shadow: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marquee-hint-tile, .marquee-hint-tile i { animation: none; }
+  .marquee-hint-tile i { transform: translate(24px, -12px); }
+}
+
+@media (pointer: coarse) {
+  .marquee-hint { display: none; }
+}
+
+.marquee-overlay .publication-title {
+  max-width: 46rem;
+  margin: 0;
+  font-size: var(--fs-display);
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--ink);
+}
+
+@media (max-width: 768px) {
+  .marquee { --card-h: 300px; }
+  .marquee-overlay { padding: var(--space-4); width: calc(100% - 2 * var(--gutter)); }
+  .marquee-overlay { padding: var(--space-5); }
+  .marquee-overlay .publication-title { font-size: var(--fs-4); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marquee-row { animation: none; }
+  .marquee-viewport { overflow-x: auto; }
+  .marquee-tile { transition: none; }
+}
+
+/* ---------- code snippet ---------- */
+.code-wrap {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  max-width: var(--measure-wide, 760px);
+  margin: 0 auto;
+  text-align: left;
+}
+
+.code-wrap pre {
+  margin: 0;
+  padding: var(--space-4);
+  font-family: var(--font-mono);
+  font-size: var(--fs-code, 0.875em);
+  line-height: 1.55;
+  overflow-x: auto;
+  background: var(--surface-sunken);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+}
+
+.code-wrap pre code {
+  padding: 0;
+  background: transparent;
+  font-size: inherit;
+  color: var(--ink);
+}
+
+/* icon-only copy button living inside the code block, top right */
+.code-wrap .code-copy {
+  position: absolute;
+  top: var(--space-2);
+  right: var(--space-2);
+  z-index: 1;
+  margin: 0;
+  background: var(--surface);
+}
+
+.code-wrap pre {
+  padding-right: var(--space-8);
+}
+
+.tok-k { color: var(--c-dna-text); font-weight: 600; }
+.tok-s { color: var(--link); }
+.tok-c { color: var(--text-muted); font-style: italic; }
+
+.hero-use {
+  margin-top: var(--space-7);
+}
+
+.hero-use .title.is-3 {
+  margin-bottom: var(--space-3);
+}
+
+.hero-use .section-lead {
+  margin-bottom: var(--space-4);
+}
+
+.use-actions {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-top: var(--space-5);
+}
+
+/* ---------- "More results": collapsed until asked for (kept laid out so charts size correctly) ---------- */
+#more .container .button {
+  gap: var(--space-2);
+}
+
+.more-body {
+  display: grid;
+  grid-template-rows: 0fr;
+  visibility: hidden;
+  transition: grid-template-rows var(--motion-slow, 0.35s) var(--ease-out), visibility 0s linear var(--motion-slow, 0.35s);
+}
+
+.more-body.is-open {
+  grid-template-rows: 1fr;
+  visibility: visible;
+  transition-delay: 0s;
+}
+
+.more-body.is-instant {
+  transition: none;
+}
+
+.more-body-inner {
+  min-height: 0;
+  overflow: hidden;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .more-body { transition: none; }
+}
+
+/* method figure -> Problem / Method / Results: keep the same gap as between the boxes themselves */
+#method {
+  padding-bottom: 0;
+}
+
+#overview {
+  padding-top: var(--space-5);
+}
+
+/* the bench subtitle is one line on wide screens */
+@media screen and (min-width: 1025px) {
+  #bench .section-lead {
+    max-width: none;
+    white-space: nowrap;
+  }
+}
+
+/* ---------- "Better VLM, Better Reward Model": one bar per model ---------- */
+.ladder {
+  --c: var(--c-dna);
+  padding: var(--space-5);
+}
+
+.ladder-fams {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-bottom: var(--space-5);
+}
+
+.ladder-fam {
+  padding: var(--space-1) var(--space-4);
+  border: 1.5px solid var(--c);
+  border-radius: var(--radius-pill);
+  background: var(--surface);
+  color: var(--c);
+  font: inherit;
+  font-size: var(--fs-1);
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color var(--motion-fast) var(--ease-out), color var(--motion-fast) var(--ease-out);
+}
+
+.ladder-fam.is-on {
+  background: var(--c);
+  color: #fff;
+}
+
+/* rows share one grid: model name | bar | score */
+.ladder-chart {
+  --name-w: 190px;
+  --val-w: 60px;
+  position: relative;
+  padding-right: 34px;          /* room for the price arrow */
+  min-height: 352px;           /* room for the longest family, so switching tabs does not move the page */
+}
+
+.ladder-headrow,
+.ladder-row {
+  display: grid;
+  grid-template-columns: var(--name-w) minmax(0, 1fr) var(--val-w);
+  align-items: center;
+  column-gap: var(--space-3);
+}
+
+.ladder-headrow {
+  height: 26px;
+  font-size: var(--fs-1);
+  color: var(--text-muted);
+}
+
+.ladder-headtrack {
+  position: relative;
+  height: 100%;
+}
+
+/* the label ends at the dashed line */
+.ladder-ref-label {
+  position: absolute;
+  right: calc((1 - var(--ref) / 0.8) * 100% + 8px);
+  bottom: 4px;
+  white-space: nowrap;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.ladder-rowswrap {
+  position: relative;
+}
+
+/* arrow down on the right: output token price goes up the list */
+.ladder-price {
+  position: absolute;
+  right: -30px;
+  top: 6px;
+  bottom: 6px;
+  width: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+}
+
+.ladder-price::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 6px;
+  border-left: 2px solid var(--border-strong);
+  transform: translateX(-50%);
+}
+
+.ladder-price::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  transform: translateX(-50%);
+  border: 6px solid transparent;
+  border-top: 8px solid var(--border-strong);
+  border-bottom: 0;
+}
+
+.ladder-price-label {
+  position: relative;
+  z-index: 1;
+  padding: var(--space-2) 0;
+  background: var(--surface);
+  writing-mode: vertical-rl;
+  font-size: var(--fs-1);
+  white-space: nowrap;
+}
+
+.ladder-rows {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.ladder-row {
+  height: 32px;
+}
+
+.ladder-name {
+  text-align: right;
+  font-size: var(--fs-1);
+  color: var(--text);
+  white-space: nowrap;
+}
+
+.ladder-bar {
+  position: relative;
+  height: 16px;
+  border-radius: var(--radius-pill);
+  background: var(--surface-sunken);
+}
+
+/* the dashed line for the best model trained on robot data, drawn through every row */
+.ladder-bar::after {
+  content: "";
+  position: absolute;
+  top: -9px;
+  bottom: -9px;
+  left: calc(var(--ref) / 0.8 * 100%);
+  border-left: 2px dashed var(--border-strong);
+}
+
+.ladder-fill {
+  display: block;
+  height: 100%;
+  width: 0;
+  border-radius: var(--radius-pill);
+  background: var(--c);
+  opacity: 0.55;
+  transition: width 650ms var(--ease-out), opacity var(--motion) var(--ease-out);
+}
+
+.ladder-val {
+  font-size: var(--fs-1);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-muted);
+}
+
+/* bars that reach the line stand out */
+.ladder-row.is-above .ladder-fill { opacity: 1; }
+.ladder-row.is-above .ladder-val { color: var(--c); }
+.ladder-row.is-above .ladder-val::after { content: "\00a0\2713"; }
+
+.ladder-note {
+  margin: var(--space-4) 0 0;
+  text-align: center;
+}
+
+.ladder-links {
+  margin-top: var(--space-2);
+  line-height: 1.6;
+}
+
+@media (max-width: 768px) {
+  .ladder { padding: var(--space-4) var(--space-3); }
+  .ladder-chart { --name-w: 112px; --val-w: 52px; padding-right: 28px; }
+  .ladder-price { right: -26px; }
+  .ladder-name { font-size: 0.75rem; white-space: normal; line-height: 1.15; }
+  .ladder-ref-label { font-size: 0.75rem; }
+  .ladder-headname { visibility: hidden; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ladder-fill { transition: none; }
+}
+
+/* ---------- static grid: the same clips at rest, with a dice to reshuffle ---------- */
+.hero-grid {
+  --lift: 2.7;                 /* hover zoom (about 480px wide); the caption, badge and links are counter-scaled so they stay readable */
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 6px;
+  text-align: left;
+}
+
+.hero-grid-lead {
+  margin: var(--space-2) auto var(--space-4);
+}
+
+.hero-grid-note {
+  margin: var(--space-4) 0 0;
+  padding: 0 var(--space-7);   /* keeps the text clear of the dice in the corner */
+  text-align: center;
+}
+
+.hero-grid .marquee-tile {
+  width: 100%;
+  transform-origin: var(--ox, 50%) var(--oy, 50%);
+  box-shadow: 0 0 0 1px var(--border);
+}
+
+/* edge tiles zoom inward so the enlarged clip never leaves the page */
+.hero-grid .marquee-tile:nth-child(-n+5) { --oy: 0%; }
+.hero-grid .marquee-tile:nth-last-child(-n+5) { --oy: 100%; }
+.hero-grid .marquee-tile:nth-child(5n+1) { --ox: 0%; }
+.hero-grid .marquee-tile:nth-child(5n) { --ox: 100%; }
+
+/* badge: small at rest, about 2x its resting size when zoomed */
+.hero-grid .marquee-mark {
+  top: 4px;
+  left: 4px;
+  padding: 1px 4px;
+  font-size: 6.5px;
+  transform-origin: 0 0;
+  transition: transform var(--motion) var(--ease-out), top var(--motion) var(--ease-out), left var(--motion) var(--ease-out);
+}
+
+.hero-grid .marquee-tile.is-active .marquee-mark {
+  top: calc(8px / var(--lift));
+  left: calc(8px / var(--lift));
+  transform: scale(calc(2.2 / var(--lift)));
+}
+
+/* the caption and links are laid out at zoomed size and scaled back down, so they read at normal size */
+.hero-grid .marquee-info {
+  width: calc(100% * var(--lift));
+  padding: 56px 14px 10px;
+  gap: 4px;
+  transform: scale(calc(1 / var(--lift)));
+  transform-origin: 0 100%;
+}
+
+.hero-grid .marquee-task { font-size: 12px; }
+.hero-grid .marquee-score { font-size: 12px; }
+.hero-grid .marquee-text {
+  font-size: 11px;
+  -webkit-line-clamp: 6;
+}
+
+.hero-grid .marquee-links {
+  top: calc(8px / var(--lift));
+  right: calc(8px / var(--lift));
+  gap: 5px;
+  transform: scale(calc(1 / var(--lift)));
+  transform-origin: 100% 0;
+}
+
+.hero-grid .marquee-demo,
+.hero-grid .marquee-src {
+  height: 24px;
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+/* the progress line is part of the zoomed picture; keep it from getting fat */
+.hero-grid .marquee-tile.is-active .marquee-spark-line { stroke-width: calc(3px / var(--lift)); }
+.hero-grid .marquee-tile.is-active .marquee-spark-head { stroke-width: calc(1.2px / var(--lift)); }
+
+.hero-grid .marquee-demo { padding: 0 10px; }
+.hero-grid .marquee-src { width: 24px; }
+
+/* every clip can be scrubbed by pressing and sliding (see marquee.js) */
+.marquee-tile {
+  touch-action: pan-y;        /* horizontal drags scrub, vertical drags still scroll */
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.marquee-tile.is-active { cursor: ew-resize; }
+.marquee-tile.is-scrubbing { cursor: grabbing; }
+.marquee-poster,
+.marquee-video { -webkit-user-drag: none; user-drag: none; }
+
+/* dice: tiles shrink out, new ones pop in, staggered */
+.hero-grid .marquee-tile.is-out {
+  transform: scale(0.5);
+  opacity: 0;
+  transition: transform 220ms var(--ease-out), opacity 220ms var(--ease-out);
+}
+
+.hero-grid .marquee-tile.is-in {
+  animation: tile-pop 340ms var(--ease-out) both;
+}
+
+@keyframes tile-pop {
+  from { transform: scale(0.4); opacity: 0; }
+  to { transform: none; opacity: 1; }
+}
+
+.hero-grid-head {
+  position: relative;
+  margin: var(--space-7) 0 0;
+}
+
+.hero-grid-head .hero-grid-title {
+  margin: 0;
+}
+
+.hero-grid-dice {
+  position: absolute;
+  right: var(--space-4);
+  bottom: var(--space-4);
+}
+
+.dice-btn.is-rolling span {
+  display: inline-block;
+  animation: dice-roll 700ms var(--ease-out);
+}
+
+/* content that was just swapped by a dice roll pops in, like the grid's tiles */
+.dice-pop {
+  animation: dice-pop 340ms var(--ease-out) both;
+}
+
+@keyframes dice-pop {
+  from { transform: scale(0.96); opacity: 0.35; }
+  to { transform: none; opacity: 1; }
+}
+
+@keyframes dice-roll {
+  to { transform: rotate(540deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dice-btn.is-rolling span, .dice-pop { animation: none; }
+  .hero-grid .marquee-tile.is-in { animation: none; }
+}
+
+@media (max-width: 768px) {
+  .hero-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); --lift: 2.2; }
+  .hero-grid .marquee-tile:nth-child(n) { --ox: 50%; --oy: 50%; }
+  .hero-grid .marquee-tile:nth-child(-n+4) { --oy: 0%; }
+  .hero-grid .marquee-tile:nth-last-child(-n+4) { --oy: 100%; }
+  .hero-grid .marquee-tile:nth-child(4n+1) { --ox: 0%; }
+  .hero-grid .marquee-tile:nth-child(4n) { --ox: 100%; }
+}
+
+/* the code block fills its card */
+.hero-code-card .code-wrap {
+  max-width: none;
+}
+
+/* the frontier section's lead is one line on wide screens */
+@media screen and (min-width: 1025px) {
+  #frontier .section-card > .section-lead {
+    max-width: none;
+    white-space: nowrap;
+    font-size: var(--fs-2);       /* the full sentence is wider than the card at the larger lead size */
+  }
+}
+
+.hero-code-link {
+  margin: var(--space-3) 0 0;
+  text-align: center;
+}
+
+/* ---------- collapsible "Online RL Training": hidden by default so the results stay in focus ---------- */
+.rl-collapse {
+  margin-top: var(--space-5);
+  text-align: center;
+}
+
+/* the content wrapper of <details> resets box-sizing, which the columns inside would inherit: set it explicitly */
+.rl-collapse .columns,
+.rl-collapse .column {
+  box-sizing: border-box;
+}
+
+.rl-collapse > summary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  list-style: none;
+  cursor: pointer;
+  border-radius: var(--radius-md);
+}
+
+.rl-collapse > summary::-webkit-details-marker {
+  display: none;
+}
+
+/* a small note, not a heading: same type as the other captions */
+.rl-collapse-title {
+  font-size: var(--fs-1);
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.rl-collapse[open] > summary {
+  margin-bottom: var(--space-4);
+}
+
+/* the opened training runs get their own space below the note */
+.rl-collapse[open] .embodiment-instruction {
+  margin-top: 0;
+}
+
+.rl-collapse-hint {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--fs-1);
+  font-weight: 600;
+  color: var(--link);
+}
+
+.rl-collapse-hint::before {
+  content: "show training runs";
+}
+
+.rl-collapse[open] .rl-collapse-hint::before {
+  content: "hide training runs";
+}
+
+.rl-collapse-hint::after {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: rotate(45deg) translateY(-2px);
+  transition: transform var(--motion) var(--ease-out);
+}
+
+.rl-collapse[open] .rl-collapse-hint::after {
+  transform: rotate(-135deg) translateY(-2px);
+}
+
+.rl-collapse > summary:hover .rl-collapse-hint {
+  text-decoration: underline;
 }

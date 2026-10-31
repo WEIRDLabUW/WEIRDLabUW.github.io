@@ -54,6 +54,7 @@
       line-height: var(--lh-ui);
     }
     .hint { font-size: var(--fs-1); line-height: var(--lh-ui); color: var(--text-muted); }
+    .task-tip { margin: var(--space-2) 0 0; }
     .top-grid { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: var(--space-4); align-items: stretch; }
     @media (max-width: 860px) { .top-grid { grid-template-columns: minmax(0, 1fr); } }
     .result-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--space-4); align-items: stretch; }
@@ -293,6 +294,7 @@
         <div class="field task-field">
           <label for="task">Task</label>
           <input class="input" id="task" type="text" value="pick up the red block and place it in the bowl">
+          <p class="hint task-tip">Tip: D&amp;A can be quite literal. Listing substeps you want completed can improve annotations.</p>
         </div>
         <div class="video-frame-wrap">
           <video id="video" muted playsinline></video>
@@ -329,9 +331,9 @@
       </section>
       <section class="panel-card" aria-label="Outcome">
         <h2 class="panel-label">Outcome</h2>
+        <div class="outcome-row"><span class="tag is-success is-light">success criterion</span><span id="outcome-completion">&ndash;</span></div>
         <div class="outcome-row needs-fb"><span class="tag is-danger is-light">failure</span><span id="outcome-failure">&ndash;</span></div>
         <div class="outcome-row needs-fb"><span class="tag is-warning is-light">feedback</span><span id="outcome-feedback">&ndash;</span></div>
-        <div class="outcome-row"><span class="tag is-success is-light">success criterion</span><span id="outcome-completion">&ndash;</span></div>
       </section>
     </div>
 
@@ -427,9 +429,8 @@
   </main>
   </div>
 
-  <script src="examples/examples.js"></script>
-  <!-- the base64 copy of the clip is only the file:// fallback; over http(s) the clip is fetched once as a blob -->
-  <script>if (location.protocol === 'file:') document.write('<script src="examples/examples-video.js"><\/script>');</script>
+  <!-- example clips as base64: only the file:// fallback; over http(s) they are fetched as same-origin blobs -->
+  <script>if (location.protocol === 'file:') document.write('<script src="examples-video.js"><\/script>');</script>
   <script>
   (function () {
     // ---------------------------------------------------------------- config
@@ -458,7 +459,7 @@
     // ---------------------------------------------------------------- sliders
     const SLIDERS = {
       thinking: { title: 'Reasoning effort', vals: ['LOW', 'MEDIUM', 'HIGH'], labels: ['Low', 'Medium', 'High'], def: 1 },
-      nframes: { title: 'Frames scored', vals: [4, 8, 16, 32, 64], labels: ['4', '8', '16', '32', '64'], def: 1 },
+      nframes: { title: 'Frames scored', vals: [4, 8, 16, 32, 64], labels: ['4', '8', '16', '32', '64'], def: 2 },
       downsample: { title: 'Downsample factor', vals: [1, 2, 4, 8], labels: ['1×', '2×', '4×', '8×'], def: 0, res: true },
     };
     Object.keys(SLIDERS).forEach((name) => {
@@ -675,16 +676,25 @@
       el.video.removeAttribute('src');
       el.video.srcObject = null;
       el.video.load();
-      el.video.controls = false;
+      el.video.controls = false; el.video.tabIndex = -1; state.controlsOk = false;
     }
     function showVideo(url, label) {
       state.src = url; state.srcName = label;
       el.video.srcObject = null;
       el.video.src = url;
-      el.video.controls = true;    // native controls: keyboard, touch and mouse all work
+      // the native play bar and progress slider only appear while the video itself is hovered or focused
+      el.video.controls = false; el.video.tabIndex = 0; state.controlsOk = true;
       el.video.muted = false;
       el.video.loop = false;
       setBadge(label, false);
+    }
+    {
+      const wrap = el.video.closest('.video-frame-wrap');
+      const setControls = (on) => { el.video.controls = !!(on && state.controlsOk); };
+      wrap.addEventListener('pointerenter', () => setControls(true));
+      wrap.addEventListener('pointerleave', () => { if (document.activeElement !== el.video) setControls(false); });
+      el.video.addEventListener('focus', () => setControls(true));
+      el.video.addEventListener('blur', () => setControls(false));
     }
     // a new video invalidates every result that belonged to the old one
     function clearResults() {
@@ -698,7 +708,11 @@
       el.failure.textContent = el.feedback.textContent = el.completion.textContent = '–';
       drawChart();
     }
-    el.loadExampleBtn.addEventListener('click', () => { if (EXAMPLES[0]) loadExample(EXAMPLES[0]); });
+    el.loadExampleBtn.addEventListener('click', () => {
+      const others = EXAMPLES.filter((e) => e.videoKey !== state.lastExample);
+      const pool = others.length ? others : EXAMPLES;
+      if (pool.length) loadExample(pool[Math.floor(Math.random() * pool.length)]);
+    });
 
     function loadFile(f) {
       if (!f || state.recording || state.scoring || state.exporting) return;
@@ -1189,7 +1203,8 @@ Respond with a list of ${n} progress values (ordered by frame) in the following 
         } else {
           console.error(e);
           if (snap) { restore(); render(); }
-          setStatus('Could not read frames from the video: ' + e.message + (snap ? ' Previous results restored.' : ''), true);
+          const tainted = /tainted/i.test(e.message) ? ' This clip was opened from disk: serve the page over http (for example python3 -m http.server) to re-annotate it.' : '';
+          setStatus('Could not read frames from the video: ' + e.message + tainted + (snap ? ' Previous results restored.' : ''), true);
         }
         updateButtons(); return;
       }
@@ -1643,44 +1658,92 @@ Respond with a list of ${n} progress values (ordered by frame) in the following 
     el.btnExport.addEventListener('click', exportVideo);
 
     // --------------------------------------------------------------- examples
-    // predictions files have the same shape as "Copy all" produces, so a real run can be pasted in as an example
-    // PLACEHOLDERS: all six cards currently point at the same clip and predictions. To add a real example, put its
-    // clip in examples/, its predictions in examples/examples.js (DNA_EXAMPLE_PREDICTIONS[key]) and, for file://,
-    // its base64 in examples/examples-video.js, then change video / videoKey / predictions / task / outcome here.
-    const PLACEHOLDER = {
-      task: 'balance on top of the ball',
-      video: 'examples/balance-ball-failure.mp4',
-      videoKey: 'balance-ball-failure',
-      predictions: 'balance-ball-failure',
-    };
+    // The examples are clips from the project page: the video and its saved D&A run (predictions in the shape that
+    // "Copy all" produces). The run is built from the same records the page uses (widget/data/*.js), fetched on demand.
+    function loadScript(src) {
+      return new Promise((resolve, reject) => {
+        const s = document.createElement('script');
+        s.src = src; s.onload = resolve; s.onerror = () => reject(new Error('could not load ' + src));
+        document.head.appendChild(s);
+      });
+    }
+    let robotRecords = null, benchRecords = null;
+    const isBench = (id) => /_task_ep\d+$/.test(id);
+    function clipRecord(id) {
+      const bench = isBench(id);
+      let p = bench ? benchRecords : robotRecords;
+      if (!p) {
+        p = loadScript(bench ? '../widget/data/episodes.js' : '../widget/data/robot_episodes.js');
+        if (bench) benchRecords = p; else robotRecords = p;
+      }
+      return p.then(() => (bench ? EPISODES : ROBOT_EPISODES).find((x) => x.id === id));
+    }
+    function clipPredictions(ep) {
+      const n = ep.dna_progress.length, off = ep.crop ? ep.crop[0] : 0;
+      const timestamps = ep.frame_times
+        ? ep.frame_times.map((t) => Math.max(0, +(t - off).toFixed(3)))
+        : ep.dna_progress.map((_, i) => +(ep.duration * i / Math.max(1, n - 1)).toFixed(3));
+      const text = (v) => (!v || v === '-') ? '' : v;
+      const pred = {
+        // robot clips were annotated with plain D&A (no feedback step); D&A-Bench rollouts carry failure and feedback text
+        meta: { task: ep.instruction, mode: ep.method === 'dna' ? 'dna' : 'dna_feedback', model: ep.model || 'D&A-Bench run', timestamps },
+        descriptions: { descriptions: ep.descriptions },
+        success: { 'success criteria': text(ep.completion_state) },
+        reward: {
+          failure: text(ep.failure), feedback: text(ep.feedback), 'completion state': text(ep.completion_state),
+          progress: ep.dna_progress.map((p) => Math.round(p * 100)),
+        },
+      };
+      if (ep.objects) pred.objects = { all_objects: ep.objects, task_objects: [] };
+      return pred;
+    }
+    function clipExample(id, title, outcome, task) {
+      const dir = isBench(id) ? 'videos' : 'robot_videos';
+      return { title, outcome, task, clip: id, video: '../widget/data/' + dir + '/' + id + '.mp4', videoKey: id, predictions: id };
+    }
+    // make sure the saved run of a clip example is available (it is built from its record on first use)
+    async function ensurePredictions(ex) {
+      window.DNA_EXAMPLE_PREDICTIONS = window.DNA_EXAMPLE_PREDICTIONS || {};
+      if (window.DNA_EXAMPLE_PREDICTIONS[ex.predictions]) return true;
+      try {
+        const ep = await clipRecord(ex.clip);
+        if (!ep) return false;
+        window.DNA_EXAMPLE_PREDICTIONS[ex.predictions] = clipPredictions(ep);
+        return true;
+      } catch (e) { console.warn('example record', e); return false; }
+    }
+    // successes and failures mixed, so the strip does not read as "good first, bad last"
     const EXAMPLES = [
-      Object.assign({ title: 'Example 1', outcome: 'failure' }, PLACEHOLDER),
-      Object.assign({ title: 'Example 2', outcome: 'failure' }, PLACEHOLDER),
-      Object.assign({ title: 'Example 3', outcome: 'failure' }, PLACEHOLDER),
-      Object.assign({ title: 'Example 4', outcome: 'failure' }, PLACEHOLDER),
-      Object.assign({ title: 'Example 5', outcome: 'failure' }, PLACEHOLDER),
-      Object.assign({ title: 'Example 6', outcome: 'failure' }, PLACEHOLDER),
+      clipExample('Generalist_AI_generalist_website_makeupkitting_1_close', 'Generalist AI', 'success', 'put all three flasks in the box and close it'),
+      clipExample('New_Embodiments_kneel_failure', 'Humanoid', 'failure', 'kneel'),
+      clipExample('Physical_Intelligence_pi07_coffee_compressed', 'Physical Intelligence', 'success', 'pull a shot of espresso'),
+      clipExample('Sunday_Robotics_PNiU02pVoDIkiPdE9cG45Iprm8Y00Pk02vd63ZOlZONGLM', 'Sunday Robotics', 'success', 'put the two wine glasses in the dishwasher'),
+      clipExample('New_Embodiments_balance_ball_failure', 'Quadruped', 'failure', 'balance on top of the ball'),
+      clipExample('Misc_alphanist', 'AlphaNIST', 'success', 'solve every task on the NIST board'),
     ];
-    // over http(s) the clip is fetched once as a same-origin blob (frames can be read back for re-annotating);
-    // from file:// the base64 copy (examples-video.js) is decoded instead
+    // over http(s) the clip is fetched once as a same-origin blob (frames can be read back for re-annotating)
     const exampleUrls = {};
     function exampleUrl(ex) {
-      if (exampleUrls[ex.videoKey]) return exampleUrls[ex.videoKey];
-      const data = (window.DNA_EXAMPLE_VIDEOS || {})[ex.videoKey];
-      exampleUrls[ex.videoKey] = location.protocol === 'file:' && data
-        ? Promise.resolve().then(() => {
-          const bin = atob(data.split(',')[1]), bytes = new Uint8Array(bin.length);
-          for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
-          return URL.createObjectURL(new Blob([bytes], { type: 'video/mp4' }));
-        })
-        : fetch(ex.video).then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.blob(); })
-          .then((b) => URL.createObjectURL(b)).catch((e) => { console.warn('example clip', e); return ex.video; });
+      if (!exampleUrls[ex.videoKey]) {
+        const data = (window.DNA_EXAMPLE_VIDEOS || {})[ex.videoKey];
+        // from file:// a clip cannot be fetched and a plain file path taints the canvas (frames could not be read, the
+        // export would be blank), so decode the base64 copy (examples-video.js) into a same-origin blob instead
+        exampleUrls[ex.videoKey] = location.protocol === 'file:' && data
+          ? Promise.resolve().then(() => {
+            const bin = atob(data.split(',')[1]), bytes = new Uint8Array(bin.length);
+            for (let k = 0; k < bin.length; k++) bytes[k] = bin.charCodeAt(k);
+            return URL.createObjectURL(new Blob([bytes], { type: 'video/mp4' }));
+          })
+          : fetch(ex.video).then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.blob(); })
+            .then((b) => URL.createObjectURL(b)).catch((e) => { console.warn('example clip', e); return ex.video; });
+      }
       return exampleUrls[ex.videoKey];
     }
     let loadToken = 0;
     // opts.auto: the page opens on the saved run (no scrolling, no results link)
     async function loadExample(ex, opts) {
       if (state.recording || state.scoring || state.exporting) return false;
+      if (ex.clip) await ensurePredictions(ex);
       const d = (window.DNA_EXAMPLE_PREDICTIONS || {})[ex.predictions];
       if (!d) { setSourceStatus('Could not load the example predictions.', true); return false; }
       if (!confirmReplace()) return false;
@@ -1703,6 +1766,7 @@ Respond with a list of ${n} progress values (ordered by frame) in the following 
       setStatus(''); setSourceStatus('Saved run on an example clip. Drag the chart to step through frames. Annotate re-runs it with your OpenRouter key.');
       pipeEl.innerHTML = '';
       markExample(ex);
+      state.lastExample = ex.videoKey;
       render(); updateButtons();
       // thumbnails are not part of the saved predictions, so cut them from the video
       const src = state.src;
@@ -1747,6 +1811,7 @@ Respond with a list of ${n} progress values (ordered by frame) in the following 
       // while an example's task is shown, keep the visitor's own task instead
       const v = { mode: el.mode.value, model: el.model.value.trim(), task: taskIsExample() && state.userTask !== null ? state.userTask : el.task.value };
       Object.keys(SLIDERS).forEach((k) => { v[k] = slider(k); });
+      v.ver = 3;   // v3: frames scored defaults to 16
       try { localStorage.setItem(SETTINGS_KEY, JSON.stringify(v)); } catch (e) {}
     }
     try {
@@ -1756,6 +1821,7 @@ Respond with a list of ${n} progress values (ordered by frame) in the following 
         if (v.task) el.task.value = v.task;
         if (v.model) { el.model.value = v.model; el.preset.value = PRESETS.indexOf(v.model) >= 0 ? v.model : ''; if (!el.preset.value) el.advanced.open = true; }
         Object.keys(SLIDERS).forEach((k) => {
+          if (k === 'nframes' && !(v.ver >= 3)) return;   // saved before the default moved to 16: use the new default
           const i = SLIDERS[k].vals.findIndex((x) => String(x) === String(v[k]));
           if (i >= 0) { SLIDERS[k].input.value = i; SLIDERS[k].sync(); }
         });
@@ -1770,6 +1836,20 @@ Respond with a list of ${n} progress values (ordered by frame) in the following 
     drawChart();
     updateButtons();
     updateAdvSum();
+
+    // ?clip=<id> opens any clip of the project page (a robot video or a D&A-Bench rollout) with its saved annotations
+    (async function openClipFromUrl() {
+      const id = new URLSearchParams(location.search).get('clip');
+      if (!id) return;
+      let ep = null;
+      try { ep = await clipRecord(id); } catch (e) { setSourceStatus('Could not load the clip data.', true); return; }
+      if (!ep) { setSourceStatus('Could not find the clip "' + id + '".', true); return; }
+      const ex = clipExample(id, ep.instruction, ep.ground_truth, ep.instruction);
+      const ran = await loadExample(ex);
+      if (!ran) return;
+      const grid = document.querySelector('.top-grid');
+      if (grid) grid.scrollIntoView({ behavior: SCROLL, block: 'start' });
+    })();
     // the page opens on a finished (saved) run, not an empty canvas
   })();
   </script>

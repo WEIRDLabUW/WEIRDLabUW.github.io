@@ -4,11 +4,11 @@ This is the repository that contains source code for the [D&A: Decoupling Descri
 
 If you find D&A useful for your work please cite:
 ```
-@article{memmel2026dna,
+@misc{memmel2026dna,
   title={D\&A: Decoupling Description and Assessment Enables VLMs as Zero-Shot Robotic Reward Models},
   author={Memmel, Marius and Yin, Shawn and Rutia, Urvi and Li, Eldon and Angeloff, Gavin and Wadhwa, Angad and Goyal, Ankit and Zhang, Jesse and Fox, Dieter and Ramos, Fabio and Li, Anqi and Gupta, Abhishek},
-  journal={Conference on Robot Learning (CoRL)},
-  year={2026}
+  year={2026},
+  note={Preprint}
 }
 ```
 

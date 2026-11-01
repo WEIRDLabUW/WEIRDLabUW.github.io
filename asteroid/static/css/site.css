@@ -216,8 +216,8 @@ svg.why-doors .agent-student { fill: var(--student); }
 @media (max-width: 600px) { .why-chapters span { display: none; } }
 
 /* ---------- 04 results layout ---------- */
-/* the loop figure has its own card: show it wider than the text column, no second frame */
-.d-loop { margin: 1.75rem calc(50% - min(50vw, 680px)) 0; padding: 0 16px; border: 0; box-shadow: none; background: none; }
+/* the loop figure has its own card: text-column width, no second frame */
+.d-loop { margin-top: 1.75rem; padding: 0; border: 0; box-shadow: none; background: none; }
 .d-fine { font-size: 0.78rem; color: var(--ink-3); margin-top: 0.6rem; max-width: 940px; }
 #results .d-sub { margin-top: 3.25rem; }
 #results .d-sub:first-of-type { margin-top: 0.5rem; }
@@ -351,3 +351,19 @@ html.tp-locked { overflow: hidden; }
 .why-chapters button i { height: 5px; }
 .why-player { margin-top: 1.4rem; }
 .why-bars { margin-top: 1.4rem; }
+
+/* 02 the fix: three algorithms side by side */
+.cmp-grid3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; }
+@media (max-width: 960px) { .cmp-grid3 { grid-template-columns: 1fr; max-width: 560px; } }
+.cmp-grid3 ol.code { font-size: 0.84rem; }
+.cmp-grid3 ol.code li.i1 { padding-left: 3rem; }
+.cmp-grid3 ol.code li.i2 { padding-left: 3.8rem; }
+ol.code li.m-train { background: #f1f3f7; font-weight: 600; margin-top: 0.3rem; border-radius: 4px; }
+ol.code li.m-train::before { font-weight: 400; }
+.cmp-key { margin-top: 0.75rem; font-size: 0.9rem; color: var(--ink-3); }
+/* history / labels dropdown */
+.d-hl2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+@media (max-width: 760px) { .d-hl2 { grid-template-columns: 1fr; } }
+.d-hl2 h4 { font: 700 1.05rem 'Google Sans', sans-serif; margin-bottom: 0.5rem; }
+.d-hl2 h4 small { display: block; font-weight: 400; font-size: 0.85rem; color: var(--ink-3); }
+.d-hl2 p { margin-bottom: 0.4rem; }

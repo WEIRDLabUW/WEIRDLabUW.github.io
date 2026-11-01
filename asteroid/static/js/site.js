@@ -14,73 +14,62 @@ document.addEventListener('DOMContentLoaded', function () {
 // ---------------------------------------------------------------- pseudocode
 var S = '<span class="t-student">student</span>';
 var E = '<span class="t-expert">expert</span>';
-var C = '<span class="t-ctx">context</span>';
 var KW = function (w) { return '<span class="kw">' + w + '</span>'; };
+// expert-side symbols in teal, student-side in navy
+var hE = '<span class="t-expert">h*</span>', sE = '<span class="t-expert">s*</span>', aE = '<span class="t-expert">a*</span>';
+var hS = '<span class="t-student">h</span>', sS = '<span class="t-student">s</span>';
+var ITER = KW('for') + ' iteration k = 0, 1, 2, &hellip;:';
 
-// ASTEROID lines; mark[b] = how the line differs from baseline b
-var OURS = [
-  { t: KW('for') + ' iteration k = 0, 1, 2, &hellip;:', i: 0, mark: { bc: 'add', dpt: 'add' } },
-  { t: KW('for') + ' each task:', i: 1, mark: {} },
-  { t: S + ' <small>(can&rsquo;t see goal)</small> plays k episodes &rarr; ' + C, i: 2, mark: { bc: 'add', dagger: 'chg', dpt: 'chg' } },
-  { t: E + ' <small>(sees goal)</small> plays an episode &rarr; labels', i: 2, mark: {} },
-  { t: 'train ' + S + ': (' + C + ', observation) &rarr; ' + E + ' action', i: 1, mark: { bc: 'chg', dagger: 'chg' } }
-];
-
-var BASE = {
-  bc: {
-    name: 'Expert distillation <small>(behavior cloning)</small>',
-    verdict: 'No context: the student can&rsquo;t tell worlds apart, so it guesses a door at random every episode.',
-    lines: [
-      { t: KW('for') + ' each task:', i: 0 },
-      { t: E + ' <small>(sees goal)</small> plays an episode &rarr; labels', i: 1 },
-      { t: 'train ' + S + ': observation &rarr; ' + E + ' action', i: 0, old: 1 }
-    ]
-  },
-  dagger: {
-    name: 'DAgger',
-    lines: [
-      { t: KW('for') + ' iteration k = 0, 1, 2, &hellip;:', i: 0 },
-      { t: KW('for') + ' each task:', i: 1 },
-      { t: S + ' <small>(can&rsquo;t see goal)</small> plays an episode', i: 2, old: 1 },
-      { t: E + ' labels each state the student visited', i: 2 },
-      { t: 'train ' + S + ': observation &rarr; ' + E + ' action', i: 1, old: 1 }
-    ]
-  },
-  dpt: {
-    name: 'DPT',
-    lines: [
-      { t: 'collect offline ' + C + ' with a random policy', i: 0, old: 1 },
-      { t: KW('for') + ' each task:', i: 0 },
-      { t: E + ' <small>(sees goal)</small> labels random query states', i: 1 },
-      { t: 'train ' + S + ': (' + C + ', observation) &rarr; ' + E + ' action', i: 0 }
-    ]
-  }
+// pseudocode per algorithm; `train: 1` marks the line the comparison is about
+var ALGOS = {
+  bc: { name: 'Behavior cloning', lines: [
+    { t: KW('for') + ' each task:', i: 0 },
+    { t: E + ' plays &rarr; history ' + hE + ', (' + sE + ', ' + aE + ')', i: 1 },
+    { t: 'train: (' + hE + ', ' + sE + ') &rarr; ' + aE, i: 0, train: 1 }
+  ] },
+  dagger: { name: 'DAgger', lines: [
+    { t: ITER, i: 0 },
+    { t: KW('for') + ' each task:', i: 1 },
+    { t: S + ' plays &rarr; history ' + hS + ', states ' + sS, i: 2 },
+    { t: E + ' labels each ' + sS + ' &rarr; ' + aE, i: 2 },
+    { t: 'train: (' + hS + ', ' + sS + ') &rarr; ' + aE, i: 1, train: 1 }
+  ] },
+  dpt: { name: 'DPT', lines: [
+    { t: 'random policy plays offline &rarr; history h<sub>rand</sub>', i: 0 },
+    { t: KW('for') + ' each task:', i: 0 },
+    { t: E + ' labels random states s &rarr; ' + aE, i: 1 },
+    { t: 'train: (h<sub>rand</sub>, s) &rarr; ' + aE, i: 0, train: 1 }
+  ] },
+  asteroid: { name: 'ASTEROID', lines: [
+    { t: ITER, i: 0 },
+    { t: KW('for') + ' each task:', i: 1 },
+    { t: S + ' plays &rarr; history ' + hS, i: 2 },
+    { t: E + ' plays its own episode &rarr; (' + sE + ', ' + aE + ')', i: 2 },
+    { t: 'train: (' + hS + ', ' + sE + ') &rarr; ' + aE, i: 1, train: 1 }
+  ] }
 };
 
-function renderCode(ol, lines, b) {
-  ol.innerHTML = lines.map(function (l) {
-    var m = b ? (l.mark && l.mark[b]) : (l.old ? 'old' : '');
-    return '<li class="i' + l.i + (m ? ' m-' + m : '') + '">' + l.t + '</li>';
+function renderCode(ol, algo) {
+  ol.innerHTML = ALGOS[algo].lines.map(function (l) {
+    return '<li class="i' + l.i + (l.train ? ' m-train' : '') + '">' + l.t + '</li>';
   }).join('');
 }
 
-// scope = the element holding the grid (and, for the dropdown, the door figures)
+// dropdown comparison: swap the baseline column (and its door figure) for method b
 function renderCmp(scope, grid, b) {
-  grid.setAttribute('data-cmp', b);
-  renderCode(grid.querySelector('[data-code="ours"]'), OURS, b);
-  renderCode(grid.querySelector('[data-code="base"]'), BASE[b].lines, null);
-  var v = grid.querySelector('[data-verdict]');
-  if (v) v.innerHTML = BASE[b].verdict;
-  [].forEach.call(scope.querySelectorAll('[data-name]'), function (n) { n.innerHTML = BASE[b].name; });
+  renderCode(grid.querySelector('[data-code="base"]'), b);
+  [].forEach.call(scope.querySelectorAll('[data-name]'), function (n) { n.innerHTML = ALGOS[b].name; });
   [].forEach.call(scope.querySelectorAll('iframe[data-b]'), function (f) {
     f.hidden = f.getAttribute('data-b') !== b;
   });
 }
 
 function initCodeDiffs() {
-  [].forEach.call(document.querySelectorAll('.cmp-grid[data-cmp]'), function (g) {
-    renderCmp(g.parentNode, g, g.getAttribute('data-cmp'));
+  [].forEach.call(document.querySelectorAll('ol.code[data-algo]'), function (ol) {
+    renderCode(ol, ol.getAttribute('data-algo'));
   });
+  var later = document.getElementById('cmp-later');
+  if (later) renderCmp(later.parentNode, later, later.getAttribute('data-cmp'));
 }
 
 // ------------------------------------------------------- DAgger / DPT dropdown

@@ -221,9 +221,9 @@
       <p class="d-kicker">TL;DR</p>
       <p class="d-claim">
         Experts don&rsquo;t explore, so copying them can&rsquo;t teach exploration.
-        ASTEROID lets the <span class="t-student">student</span> do the exploring, and asks the
-        <span class="t-expert">expert</span> only one question:
-        <em>&ldquo;given what this student has seen so far, what would you do?&rdquo;</em>
+        ASTEROID still imitates the <span class="t-expert">expert</span>, but conditions the
+        <span class="t-student">student</span> on <b>its own history</b>, so it learns what the expert would do
+        <em>given what the student has seen</em>.
       </p>
     </div>
   </section>
@@ -268,20 +268,26 @@
         <span class="d-mark st">student</span>, and the answers are queried from the
         <span class="d-mark ex">expert</span>.</p>
 
-      <!-- pseudocode diff (rendered by site.js) -->
-      <div class="cmp-grid" data-cmp="bc">
-        <div class="cmp-card is-base">
-          <div class="cmp-head">Expert distillation <small>(behavior cloning)</small></div>
-          <ol class="code" data-code="base"></ol>
-          <p class="cmp-verdict bad" data-verdict></p>
+      <!-- three algorithms side by side (pseudocode rendered by site.js); the train: lines are the comparison -->
+      <div class="cmp-grid3">
+        <div class="cmp-card">
+          <div class="cmp-head">Behavior cloning</div>
+          <ol class="code" data-algo="bc"></ol>
+          <p class="cmp-verdict bad">&#10005; never sees a failure</p>
+        </div>
+        <div class="cmp-card">
+          <div class="cmp-head">DAgger</div>
+          <ol class="code" data-algo="dagger"></ol>
+          <p class="cmp-verdict bad">&#10005; labels average out, so it dithers</p>
         </div>
         <div class="cmp-card is-ours">
           <div class="cmp-head"><span class="multi-color-text"><b>ASTEROID</b></span></div>
-          <ol class="code" data-code="ours"></ol>
-          <p class="cmp-verdict good">Learns to rule out failed doors and commit to the right one.</p>
+          <ol class="code" data-algo="asteroid"></ol>
+          <p class="cmp-verdict good">&#10003; learns what&rsquo;s ruled out, then commits</p>
         </div>
       </div>
-      <p class="cmp-legend"><span class="lg add">added</span><span class="lg chg">changed</span></p>
+      <p class="cmp-key"><span class="t-expert">h*, s*, a*</span> come from the expert &middot;
+        <span class="t-student">h, s</span> come from the student</p>
 
       <div class="d-card d-loop">
         <iframe class="lmp-figframe" id="asteroid-loop" src="./static/figs/fig_asteroid_loop_embed.html"
@@ -290,18 +296,20 @@
       </div>
 
       <details class="dd d-dd">
-        <summary><span class="dd-arrow">&#9656;</span> Beyond three doors: general POMDPs</summary>
-        <div class="d-dd-body">
-          <p>When the hidden state changes <em>within</em> an episode (e.g. a maze where the agent only sees a 3&times;3
-            window), the recipe is the same, but per <em>timestep</em> instead of per episode:</p>
-          <ol class="code">
-            <li><span class="kw">for</span> iteration k = 0, 1, 2, &hellip;:</li>
-            <li class="i1">pick a random timestep t (biased later as k grows)</li>
-            <li class="i1"><span class="t-student">student</span> plays t steps &rarr; <span class="t-ctx">context</span></li>
-            <li class="i1"><span class="t-expert">expert</span> continues from where the student ended up &rarr; labels</li>
-            <li class="i1">train <span class="t-student">student</span>: (<span class="t-ctx">context</span>, observation) &rarr; <span class="t-expert">expert</span> action</li>
-          </ol>
-          <p>Longer timesteps over iterations give a natural context-length curriculum.</p>
+        <summary><span class="dd-arrow">&#9656;</span> What are the history and labels?</summary>
+        <div class="d-dd-body d-hl2">
+          <div>
+            <h4>BAMDPs <small>hidden task fixed across episodes, e.g. the doors</small></h4>
+            <p><b class="t-student">History:</b> k full student episodes.</p>
+            <p><b class="t-expert">Labels:</b> an expert episode in the same task. It doesn&rsquo;t depend on the
+              student, so it can be queried online or come from an offline expert dataset.</p>
+          </div>
+          <div>
+            <h4>POMDPs <small>hidden state changes within an episode, e.g. a maze</small></h4>
+            <p><b class="t-student">History:</b> a partial student rollout, up to step t.</p>
+            <p><b class="t-expert">Labels:</b> the expert&rsquo;s trajectory from where the student ended up,
+              through to success.</p>
+          </div>
         </div>
       </details>
     </div>
@@ -477,9 +485,9 @@
       <details class="dd d-dd d-dd-big" id="baselines">
         <summary><span class="dd-arrow">&#9656;</span> How is this different from DAgger or DPT?</summary>
         <div class="d-dd-body">
-          <p><b>DAgger</b> collects data from the student but has no <span class="t-ctx">context</span>, so it can&rsquo;t
-            use past failures. <b>DPT</b> conditions on <span class="t-ctx">context</span>, but builds it offline, so it
-            must cover every history the student could ever see.</p>
+          <p><b>DAgger</b> puts expert labels on the student&rsquo;s own steps, so the labels average out across worlds
+            and it dithers. <b>DPT</b> conditions on history, but builds it offline with a random policy, so it would
+            need to cover every history the student could see.</p>
           <div class="cmp-tabs" role="tablist">
             <button class="cmp-tab is-on" data-b="dagger">DAgger</button>
             <button class="cmp-tab" data-b="dpt">DPT</button>
@@ -491,10 +499,9 @@
             </div>
             <div class="cmp-card is-ours">
               <div class="cmp-head"><span class="multi-color-text"><b>ASTEROID</b></span></div>
-              <ol class="code" data-code="ours"></ol>
+              <ol class="code" data-algo="asteroid"></ol>
             </div>
           </div>
-          <p class="cmp-legend"><span class="lg add">added</span><span class="lg chg">changed</span> in ASTEROID, relative to the selected method</p>
           <div class="cmp-figs">
             <figure>
               <figcaption data-name></figcaption>

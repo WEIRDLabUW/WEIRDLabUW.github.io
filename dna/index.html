@@ -35,10 +35,10 @@
       <a class="site-nav-brand" href="#top">D&amp;A</a>
       <ul class="site-nav-links">
         <li><a href="#use">Use it</a></li>
-        <li><a href="#scale">Scaling</a></li>
-        <li><a href="#bench">D&amp;A-Bench</a></li>
         <li><a href="#method">Method</a></li>
+        <li><a href="#bench">D&amp;A-Bench</a></li>
         <li><a href="#rl">Real-world RL</a></li>
+        <li><a href="#scale">Scaling</a></li>
         <li><a href="#feedback">CaP Feedback</a></li>
         <li><a href="#more">More results</a></li>
         <li><a href="#BibTeX">BibTeX</a></li>
@@ -63,7 +63,7 @@
         </h1>
         <div class="cta-ring">
           <a href="./demo/index.html" class="button is-rounded is-dark">
-            <span>Try it in your browser</span>
+            <span>Try it</span>
             <span class="icon cta-arrow"><i class="fas fa-arrow-right" aria-hidden="true"></i></span>
           </a>
         </div>
@@ -79,13 +79,13 @@
           <div class="column has-text-centered">
             <div class="publication-authors">
               <span class="author-block"><a href="https://memmelma.github.io/">Marius Memmel</a><sup>1,2</sup>,</span>
-              <span class="author-block">Shawn Yin<sup>1</sup>,</span>
-              <span class="author-block"><a href="https://www.linkedin.com/in/urvi-rutia">Urvi Rutia</a><sup>1</sup>,</span>
-              <span class="author-block"><a href="https://www.linkedin.com/in/angadw/">Angad Wadhwa</a><sup>1</sup>,</span>
+              <span class="author-block"><a href="https://xheawn.github.io/">Shawn Yin</a><sup>1,*</sup>,</span>
+              <span class="author-block"><a href="https://www.linkedin.com/in/urvi-rutia">Urvi Rutia</a><sup>1,*</sup>,</span>
+              <span class="author-block"><a href="https://www.linkedin.com/in/angadw/">Angad Wadhwa</a><sup>1,*</sup>,</span>
               <span class="author-block">Eldon Li<sup>1</sup>,</span>
               <span class="author-block"><a href="https://www.linkedin.com/in/gavin-angeloff-3164452ba/">Gavin Angeloff</a><sup>1</sup>,</span>
-              <span class="author-block"><a href="https://jessezhang.net/">Jesse Zhang</a><sup>1</sup>,</span>
               <span class="author-block"><a href="https://imankgoyal.github.io/">Ankit Goyal</a><sup>2</sup>,</span>
+              <span class="author-block"><a href="https://jessezhang.net/">Jesse Zhang</a><sup>1</sup>,</span>
               <span class="author-block"><a href="https://homes.cs.washington.edu/~fox/">Dieter Fox</a><sup>1</sup>,</span>
               <span class="author-block"><a href="https://fabioramos.github.io/Home.html">Fabio Ramos</a><sup>2</sup>,</span>
               <span class="author-block"><a href="https://anqili.github.io/">Anqi Li</a><sup>2,&dagger;</sup>,</span>
@@ -96,7 +96,7 @@
               <span class="author-block"><sup>1</sup>University of Washington</span>
               <span class="author-block"><sup>2</sup>NVIDIA</span>
             </div>
-            <p class="publication-note"><sup>&dagger;</sup>equal advising</p>
+            <p class="publication-note"><sup>*</sup>equal contribution &nbsp; <sup>&dagger;</sup>equal advising</p>
 
             <div class="publication-links">
               <!-- Paper / arXiv: fill in the hrefs when available. -->
@@ -138,7 +138,7 @@
             <div class="section-card hero-grid-card">
                 <div class="hero-grid" id="hero-grid" aria-label="D&amp;A rollouts across tasks. Hover a clip for its description and progress."></div>
                 <button class="dice-btn hero-grid-dice" id="hero-grid-dice" type="button" aria-label="Show a random selection of videos" title="Random videos"><span aria-hidden="true">&#x1F3B2;</span></button>
-                <p class="section-hint hero-grid-note">Hover clip to play it &middot; press and slide to scrub through the rollout &middot; load in demo<br>&#9888;&#65039; The above is representative of D&amp;A performance. We used the first language prompt we could come up with. Zero tuning!</p>
+                <p class="section-hint hero-grid-note">Hover clip to play it &middot; press and slide to scrub through the rollout &middot; load in demo<br>&#9888;&#65039; The above is representative of D&amp;A performance.<br>We used the first language prompt we could come up with. Zero tuning!</p>
             </div>
 
             <div class="hero-use" id="use">
@@ -165,25 +165,63 @@ progress = dna.compute_progress(video, <span class="tok-s">"assemble the car"</s
 
   <main id="main">
 
-  <section class="section" id="scale">
+  <section class="section" id="method">
     <div class="container is-max-desktop has-text-centered">
-      <h2 class="title is-3">Better VLM, Better Reward Model</h2>
-      <p class="section-lead">Swap in a stronger VLM and D&amp;A gets better with it.</p>
-      <div class="section-card ladder" id="ladder">
-        <div class="ladder-fams" id="ladder-fams" role="group" aria-label="Model family"></div>
-        <div class="ladder-chart">
-          <div class="ladder-headrow" aria-hidden="true">
-            <span></span>
-            <span class="ladder-headtrack"><span class="ladder-ref-label">Best model trained on robot data (Robometer)</span></span>
-            <span></span>
+      <h2 class="title is-3">Method Overview</h2>
+      <div class="section-card">
+        <figure>
+          <img class="figure-img" src="./static/images/method.png" width="2680" height="856" loading="lazy" decoding="async"
+            alt="Method overview: a Describer narrates the video without seeing the instruction, then an Assessor scores the description against a success criterion to produce per-frame rewards and feedback." />
+        </figure>
+      </div>
+    </div>
+  </section>
+  <section class="section" id="overview" aria-label="Overview">
+    <div class="container is-max-desktop has-text-centered">
+      <div class="abstract-boxes">
+        <div class="abstract-box is-problem">
+          <div class="abstract-box-head">
+            <span class="abstract-box-icon" aria-hidden="true"><i class="fas fa-exclamation-triangle"></i></span>
+            <h2 class="abstract-box-title"><span class="abstract-box-step">1</span>Problem</h2>
           </div>
-          <div class="ladder-rowswrap">
-            <ol class="ladder-rows" id="ladder-rows"></ol>
-            <div class="ladder-price" aria-hidden="true"><span class="ladder-price-label">Output token price</span></div>
-          </div>
+          <p>
+            Existing zero-shot VLM approaches (<span class="term">GVL</span>, <span class="term">TOPReward</span>) suffer from
+            <strong>confirmation bias and hallucinated progress</strong> in failed runs when
+            estimating rewards.<br>
+            Post-trained alternatives (<span class="term">Robometer</span>, <span class="term">RoboReward</span>,
+            <span class="term">SOLE-R1</span>) require <strong>expensive real-world data</strong>.
+          </p>
         </div>
-        <p class="section-hint ladder-note">Reward quality of D&amp;A (Kendall &tau;<sub>&alpha;</sub> on RBM-EVAL-OOD, higher is better), same prompts for every model.</p>
-        <p class="section-hint ladder-note ladder-links">How much does D&amp;A gain over naive frontier models? Find out <a href="#frontier">here</a>.<br>More models and scaling laws <a href="#scaling">here</a>.</p>
+        <div class="abstract-box is-method">
+          <div class="abstract-box-head">
+            <span class="abstract-box-icon" aria-hidden="true"><i class="fas fa-puzzle-piece"></i></span>
+            <h2 class="abstract-box-title"><span class="abstract-box-step">2</span>Method</h2>
+          </div>
+          <p>
+            To address this, <strong>D&amp;A</strong> decouples progress estimation into a <strong>Describe</strong>
+            and <strong>Assess</strong> stage, first describing what happened in the video before assessing progress
+            with respect to a success criterion.
+          </p>
+        </div>
+        <div class="abstract-box is-results">
+          <div class="abstract-box-head">
+            <span class="abstract-box-icon" aria-hidden="true"><i class="fas fa-chart-line"></i></span>
+            <h2 class="abstract-box-title"><span class="abstract-box-step">3</span>Results</h2>
+          </div>
+          <a class="result-group" href="#rl">
+            <p class="result-statement"><span class="result-da">D&amp;A</span> Enables Real-World Reinforcement Learning</p>
+          </a>
+          <a class="result-group" href="#benchmarks">
+            <p class="result-statement"><span class="result-da">D&amp;A</span> Achieves SOTA on 3 Reward Benchmarks</p>
+          </a>
+          <a class="result-group" href="#scale">
+            <p class="result-statement"><span class="result-da">D&amp;A</span> Scales with 4 Model Families and 28 Models</p>
+          </a>
+          <a class="result-group" href="#feedback">
+            <p class="result-statement"><span class="result-da">D&amp;A</span> Rich Feedback Improves Code-as-Policies</p>
+          </a>
+        </div>
+      </div>
       </div>
     </div>
   </section>
@@ -273,66 +311,6 @@ progress = dna.compute_progress(video, <span class="tok-s">"assemble the car"</s
       </div>
     </div>
   </section>
-  <section class="section" id="method">
-    <div class="container is-max-desktop has-text-centered">
-      <h2 class="title is-3">Method Overview</h2>
-      <div class="section-card">
-        <figure>
-          <img class="figure-img" src="./static/images/method.png" width="2680" height="856" loading="lazy" decoding="async"
-            alt="Method overview: a Describer narrates the video without seeing the instruction, then an Assessor scores the description against a success criterion to produce per-frame rewards and feedback." />
-        </figure>
-      </div>
-    </div>
-  </section>
-  <section class="section" id="overview" aria-label="Overview">
-    <div class="container is-max-desktop has-text-centered">
-      <div class="abstract-boxes">
-        <div class="abstract-box is-problem">
-          <div class="abstract-box-head">
-            <span class="abstract-box-icon" aria-hidden="true"><i class="fas fa-exclamation-triangle"></i></span>
-            <h2 class="abstract-box-title"><span class="abstract-box-step">1</span>Problem</h2>
-          </div>
-          <p>
-            Existing zero-shot VLM approaches (<span class="term">GVL</span>, <span class="term">TOPReward</span>) suffer from
-            <strong>confirmation bias and hallucinated progress</strong> in failed runs when
-            estimating rewards.<br>
-            Post-trained alternatives (<span class="term">Robometer</span>, <span class="term">RoboReward</span>,
-            <span class="term">SOLE-R1</span>) require <strong>expensive real-world data</strong>.
-          </p>
-        </div>
-        <div class="abstract-box is-method">
-          <div class="abstract-box-head">
-            <span class="abstract-box-icon" aria-hidden="true"><i class="fas fa-puzzle-piece"></i></span>
-            <h2 class="abstract-box-title"><span class="abstract-box-step">2</span>Method</h2>
-          </div>
-          <p>
-            To address this, <strong>D&amp;A</strong> decouples progress estimation into a <strong>Describe</strong>
-            and <strong>Assess</strong> stage, first describing what happened in the video before assessing progress
-            with respect to a success criterion.
-          </p>
-        </div>
-        <div class="abstract-box is-results">
-          <div class="abstract-box-head">
-            <span class="abstract-box-icon" aria-hidden="true"><i class="fas fa-chart-line"></i></span>
-            <h2 class="abstract-box-title"><span class="abstract-box-step">3</span>Results</h2>
-          </div>
-          <a class="result-group" href="#rl">
-            <p class="result-statement"><span class="result-da">D&amp;A</span> Enables Real-World Reinforcement Learning</p>
-          </a>
-          <a class="result-group" href="#benchmarks">
-            <p class="result-statement"><span class="result-da">D&amp;A</span> achieves SOTA on 3 reward benchmarks</p>
-          </a>
-          <a class="result-group" href="#scale">
-            <p class="result-statement"><span class="result-da">D&amp;A</span> scales with 4 model families and 26 models</p>
-          </a>
-          <a class="result-group" href="#feedback">
-            <p class="result-statement"><span class="result-da">D&amp;A</span> Rich Feedback Improves Code-as-Policies</p>
-          </a>
-        </div>
-      </div>
-      </div>
-    </div>
-  </section>
   <section class="section" id="rl">
     <div class="container is-max-desktop has-text-centered">
       <h2 class="title is-3">D&amp;A Enables Real-World Reinforcement Learning</h2>
@@ -393,6 +371,11 @@ progress = dna.compute_progress(video, <span class="tok-s">"assemble the car"</s
           </div>
         </div>
 
+        <p class="figure-caption">
+          We apply DSRL to a &pi;<sub>0</sub> policy fine-tuned on DROID, using D&amp;A's progress score directly as the dense reward.
+          D&amp;A raises the success rate from 10% to 100% in about 90 minutes of wallclock time, while TOPReward learns the opposite behavior.
+        </p>
+
       <details class="rl-collapse">
         <summary>
           <span class="rl-collapse-title">Online RL Training (DSRL)</span>
@@ -442,7 +425,7 @@ progress = dna.compute_progress(video, <span class="tok-s">"assemble the car"</s
               </div>
               <div class="gen-video-caption">
                 <span class="tag is-policy">&pi;<sub>0.5</sub>&nbsp;behavior cloning</span>
-                <strong>20% success.</strong>
+                <strong>20% success.</strong> Clones suboptimal behaviors, e.g., misses grasps or drops the book.
               </div>
             </div>
           </div>
@@ -454,7 +437,7 @@ progress = dna.compute_progress(video, <span class="tok-s">"assemble the car"</s
               </div>
               <div class="gen-video-caption">
                 <span class="tag is-model" style="--c:#9467BD; --on-c:#000;">TOPReward</span>
-                <strong>80% success.</strong>
+                <strong>80% success.</strong> Noisy filtering of suboptimal data, worse than Robometer.
               </div>
             </div>
           </div>
@@ -466,7 +449,7 @@ progress = dna.compute_progress(video, <span class="tok-s">"assemble the car"</s
               </div>
               <div class="gen-video-caption">
                 <span class="tag is-model" style="--c:#FF7F0E; --on-c:#000;">Robometer</span>
-                <strong>85% success.</strong>
+                <strong>85% success.</strong> Noisy filtering of suboptimal data.
               </div>
             </div>
           </div>
@@ -478,15 +461,19 @@ progress = dna.compute_progress(video, <span class="tok-s">"assemble the car"</s
               </div>
               <div class="gen-video-caption">
                 <span class="tag is-model" style="--c:#D81B60; --on-c:#fff;">D&amp;A</span>
-                <strong>100% success.</strong>
+                <strong>100% success.</strong> Filters the data correctly.
               </div>
             </div>
           </div>
-        </div>
+        <p class="figure-caption">
+          We condition &pi;<sub>0.5</sub> on advantages computed from D&amp;A rewards (CFGRL/RECAP) and LoRA-fine-tune it for 50k steps on 50 optimal,
+          50 suboptimal and 50 failure demonstrations. Failures include using the wrong box or arm, or dropping the book mid-transfer.
+        </p>
+      </div>
 
       <div class="embodiment-group">
         <div class="embodiment-title">
-          <h3 class="title is-5">Advantage-Filtered Behavior Cloning</h3>
+          <h3 class="title is-5">Advantage-Filtered Behavior Cloning Evaluation</h3>
         </div>
         <p class="embodiment-instruction">&ldquo;nudge out the book &lsquo;Thinking, Fast and Slow&rsquo;, grasp it, and place it on the table&rdquo;<span class="embodiment-tag">bimanual YAM</span></p>
         <div class="columns is-centered is-multiline mt-2">
@@ -498,7 +485,7 @@ progress = dna.compute_progress(video, <span class="tok-s">"assemble the car"</s
               </div>
               <div class="gen-video-caption">
                 <span class="tag is-policy">&pi;<sub>0.5</sub>&nbsp;behavior cloning</span>
-                <strong>80% success.</strong>
+                <strong>80% success.</strong> Competitive, but imitates suboptimal demonstrations, e.g., nudging and pulling out the wrong books.
               </div>
             </div>
           </div>
@@ -510,7 +497,7 @@ progress = dna.compute_progress(video, <span class="tok-s">"assemble the car"</s
               </div>
               <div class="gen-video-caption">
                 <span class="tag is-model" style="--c:#9467BD; --on-c:#000;">TOPReward</span>
-                <strong>25% success.</strong>
+                <strong>25% success.</strong> Assigns similar reward to optimal and suboptimal behavior, filtering action chunks from both.
               </div>
             </div>
           </div>
@@ -522,7 +509,7 @@ progress = dna.compute_progress(video, <span class="tok-s">"assemble the car"</s
               </div>
               <div class="gen-video-caption">
                 <span class="tag is-model" style="--c:#FF7F0E; --on-c:#000;">Robometer</span>
-                <strong>50% success.</strong>
+                <strong>50% success.</strong> Likewise assigns similar reward to optimal and suboptimal behavior.
               </div>
             </div>
           </div>
@@ -534,17 +521,40 @@ progress = dna.compute_progress(video, <span class="tok-s">"assemble the car"</s
               </div>
               <div class="gen-video-caption">
                 <span class="tag is-model" style="--c:#D81B60; --on-c:#fff;">D&amp;A</span>
-                <strong>95% success.</strong>
+                <strong>95% success.</strong> Filters out suboptimal chunks and keeps optimal ones. Higher success rate and execution speed.
               </div>
             </div>
           </div>
         </div>
         <p class="figure-caption">
-          Fine-tuning &pi;<sub>0.5</sub> on the top 35% of action chunks by D&amp;A advantage filters out suboptimal behavior.
-          On success, D&amp;A completes the task faster than the baseline: 565 &plusmn; 56 versus 856 &plusmn; 277 timesteps.
+          We fine-tune &pi;<sub>0.5</sub> on the top 35% of action chunks, ranked by D&amp;A's progress advantage against a single dataset-wide threshold,
+          using 50 optimal and 100 suboptimal demonstrations. On success, D&amp;A finishes the task faster than the baseline
+          (18.8 &plusmn; 1.8&nbsp;s versus 28.5 &plusmn; 9.2&nbsp;s), with markedly lower variance across rollouts.
         </p>
       </div>
       </div>
+      </div>
+    </div>
+  </section>
+  <section class="section" id="scale">
+    <div class="container is-max-desktop has-text-centered">
+      <h2 class="title is-3">Better VLM, Better Reward Model</h2>
+      <p class="section-lead">Swap in a stronger VLM and D&amp;A gets better with it.</p>
+      <div class="section-card ladder" id="ladder">
+        <div class="ladder-fams" id="ladder-fams" role="group" aria-label="Model family"></div>
+        <div class="ladder-chart">
+          <div class="ladder-headrow" aria-hidden="true">
+            <span></span>
+            <span class="ladder-headtrack"><span class="ladder-ref-label">Best model trained on robot data (Robometer)</span></span>
+            <span></span>
+          </div>
+          <div class="ladder-rowswrap">
+            <ol class="ladder-rows" id="ladder-rows"></ol>
+            <div class="ladder-price" aria-hidden="true"><span class="ladder-price-label">Output token price</span></div>
+          </div>
+        </div>
+        <p class="section-hint ladder-note">Reward quality of D&amp;A (Kendall &tau;<sub>&alpha;</sub> on RBM-EVAL-OOD, higher is better), same prompts for every model.</p>
+        <p class="section-hint ladder-note ladder-links">How much does D&amp;A gain over naive frontier models? Find out <a href="#frontier">here</a>.<br>More models and scaling laws <a href="#scaling">here</a>.</p>
       </div>
     </div>
   </section>
@@ -888,7 +898,7 @@ progress = dna.compute_progress(video, <span class="tok-s">"assemble the car"</s
         </button>
         <pre id="bibtex-text"><code>@misc{memmel2026dna,
   title={D\&A: Decoupling Description and Assessment Enables VLMs as Zero-Shot Robotic Reward Models},
-  author={Memmel, Marius and Yin, Shawn and Rutia, Urvi and Wadhwa, Angad and Li, Eldon and Angeloff, Gavin and Zhang, Jesse and Goyal, Ankit and Fox, Dieter and Ramos, Fabio and Li, Anqi and Gupta, Abhishek},
+  author={Memmel, Marius and Yin, Shawn and Rutia, Urvi and Wadhwa, Angad and Li, Eldon and Angeloff, Gavin and Goyal, Ankit and Zhang, Jesse and Fox, Dieter and Ramos, Fabio and Li, Anqi and Gupta, Abhishek},
   year={2026},
   note={Preprint}
 }</code></pre>

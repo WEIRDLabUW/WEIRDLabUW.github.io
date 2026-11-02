@@ -985,9 +985,9 @@ img.figure-img {
 .footer p {
   max-width: none;            /* the full width of the page container, not a single reading column */
   margin: 0;
-  font-size: var(--fs-1);     /* same small type as the other captions */
+  font-size: var(--caption-size, 0.9375rem);     /* same type as the other captions */
   line-height: 1.55;
-  color: var(--text-muted);
+  color: var(--caption-color, var(--text));
   text-align: center;
   text-wrap: pretty;
 }
@@ -2371,6 +2371,7 @@ a.result-group:hover::after {
   margin: var(--space-4) 0 0;
   padding: 0 var(--space-7);   /* keeps the text clear of the dice in the corner */
   text-align: center;
+  text-wrap: balance;          /* even lines, no single word left on its own */
 }
 
 .hero-grid .marquee-tile {

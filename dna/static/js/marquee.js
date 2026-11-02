@@ -8,7 +8,9 @@
   if (!root || !pool || !pool.length) return;
   var GRID_N = 20;                     // 4 x 5 below the header
   // What the header must always contain: one clip from every source, plus these (AlphaNIST, SGS and the SCORE clips)
-  var MUST_IDS = ['Misc_alphanist', 'Misc_nut_threading', 'Misc_05b_score_solo', 'Misc_ep_000'];   // AlphaNIST, SGS, SCORE
+  // one of the two SGS navigation segments, chosen at random each time
+  var NAV_ID = ['SGS_sgs_navigation_0_36s', 'SGS_sgs_navigation_36s_end'][Math.floor(Math.random() * 2)];
+  var MUST_IDS = ['Misc_alphanist', 'Misc_nut_threading', 'Misc_05b_score_solo', 'Misc_ep_000', NAV_ID];   // AlphaNIST, SGS, SCORE
   var sourceOf = function (e) { return e.org || 'Misc'; };
   var isMultistep = function (e) { return e.id.indexOf('Multistep_') === 0; };   // 18 near-identical sim clips: kept under 10% of the header
 
@@ -295,7 +297,7 @@
     headerRows.push({ eps: mine, tiles: tiles });
   });
 
-  // The first screen should show AlphaNIST and SGS (nut threading). They are always in the header, but the rows
+  // The first screen should show AlphaNIST, SGS nut threading and the SGS navigation clip. They are always in the header, but the rows
   // start at different offsets, so swap each into a slot that is on screen and not behind the title box.
   (function showHighlights() {
     var cardEl = root.querySelector('.marquee-overlay');
@@ -317,7 +319,7 @@
         copy[c] = t;
       });
     }
-    ['Misc_alphanist', 'Misc_nut_threading'].forEach(function (id) {
+    ['Misc_alphanist', 'Misc_nut_threading', NAV_ID].forEach(function (id) {
       var at = null;
       headerRows.forEach(function (row, r) { row.eps.forEach(function (e, c) { if (e.id === id) at = { r: r, c: c }; }); });
       if (!at || slotOpen(at.r, at.c)) return;

@@ -6,7 +6,7 @@ If you find D&A useful for your work please cite:
 ```
 @misc{memmel2026dna,
   title={D\&A: Decoupling Description and Assessment Enables VLMs as Zero-Shot Robotic Reward Models},
-  author={Memmel, Marius and Yin, Shawn and Rutia, Urvi and Li, Eldon and Angeloff, Gavin and Wadhwa, Angad and Goyal, Ankit and Zhang, Jesse and Fox, Dieter and Ramos, Fabio and Li, Anqi and Gupta, Abhishek},
+  author={Memmel, Marius and Yin, Shawn and Rutia, Urvi and Wadhwa, Angad and Li, Eldon and Angeloff, Gavin and Goyal, Ankit and Zhang, Jesse and Fox, Dieter and Ramos, Fabio and Li, Anqi and Gupta, Abhishek},
   year={2026},
   note={Preprint}
 }

@@ -779,8 +779,14 @@
   }
 }
 
+/* captions: one size and one color for the whole site */
+:root {
+  --caption-size: 0.9375rem;      /* 15px */
+  --caption-color: var(--text);
+}
+
 /* ---- one style for every small subtext: captions, intros, hints and footnotes ----
-   13px, muted, centered, as wide as their box; emphasis (strong/b) is the only thing that gets the ink color. */
+   15px, dark gray, centered, as wide as their box; emphasis (strong/b) is the only thing that gets the ink color. */
 .figure-caption,
 .widget-intro,
 .widget-hint,
@@ -792,10 +798,10 @@
   max-width: none;            /* captions use the full width of their box: one or two lines on a wide monitor */
   margin: var(--space-4) auto 0;
   font-family: var(--font-text);
-  font-size: var(--fs-1);
+  font-size: var(--caption-size);
   font-weight: 400;
   line-height: 1.55;
-  color: var(--text-muted);
+  color: var(--caption-color);
   text-align: center;
   text-wrap: pretty;
 }
@@ -826,10 +832,10 @@
 /* footnotes inside a panel follow the same type, just left aligned */
 .frontier-panel-note {
   margin: var(--space-2) 0 0;
-  font-size: var(--fs-1);
+  font-size: var(--caption-size);
   font-weight: 400;
   line-height: 1.55;
-  color: var(--text-muted);
+  color: var(--caption-color);
 }
 
 /* the same caption type for the remaining small texts: per-video captions, task prompt lines, empty-state notes */
@@ -837,11 +843,11 @@
 .embodiment-instruction,
 #feedback-widget .base-empty-note {
   font-family: var(--font-text);
-  font-size: var(--fs-1);
+  font-size: var(--caption-size);
   font-style: normal;
   font-weight: 400;
   line-height: 1.55;
-  color: var(--text-muted);
+  color: var(--caption-color);
   text-align: center;
   text-wrap: pretty;
 }

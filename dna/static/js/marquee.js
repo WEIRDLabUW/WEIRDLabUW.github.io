@@ -96,6 +96,8 @@
     tile.addEventListener('pointercancel', end);
   }
 
+  // interactive: the copy that keyboard and screen-reader users get. The other copy (the inert second half of a looping
+  // header row) behaves the same for the mouse but is hidden from assistive technology.
   function makeTile(ep, interactive) {
     var tile = el('div', 'marquee-tile');
     if (interactive) {
@@ -122,12 +124,14 @@
     if (ep.inferred) mark.title = 'No ground-truth label: predicted by D&A';
     tile.appendChild(mark);
 
-    // top right: open this clip in the demo, and the original video's source
-    if (interactive) {
+    // top right: open this clip in the demo, and the original video's source. Every tile has them: the inert copy that
+    // makes the header loop seamless is hovered just as often, it only stays out of the tab order and away from screen readers.
+    {
       var links = el('span', 'marquee-links');
       var demo = el('a', 'marquee-demo', 'Open in demo');
       demo.href = './demo/index.html?clip=' + encodeURIComponent(ep.id);
       demo.title = 'Load this clip and its D&A annotations in the demo';
+      if (!interactive) demo.tabIndex = -1;
       links.appendChild(demo);
       if (ep.url) {
         var src = el('a', 'marquee-src');
@@ -137,6 +141,7 @@
         src.title = 'Original video: ' + ep.org;
         src.setAttribute('aria-label', 'Original video from ' + ep.org);
         src.innerHTML = '<i class="fas fa-external-link-alt"></i>';
+        if (!interactive) src.tabIndex = -1;
         links.appendChild(src);
       }
       tile.appendChild(links);
@@ -164,7 +169,7 @@
     tile._ep = ep;
     tile._ui = { body: body, head: spark.head, score: score };
     tile.addEventListener('pointerenter', function () { activate(tile); });
-    if (interactive) scrubbable(tile);
+    scrubbable(tile);
     tile.addEventListener('pointerleave', function () { deactivate(tile); });
     tile.addEventListener('focus', function () { activate(tile); });
     tile.addEventListener('blur', function () { deactivate(tile); });

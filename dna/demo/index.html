@@ -262,7 +262,7 @@
   <div class="drop-overlay" id="drop-overlay" aria-hidden="true" hidden>
     <div class="drop-overlay-card"><span class="drop-overlay-icon"><i class="fas fa-file-video"></i></span><span id="drop-overlay-msg">Drop a video to load it</span></div>
   </div>
-  <div id="app" data-mode="dna_feedback">
+  <div id="app" data-mode="dna">
   <header class="demo-hero">
     <div class="container is-max-desktop">
       <h1 class="title publication-title">
@@ -375,8 +375,8 @@
           <label for="mode">Method</label>
           <div class="select is-fullwidth"><select id="mode" style="width:100%">
             <option value="naive">Naive VLM (frames &rarr; progress)</option>
-            <option value="dna">D&amp;A (describe &rarr; assess)</option>
-            <option value="dna_feedback" selected>D&amp;A + Feedback (adds failure &amp; feedback)</option>
+            <option value="dna" selected>D&amp;A (describe &rarr; assess)</option>
+            <option value="dna_feedback">D&amp;A + Feedback (adds failure &amp; feedback)</option>
           </select></div>
         </div>
         <details class="advanced" id="advanced">
@@ -1466,7 +1466,65 @@ Respond with a list of ${n} progress values (ordered by frame) in the following 
       }
       return null;
     }
+    // Preferred: play the clip once, in order, and take every frame at the moment the browser presents it
+    // (requestVideoFrameCallback). Nothing is seeked, so a clip with few keyframes cannot stall the export, and a
+    // frame right after a seek can never come back stale. Output frames are 1/30 s apart whatever the source frame rate.
+    async function encodeFramesPlayback(cfg, cv, W, H, dur, v, draw, progress) {
+      const target = new Mp4Muxer.ArrayBufferTarget();
+      const muxer = new Mp4Muxer.Muxer({ target, video: { codec: 'avc', width: W, height: H, frameRate: EXPORT_FPS }, fastStart: 'in-memory' });
+      let encErr = null;
+      const enc = new VideoEncoder({ output: (chunk, meta) => muxer.addVideoChunk(chunk, meta), error: (e) => { encErr = e; } });
+      enc.configure(cfg);
+      const total = Math.max(1, Math.ceil(dur * EXPORT_FPS));
+      let next = 0;
+      const emit = (i) => {
+        draw(Math.min(i / EXPORT_FPS, dur));
+        const frame = new VideoFrame(cv, { timestamp: Math.round((i * 1e6) / EXPORT_FPS), duration: Math.round(1e6 / EXPORT_FPS) });
+        enc.encode(frame, { keyFrame: i % (EXPORT_FPS * 2) === 0 });
+        frame.close();
+      };
+      await seekTo(v, 0);
+      v.playbackRate = 1;
+      await new Promise((resolve, reject) => {
+        let last = performance.now(), done = false;
+        const stop = (err) => { if (done) return; done = true; clearInterval(watchdog); try { v.pause(); } catch (e) { /* ignore */ } if (err) reject(err); else resolve(); };
+        const watchdog = setInterval(() => {
+          if (performance.now() - last > 8000) stop(new Error('the browser stopped delivering video frames. Keep this tab in the foreground and try again.'));
+        }, 1000);
+        const cb = (now, meta) => {
+          if (done) return;
+          last = performance.now();
+          if (encErr) { stop(encErr); return; }
+          const m = meta.mediaTime;
+          while (next <= total && next / EXPORT_FPS <= m + 1e-3) { emit(next); next++; }   // hold this frame until the next arrives
+          progress(Math.min(1, m / dur));
+          if (v.ended || m >= dur - 0.03) { stop(); return; }
+          if (enc.encodeQueueSize > 6) {            // the encoder is behind: pause the clip until it has caught up
+            v.pause();
+            const wait = () => { if (done) return; if (enc.encodeQueueSize > 2) setTimeout(wait, 10); else { last = performance.now(); v.play(); v.requestVideoFrameCallback(cb); } };
+            wait();
+            return;
+          }
+          v.requestVideoFrameCallback(cb);
+        };
+        v.addEventListener('ended', () => stop(), { once: true });
+        v.requestVideoFrameCallback(cb);
+        v.play().catch((e) => stop(e));
+      });
+      while (next <= total) { emit(next); next++; }   // the closing frames, all at the end state
+      await enc.flush();
+      if (encErr) throw encErr;
+      enc.close();
+      muxer.finalize();
+      return new Blob([target.buffer], { type: 'video/mp4' });
+    }
+
+    // Fallback when requestVideoFrameCallback is missing: seek to every frame
     async function encodeFrames(cfg, cv, W, H, dur, v, draw, progress) {
+      if ('requestVideoFrameCallback' in HTMLVideoElement.prototype) return encodeFramesPlayback(cfg, cv, W, H, dur, v, draw, progress);
+      return encodeFramesSeeking(cfg, cv, W, H, dur, v, draw, progress);
+    }
+    async function encodeFramesSeeking(cfg, cv, W, H, dur, v, draw, progress) {
       const target = new Mp4Muxer.ArrayBufferTarget();
       const muxer = new Mp4Muxer.Muxer({ target, video: { codec: 'avc', width: W, height: H, frameRate: EXPORT_FPS }, fastStart: 'in-memory' });
       let encErr = null;
@@ -1567,6 +1625,9 @@ Respond with a list of ${n} progress values (ordered by frame) in the following 
           // page + brand bar
           ctx.fillStyle = C.page; ctx.fillRect(0, 0, W, H);
           ctx.fillStyle = C.accent; ctx.fillRect(0, 0, W, 8);
+
+          // source: the project page, top middle, above the headline row
+          text('weirdlabuw.github.io/dna', W / 2, 36, `600 18px ${SANS}`, C.link, 'center');
 
           // header: task is the headline, method + model as quiet pills on the right
           text('TASK', M, 58, `600 16px ${SANS}`, C.faint);
@@ -1873,13 +1934,13 @@ Respond with a list of ${n} progress values (ordered by frame) in the following 
       // while an example's task is shown, keep the visitor's own task instead
       const v = { mode: el.mode.value, model: el.model.value.trim(), task: taskIsExample() && state.userTask !== null ? state.userTask : el.task.value };
       Object.keys(SLIDERS).forEach((k) => { v[k] = slider(k); });
-      v.ver = 3;   // v3: frames scored defaults to 16
+      v.ver = 4;   // v4: method defaults to plain D&A (v3: frames scored defaults to 16)
       try { localStorage.setItem(SETTINGS_KEY, JSON.stringify(v)); } catch (e) {}
     }
     try {
       const v = JSON.parse(localStorage.getItem(SETTINGS_KEY) || 'null');
       if (v) {
-        if (v.mode in MODES) el.mode.value = v.mode;
+        if (v.mode in MODES && v.ver >= 4) el.mode.value = v.mode;   // an older saved choice (made when feedback was the default) is dropped once
         if (v.task) el.task.value = v.task;
         if (v.model) { el.model.value = v.model; el.preset.value = PRESETS.indexOf(v.model) >= 0 ? v.model : ''; if (!el.preset.value) el.advanced.open = true; }
         Object.keys(SLIDERS).forEach((k) => {
@@ -1889,6 +1950,7 @@ Respond with a list of ${n} progress values (ordered by frame) in the following 
         });
       }
     } catch (e) {}
+    el.app.dataset.mode = el.mode.value;   // the page starts in whatever method is selected
     [el.mode, el.preset, el.model, el.task].concat(Object.keys(SLIDERS).map((k) => SLIDERS[k].input))
       .forEach((x) => x.addEventListener('change', saveSettings));
     checkModel();

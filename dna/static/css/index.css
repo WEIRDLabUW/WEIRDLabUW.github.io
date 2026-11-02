@@ -2151,7 +2151,9 @@ a.result-group:hover::after {
 
 /* the bench subtitle is one line on wide screens */
 @media screen and (min-width: 1025px) {
-  #bench .section-lead {
+  #bench .section-lead,
+  #method .section-lead,
+  #feedback .section-lead {
     max-width: none;
     white-space: nowrap;
   }
@@ -2611,4 +2613,443 @@ a.result-group:hover::after {
 
 .rl-collapse > summary:hover .rl-collapse-hint {
   text-decoration: underline;
+}
+
+/* ---------- method widget (experimental): the Describe & Assess pipeline, stepped through ---------- */
+.method-widget {
+  --c-input: #1e88e5;
+  --c-describe: #f57c00;
+  --c-assess: #8e63b8;
+  --c-output: var(--c-dna);
+  --c-score: #f4b400;
+  --step-c: var(--c-input);
+  padding: var(--space-5);
+}
+
+.method-widget[data-step="describe"] { --step-c: var(--c-describe); }
+.method-widget[data-step="assess"] { --step-c: var(--c-assess); }
+.method-widget[data-step="output"] { --step-c: var(--c-output); }
+
+/* example toggle */
+.mw-outcome {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+}
+
+.mw-outcome button {
+  padding: var(--space-1) var(--space-4);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-pill);
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  font-size: var(--fs-1);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color var(--motion-fast) var(--ease-out), color var(--motion-fast) var(--ease-out);
+}
+
+.mw-outcome button.is-on {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--bg);
+}
+
+/* the pipeline: four steps, joined by arrows */
+.mw-steps {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-4);
+  list-style: none;
+  margin: 0 0 var(--space-5);
+  padding: 0;
+}
+
+.mw-steps li {
+  position: relative;
+}
+
+.mw-steps li:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  right: calc(-1 * var(--space-4) + 3px);
+  width: 8px;
+  height: 8px;
+  border-top: 2px solid var(--border-strong);
+  border-right: 2px solid var(--border-strong);
+  transform: translateY(-50%) rotate(45deg);
+}
+
+.mw-step {
+  --c: var(--c-input);
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  width: 100%;
+  height: 100%;
+  padding: var(--space-3);
+  border: 2px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color var(--motion) var(--ease-out), background-color var(--motion) var(--ease-out), transform var(--motion) var(--ease-out);
+}
+
+.mw-step.is-input { --c: var(--c-input); }
+.mw-step.is-describe { --c: var(--c-describe); }
+.mw-step.is-assess { --c: var(--c-assess); }
+.mw-step.is-output { --c: var(--c-output); }
+
+.mw-step.is-done {
+  border-color: color-mix(in srgb, var(--c) 45%, var(--border));
+}
+
+.mw-step.is-active {
+  border-color: var(--c);
+  background: color-mix(in srgb, var(--c) 9%, var(--surface));
+  transform: translateY(-2px);
+}
+
+.mw-step-n {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--border);
+  color: var(--text);
+  font-size: var(--fs-1);
+  font-weight: 700;
+  transition: background-color var(--motion) var(--ease-out), color var(--motion) var(--ease-out);
+}
+
+.mw-step.is-done .mw-step-n,
+.mw-step.is-active .mw-step-n {
+  background: var(--c);
+  color: #fff;
+}
+
+.mw-step-body {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.mw-step-title {
+  font-family: var(--font-display);
+  font-size: var(--fs-3);
+  font-weight: 700;
+  line-height: 1.15;
+  color: var(--ink);
+}
+
+.mw-step-math {
+  margin-top: 2px;
+  font-family: var(--font-mono);
+  font-size: var(--fs-1);
+  color: var(--c);
+}
+
+.mw-step-sub {
+  margin-top: 2px;
+  font-size: var(--fs-1);
+  color: var(--text-muted);
+}
+
+/* stage: the video on the left, what the current step produces on the right */
+.mw-stage {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+  gap: var(--space-5);
+  align-items: start;
+}
+
+.mw-video-wrap {
+  position: relative;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: #000;
+  aspect-ratio: 16 / 9;
+}
+
+.mw-video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.mw-kf {
+  position: absolute;
+  left: var(--space-2);
+  bottom: var(--space-2);
+  padding: 2px var(--space-2);
+  border-radius: var(--radius-pill);
+  background: rgba(0, 0, 0, 0.65);
+  color: #fff;
+  font-size: var(--fs-1);
+  font-weight: 600;
+}
+
+.mw-slider {
+  width: 100%;
+  margin: var(--space-3) 0 0;
+  accent-color: var(--step-c);
+}
+
+.mw-task {
+  margin: var(--space-2) 0 0;
+  font-size: var(--fs-1);
+  line-height: 1.45;
+  color: var(--text);
+  text-align: left;
+}
+
+.mw-task-label,
+.mw-label {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--fs-1);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--step-c);
+}
+
+.mw-task-label { display: inline; margin-right: var(--space-1); color: var(--c-input); }
+.mw-label i { text-transform: none; letter-spacing: 0; font-family: var(--font-mono); }
+
+.mw-panel {
+  min-height: 290px;
+  text-align: left;
+}
+
+.mw-panel.mw-in { animation: mw-in 320ms var(--ease-out); }
+
+@keyframes mw-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: none; }
+}
+
+.mw-blurb {
+  margin: 0 0 var(--space-3);
+  font-size: var(--fs-2);
+  line-height: var(--lh-body);
+  color: var(--ink);
+}
+
+.mw-card {
+  margin-top: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border: 2px solid var(--step-c);
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--step-c) 7%, var(--surface));
+}
+
+.mw-card .mw-text {
+  margin: var(--space-2) 0 0;
+  font-size: var(--fs-2);
+  line-height: 1.5;
+  color: var(--text);
+}
+
+.mw-card .mw-text + .mw-text { margin-top: var(--space-2); }
+
+.mw-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+}
+
+.mw-chip {
+  padding: 2px var(--space-3);
+  border-radius: var(--radius-pill);
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  font-size: var(--fs-1);
+  color: var(--text);
+}
+
+.mw-blind {
+  margin-left: auto;
+  padding: 1px var(--space-2);
+  border-radius: var(--radius-pill);
+  background: var(--ink);
+  color: var(--bg);
+  font-size: 0.6875rem;
+  letter-spacing: 0.04em;
+}
+
+.mw-blind::before { content: "\1F512\00a0"; }
+
+/* assess: the score of the current key frame */
+.mw-score {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-top: var(--space-4);
+}
+
+.mw-score .mw-label { flex: none; }
+
+.mw-bar {
+  flex: 1;
+  height: 14px;
+  border-radius: var(--radius-pill);
+  background: var(--surface-sunken);
+  overflow: hidden;
+}
+
+.mw-bar-fill {
+  display: block;
+  height: 100%;
+  border-radius: var(--radius-pill);
+  background: var(--c-score);
+  transition: width 260ms var(--ease-out);
+}
+
+.mw-score-num {
+  min-width: 3.4ch;
+  text-align: right;
+  font-family: var(--font-display);
+  font-size: var(--fs-3);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+}
+
+/* output: the curve and the feedback, kept compact so the widget does not grow on this step */
+.mw-out .mw-card {
+  margin-top: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+}
+
+.mw-out .mw-card .mw-text {
+  margin-top: var(--space-1);
+  font-size: var(--caption-size, 0.9375rem);
+  line-height: 1.4;
+}
+
+.mw-out .mw-card .mw-text + .mw-text { margin-top: var(--space-1); }
+
+.mw-out .mw-card.is-score { --step-c: var(--c-score); }
+.mw-out .mw-card.is-feedback { --step-c: var(--c-output); }
+.mw-out .mw-card.is-feedback.is-ok { --step-c: var(--success-fg); }
+
+.mw-chart {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin-top: var(--space-1);
+}
+
+.mw-axis { stroke: var(--border-strong); stroke-width: 1; }
+.mw-axis.is-dash { stroke-dasharray: 3 3; }
+.mw-tick { font-size: 11px; fill: var(--text-muted); }
+.mw-line { fill: none; stroke: var(--c-score); stroke-width: 2.5; stroke-linejoin: round; stroke-linecap: round; }
+.mw-line.is-faint { stroke-width: 2; opacity: 0.28; }
+.mw-play { stroke: var(--text-muted); stroke-width: 1; stroke-dasharray: 3 3; }
+.mw-dot { fill: var(--c-score); stroke: var(--surface); stroke-width: 2; }
+
+.method-static {
+  margin-top: var(--space-4);
+  text-align: center;
+}
+
+.method-static summary {
+  cursor: pointer;
+  font-size: var(--fs-1);
+  font-weight: 600;
+  color: var(--link);
+}
+
+.method-static figure { margin-top: var(--space-3); }
+
+@media (max-width: 860px) {
+  .mw-steps { grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: var(--space-3); }
+  .mw-steps li:nth-child(2)::after { display: none; }
+  .mw-stage { grid-template-columns: minmax(0, 1fr); }
+  .mw-panel { min-height: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mw-panel.mw-in { animation: none; }
+  .mw-bar-fill, .mw-step { transition: none; }
+}
+
+/* the walk-through sits under the paper figure and is collapsed by default */
+.method-collapse {
+  margin-top: var(--space-4);
+}
+
+.method-collapse > summary {
+  display: flex;
+  justify-content: center;
+  list-style: none;
+  cursor: pointer;
+}
+
+.method-collapse > summary::-webkit-details-marker {
+  display: none;
+}
+
+.method-collapse-hint {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--fs-1);
+  font-weight: 600;
+  color: var(--link);
+}
+
+.method-collapse-hint::before { content: "Step through an example"; }
+.method-collapse[open] .method-collapse-hint::before { content: "Hide the walk-through"; }
+
+.method-collapse-hint::after {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: rotate(45deg) translateY(-2px);
+  transition: transform var(--motion) var(--ease-out);
+}
+
+.method-collapse[open] .method-collapse-hint::after { transform: rotate(-135deg) translateY(-2px); }
+.method-collapse > summary:hover .method-collapse-hint { text-decoration: underline; }
+
+.method-collapse[open] > summary { margin-bottom: var(--space-2); }
+
+/* <details> resets box-sizing for what is inside; the widget grid needs border-box */
+.method-collapse .method-widget,
+.method-collapse .method-widget * { box-sizing: border-box; }
+
+/* the little ball under the footer links to a video */
+.footer p.footer-egg {
+  margin-top: var(--space-3);
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+.footer .footer-egg a {
+  display: inline-block;
+  border-bottom: 0;
+  background-image: none;
+  text-decoration: none;
+  transition: transform var(--motion) var(--ease-out);
+}
+
+.footer .footer-egg a:hover { transform: rotate(25deg) scale(1.2); border-bottom: 0; }
+
+@media (prefers-reduced-motion: reduce) {
+  .footer .footer-egg a { transition: none; }
 }

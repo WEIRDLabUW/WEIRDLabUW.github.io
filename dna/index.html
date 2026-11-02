@@ -101,7 +101,7 @@
             <div class="publication-links">
               <!-- Paper / arXiv: fill in the hrefs when available. -->
               <span class="link-block">
-                <a href="#" class="external-link button is-normal is-rounded" title="Coming soon">
+                <a href="./static/papers/dna.pdf" class="external-link button is-normal is-rounded" target="_blank" rel="noopener">
                   <span class="icon"><i class="fas fa-file-pdf" aria-hidden="true"></i></span>
                   <span>Paper</span>
                 </a>
@@ -168,12 +168,34 @@ progress = dna.compute_progress(video, <span class="tok-s">"assemble the car"</s
   <section class="section" id="method">
     <div class="container is-max-desktop has-text-centered">
       <h2 class="title is-3">Method Overview</h2>
+      <p class="section-lead">Describe what happened, then assesses progress against explicit success criteria.</p>
       <div class="section-card">
         <figure>
           <img class="figure-img" src="./static/images/method.png" width="2680" height="856" loading="lazy" decoding="async"
             alt="Method overview: a Describer narrates the video without seeing the instruction, then an Assessor scores the description against a success criterion to produce per-frame rewards and feedback." />
         </figure>
       </div>
+      <details class="method-collapse" id="method-collapse">
+        <summary><span class="method-collapse-hint" aria-hidden="true"></span></summary>
+      <div class="section-card method-widget" id="method-widget">
+        <div class="mw-outcome" role="group" aria-label="Example rollout">
+          <button type="button" data-ep="ok" class="is-on" aria-pressed="true">Success example</button>
+          <button type="button" data-ep="fail" aria-pressed="false">Failure example</button>
+        </div>
+        <ol class="mw-steps" aria-label="The D&amp;A pipeline"></ol>
+        <div class="mw-stage">
+          <div class="mw-media">
+            <div class="mw-video-wrap">
+              <video class="mw-video" muted playsinline preload="auto" aria-label="Robot rollout, shown at the selected key frame"></video>
+              <span class="mw-kf">key frame 1 / 15</span>
+            </div>
+            <input class="mw-slider" type="range" min="0" max="14" step="1" value="0" aria-label="Key frame">
+            <p class="mw-task"></p>
+          </div>
+          <div class="mw-panel" aria-live="polite"></div>
+        </div>
+      </div>
+      </details>
     </div>
   </section>
   <section class="section" id="overview" aria-label="Overview">
@@ -218,7 +240,7 @@ progress = dna.compute_progress(video, <span class="tok-s">"assemble the car"</s
             <p class="result-statement"><span class="result-da">D&amp;A</span> Scales with 4 Model Families and 28 Models</p>
           </a>
           <a class="result-group" href="#feedback">
-            <p class="result-statement"><span class="result-da">D&amp;A</span> Rich Feedback Improves Code-as-Policies</p>
+            <p class="result-statement"><span class="result-da">D&amp;A</span> Predicts Rich Language Feedback</p>
           </a>
         </div>
       </div>
@@ -313,9 +335,9 @@ progress = dna.compute_progress(video, <span class="tok-s">"assemble the car"</s
   </section>
   <section class="section" id="rl">
     <div class="container is-max-desktop has-text-centered">
-      <h2 class="title is-3">D&amp;A Enables Real-World Reinforcement Learning</h2>
+      <h2 class="title is-3">Enables Real-World Reinforcement Learning</h2>
+      <p class="section-lead">D&amp;A rewards drive online and offline real-world RL.</p>
       <div class="section-card">
-      <p class="section-lead">D&amp;A rewards improve both online and offline real-world RL.</p>
       <figure>
         <img class="figure-img" src="./static/images/rl_results_three.png" width="2400" height="361" loading="lazy" decoding="async"
           alt="Real-world RL results: success rates of policies trained with D&amp;A rewards versus other reward models. Online RL on a DROID Franka: pi-0 10%, TOPReward 5%, D&amp;A 100%. Offline RL on a bimanual YAM: pi-0.5 20%, TOPReward 80%, Robometer 85%, D&amp;A 100%. Advantage-filtered behavior cloning on book nudging: pi-0.5 80%, TOPReward 25%, Robometer 50%, D&amp;A 95%." />
@@ -560,7 +582,8 @@ progress = dna.compute_progress(video, <span class="tok-s">"assemble the car"</s
   </section>
   <section class="section" id="feedback">
     <div class="container is-max-desktop has-text-centered">
-      <h2 class="title is-3">D&amp;A Rich Feedback Improves Code-as-Policies</h2>
+      <h2 class="title is-3">Predicts Rich Language Feedback</h2>
+      <p class="section-lead">D&amp;A tells Code-as-Policies what went wrong and what to change.</p>
       <div id="feedback-widget" class="section-card">
           <p class="widget-intro">
             Allowing Code-as-Policies (CaP) to iterate over its solutions improves performance from 11.4% (no history) to 40.6% (history).
@@ -932,11 +955,13 @@ progress = dna.compute_progress(video, <span class="tok-s">"assemble the car"</s
           href="http://creativecommons.org/licenses/by-sa/4.0/" target="_blank">Creative Commons
           Attribution-ShareAlike 4.0 International License</a>.
       </p>
+      <p class="footer-egg"><a href="./static/videos/worldcup.mp4" target="_blank" rel="noopener" title="World Cup" aria-label="World Cup video">&#9917;</a></p>
     </div>
   </footer>
 
   <script defer src="./static/js/bar-charts.js"></script>
   <script defer src="./static/js/model-ladder.js"></script>
+  <script defer src="./static/js/method-widget.js"></script>
   <script defer src="./static/js/scaling-plot.js"></script>
   <script defer src="./static/js/bench-widget.js"></script>
   <script defer src="./static/js/feedback-widget.js"></script>

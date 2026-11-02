@@ -1825,7 +1825,7 @@ Respond with a list of ${n} progress values (ordered by frame) in the following 
         : ep.dna_progress.map((_, i) => +(ep.duration * i / Math.max(1, n - 1)).toFixed(3));
       const text = (v) => (!v || v === '-') ? '' : v;
       const pred = {
-        // robot clips were annotated with plain D&A (no feedback step); D&A-Bench rollouts carry failure and feedback text
+        // records annotated with feedback (method dna_feedback: the failure clips and D&A-Bench rollouts) carry failure and feedback text; the rest are plain D&A
         meta: { task: ep.instruction, mode: ep.method === 'dna' ? 'dna' : 'dna_feedback', model: ep.model || 'D&A-Bench run', timestamps },
         descriptions: { descriptions: ep.descriptions },
         success: { 'success criteria': text(ep.completion_state) },

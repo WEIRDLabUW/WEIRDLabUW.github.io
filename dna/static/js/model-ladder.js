@@ -1,6 +1,7 @@
 /* "Better VLM, Better Reward Model" (#ladder): one bar per model, from cheaper to pricier, for the chosen family.
    Scores are Kendall tau-alpha on RBM-EVAL-OOD (same values as the paper). The dashed line is the best model
-   trained on robot data (Robometer); bars that reach it are marked. */
+   trained on robot data (Robometer); bars that reach it are marked.
+   Prices are output $/M tokens, the OpenRouter list prices (Gemini Robotics-ER is not listed there: $12 unverified); ties by score. */
 (function () {
   'use strict';
 
@@ -13,15 +14,15 @@
 
   var FAMILIES = [
     { label: 'GPT', color: '#007D68', models: [
-      ['GPT-5.4 Nano', 0.275, 1.25], ['GPT-4.1 Mini', 0.439, 1.60], ['GPT-5 Mini', 0.307, 2.00], ['GPT-5.4 Mini', 0.453, 4.50],
-      ['GPT-5.6 Luna', 0.494, 6], ['GPT-5.4', 0.617, 15.00], ['GPT-5.6 Terra', 0.520, 15], ['GPT-5.5', 0.577, 30.00],
-      ['GPT-5.6 Sol', 0.639, 30], ['GPT-6 Astra', 0.714, 50]] },
+      ['GPT-5.4 Nano', 0.275, 1.25], ['GPT-4.1 Mini', 0.439, 1.6], ['GPT-5 Mini', 0.307, 2.0], ['GPT-5.4 Mini', 0.453, 4.5],
+      ['GPT-5.6 Luna', 0.494, 1.2], ['GPT-5.4', 0.617, 15.0], ['GPT-5.6 Terra', 0.520, 12], ['GPT-5.5', 0.577, 30.0],
+      ['GPT-5.6 Sol', 0.639, 20], ['GPT-6 Astra', 0.714, 50]] },
     { label: 'Gemini', color: '#D81B60', models: [
-      ['Gemini 2.5 Flash-Lite', 0.321, 0.40], ['Gemini 2.5 Flash', 0.386, 2.50], ['Gemini 3.1 Flash-Lite', 0.522, 1.50],
-      ['Gemini 3 Flash', 0.576, 3.00], ['Gemini 3.5 Flash', 0.535, 9.00], ['Gemini 3.1 Pro', 0.531, 12.00],
-      ['Gemini Robotics-ER 1.6', 0.629, 12.00], ['Gemini 4 Argon', 0.734, 20.00]] },
+      ['Gemini 2.5 Flash-Lite', 0.321, 0.4], ['Gemini 2.5 Flash', 0.386, 2.5], ['Gemini 3.1 Flash-Lite', 0.522, 1.5],
+      ['Gemini 3 Flash', 0.576, 3.0], ['Gemini 3.5 Flash', 0.535, 9.0], ['Gemini 3.1 Pro', 0.531, 12.0],
+      ['Gemini Robotics-ER 1.6', 0.629, 12.0], ['Gemini 4 Argon', 0.734, 10.0]] },
     { label: 'Qwen', color: '#615CED', models: [
-      ['Qwen3-VL 8B', 0.175, 0.45], ['Qwen3.7 Plus', 0.560, 1.28], ['Qwen3.6 Plus', 0.583, 1.95], ['Qwen3.6 27B', 0.404, 2.00]] },
+      ['Qwen3-VL 8B', 0.175, 0.75], ['Qwen3.7 Plus', 0.560, 1.28], ['Qwen3.6 Plus', 0.583, 1.95], ['Qwen3.6 27B', 0.404, 2.7]] },
     { label: 'Claude', color: '#d97757', models: [
       ['Sonnet 5', 0.285, 10], ['Opus 5', 0.465, 25], ['Fable 5', 0.519, 50]] }
   ];

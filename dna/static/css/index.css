@@ -2209,7 +2209,7 @@ a.result-group:hover::after {
 }
 
 .ladder-headrow {
-  height: 26px;
+  height: 30px;
   font-size: var(--fs-1);
   color: var(--text-muted);
 }
@@ -2219,12 +2219,14 @@ a.result-group:hover::after {
   height: 100%;
 }
 
-/* the label ends at the dashed line */
+/* the label is centred on the dashed line */
 .ladder-ref-label {
   position: absolute;
-  right: calc((1 - var(--ref) / 0.8) * 100% + 8px);
+  left: calc(var(--ref) / 0.8 * 100%);
+  transform: translateX(-50%);
   bottom: 4px;
   white-space: nowrap;
+  font-size: var(--fs-2);
   font-weight: 700;
   color: var(--ink);
 }
@@ -2348,7 +2350,7 @@ a.result-group:hover::after {
   .ladder-chart { --name-w: 112px; --val-w: 52px; padding-right: 28px; }
   .ladder-price { right: -26px; }
   .ladder-name { font-size: 0.75rem; white-space: normal; line-height: 1.15; }
-  .ladder-ref-label { font-size: 0.75rem; }
+  .ladder-ref-label { font-size: 0.875rem; }
   .ladder-headname { visibility: hidden; }
 }
 
@@ -2632,6 +2634,7 @@ a.result-group:hover::after {
 
 /* example toggle */
 .mw-outcome {
+  flex-wrap: wrap;
   display: flex;
   justify-content: center;
   gap: var(--space-2);
@@ -2806,8 +2809,9 @@ a.result-group:hover::after {
 
 .mw-task {
   margin: var(--space-2) 0 0;
-  font-size: var(--fs-1);
-  line-height: 1.45;
+  font-size: 1.125rem;
+  font-weight: 600;
+  line-height: 1.35;
   color: var(--text);
   text-align: left;
 }
@@ -2824,14 +2828,50 @@ a.result-group:hover::after {
   color: var(--step-c);
 }
 
+.mw-meta { margin-top: var(--space-2); }
+.mw-meta .mw-task { margin: 0; }
+.mw-links { position: absolute; top: var(--space-2); right: var(--space-2); display: inline-flex; align-items: center; gap: var(--space-1); }
+.mw-src, .mw-demo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 26px;
+  padding: 0 var(--space-2);
+  border-radius: var(--radius-pill);
+  background: rgba(0, 0, 0, 0.62);
+  background-image: none;
+  color: #fff;
+  font-size: var(--fs-1);
+  font-weight: 600;
+  line-height: 1;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color var(--motion-fast) var(--ease-out);
+}
+.mw-src { width: 26px; padding: 0; }
+.mw-src:hover, .mw-demo:hover { background: rgba(0, 0, 0, 0.85); color: #fff; }
+.mw-focus {
+  margin: var(--space-4) 0 0;
+  text-align: left;
+  padding: var(--space-2) var(--space-3);
+  border-left: 3px solid var(--c-score, #d81b60);
+  border-radius: var(--radius-sm, 6px);
+  background: color-mix(in srgb, var(--c-score, #d81b60) 8%, var(--surface));
+  font-size: var(--caption-size, 0.9375rem);
+  line-height: 1.4;
+  color: var(--text);
+}
+.mw-focus-tag { font-weight: 700; text-transform: uppercase; font-size: var(--fs-1); letter-spacing: 0.04em; margin-right: var(--space-1); color: var(--ink); }
+
 .mw-task-label { display: inline; margin-right: var(--space-1); color: var(--c-input); }
 .mw-label i { text-transform: none; letter-spacing: 0; font-family: var(--font-mono); }
 
 .mw-panel {
-  min-height: 290px;
+  min-height: 300px;   /* the descriptions vary in length (capped); keep the page from jumping while the tour runs */
   text-align: left;
 }
 
+.mw-panel > :first-child { margin-top: 0; }
 .mw-panel.mw-in { animation: mw-in 320ms var(--ease-out); }
 
 @keyframes mw-in {
@@ -2840,7 +2880,9 @@ a.result-group:hover::after {
 }
 
 .mw-blurb {
-  margin: 0 0 var(--space-3);
+  margin: 0 0 var(--space-4);
+  min-height: 3em;   /* the Assess line wraps to two lines: keep the layout from shifting between steps */
+  text-align: left;
   font-size: var(--fs-2);
   line-height: var(--lh-body);
   color: var(--ink);
@@ -2862,6 +2904,10 @@ a.result-group:hover::after {
 }
 
 .mw-card .mw-text + .mw-text { margin-top: var(--space-2); }
+
+/* a few descriptions run to a whole paragraph of scene detail: cap the card, the critical parts come first */
+.mw-card.is-describe { display: flex; flex-direction: column; height: var(--mw-vh, auto); min-height: 0; box-sizing: border-box; }
+.mw-card.is-describe .mw-text { flex: 1 1 0; min-height: 0; overflow-y: auto; }
 
 .mw-chips {
   display: flex;

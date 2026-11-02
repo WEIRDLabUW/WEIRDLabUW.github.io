@@ -12,7 +12,7 @@
         'gemini-3.5-flash': { kendall: 0.535, cost: 9.00, display: 'Gemini 3.5 Flash' },
         'gemini-3.1-pro': { kendall: 0.531, cost: 12.00, display: 'Gemini 3.1 Pro' },
         'gemini-robotics-er-1.6': { kendall: 0.629, cost: 12.00, display: 'Gemini Robotics-ER 1.6' },
-        'gemini-4-argon': { kendall: 0.734, cost: 20.00, display: 'Gemini 4 Argon' }
+        'gemini-4-argon': { kendall: 0.734, cost: 10.00, display: 'Gemini 4 Argon' }
       }
     },
     {
@@ -24,9 +24,9 @@
         'gpt-5.4-mini': { kendall: 0.453, cost: 4.50, display: 'GPT-5.4 Mini' },
         'gpt-5.4': { kendall: 0.617, cost: 15.00, display: 'GPT-5.4' },
         'gpt-5.5': { kendall: 0.577, cost: 30.00, display: 'GPT-5.5' },
-        'gpt-5.6-sol': { kendall: 0.639, cost: 30, display: 'GPT-5.6 Sol' },
-        'gpt-5.6-terra': { kendall: 0.520, cost: 15, display: 'GPT-5.6 Terra' },
-        'gpt-5.6-luna': { kendall: 0.494, cost: 6, display: 'GPT-5.6 Luna' },
+        'gpt-5.6-sol': { kendall: 0.639, cost: 20, display: 'GPT-5.6 Sol' },
+        'gpt-5.6-terra': { kendall: 0.520, cost: 12, display: 'GPT-5.6 Terra' },
+        'gpt-5.6-luna': { kendall: 0.494, cost: 1.20, display: 'GPT-5.6 Luna' },
         'gpt-6-astra': { kendall: 0.714, cost: 50, display: 'GPT-6 Astra' }
       }
     },
@@ -49,8 +49,8 @@
     {
       key: 'qwen', label: 'D&A (Qwen)', shortLabel: 'Qwen', symbol: 'x', color: '#615CED',
       models: {
-        'Qwen3-VL 8B Instruct': { kendall: 0.175, cost: 0.45 },
-        'Qwen3.6 27B': { kendall: 0.404, cost: 2.00 },
+        'Qwen3-VL 8B Instruct': { kendall: 0.175, cost: 0.75 },
+        'Qwen3.6 27B': { kendall: 0.404, cost: 2.70 },
         'Qwen3.6 Plus': { kendall: 0.583, cost: 1.95 },
         'Qwen3.7 Plus': { kendall: 0.560, cost: 1.28 }
       }

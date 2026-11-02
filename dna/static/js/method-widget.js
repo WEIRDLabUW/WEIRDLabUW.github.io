@@ -1,25 +1,25 @@
-/* Method widget (#method-widget), experimental: the Describe & Assess pipeline stepped through on a real rollout.
-   Data: D&A-Bench episodes coffee_task_ep0030 (success) and coffee_task_ep0033 (failure: stops at 14.8 g instead of 16 g).
-   The entity lists are read off the descriptions: the bench data does not store the grounding step's output. */
+/* Method widget (#method-widget): the Describe & Assess pipeline stepped through on a real rollout.
+   Data (static/js/method-data.js): three successes (Generalist, Dyna) and one failure (Physical Intelligence ziptie),
+   32 key frames each. The entity lists are short hand-picked names for the objects in the descriptions. */
 (function () {
   'use strict';
 
   var root = document.getElementById('method-widget');
-  if (!root) return;
+  if (!root || !window.METHOD_DATA) return;
 
-  var DATA = {"ok":{"id":"coffee_task_ep0030","video":"./widget/data/videos/coffee_task_ep0030.mp4","duration":31.4,"task":"measure exactly 16g of coffee","entities":["left robot arm","right robot arm","blue bowl","red bowl","coffee beans","digital scale","wooden table","cables"],"descriptions":["Two black robot arms are positioned above a wooden table. A blue bowl is placed on a digital scale showing '0.0'. To the right, a red bowl contains coffee beans. The right robot arm is roughly 25cm from the red bowl.","The right robot arm remains stationary above the table. The blue bowl, red bowl with coffee beans, and digital scale are in their starting positions. The distance to the red bowl is still 25cm.","The right robot arm starts to descend, reducing the distance to the red bowl to about 20cm. The blue bowl sits empty on the digital scale, which reads '0.0'.","The right robot arm continues moving down, now approximately 12cm from the red bowl. The coffee beans and blue bowl are static on the wooden table.","The right robot arm lowers its gripper to within 5cm of the red bowl. The left robot arm is inactive. The digital scale still displays '0.0'.","The right robot arm's gripper reaches and touches the rim of the red bowl. The distance is 0cm. The blue bowl remains on the scale.","The right robot arm grasps and lifts the red bowl about 5cm above the wooden table. The coffee beans are still inside the red bowl.","The right robot arm moves the red bowl over the blue bowl on the scale. The distance between the bowls is about 10cm. The scale reads '0.0'.","The right robot arm tilts the red bowl. The coffee beans are at the edge of the bowl, about 5cm above the blue bowl.","The right robot arm tilts further, and coffee beans begin to fall into the blue bowl. The digital scale is starting to register the weight.","A stream of coffee beans falls into the blue bowl. The digital scale reads '8.8'. The right robot arm holds the red bowl at a steep angle.","The red bowl is now empty, and the coffee beans are in the blue bowl. The digital scale displays '16.0'. The right robot arm is 5cm above the blue bowl.","The right robot arm moves the empty red bowl away from the blue bowl, heading back to the right side of the wooden table. The distance is 15cm.","The right robot arm places the empty red bowl on the wooden table. The blue bowl full of beans remains on the scale at '16.0'.","The right robot arm releases the red bowl and retracts slightly, about 5cm away. The final state shows the empty red bowl on the table and the coffee beans in the blue bowl on the scale reading '16.0'."],"progress":[0.0,0.0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0,1.0,1.0,1.0],"criterion":"The task is successfully completed when the digital scale reads exactly '16.0' with the coffee beans poured into the blue bowl.","failure":null,"feedback":null},"fail":{"id":"coffee_task_ep0033","video":"./widget/data/videos/coffee_task_ep0033.mp4","duration":20.467,"task":"measure exactly 16g of coffee","entities":["left robot arm","right robot arm","blue bowl","red bowl","coffee beans","digital scale","wooden table","cables"],"descriptions":["On a wooden table, two robotic arms are positioned above a digital scale holding a blue bowl and a red bowl filled with coffee beans. The scale displays '0.0', and a person's legs and cables are visible in the background. The robotic arms are stationary.","The right robotic arm starts moving downwards and to the right towards the red bowl, reducing the distance between its gripper and the bowl. The left robotic arm remains in its initial position.","The right robotic arm descends further, positioning its open gripper directly over the red bowl containing coffee beans. The distance between the gripper and the bowl is now just a few centimeters.","The right robotic arm's gripper makes contact with and secures the rim of the red bowl. The distance between the gripper and the red bowl is zero as the arm prepares to lift it.","The right robotic arm lifts the red bowl off the wooden table and moves it laterally toward the blue bowl on the digital scale. The red bowl is held steady above the scale.","The right robotic arm begins to tilt the red bowl over the blue bowl, with the gripper rotating to initiate the pouring process. The distance between the red bowl's edge and the blue bowl is minimal.","Coffee beans are poured from the red bowl into the blue bowl as the right robotic arm continues tilting. The digital scale now reads '11.7', while the left arm remains idle.","The pouring concludes, and the right robotic arm begins to tilt the red bowl back to an upright position. The scale display has reached '14.8', and most coffee beans are now in the blue bowl.","The right robotic arm lowers the red bowl back onto the wooden table surface to the right of the scale. The distance between the red bowl and the table surface is zero.","The right robotic arm releases the red bowl and moves slightly upwards and away. The final scene shows the blue bowl with beans on the scale reading '14.8', the nearly empty red bowl on the table, and the stationary arms."],"progress":[0.0,0.05,0.1,0.15,0.2,0.25,0.73,0.93,0.93,0.93],"criterion":"The digital scale on the table displays exactly '16.0' with the blue bowl containing 16g of coffee beans poured from the red bowl.","failure":"The robot failed to measure exactly 16g of coffee, stopping the process once the scale reached 14.8g.","feedback":"The robot should have continued to tilt the red bowl to pour more beans into the blue bowl until the digital scale reading reached exactly 16.0."}};
+  var DATA = {}, ORDER = [];
+  window.METHOD_DATA.forEach(function (d) { DATA[d.key] = d; ORDER.push(d.key); });
   var STEPS = [
     { key: 'input', n: 1, title: 'Input', math: 'o<sub>1:T</sub>, l', sub: 'video + task',
       blurb: 'A video and a task. The entities that matter (robot parts, objects) are picked out of the task and the video.' },
     { key: 'describe', n: 2, title: 'Describe', math: 'D(o<sub>1:T</sub>, e)', sub: 'what happened?',
       blurb: 'The Describer narrates every key frame and <strong>never sees the task</strong>, so it cannot talk itself into success.' },
     { key: 'assess', n: 3, title: 'Assess', math: 'A(d<sub>1:T</sub>, c)', sub: 'how far along?',
-      blurb: 'The Assessor writes explicit <strong>success criteria</strong> from the task, then scores the descriptions against them.' },
+      blurb: 'The Assessor writes explicit <strong>success criteria</strong> from the task, then scores the descriptions against them. It <strong>never sees the video</strong>, only the text.' },
     { key: 'output', n: 4, title: 'Output', math: 'r<sub>1:T</sub>, f', sub: 'score + feedback',
       blurb: 'A dense score per frame, plus rich feedback on failures.' }
   ];
-  var TOUR_MS = [2600, 3200, 3400, 4200];
-
+  
   var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
   var el = {
     outcome: root.querySelectorAll('.mw-outcome button'),
@@ -28,10 +28,14 @@
     kf: root.querySelector('.mw-kf'),
     slider: root.querySelector('.mw-slider'),
     task: root.querySelector('.mw-task'),
+    src: root.querySelector('.mw-src'),
+    demo: root.querySelector('.mw-demo'),
+    blurb: root.querySelector('.mw-blurb'),
+    focus: root.querySelector('.mw-focus'),
     panel: root.querySelector('.mw-panel')
   };
-  var state = { ep: 'ok', step: 0, kf: 0, touring: false, over: false, inView: false };
-  var tourTimer = 0, sweepTimer = 0, tourIdx = 0, pendingSrc = false;
+  var state = { ep: ORDER[0], step: 0, kf: 0, touring: false, over: false, inView: false };
+  var tourTimer = 0, sweepTimer = 0, tourPos = 0, tourSeq = [], pendingSrc = false;
   var wrap = root.closest('details');
   function isOpen() { return !wrap || wrap.open; }
 
@@ -40,6 +44,10 @@
     if (cls) n.className = cls;
     if (html != null) n.innerHTML = html;
     return n;
+  }
+  // the data marks the critical parts with **double asterisks**
+  function fmt(t) {
+    return String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
   }
   function ep() { return DATA[state.ep]; }
   function nKf() { return ep().progress.length; }
@@ -69,11 +77,16 @@
     if (isOpen()) el.video.src = ep().video; else pendingSrc = true;   // a collapsed widget loads nothing
     el.slider.max = String(nKf() - 1);
     el.task.innerHTML = '<span class="mw-task-label">Task <i>l</i></span> “' + ep().task + '”';
+    var d = ep();
+    el.demo.href = './demo/index.html?clip=' + encodeURIComponent(d.id);
+    el.src.href = d.srcUrl; el.src.title = 'Source video: ' + d.srcName; el.src.setAttribute('aria-label', 'Source video: ' + d.srcName);
+    el.focus.hidden = !d.focus;
+    el.focus.innerHTML = d.focus ? '<span class="mw-focus-tag">Look for</span> ' + fmt(d.focus) : '';
     setKf(Math.min(state.kf, nKf() - 1));
     render();
   }
 
-  function setKf(i) {
+  function setKf(i, quiet) {
     state.kf = Math.max(0, Math.min(nKf() - 1, i));
     el.slider.value = String(state.kf);
     el.kf.textContent = 'key frame ' + (state.kf + 1) + ' / ' + nKf();
@@ -83,7 +96,7 @@
       try { el.video.currentTime = Math.min((nKf() > 1 ? state.kf / (nKf() - 1) : 0) * d, Math.max(0, d - 0.15)); } catch (e) { /* not ready yet */ }
     };
     if (el.video.readyState >= 1) seek(); else el.video.addEventListener('loadedmetadata', seek, { once: true });
-    if (state.step > 0) render();
+    if (state.step > 0 && !quiet) render();
   }
 
   function setStep(i) {
@@ -119,52 +132,67 @@
       b.classList.toggle('is-done', i < state.step);
       b.setAttribute('aria-current', i === state.step ? 'step' : 'false');
     });
-    var h = '<p class="mw-blurb">' + s.blurb + '</p>';
+    el.blurb.innerHTML = s.blurb;
+    var h = '';
     if (s.key === 'input') {
       h += '<div class="mw-card is-input"><div class="mw-label">Entities <i>e</i></div><div class="mw-chips">' +
         e.entities.map(function (t) { return '<span class="mw-chip">' + t + '</span>'; }).join('') + '</div></div>';
     } else if (s.key === 'describe') {
       h += '<div class="mw-card is-describe"><div class="mw-label">Video description <i>d<sub>' + (state.kf + 1) + '</sub></i>' +
         '<span class="mw-blind" title="The Describer is never given the task">task hidden</span></div>' +
-        '<p class="mw-text">' + e.descriptions[state.kf] + '</p></div>';
+        '<p class="mw-text">' + fmt(e.descriptions[state.kf]) + '</p></div>';
     } else if (s.key === 'assess') {
-      h += '<div class="mw-card is-assess"><div class="mw-label">Success criteria <i>c</i></div><p class="mw-text">' + e.criterion + '</p></div>' +
+      h += '<div class="mw-card is-assess"><div class="mw-label">Success criteria <i>c</i>' +
+        '<span class="mw-blind" title="The Assessor never sees the video, only the descriptions">video hidden</span></div><p class="mw-text">' + fmt(e.criterion) + '</p></div>' +
         '<div class="mw-score"><span class="mw-label">Score <i>r<sub>' + (state.kf + 1) + '</sub></i></span>' +
         '<span class="mw-bar"><span class="mw-bar-fill" style="width:' + pct(e.progress[state.kf]) + '%"></span></span>' +
         '<span class="mw-score-num">' + pct(e.progress[state.kf]) + '%</span></div>';
     } else {
       h += '<div class="mw-out"><div class="mw-card is-score"><div class="mw-label">Score <i>r<sub>1:T</sub></i></div>' + chart(e) + '</div>' +
-        '<div class="mw-card is-feedback ' + (e.failure ? 'is-fail' : 'is-ok') + '"><div class="mw-label">Rich language feedback <i>f</i></div>' +
-        (e.failure
-          ? '<p class="mw-text"><strong>What went wrong.</strong> ' + e.failure + '</p><p class="mw-text"><strong>What to do.</strong> ' + e.feedback + '</p>'
-          : '<p class="mw-text">The criteria are met, so the task is complete and no feedback is needed.</p>') + '</div></div>';
+        '<div class="mw-card is-feedback ' + (e.ok ? 'is-ok' : 'is-fail') + '"><div class="mw-label">Rich language feedback <i>f</i></div>' +
+        (e.ok
+          ? '<p class="mw-text">The criteria are met, so the task is complete and no feedback is needed.</p>'
+          : (e.failure || e.feedback)
+            ? '<p class="mw-text"><strong>What went wrong.</strong> ' + fmt(e.failure || '') + '</p><p class="mw-text"><strong>What to do.</strong> ' + fmt(e.feedback || '') + '</p>'
+            : '<p class="mw-text">The criteria are not met: the score never climbs, so the task is not complete.</p>') + '</div></div>';
     }
     p.innerHTML = h;
     p.classList.remove('mw-in'); void p.offsetWidth; p.classList.add('mw-in');
   }
 
   // ---- tour: step through the pipeline until the reader touches anything ----
-  function sweep(done) {
+  // per example: input, the description at each critical key frame, the assessment at the same frames,
+  // then the whole score curve; the next example follows, and so on in a loop
+  function sweep() {
     clearInterval(sweepTimer);
     var n = nKf(), k = 0;
-    setKf(0);
+    setKf(0, true);
     sweepTimer = setInterval(function () {
       k += 1;
-      if (k >= n) { clearInterval(sweepTimer); if (done) done(); return; }
+      if (k >= n) { clearInterval(sweepTimer); return; }
       setKf(k);
-    }, Math.max(160, Math.round(2600 / n)));
+    }, Math.max(100, Math.round(4000 / n)));
+  }
+
+  function buildSeq(e) {
+    var q = [{ step: 0, kf: 0, ms: 2800 }];
+    e.crit.forEach(function (k) { q.push({ step: 1, kf: k, ms: 4200 }); });
+    e.crit.forEach(function (k) { q.push({ step: 2, kf: k, ms: 2600 }); });
+    q.push({ step: 3, sweep: true, ms: 5000 });
+    return q;
   }
 
   function tourStep() {
     if (!state.touring) return;
-    var i = tourIdx % STEPS.length;
     clearInterval(sweepTimer);
-    setStep(i);
-    if (i === 1) setKf(Math.round(nKf() * 0.4));
-    if (i === 2) setKf(Math.round(nKf() * 0.7));
-    if (i === 3) sweep();
-    tourIdx += 1;
-    tourTimer = setTimeout(tourStep, TOUR_MS[i]);
+    if (tourPos === 0) tourSeq = buildSeq(ep());
+    var a = tourSeq[tourPos];
+    if (a.sweep) { setStep(a.step); sweep(); } else { setKf(a.kf, true); setStep(a.step); }
+    tourPos = (tourPos + 1) % tourSeq.length;
+    tourTimer = setTimeout(function () {
+      if (tourPos === 0) setEpisode(ORDER[(ORDER.indexOf(state.ep) + 1) % ORDER.length]);
+      tourStep();
+    }, a.ms);
   }
 
   function startTour() {
@@ -199,6 +227,11 @@
     });
   }
 
+  // the description card is as tall as the video
+  function syncHeight() { root.style.setProperty('--mw-vh', el.video.parentNode.offsetHeight + 'px'); }
+  if ('ResizeObserver' in window) new ResizeObserver(syncHeight).observe(el.video.parentNode); else window.addEventListener('resize', syncHeight);
+  syncHeight();
+
   buildSteps();
-  setEpisode('ok');
+  setEpisode(ORDER[0]);
 })();

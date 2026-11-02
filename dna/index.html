@@ -27,7 +27,7 @@
   <link rel="stylesheet" href="./static/css/bulma.min.css">
   <link rel="stylesheet" href="./static/css/fontawesome.all.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1.9.4/css/academicons.min.css">
-  <link rel="stylesheet" href="./static/css/index.css?v=20261102">
+  <link rel="stylesheet" href="./static/css/index.css?v=20261109">
   <link rel="stylesheet" href="./static/css/charts.css?v=20261102">
   <link rel="icon" href="./static/images/favicon.png">
   <link rel="stylesheet" href="./static/css/widgets.css?v=20261102">
@@ -189,21 +189,32 @@ progress = dna.compute_progress(video, <span class="tok-s">"assemble the car"</s
         <summary><span class="method-collapse-hint" aria-hidden="true"></span></summary>
       <div class="section-card method-widget" id="method-widget">
         <div class="mw-outcome" role="group" aria-label="Example rollout">
-          <button type="button" data-ep="ok" class="is-on" aria-pressed="true">Success example</button>
-          <button type="button" data-ep="fail" aria-pressed="false">Failure example</button>
+          <button type="button" data-ep="makeup" class="is-on" aria-pressed="true">&#10003; Pack the box</button>
+          <button type="button" data-ep="ziptie" aria-pressed="false">&#10007; Close a ziptie</button>
+          <button type="button" data-ep="wine" aria-pressed="false">&#10003; Load the dishwasher</button>
+          <button type="button" data-ep="packing" aria-pressed="false">&#10003; Pack and tape</button>
+          <button type="button" data-ep="vacuum" aria-pressed="false">&#10003; Clean the vacuum</button>
         </div>
         <ol class="mw-steps" aria-label="The D&amp;A pipeline"></ol>
+        <p class="mw-blurb" aria-live="polite"></p>
         <div class="mw-stage">
           <div class="mw-media">
             <div class="mw-video-wrap">
               <video class="mw-video" muted playsinline preload="auto" aria-label="Robot rollout, shown at the selected key frame"></video>
               <span class="mw-kf">key frame 1 / 15</span>
+              <span class="mw-links">
+                <a class="mw-demo" title="Load this clip and its D&amp;A annotations in the demo">Open in demo</a>
+                <a class="mw-src" target="_blank" rel="noopener"><i class="fas fa-external-link-alt" aria-hidden="true"></i></a>
+              </span>
             </div>
             <input class="mw-slider" type="range" min="0" max="14" step="1" value="0" aria-label="Key frame">
-            <p class="mw-task"></p>
+            <div class="mw-meta">
+              <p class="mw-task"></p>
+            </div>
           </div>
-          <div class="mw-panel" aria-live="polite"></div>
+          <div class="mw-panel"></div>
         </div>
+        <p class="mw-focus" hidden></p>
       </div>
       </details>
     </div>
@@ -359,6 +370,128 @@ progress = dna.compute_progress(video, <span class="tok-s">"assemble the car"</s
 
       <div class="embodiment-group">
         <div class="embodiment-title">
+          <h3 class="title is-5">Advantage-Filtered Behavior Cloning Evaluation</h3>
+        </div>
+        <p class="embodiment-instruction">&ldquo;nudge out the book &lsquo;Thinking, Fast and Slow&rsquo;, grasp it, and place it on the table&rdquo;<span class="embodiment-tag">bimanual YAM</span></p>
+        <div class="columns is-centered is-multiline mt-2">
+          <div class="column is-6">
+            <div class="gen-video-card">
+              <div class="gen-video-wrap">
+                <video data-src="./static/videos/rl/web/book_nudge_bc.mp4" poster="./static/videos/rl/web/posters/book_nudge_bc.jpg" width="1280" height="720" preload="none" muted loop playsinline controls aria-label="pi-0.5 behavior cloning book nudging evaluation at 20 times speed"></video>
+                <span class="speed-badge">20&times;</span>
+              </div>
+              <div class="gen-video-caption">
+                <span class="tag is-policy">&pi;<sub>0.5</sub>&nbsp;behavior cloning</span>
+                <strong>80% success.</strong> Competitive, but imitates suboptimal demonstrations, e.g., nudging and pulling out the wrong books.
+              </div>
+            </div>
+          </div>
+          <div class="column is-6">
+            <div class="gen-video-card">
+              <div class="gen-video-wrap">
+                <video data-src="./static/videos/rl/web/book_nudge_topreward.mp4" poster="./static/videos/rl/web/posters/book_nudge_topreward.jpg" width="1280" height="720" preload="none" muted loop playsinline controls aria-label="TOPReward policy book nudging evaluation at 20 times speed"></video>
+                <span class="speed-badge">20&times;</span>
+              </div>
+              <div class="gen-video-caption">
+                <span class="tag is-model" style="--c:#9467BD; --on-c:#000;">TOPReward</span>
+                <strong>25% success.</strong> Assigns similar reward to optimal and suboptimal behavior, filtering action chunks from both.
+              </div>
+            </div>
+          </div>
+          <div class="column is-6">
+            <div class="gen-video-card">
+              <div class="gen-video-wrap">
+                <video data-src="./static/videos/rl/web/book_nudge_robometer.mp4" poster="./static/videos/rl/web/posters/book_nudge_robometer.jpg" width="1280" height="720" preload="none" muted loop playsinline controls aria-label="Robometer policy book nudging evaluation at 20 times speed"></video>
+                <span class="speed-badge">20&times;</span>
+              </div>
+              <div class="gen-video-caption">
+                <span class="tag is-model" style="--c:#FF7F0E; --on-c:#000;">Robometer</span>
+                <strong>50% success.</strong> Likewise assigns similar reward to optimal and suboptimal behavior.
+              </div>
+            </div>
+          </div>
+          <div class="column is-6">
+            <div class="gen-video-card">
+              <div class="gen-video-wrap">
+                <video data-src="./static/videos/rl/web/book_nudge_dna.mp4" poster="./static/videos/rl/web/posters/book_nudge_dna.jpg" width="1280" height="720" preload="none" muted loop playsinline controls aria-label="D&amp;A policy book nudging evaluation at 20 times speed"></video>
+                <span class="speed-badge">20&times;</span>
+              </div>
+              <div class="gen-video-caption">
+                <span class="tag is-model" style="--c:#D81B60; --on-c:#fff;">D&amp;A</span>
+                <strong>95% success.</strong> Filters out suboptimal chunks and keeps optimal ones. Higher success rate and execution speed.
+              </div>
+            </div>
+          </div>
+        </div>
+        <p class="figure-caption">
+          We fine-tune &pi;<sub>0.5</sub> on the top 35% of action chunks, ranked by D&amp;A's progress advantage against a single dataset-wide threshold,
+          using 50 optimal and 100 suboptimal demonstrations. On success, D&amp;A finishes the task faster than the baseline
+          (18.8 &plusmn; 1.8&nbsp;s versus 28.5 &plusmn; 9.2&nbsp;s), with markedly lower variance across rollouts.
+        </p>
+      </div>
+
+      <div class="embodiment-group">
+        <div class="embodiment-title">
+          <h3 class="title is-5">Offline RL Evaluation (RECAP)</h3>
+        </div>
+        <p class="embodiment-instruction">&ldquo;move the red book from the top shelf to the gray box&rdquo;<span class="embodiment-tag">bimanual YAM</span></p>
+        <div class="columns is-centered is-multiline mt-2">
+          <div class="column is-6">
+            <div class="gen-video-card">
+              <div class="gen-video-wrap">
+                <video data-src="./static/videos/rl/web/eval_bc_book.mp4" poster="./static/videos/rl/web/posters/eval_bc_book.jpg" width="1280" height="720" preload="none" muted loop playsinline controls aria-label="pi-0.5 behavior cloning evaluation at 10 times speed"></video>
+                <span class="speed-badge">10&times;</span>
+              </div>
+              <div class="gen-video-caption">
+                <span class="tag is-policy">&pi;<sub>0.5</sub>&nbsp;behavior cloning</span>
+                <strong>20% success.</strong> Clones suboptimal behaviors, e.g., misses grasps or drops the book.
+              </div>
+            </div>
+          </div>
+          <div class="column is-6">
+            <div class="gen-video-card">
+              <div class="gen-video-wrap">
+                <video data-src="./static/videos/rl/web/eval_topreward_book.mp4" poster="./static/videos/rl/web/posters/eval_topreward_book.jpg" width="1280" height="720" preload="none" muted loop playsinline controls aria-label="TOPReward policy evaluation on the book task at 10 times speed"></video>
+                <span class="speed-badge">10&times;</span>
+              </div>
+              <div class="gen-video-caption">
+                <span class="tag is-model" style="--c:#9467BD; --on-c:#000;">TOPReward</span>
+                <strong>80% success.</strong> Noisy filtering of suboptimal data, worse than Robometer.
+              </div>
+            </div>
+          </div>
+          <div class="column is-6">
+            <div class="gen-video-card">
+              <div class="gen-video-wrap">
+                <video data-src="./static/videos/rl/web/eval_robometer_book.mp4" poster="./static/videos/rl/web/posters/eval_robometer_book.jpg" width="1280" height="720" preload="none" muted loop playsinline controls aria-label="Robometer policy evaluation on the book task at 10 times speed"></video>
+                <span class="speed-badge">10&times;</span>
+              </div>
+              <div class="gen-video-caption">
+                <span class="tag is-model" style="--c:#FF7F0E; --on-c:#000;">Robometer</span>
+                <strong>85% success.</strong> Noisy filtering of suboptimal data.
+              </div>
+            </div>
+          </div>
+          <div class="column is-6">
+            <div class="gen-video-card">
+              <div class="gen-video-wrap">
+                <video data-src="./static/videos/rl/web/eval_dna_book.mp4" poster="./static/videos/rl/web/posters/eval_dna_book.jpg" width="1280" height="720" preload="none" muted loop playsinline controls aria-label="D&amp;A policy evaluation on the book task at 10 times speed"></video>
+                <span class="speed-badge">10&times;</span>
+              </div>
+              <div class="gen-video-caption">
+                <span class="tag is-model" style="--c:#D81B60; --on-c:#fff;">D&amp;A</span>
+                <strong>100% success.</strong> Filters the data correctly.
+              </div>
+            </div>
+          </div>
+        <p class="figure-caption">
+          We condition &pi;<sub>0.5</sub> on advantages computed from D&amp;A rewards (CFGRL/RECAP) and LoRA-fine-tune it for 50k steps on 50 optimal,
+          50 suboptimal and 50 failure demonstrations. Failures include using the wrong box or arm, or dropping the book mid-transfer.
+        </p>
+      </div>
+
+      <div class="embodiment-group">
+        <div class="embodiment-title">
           <h3 class="title is-5">Online RL Evaluation (DSRL)</h3>
         </div>
         <p class="embodiment-instruction">&ldquo;put the fruit in the bowl&rdquo;<span class="embodiment-tag">DROID Franka</span></p>
@@ -442,128 +575,6 @@ progress = dna.compute_progress(video, <span class="tok-s">"assemble the car"</s
         </div>
       </details>
       </div>
-
-      <div class="embodiment-group">
-        <div class="embodiment-title">
-          <h3 class="title is-5">Offline RL Evaluation (RECAP)</h3>
-        </div>
-        <p class="embodiment-instruction">&ldquo;move the red book from the top shelf to the gray box&rdquo;<span class="embodiment-tag">bimanual YAM</span></p>
-        <div class="columns is-centered is-multiline mt-2">
-          <div class="column is-6">
-            <div class="gen-video-card">
-              <div class="gen-video-wrap">
-                <video data-src="./static/videos/rl/web/eval_bc_book.mp4" poster="./static/videos/rl/web/posters/eval_bc_book.jpg" width="1280" height="720" preload="none" muted loop playsinline controls aria-label="pi-0.5 behavior cloning evaluation at 10 times speed"></video>
-                <span class="speed-badge">10&times;</span>
-              </div>
-              <div class="gen-video-caption">
-                <span class="tag is-policy">&pi;<sub>0.5</sub>&nbsp;behavior cloning</span>
-                <strong>20% success.</strong> Clones suboptimal behaviors, e.g., misses grasps or drops the book.
-              </div>
-            </div>
-          </div>
-          <div class="column is-6">
-            <div class="gen-video-card">
-              <div class="gen-video-wrap">
-                <video data-src="./static/videos/rl/web/eval_topreward_book.mp4" poster="./static/videos/rl/web/posters/eval_topreward_book.jpg" width="1280" height="720" preload="none" muted loop playsinline controls aria-label="TOPReward policy evaluation on the book task at 10 times speed"></video>
-                <span class="speed-badge">10&times;</span>
-              </div>
-              <div class="gen-video-caption">
-                <span class="tag is-model" style="--c:#9467BD; --on-c:#000;">TOPReward</span>
-                <strong>80% success.</strong> Noisy filtering of suboptimal data, worse than Robometer.
-              </div>
-            </div>
-          </div>
-          <div class="column is-6">
-            <div class="gen-video-card">
-              <div class="gen-video-wrap">
-                <video data-src="./static/videos/rl/web/eval_robometer_book.mp4" poster="./static/videos/rl/web/posters/eval_robometer_book.jpg" width="1280" height="720" preload="none" muted loop playsinline controls aria-label="Robometer policy evaluation on the book task at 10 times speed"></video>
-                <span class="speed-badge">10&times;</span>
-              </div>
-              <div class="gen-video-caption">
-                <span class="tag is-model" style="--c:#FF7F0E; --on-c:#000;">Robometer</span>
-                <strong>85% success.</strong> Noisy filtering of suboptimal data.
-              </div>
-            </div>
-          </div>
-          <div class="column is-6">
-            <div class="gen-video-card">
-              <div class="gen-video-wrap">
-                <video data-src="./static/videos/rl/web/eval_dna_book.mp4" poster="./static/videos/rl/web/posters/eval_dna_book.jpg" width="1280" height="720" preload="none" muted loop playsinline controls aria-label="D&amp;A policy evaluation on the book task at 10 times speed"></video>
-                <span class="speed-badge">10&times;</span>
-              </div>
-              <div class="gen-video-caption">
-                <span class="tag is-model" style="--c:#D81B60; --on-c:#fff;">D&amp;A</span>
-                <strong>100% success.</strong> Filters the data correctly.
-              </div>
-            </div>
-          </div>
-        <p class="figure-caption">
-          We condition &pi;<sub>0.5</sub> on advantages computed from D&amp;A rewards (CFGRL/RECAP) and LoRA-fine-tune it for 50k steps on 50 optimal,
-          50 suboptimal and 50 failure demonstrations. Failures include using the wrong box or arm, or dropping the book mid-transfer.
-        </p>
-      </div>
-
-      <div class="embodiment-group">
-        <div class="embodiment-title">
-          <h3 class="title is-5">Advantage-Filtered Behavior Cloning Evaluation</h3>
-        </div>
-        <p class="embodiment-instruction">&ldquo;nudge out the book &lsquo;Thinking, Fast and Slow&rsquo;, grasp it, and place it on the table&rdquo;<span class="embodiment-tag">bimanual YAM</span></p>
-        <div class="columns is-centered is-multiline mt-2">
-          <div class="column is-6">
-            <div class="gen-video-card">
-              <div class="gen-video-wrap">
-                <video data-src="./static/videos/rl/web/book_nudge_bc.mp4" poster="./static/videos/rl/web/posters/book_nudge_bc.jpg" width="1280" height="720" preload="none" muted loop playsinline controls aria-label="pi-0.5 behavior cloning book nudging evaluation at 20 times speed"></video>
-                <span class="speed-badge">20&times;</span>
-              </div>
-              <div class="gen-video-caption">
-                <span class="tag is-policy">&pi;<sub>0.5</sub>&nbsp;behavior cloning</span>
-                <strong>80% success.</strong> Competitive, but imitates suboptimal demonstrations, e.g., nudging and pulling out the wrong books.
-              </div>
-            </div>
-          </div>
-          <div class="column is-6">
-            <div class="gen-video-card">
-              <div class="gen-video-wrap">
-                <video data-src="./static/videos/rl/web/book_nudge_topreward.mp4" poster="./static/videos/rl/web/posters/book_nudge_topreward.jpg" width="1280" height="720" preload="none" muted loop playsinline controls aria-label="TOPReward policy book nudging evaluation at 20 times speed"></video>
-                <span class="speed-badge">20&times;</span>
-              </div>
-              <div class="gen-video-caption">
-                <span class="tag is-model" style="--c:#9467BD; --on-c:#000;">TOPReward</span>
-                <strong>25% success.</strong> Assigns similar reward to optimal and suboptimal behavior, filtering action chunks from both.
-              </div>
-            </div>
-          </div>
-          <div class="column is-6">
-            <div class="gen-video-card">
-              <div class="gen-video-wrap">
-                <video data-src="./static/videos/rl/web/book_nudge_robometer.mp4" poster="./static/videos/rl/web/posters/book_nudge_robometer.jpg" width="1280" height="720" preload="none" muted loop playsinline controls aria-label="Robometer policy book nudging evaluation at 20 times speed"></video>
-                <span class="speed-badge">20&times;</span>
-              </div>
-              <div class="gen-video-caption">
-                <span class="tag is-model" style="--c:#FF7F0E; --on-c:#000;">Robometer</span>
-                <strong>50% success.</strong> Likewise assigns similar reward to optimal and suboptimal behavior.
-              </div>
-            </div>
-          </div>
-          <div class="column is-6">
-            <div class="gen-video-card">
-              <div class="gen-video-wrap">
-                <video data-src="./static/videos/rl/web/book_nudge_dna.mp4" poster="./static/videos/rl/web/posters/book_nudge_dna.jpg" width="1280" height="720" preload="none" muted loop playsinline controls aria-label="D&amp;A policy book nudging evaluation at 20 times speed"></video>
-                <span class="speed-badge">20&times;</span>
-              </div>
-              <div class="gen-video-caption">
-                <span class="tag is-model" style="--c:#D81B60; --on-c:#fff;">D&amp;A</span>
-                <strong>95% success.</strong> Filters out suboptimal chunks and keeps optimal ones. Higher success rate and execution speed.
-              </div>
-            </div>
-          </div>
-        </div>
-        <p class="figure-caption">
-          We fine-tune &pi;<sub>0.5</sub> on the top 35% of action chunks, ranked by D&amp;A's progress advantage against a single dataset-wide threshold,
-          using 50 optimal and 100 suboptimal demonstrations. On success, D&amp;A finishes the task faster than the baseline
-          (18.8 &plusmn; 1.8&nbsp;s versus 28.5 &plusmn; 9.2&nbsp;s), with markedly lower variance across rollouts.
-        </p>
-      </div>
       </div>
       </div>
     </div>
@@ -577,7 +588,7 @@ progress = dna.compute_progress(video, <span class="tok-s">"assemble the car"</s
         <div class="ladder-chart">
           <div class="ladder-headrow" aria-hidden="true">
             <span></span>
-            <span class="ladder-headtrack"><span class="ladder-ref-label">Best model trained on robot data (Robometer)</span></span>
+            <span class="ladder-headtrack"><span class="ladder-ref-label" title="Best model trained on robot data">Robometer</span></span>
             <span></span>
           </div>
           <div class="ladder-rowswrap">
@@ -970,9 +981,10 @@ progress = dna.compute_progress(video, <span class="tok-s">"assemble the car"</s
   </footer>
 
   <script defer src="./static/js/bar-charts.js?v=20261102"></script>
-  <script defer src="./static/js/model-ladder.js?v=20261102"></script>
-  <script defer src="./static/js/method-widget.js?v=20261102"></script>
-  <script defer src="./static/js/scaling-plot.js?v=20261102"></script>
+  <script defer src="./static/js/model-ladder.js?v=20261112"></script>
+  <script defer src="./static/js/method-data.js?v=20261105"></script>
+  <script defer src="./static/js/method-widget.js?v=20261108"></script>
+  <script defer src="./static/js/scaling-plot.js?v=20261110"></script>
   <script defer src="./static/js/bench-widget.js?v=20261102"></script>
   <script defer src="./static/js/feedback-widget.js?v=20261102"></script>
 

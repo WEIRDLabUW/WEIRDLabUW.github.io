@@ -1934,7 +1934,7 @@ Respond with a list of ${n} progress values (ordered by frame) in the following 
       // while an example's task is shown, keep the visitor's own task instead
       const v = { mode: el.mode.value, model: el.model.value.trim(), task: taskIsExample() && state.userTask !== null ? state.userTask : el.task.value };
       Object.keys(SLIDERS).forEach((k) => { v[k] = slider(k); });
-      v.ver = 4;   // v4: method defaults to plain D&A (v3: frames scored defaults to 16)
+      v.ver = 5;   // v5: frames scored reset to 16 once; v4: method defaults to plain D&A
       try { localStorage.setItem(SETTINGS_KEY, JSON.stringify(v)); } catch (e) {}
     }
     try {
@@ -1944,7 +1944,7 @@ Respond with a list of ${n} progress values (ordered by frame) in the following 
         if (v.task) el.task.value = v.task;
         if (v.model) { el.model.value = v.model; el.preset.value = PRESETS.indexOf(v.model) >= 0 ? v.model : ''; if (!el.preset.value) el.advanced.open = true; }
         Object.keys(SLIDERS).forEach((k) => {
-          if (k === 'nframes' && !(v.ver >= 3)) return;   // saved before the default moved to 16: use the new default
+          if (k === 'nframes' && !(v.ver >= 5)) return;   // saved before the 16-frame default was reset: use the new default
           const i = SLIDERS[k].vals.findIndex((x) => String(x) === String(v[k]));
           if (i >= 0) { SLIDERS[k].input.value = i; SLIDERS[k].sync(); }
         });

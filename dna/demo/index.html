@@ -1626,9 +1626,6 @@ Respond with a list of ${n} progress values (ordered by frame) in the following 
           ctx.fillStyle = C.page; ctx.fillRect(0, 0, W, H);
           ctx.fillStyle = C.accent; ctx.fillRect(0, 0, W, 8);
 
-          // source: the project page, top middle, above the headline row
-          text('weirdlabuw.github.io/dna', W / 2, 36, `600 18px ${SANS}`, C.link, 'center');
-
           // header: task is the headline, method + model as quiet pills on the right
           text('TASK', M, 58, `600 16px ${SANS}`, C.faint);
           const tf = fitText(ctx, run.task, W - 2 * M - 560, 44, 38, 24, '600');
@@ -1638,6 +1635,17 @@ Respond with a list of ${n} progress values (ordered by frame) in the following 
           const mw = ctx.measureText(modelText).width + 20, lw = ctx.measureText(modeLabel).width + 20;
           pill(modelText, W - M - mw, 70, C.gray);
           pill(modeLabel, W - M - mw - 12 - lw, 70, [C.linkSoft, C.link]);
+
+          // source: the project page, on the headline row, centred in the space between the task and the pills
+          ctx.font = `600 ${tf.size}px "Noto Sans", sans-serif`;
+          const taskEnd = M + ctx.measureText(tf.lines[0]).width, pillsX = W - M - mw - 12 - lw, SRC = 'weirdlabuw.github.io/dna';
+          let ss = 28; const GAPX = 40;
+          for (; ss > 18; ss -= 2) { ctx.font = `600 ${ss}px ${SANS}`; if (ctx.measureText(SRC).width <= pillsX - taskEnd - 2 * GAPX) break; }
+          ctx.font = `600 ${ss}px ${SANS}`;
+          const sw = ctx.measureText(SRC).width, fits = sw <= pillsX - taskEnd - 2 * GAPX;
+          // pill centre line is y=85; no room between task and pills: fall back to the top edge, centred on the page
+          if (fits) text(SRC, (taskEnd + pillsX) / 2, 85 + ss * 0.35, `600 ${ss}px ${SANS}`, C.accent, 'center');
+          else text(SRC, W / 2, 36, `600 24px ${SANS}`, C.accent, 'center');
 
           // chart card
           card(CH_X, ROW_Y, CH_W, ROW_H);

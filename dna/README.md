@@ -8,7 +8,10 @@ If you find D&A useful for your work please cite:
   title={D\&A: Decoupling Description and Assessment Enables VLMs as Zero-Shot Robotic Reward Models},
   author={Memmel, Marius and Yin, Shawn and Rutia, Urvi and Wadhwa, Angad and Li, Eldon and Angeloff, Gavin and Goyal, Ankit and Zhang, Jesse and Fox, Dieter and Ramos, Fabio and Li, Anqi and Gupta, Abhishek},
   year={2026},
-  note={Preprint}
+  eprint={2611.03622},
+  archivePrefix={arXiv},
+  primaryClass={cs.RO},
+  url={https://arxiv.org/abs/2611.03622}
 }
 ```
 

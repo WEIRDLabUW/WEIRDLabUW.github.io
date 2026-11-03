@@ -15,13 +15,12 @@
 
   <meta name="description" content="Annotate a recorded or uploaded video with D&A progress, descriptions and feedback">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="color-scheme" content="light dark">
+  <meta name="color-scheme" content="light">
   <script>
     /* same saved theme as the project page */
     (function () {
       var t = null;
       try { t = localStorage.getItem('dna-theme'); } catch (e) {}
-      if (!t && window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches) t = 'dark';
       if (t === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
     })();
   </script>

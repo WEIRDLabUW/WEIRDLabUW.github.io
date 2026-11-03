@@ -441,3 +441,65 @@ details.data-table .table-container {
 details.data-table table {
   font-size: var(--fs-1);
 }
+
+/* ---------- real-world RL results (rl-results.js) ---------- */
+.rl-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-5);
+  text-align: left;
+}
+@media (max-width: 900px) {
+  .rl-grid { grid-template-columns: minmax(0, 1fr); max-width: 420px; margin: 0 auto; }
+}
+.rl-card { display: flex; flex-direction: column; gap: var(--space-3); }
+.rl-head { display: flex; flex-direction: column; gap: 2px; }
+.rl-head h3 { margin: 0; font-family: var(--font-display); font-size: var(--fs-3); font-weight: 700; color: var(--ink); }
+.rl-head span { font-size: var(--fs-1); color: var(--text-muted); }
+.rl-plot { position: relative; padding-left: 1.5rem; margin-top: var(--space-3); }
+.rl-axis {
+  position: absolute; left: 0; top: 50%; transform: translate(-50%, -50%) rotate(-90deg);
+  white-space: nowrap; font-size: 0.75rem; color: var(--text-muted);
+}
+.rl-bars {
+  display: grid; grid-template-columns: repeat(var(--n), minmax(0, 1fr)); gap: var(--space-2);
+  height: 190px; align-items: end;
+  border-bottom: 1px solid var(--border-strong);
+  background: repeating-linear-gradient(to top, transparent 0, transparent calc(25% - 1px), var(--border) calc(25% - 1px), var(--border) 25%);
+}
+.rl-bar {
+  position: relative; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; align-items: center;
+  outline: none; cursor: default; transition: opacity var(--motion-fast) var(--ease-out);
+}
+.rl-col {
+  display: block; width: 100%; border-radius: 4px 4px 0 0; background: var(--bar, var(--c-gvl));
+  height: 0; transition: height 0.8s var(--ease-out); min-height: 0;
+}
+.rl-grid.is-in .rl-col { height: calc(var(--v) * 1%); }
+.rl-grid.is-in .rl-bar:nth-child(2) .rl-col { transition-delay: 0.08s; }
+.rl-grid.is-in .rl-bar:nth-child(3) .rl-col { transition-delay: 0.16s; }
+.rl-grid.is-in .rl-bar:nth-child(4) .rl-col { transition-delay: 0.24s; }
+.rl-val {
+  position: absolute; bottom: calc(var(--v) * 1% + 4px); left: 0; right: 0; text-align: center;
+  font-family: var(--font-display); font-weight: 700; font-size: var(--fs-2); color: var(--ink);
+  opacity: 0; transition: opacity 0.4s var(--ease-out) 0.6s, bottom 0s;
+}
+.rl-grid.is-in .rl-val { opacity: 1; }
+.rl-name {
+  position: absolute; top: 100%; margin-top: 6px; left: -8px; right: -8px; text-align: center;
+  font-size: 0.74rem; line-height: 1.15; color: var(--text-muted); white-space: nowrap;
+}
+.rl-bars { margin-bottom: 2.2rem; }
+.rl-bar.is-gvl { --bar: var(--c-gvl); }
+.rl-bar.is-topreward { --bar: var(--c-topreward); }
+.rl-bar.is-robometer { --bar: var(--c-robometer); }
+.rl-bar.is-dna { --bar: var(--c-dna); }
+.rl-bar.is-dna .rl-name { color: var(--c-dna-text); font-weight: 700; }
+.rl-bars.has-focus .rl-bar:not(.is-focus) { opacity: 0.45; }
+.rl-bar:focus-visible .rl-col { outline: 2px solid var(--link); outline-offset: 2px; }
+.rl-photo { border-radius: var(--radius-3, 12px); overflow: hidden; aspect-ratio: 16 / 10; background: var(--surface); }
+.rl-photo img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.rl-task { margin: 0; font-size: var(--fs-1); color: var(--text-muted); text-align: center; font-style: italic; line-height: 1.4; min-height: 2.8em; }
+@media (prefers-reduced-motion: reduce) {
+  .rl-col, .rl-val { transition: none; }
+}

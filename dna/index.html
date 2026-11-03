@@ -19,7 +19,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>D&A: Decoupling Description and Assessment Enables VLMs as Zero-Shot Robotic Reward Models</title>
 
-  <meta name="color-scheme" content="light">
+  <meta name="color-scheme" content="light dark">
+  <script>
+    /* apply the saved (or system) theme before first paint */
+    (function () {
+      var t = null;
+      try { t = localStorage.getItem('dna-theme'); } catch (e) {}
+      if (!t && window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches) t = 'dark';
+      if (t === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+    })();
+  </script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Noto+Sans:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
@@ -27,12 +36,12 @@
   <link rel="stylesheet" href="./static/css/bulma.min.css">
   <link rel="stylesheet" href="./static/css/fontawesome.all.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1.9.4/css/academicons.min.css">
-  <link rel="stylesheet" href="./static/css/index.css?v=20261109">
-  <link rel="stylesheet" href="./static/css/charts.css?v=20261102">
+  <link rel="stylesheet" href="./static/css/index.css?v=20261110">
+  <link rel="stylesheet" href="./static/css/charts.css?v=20261106">
   <link rel="icon" href="./static/images/favicon.png">
   <link rel="stylesheet" href="./static/css/widgets.css?v=20261102">
 
-  <script defer src="./static/js/page.js?v=20261102"></script>
+  <script defer src="./static/js/page.js?v=20261103"></script>
   <script defer src="./static/js/marquee-data.js?v=20261102"></script>
   <script defer src="./static/js/marquee.js?v=20261102"></script>
 </head>
@@ -53,6 +62,9 @@
         <li><a href="#more">More results</a></li>
         <li><a href="#BibTeX">BibTeX</a></li>
       </ul>
+      <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Switch to dark mode" title="Toggle dark mode">
+        <i class="fas fa-moon" aria-hidden="true"></i>
+      </button>
     </div>
   </nav>
 
@@ -153,7 +165,7 @@
 
             <div class="hero-use" id="use">
               <h2 class="title is-3">Easy to Use</h2>
-              <p class="section-lead">No training, no data, just two prompts, and an API.</p>
+              <p class="section-lead">No training, no local GPU, just two prompts, and an API.</p>
               <div class="section-card hero-code-card">
               <div class="code-wrap">
                 <button type="button" class="button is-small bibtex-copy code-copy" id="code-copy" aria-label="Copy code to clipboard" title="Copy">
@@ -360,12 +372,7 @@ progress = dna.compute_progress(video, <span class="tok-s">"assemble the car"</s
       <p class="section-lead">D&amp;A rewards drive online and offline real-world RL.</p>
       <div class="section-card">
       <figure>
-        <img class="figure-img" src="./static/images/rl_results_three.png" width="2400" height="361" loading="lazy" decoding="async"
-          alt="Real-world RL results: success rates of policies trained with D&amp;A rewards versus other reward models. Online RL on a DROID Franka: pi-0 10%, TOPReward 5%, D&amp;A 100%. Offline RL on a bimanual YAM: pi-0.5 20%, TOPReward 80%, Robometer 85%, D&amp;A 100%. Advantage-filtered behavior cloning on book nudging: pi-0.5 80%, TOPReward 25%, Robometer 50%, D&amp;A 95%." />
-        <figcaption class="figure-caption">
-          Other zero-shot reward
-          models struggle to discriminate between successful and failed trajectories, assigning high rewards to failed trajectories.
-        </figcaption>
+        <div class="rl-grid" id="rl-results" role="group" aria-label="Real-world RL success rates, D&amp;A versus other reward models"></div>
       </figure>
 
       <div class="embodiment-group">
@@ -981,6 +988,7 @@ progress = dna.compute_progress(video, <span class="tok-s">"assemble the car"</s
   </footer>
 
   <script defer src="./static/js/bar-charts.js?v=20261102"></script>
+  <script defer src="./static/js/rl-results.js?v=20261105"></script>
   <script defer src="./static/js/model-ladder.js?v=20261112"></script>
   <script defer src="./static/js/method-data.js?v=20261105"></script>
   <script defer src="./static/js/method-widget.js?v=20261108"></script>

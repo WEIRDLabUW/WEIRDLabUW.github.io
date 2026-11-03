@@ -4,6 +4,27 @@
 
   var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
+  /* ---- Theme toggle: light/dark, remembered per browser ---- */
+  (function initTheme() {
+    var btn = document.getElementById('theme-toggle');
+    if (!btn) return;
+    var root = document.documentElement;
+    function sync() {
+      var dark = root.getAttribute('data-theme') === 'dark';
+      btn.setAttribute('aria-label', dark ? 'Switch to light mode' : 'Switch to dark mode');
+      btn.setAttribute('aria-pressed', dark ? 'true' : 'false');
+      btn.firstElementChild.className = dark ? 'fas fa-sun' : 'fas fa-moon';
+    }
+    btn.addEventListener('click', function () {
+      var dark = root.getAttribute('data-theme') !== 'dark';
+      if (dark) root.setAttribute('data-theme', 'dark'); else root.removeAttribute('data-theme');
+      try { localStorage.setItem('dna-theme', dark ? 'dark' : 'light'); } catch (e) {}
+      sync();
+      window.dispatchEvent(new Event('themechange'));
+    });
+    sync();
+  })();
+
   /* ---- Videos: load and play only while visible; never restart one the reader paused ---- */
   function initVideos() {
     var videos = document.querySelectorAll('video[data-src]');

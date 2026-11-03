@@ -15,7 +15,16 @@
 
   <meta name="description" content="Annotate a recorded or uploaded video with D&A progress, descriptions and feedback">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="color-scheme" content="light">
+  <meta name="color-scheme" content="light dark">
+  <script>
+    /* same saved theme as the project page */
+    (function () {
+      var t = null;
+      try { t = localStorage.getItem('dna-theme'); } catch (e) {}
+      if (!t && window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches) t = 'dark';
+      if (t === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+    })();
+  </script>
   <title>D&A Live Demo</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -23,7 +32,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Noto+Sans:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../static/css/bulma.min.css">
   <link rel="stylesheet" href="../static/css/fontawesome.all.min.css">
-  <link rel="stylesheet" href="../static/css/index.css">
+  <link rel="stylesheet" href="../static/css/index.css?v=20261110">
   <link rel="icon" href="../static/images/favicon.png">
 
   <style>
@@ -32,11 +41,12 @@
     body { background: var(--bg); }
 
     /* --- layout --- */
-    .demo-hero { text-align: center; padding: var(--space-6) var(--space-4) var(--space-5); }
+    .demo-hero { position: relative; text-align: center; padding: var(--space-6) var(--space-4) var(--space-5); }
     .demo-hero h1 { margin: 0; font-size: var(--fs-display); }
     .demo-hero .home-link { color: var(--ink); text-decoration: none; }
     .demo-hero .home-link:hover { color: var(--ink); }
     .hero-sub { max-width: var(--measure); margin: var(--space-3) auto var(--space-4); font-size: var(--fs-2); line-height: var(--lh-body); color: var(--text); text-wrap: balance; }
+    .demo-hero .theme-toggle { position: absolute; top: var(--space-4); right: var(--space-4); margin: 0; }
     html.is-embedded .demo-hero { display: none; }
     .demo-main { padding: 0 var(--space-5) var(--space-8); }
     .demo-main > * + * { margin-top: var(--space-4); }
@@ -274,6 +284,7 @@
   </div>
   <div id="app" data-mode="dna">
   <header class="demo-hero">
+    <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Switch to dark mode" title="Toggle dark mode"><i class="fas fa-moon" aria-hidden="true"></i></button>
     <div class="container is-max-desktop">
       <h1 class="title publication-title">
         <a class="home-link" href="../index.html"><img class="title-icon" src="../static/images/dna_emoji_icon.png" alt="" width="64" height="64" />D&amp;A Live Demo</a>
@@ -281,6 +292,25 @@
       <p><a class="button is-rounded" href="../index.html"><span class="icon is-small"><i class="fas fa-arrow-left"></i></span><span>Back to project page</span></a></p>
     </div>
   </header>
+
+  <script>
+    (function () {
+      var btn = document.getElementById('theme-toggle'), root = document.documentElement;
+      function sync() {
+        var dark = root.getAttribute('data-theme') === 'dark';
+        btn.setAttribute('aria-label', dark ? 'Switch to light mode' : 'Switch to dark mode');
+        btn.setAttribute('aria-pressed', dark ? 'true' : 'false');
+        btn.firstElementChild.className = dark ? 'fas fa-sun' : 'fas fa-moon';
+      }
+      btn.addEventListener('click', function () {
+        var dark = root.getAttribute('data-theme') !== 'dark';
+        if (dark) root.setAttribute('data-theme', 'dark'); else root.removeAttribute('data-theme');
+        try { localStorage.setItem('dna-theme', dark ? 'dark' : 'light'); } catch (e) {}
+        sync();
+      });
+      sync();
+    })();
+  </script>
 
   <main class="container is-max-desktop demo-main">
 

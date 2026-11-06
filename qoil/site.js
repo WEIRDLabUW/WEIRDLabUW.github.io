@@ -47,7 +47,7 @@
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     // [data-play-in-view] videos play (muted, as browsers require) once mostly on screen and
-    // pause when scrolled away.
+    // pause when scrolled away. They play once: a finished clip stays on its last frame.
     const inView = [...document.querySelectorAll('video[data-play-in-view]')];
     if (inView.length && !reduceMotion) {
         const shown = new Map();
@@ -57,7 +57,7 @@
             const on = r.height > 0 && seen / r.height >= 0.6;
             if (on === shown.get(v)) return;
             shown.set(v, on);
-            if (on) v.play().catch(() => {}); else v.pause();
+            if (on && !v.ended) v.play().catch(() => {}); else if (!on) v.pause();
         });
         let queued = false;
         const schedule = () => { if (!queued) { queued = true; requestAnimationFrame(() => { queued = false; check(); }); } };

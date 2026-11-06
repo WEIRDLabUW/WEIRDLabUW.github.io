@@ -8,9 +8,9 @@
     <!-- Same fonts as the LMP page: Google Sans for titles and UI, Noto Sans for body text -->
     <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=5">
-    <script defer src="site.js?v=5"></script>
-    <script defer src="charts.js?v=5"></script>
+    <link rel="stylesheet" href="style.css?v=7">
+    <script defer src="site.js?v=7"></script>
+    <script defer src="charts.js?v=7"></script>
 </head>
 <body>
 
@@ -53,10 +53,15 @@
             </div>
         </div>
 
-        <p class="summary">
-            Humans intervene suboptimally: they intervene late and their corrections are suboptimal.
-            <span class="grad"><b>Q-OIL</b></span> uses these corrections to guide exploration, and achieves 10–50% higher success on real robots with almost 30% less human effort.
-        </p>
+        <div class="hero-split">
+            <p class="summary">
+                Humans are suboptimal at correcting robot actions and provide delayed reactions. We analyze real human data to build <b>better benchmarking tools</b> and <b>a better algorithm</b>. With improved benchmarking, we find more reliable rankings in simulation. Our method, <span class="grad"><b>Q-OIL</b></span>, uses these corrections to guide exploration rather than as supervision, reaching 10–50% higher success on real robots (including VLA post-training) with almost 30% less human effort.
+            </p>
+            <figure>
+                <video autoplay loop muted playsinline poster="assets/videos/yam_setup.jpg" aria-label="An operator intervening on the bimanual robot through leader arms"><source src="assets/videos/yam_setup.mp4" type="video/mp4"></video>
+                <figcaption>Humans can intervene to correct robot actions.</figcaption>
+            </figure>
+        </div>
 
         <details class="try">
             <summary>Try Q-OIL in your browser</summary>
@@ -321,10 +326,6 @@
                 </ul>
                 <div class="yam-media">
                     <figure>
-                        <video autoplay loop muted playsinline poster="assets/videos/yam_setup.jpg" aria-label="An operator intervening on the bimanual robot through leader arms"><source src="assets/videos/yam_setup.mp4" type="video/mp4"></video>
-                        <figcaption>The operator steps in through leader arms that mirror the robot.</figcaption>
-                    </figure>
-                    <figure>
                         <video autoplay loop muted playsinline poster="assets/videos/yam_bottle_eval.jpg" aria-label="Bag assembly evaluation on three reset sets: BC+RL left, Q-OIL right"><source src="assets/videos/yam_bottle_eval.mp4" type="video/mp4"></video>
                         <figcaption>Bag assembly evaluation: BC+RL (left) vs. Q-OIL (right).</figcaption>
                     </figure>
@@ -378,7 +379,7 @@
 
 <footer>University of Washington and Toyota Research Institute. Contact: <a href="mailto:pranavnt@cs.washington.edu">pranavnt@cs.washington.edu</a></footer>
 
-<script src="demo/maze-core.js?v=5"></script>
-<script src="demo/maze-demo.js?v=5"></script>
+<script src="demo/maze-core.js?v=7"></script>
+<script src="demo/maze-demo.js?v=7"></script>
 </body>
 </html>

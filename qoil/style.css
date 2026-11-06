@@ -313,10 +313,18 @@ a.fb:hover { text-decoration: none; filter: brightness(1.1); box-shadow: 0 0 0 3
 .sol { display: inline-block; margin-right: 0.45rem; padding: 0.05rem 0.55rem; border-radius: 999px; background: var(--grad); color: #fff; font-size: 0.74rem; font-weight: 600; vertical-align: 0.1em; }
 
 /* ---------- Bimanual VLA media ---------- */
-.yam-media { display: grid; grid-template-columns: 1fr 1.6fr; gap: 1.25rem; align-items: end; margin-bottom: 1.25rem; }
+.yam-media { display: grid; grid-template-columns: 1fr; max-width: 860px; margin: 0 auto 1.25rem; }
 .yam-media > figure { margin: 0; min-width: 0; }
 .yam-media video { width: 100%; border-radius: 10px; background: #0b0d11; display: block; }
-.yam-media > figure:first-child video { aspect-ratio: 16 / 9; object-fit: cover; }
-.yam-media > figure:last-child video { aspect-ratio: 1600 / 540; }
+.yam-media video { aspect-ratio: 1600 / 540; }
 .yam-media figcaption { font-size: 0.9rem; color: var(--ink-2); margin-top: 0.4rem; text-align: center; }
 @media (max-width: 760px) { .yam-media { grid-template-columns: 1fr; } }
+
+/* ---------- Hero: summary beside the intervention setup clip ---------- */
+.hero-split { display: grid; grid-template-columns: 1fr 1fr; gap: 1.75rem; align-items: center; max-width: 960px; margin: 2rem auto 0; text-align: left; }
+.hero-split > * { min-width: 0; }
+.hero-split .summary { margin: 0; max-width: none; }
+.hero-split figure { margin: 0; }
+.hero-split video { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; border-radius: 10px; background: #0b0d11; display: block; }
+.hero-split figcaption { font-size: 0.88rem; color: var(--ink-3); margin-top: 0.4rem; text-align: center; }
+@media (max-width: 760px) { .hero-split { grid-template-columns: 1fr; } }

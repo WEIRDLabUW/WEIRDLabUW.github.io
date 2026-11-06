@@ -151,12 +151,12 @@
                         <div class="panel" id="f2" role="tabpanel">
                             <div class="plot-frame"><img src="assets/figures/finding2_suboptimality.png" alt="Bar chart: intervention actions are about three times more suboptimal than the reference policy."></div>
                             <p class="step-cap">Takeover actions are <b>about 3× more suboptimal</b> than an expert policy.</p>
-                            <p class="so"><span class="tag">Design</span>So Q-OIL uses corrections to guide exploration, not as targets to imitate.</p>
+                            <p class="so"><span class="tag">Design</span>We use interventions to guide exploration rather than as optimal supervision targets.</p>
                         </div>
                         <div class="panel" id="f3" role="tabpanel">
                             <div class="plot-frame"><img src="assets/figures/finding3_divergence.png" alt="At intervention states, the converged policy's actions have higher value than the human's actions."></div>
-                            <p class="step-cap">The trained robot picks <b>different, better actions</b> than the person did.</p>
-                            <p class="so"><span class="tag">Design</span>So corrections only guide exploration, and their influence fades as takeovers become rare.</p>
+                            <p class="step-cap">At intervention states, the converged policy selects <b>different, higher-value actions</b> than the human.</p>
+                            <p class="so"><span class="tag">Design</span>The influence of corrections decays as interventions become rare, so learning shifts back to the task reward.</p>
                         </div>
                         <div class="panel" id="f4" role="tabpanel">
                             <div class="plot-frame"><img src="assets/figures/rank_correlation_qoil.png" alt="Rank correlation with real-user algorithm rankings: PAM 1.00, action-suboptimality 0.77, random 0.37."></div>
@@ -208,7 +208,7 @@
         <div class="container">
             <h2 class="section-title">How does Q-OIL work?</h2>
             <div class="narrow">
-                <p class="justified">Each takeover earns a small bonus, which raises the value of the path the person showed, so the robot explores corrective behaviors without directly mimicking them. A second, task-only critic provides the bootstrap targets, so the bonus cannot leak back to the states where the robot was failing. As the robot needs help less often, bonus steps become rare and Q-OIL settles on the policy that is best for the task.</p>
+                <p class="justified">Intuitively, Q-OIL treats each intervention as a signal for where to explore rather than a label to imitate. We add an optimism bonus to intervention transitions, which increases the value of the states and actions that humans guide the robot toward. However, naively adding this bonus to a single critic causes it to propagate backward through bootstrapping, assigning high values to the very states where the robot was failing. To prevent this, we decouple the critic into a task critic, trained only on the task reward, and an optimistic critic that receives the bonus but bootstraps from the task critic. As the robot improves and interventions become less frequent, the bonus is sampled less often, and the optimistic critic converges to the task critic, leaving no asymptotic bias.</p>
                 <video controls muted playsinline preload="metadata" data-play-in-view poster="assets/videos/how_method.jpg" style="width:100%; aspect-ratio:16/9; border-radius:10px; background:#0b0d11; margin-top:0.5rem"><source src="assets/videos/how_method.mp4" type="video/mp4"></video>
             </div>
 
@@ -242,7 +242,7 @@
                     </figure>
                     <figure class="dec-flow">
                         <img src="assets/figures/qoil_flow.png" alt="Q-OIL training: the task critic Q_TD learns from the task reward and bootstraps from itself; the optimistic critic Q_opt adds the bonus but bootstraps from Q_TD, and the policy improves on Q_opt.">
-                        <figcaption>Q<sub>opt</sub> gets the bonus but bootstraps from the task critic Q<sub>TD</sub>, so the bonus stays on the takeover and never spreads to the states before it.</figcaption>
+                        <figcaption>Only Q<sub>opt</sub> sees the bonus. Its targets come from Q<sub>TD</sub>, which never sees it.</figcaption>
                     </figure>
                 </div>
             </div>

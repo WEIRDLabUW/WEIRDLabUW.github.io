@@ -54,7 +54,8 @@
         </div>
 
         <p class="summary">
-            Humans are suboptimal at correcting robot actions and provide delayed reactions. We first analyze real human data to build <b>better benchmarking tools</b> and <b>a better algorithm</b>. With improved benchmarking, we find more reliable rankings in simulation that match how real people interact with different learning algorithms and robots. <span class="grad"><b>Q-OIL</b></span> uses these corrections to guide exploration rather than as supervision, reaching 10–50% higher success on real robots with almost 30% less human effort. Because it is a small change to any off-policy RL algorithm, it also plugs directly into VLA post-training and improves pretrained VLAs on bimanual tasks.
+            Humans intervene suboptimally: they intervene late and their corrections are suboptimal.
+            <span class="grad"><b>Q-OIL</b></span> uses these corrections to guide exploration, and achieves 10–50% higher success on real robots with almost 30% less human effort.
         </p>
 
         <details class="try">
@@ -109,12 +110,12 @@
                 <figure class="card">
                     <h3>Simulated humans don't act like real ones</h3>
                     <video controls muted playsinline preload="metadata" data-play-in-view poster="assets/videos/problem_humans.jpg"><source src="assets/videos/problem_humans.mp4" type="video/mp4"></video>
-                    <figcaption class="cap need"><span class="sol">Solution</span>Build better benchmarking tools.</figcaption>
+                    <figcaption class="cap">So simulated benchmarks rank methods differently than real users do.</figcaption>
                 </figure>
                 <figure class="card">
                     <h3>Existing methods are fast or optimal, not both</h3>
                     <video controls muted playsinline preload="metadata" data-play-in-view poster="assets/videos/problem_curves.jpg"><source src="assets/videos/problem_curves.mp4" type="video/mp4"></video>
-                    <figcaption class="cap need"><span class="sol">Solution</span>Build an algorithm that is fast and can handle suboptimal corrections.</figcaption>
+                    <figcaption class="cap">Imitation stops at the person's level. Plain RL gets there slowly.</figcaption>
                 </figure>
             </div>
         </div>

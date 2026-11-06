@@ -182,7 +182,8 @@ ol.code li.m-chg { background: #fdf3e2; border-left-color: var(--amber); }
 
 /* ---------- Simulator ---------- */
 .sim { display: grid; grid-template-columns: minmax(0, 24rem) minmax(0, 1fr); gap: 1.75rem; align-items: start; }
-.sim .demo-arena { width: 100%; aspect-ratio: 1; display: block; border-radius: 12px; cursor: crosshair; touch-action: none; }
+.sim .demo-arena { width: 100%; aspect-ratio: 4 / 3; display: block; border-radius: 12px; cursor: pointer; touch-action: none; }
+.sim .demo-arena:focus-visible { outline: 2px solid #6a4fb4; outline-offset: 3px; }
 .sim .demo-legend { display: grid; grid-template-columns: auto 1fr; gap: 0.25rem 0.75rem; align-items: center; margin-top: 0.6rem; font-size: 0.82rem; color: var(--ink-3); }
 .sim .demo-legend-name { grid-row: 1 / 3; color: var(--ink-2); }
 .sim .demo-legend-bar { height: 8px; border-radius: 4px; }
@@ -204,6 +205,7 @@ ol.code li.m-chg { background: #fdf3e2; border-left-color: var(--amber); }
 .sim .demo-chart { width: 100%; height: 140px; display: block; }
 .sim-key { display: flex; gap: 1.1rem; font-size: 0.86rem; color: var(--ink-2); }
 .sim-key i { display: inline-block; width: 0.9rem; height: 3px; border-radius: 2px; margin-right: 0.35rem; vertical-align: 0.2em; }
+.sim-key i.dash { background: repeating-linear-gradient(to right, #4a4c55 0 4px, transparent 4px 7px); }
 .sim-help { font-size: 0.9rem; color: var(--ink-3); margin: 0; }
 .sim-help b { font-weight: 600; color: var(--ink-2); }
 

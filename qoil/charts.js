@@ -17,11 +17,11 @@
 
     // ------------------------------------------------------------------ bimanual VLA bars
     function yam(root) {
-        const groups = ["Bag: pickup", "Bag: pickup + insert", "Towel folding", "Coffee pouring"];
+        const groups = ["Bag: pickup", "Bag: full task", "Coffee: handover", "Coffee: full task"];
         const methods = [
-            { name: "Base VLA", color: C.base3, vals: [16.7, 0, 10, 0] },
-            { name: "BC+RL", color: C.base2, vals: [86.7, 0, 80, 40] },
-            { name: "Q-OIL", color: C.ours, vals: [86.7, 50, 90, 50] },
+            { name: "Base VLA", color: C.base3, vals: [16.7, 0, 10, 10] },
+            { name: "BC+RL", color: C.base2, vals: [86.7, 0, 100, 30] },
+            { name: "Q-OIL", color: C.ours, vals: [86.7, 50, 90, 70] },
         ];
         const svgWrap = root.querySelector(".chart-plot");
         const tip = root.querySelector(".chart-tip");

@@ -41,14 +41,12 @@
                 <li><button role="tab" aria-selected="true" aria-controls="run-pen">Pen in bowl</button></li>
                 <li><button role="tab" aria-selected="false" aria-controls="run-peg">Peg insertion</button></li>
                 <li><button role="tab" aria-selected="false" aria-controls="run-bottle">Bottle in bag</button></li>
-                <li><button role="tab" aria-selected="false" aria-controls="run-towel">Towel folding</button></li>
                 <li><button role="tab" aria-selected="false" aria-controls="run-coffee">Coffee pouring</button></li>
             </ol>
             <div class="stage">
                 <div class="panel is-active" id="run-pen" role="tabpanel"><video controls muted playsinline preload="metadata" poster="assets/videos/cmp_franka_pen.jpg" aria-label="Pen in bowl training run, BC+RL left, Q-OIL right"><source src="assets/videos/cmp_franka_pen.mp4" type="video/mp4"></video></div>
                 <div class="panel" id="run-peg" role="tabpanel"><video controls muted playsinline preload="none" poster="assets/videos/cmp_franka_peg.jpg" aria-label="Peg insertion training run, BC+RL left, Q-OIL right"><source src="assets/videos/cmp_franka_peg.mp4" type="video/mp4"></video></div>
                 <div class="panel" id="run-bottle" role="tabpanel"><video controls muted playsinline preload="none" poster="assets/videos/cmp_yam_bottle.jpg" aria-label="Bottle in bag training run, BC+RL left, Q-OIL right"><source src="assets/videos/cmp_yam_bottle.mp4" type="video/mp4"></video></div>
-                <div class="panel" id="run-towel" role="tabpanel"><video controls muted playsinline preload="none" poster="assets/videos/cmp_yam_towel.jpg" aria-label="Towel folding training run, BC+RL left, Q-OIL right"><source src="assets/videos/cmp_yam_towel.mp4" type="video/mp4"></video></div>
                 <div class="panel" id="run-coffee" role="tabpanel"><video controls muted playsinline preload="none" poster="assets/videos/cmp_yam_coffee.jpg" aria-label="Coffee pouring training run, BC+RL left, Q-OIL right"><source src="assets/videos/cmp_yam_coffee.mp4" type="video/mp4"></video></div>
             </div>
         </div>
@@ -63,11 +61,11 @@
             <div class="try-body card">
                 <div id="qoil-demo" class="sim">
                     <div>
-                        <canvas class="demo-arena" aria-label="Pushing task. Click and drag to take over the pusher."></canvas>
+                        <canvas class="demo-arena" aria-label="Maze task. Click a cell or use the arrow keys to take over the robot." tabindex="0"></canvas>
                         <div class="demo-legend"><span class="demo-legend-name"></span><div class="demo-legend-bar"></div><div class="demo-legend-labels"></div></div>
                     </div>
                     <div class="sim-side">
-                        <p class="sim-help">Push the orange puck into the ring. A simulated person takes over when progress stalls, or <b>click and drag</b> to take over yourself.</p>
+                        <p class="sim-help">The robot learns to reach the pink ring from scratch. Take over to help it: <b>click a cell</b> to steer it there, or click the maze and use the arrow keys.</p>
                         <div class="sim-row">
                             <span class="label">Algorithm</span>
                             <div class="seg" role="group" aria-label="Algorithm">
@@ -83,7 +81,6 @@
                             </div>
                         </div>
                         <div class="sim-row">
-                            <label class="switch"><input type="checkbox" data-action="supervisor" checked> Simulated person</label>
                             <button type="button" class="ghost-btn" data-action="reset">Restart training</button>
                         </div>
                         <dl class="readouts">
@@ -93,7 +90,7 @@
                             <div><dt>Takeovers, last 20</dt><dd data-stat="interventions">0%</dd></div>
                         </dl>
                         <canvas class="demo-chart" aria-hidden="true"></canvas>
-                        <div class="sim-key"><span><i style="background:#1f3f7a"></i>Success</span><span><i style="background:#d08a2f"></i>Steps under takeover</span></div>
+                        <div class="sim-key"><span><i style="background:#1f3f7a"></i>Success</span><span><i style="background:#d08a2f"></i>Steps under takeover</span><span><i class="dash"></i>Robot's best route</span></div>
                     </div>
                 </div>
             </div>
@@ -316,7 +313,7 @@
 
 <footer>University of Washington and Toyota Research Institute. Contact: <a href="mailto:pranavnt@cs.washington.edu">pranavnt@cs.washington.edu</a></footer>
 
-<script src="demo/qoil-core.js"></script>
-<script src="demo/qoil-demo.js"></script>
+<script src="demo/maze-core.js"></script>
+<script src="demo/maze-demo.js"></script>
 </body>
 </html>

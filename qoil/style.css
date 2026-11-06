@@ -328,3 +328,7 @@ a.fb:hover { text-decoration: none; filter: brightness(1.1); box-shadow: 0 0 0 3
 .hero-split video { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; border-radius: 10px; background: #0b0d11; display: block; }
 .hero-split figcaption { font-size: 0.88rem; color: var(--ink-3); margin-top: 0.4rem; text-align: center; }
 @media (max-width: 760px) { .hero-split { grid-template-columns: 1fr; } }
+
+/* Venue line under the authors */
+.venue { display: inline-block; margin-top: 0.45rem; font: 600 1.3rem var(--title); background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.venue:hover { text-decoration: none; filter: brightness(1.15); }

@@ -8,9 +8,9 @@
     <!-- Same fonts as the LMP page: Google Sans for titles and UI, Noto Sans for body text -->
     <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
-    <script defer src="site.js"></script>
-    <script defer src="charts.js"></script>
+    <link rel="stylesheet" href="style.css?v=5">
+    <script defer src="site.js?v=5"></script>
+    <script defer src="charts.js?v=5"></script>
 </head>
 <body>
 
@@ -52,8 +52,7 @@
         </div>
 
         <p class="summary">
-            People correct robots imperfectly: they step in late, and their fixes are rarely optimal.
-            <span class="grad"><b>Q-OIL</b></span> rewards these corrections instead of copying them, reaching 10–50% higher success on real robots with almost 30% less human effort.
+            Humans are suboptimal at correcting robot actions and provide delayed reactions. We first analyze real human data to build <b>better benchmarking tools</b> and <b>a better algorithm</b>. With improved benchmarking, we find more reliable rankings in simulation that match how real people interact with different learning algorithms and robots. <span class="grad"><b>Q-OIL</b></span> uses these corrections to guide exploration rather than as supervision, reaching 10–50% higher success on real robots with almost 30% less human effort. Because it is a small change to any off-policy RL algorithm, it also plugs directly into VLA post-training and improves pretrained VLAs on bimanual tasks.
         </p>
 
         <details class="try">
@@ -108,12 +107,12 @@
                 <figure class="card">
                     <h3>Simulated humans don't act like real ones</h3>
                     <video autoplay loop muted playsinline poster="assets/videos/problem_humans.jpg"><source src="assets/videos/problem_humans.mp4" type="video/mp4"></video>
-                    <figcaption class="cap">So simulated benchmarks rank methods differently than real users do.</figcaption>
+                    <figcaption class="cap need"><span class="sol">Solution</span>Build better benchmarking tools.</figcaption>
                 </figure>
                 <figure class="card">
                     <h3>Existing methods are fast or optimal, not both</h3>
                     <video autoplay loop muted playsinline poster="assets/videos/problem_curves.jpg"><source src="assets/videos/problem_curves.mp4" type="video/mp4"></video>
-                    <figcaption class="cap">Imitation stops at the person's level. Plain RL gets there slowly.</figcaption>
+                    <figcaption class="cap need"><span class="sol">Solution</span>Build an algorithm that is fast and can handle suboptimal corrections.</figcaption>
                 </figure>
             </div>
         </div>
@@ -144,7 +143,7 @@
                         <div class="panel" id="f2" role="tabpanel">
                             <div class="plot-frame"><img src="assets/figures/finding2_suboptimality.png" alt="Bar chart: intervention actions are about three times more suboptimal than the reference policy."></div>
                             <p class="step-cap">Takeover actions are <b>about 3× more suboptimal</b> than an expert policy.</p>
-                            <p class="so"><span class="tag">Design</span>So Q-OIL rewards corrections instead of copying them.</p>
+                            <p class="so"><span class="tag">Design</span>So Q-OIL uses corrections to guide exploration, not as targets to imitate.</p>
                         </div>
                         <div class="panel" id="f3" role="tabpanel">
                             <div class="plot-frame"><img src="assets/figures/finding3_divergence.png" alt="At intervention states, the converged policy's actions have higher value than the human's actions."></div>
@@ -162,8 +161,8 @@
             </div>
 
             <div class="block">
-                <h3 class="sub-title">Reward corrections, don't copy them</h3>
-                <p class="lede">We use these insights to design <span class="grad"><b>Q-OIL</b></span> (Q-Optimistic Intervention Learning): a simple change to any off-policy RL algorithm that rewards takeovers instead of imitating them.</p>
+                <h3 class="sub-title">Since human corrections are not always optimal, use them for exploration guidance rather than as supervision</h3>
+                <p class="lede">We use these insights to design <span class="grad"><b>Q-OIL</b></span> (Q-Optimistic Intervention Learning): a simple change to any off-policy RL algorithm: each takeover earns an optimism bonus that guides exploration.</p>
                 <div class="two">
                     <div class="card cmp-card">
                         <div class="cmp-head">HIL <small>RL with interventions</small></div>
@@ -174,22 +173,23 @@
                             <li class="i1">update Q toward r + γ Q(s', a')</li>
                             <li class="i1">update the policy to maximize Q</li>
                         </ol>
-                        <p class="cmp-verdict bad">A takeover is just one more transition.</p>
+                        <p class="cmp-verdict bad">Interventions are treated like any other data.</p>
                     </div>
                     <div class="card cmp-card is-ours">
                         <div class="cmp-head"><span class="grad">Q-OIL</span></div>
                         <ol class="code">
                             <li><span class="kw">for</span> each step:</li>
                             <li class="i1">act: the person if they take over, else the robot</li>
-                            <li class="i1 m-chg">store (s, a, r, s'), plus a bonus b if it was a takeover<a class="fb" href="#f2" data-goto-tab="f2" title="From finding 2: corrections are suboptimal">2</a></li>
+                            <li class="i1 m-chg">store (s, a, r, s'), plus a bonus b if it was a takeover<a class="fb" href="#f2" data-goto-tab="f2" title="From finding 2: corrections are suboptimal">Finding 2</a></li>
                             <li class="i1">update Q<sub>task</sub> toward r + γ Q<sub>task</sub>(s', a')</li>
-                            <li class="i1 m-add">update Q<sub>opt</sub> toward r + b + γ Q<sub>task</sub>(s', a')<a class="fb" href="#f1" data-goto-tab="f1" title="From finding 1: the states before a takeover are failures">1</a></li>
-                            <li class="i1 m-chg">update the policy to maximize Q<sub>opt</sub>, plus BC on takeovers<a class="fb" href="#f3" data-goto-tab="f3" title="From finding 3: corrections differ from the learned policy">3</a></li>
+                            <li class="i1 m-add">update Q<sub>opt</sub> toward r + b + γ Q<sub>task</sub>(s', a')<a class="fb" href="#f1" data-goto-tab="f1" title="From finding 1: the states before a takeover are failures">Finding 1</a></li>
+                            <li class="i1 m-chg">update the policy to maximize Q<sub>opt</sub>, plus BC on takeovers<a class="fb" href="#f3" data-goto-tab="f3" title="From finding 3: corrections differ from the learned policy">Finding 3</a></li>
                         </ol>
-                        <p class="cmp-verdict good">Takeovers are rewarded, and the bonus never leaks backward.</p>
+                        <p class="cmp-verdict good">Interventions guide exploration, and the bonus stays on the intervention.</p>
                     </div>
                 </div>
-                <p class="cmp-legend"><span class="lg add">added</span><span class="lg chg">changed</span><span class="lg-fb"><a class="fb" href="#f1" data-goto-tab="f1">1</a><a class="fb" href="#f2" data-goto-tab="f2">2</a><a class="fb" href="#f3" data-goto-tab="f3">3</a>data-driven motivations</span></p>
+                <p class="cmp-legend"><span class="lg add">added</span><span class="lg chg">changed</span></p>
+                <p class="insight"><span class="fb">Our algorithm is based on data-driven insights</span></p>
             </div>
         </div>
     </section>
@@ -200,8 +200,43 @@
         <div class="container">
             <h2 class="section-title">How does Q-OIL work?</h2>
             <div class="narrow">
-                <p class="justified">Each takeover earns a small bonus, which raises the value of the path the person showed, so the robot explores there instead of copying the exact actions. A second, task-only critic provides the bootstrap targets, so the bonus cannot leak back to the states where the robot was failing. As the robot needs help less often, bonus steps become rare and Q-OIL settles on the policy that is best for the task.</p>
+                <p class="justified">Each takeover earns a small bonus, which raises the value of the path the person showed, so the robot explores corrective behaviors without directly mimicking them. A second, task-only critic provides the bootstrap targets, so the bonus cannot leak back to the states where the robot was failing. As the robot needs help less often, bonus steps become rare and Q-OIL settles on the policy that is best for the task.</p>
                 <video controls muted playsinline preload="metadata" data-play-in-view poster="assets/videos/how_method.jpg" style="width:100%; aspect-ratio:16/9; border-radius:10px; background:#0b0d11; margin-top:0.5rem"><source src="assets/videos/how_method.mp4" type="video/mp4"></video>
+            </div>
+
+            <div class="decouple">
+                <h3 class="sub-title center">Why two critics?</h3>
+                <div class="dec-grid">
+                    <figure class="dec-heat">
+                        <svg viewBox="0 0 620 380" role="img" aria-label="Learned value on a grid world. With one critic, the highest values sit near the start, where the robot was failing. With Q-OIL's two critics, value rises toward the goal.">
+                            <defs>
+                                <linearGradient id="viridis"><stop offset="0.000" stop-color="#440154"/><stop offset="0.111" stop-color="#482878"/><stop offset="0.222" stop-color="#3e4989"/><stop offset="0.333" stop-color="#31688e"/><stop offset="0.444" stop-color="#26828e"/><stop offset="0.556" stop-color="#1f9e89"/><stop offset="0.667" stop-color="#35b779"/><stop offset="0.778" stop-color="#6ece58"/><stop offset="0.889" stop-color="#b5de2b"/><stop offset="1.000" stop-color="#fde725"/></linearGradient>
+                                <marker id="dec-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#b3261e"/></marker>
+                                <marker id="dec-arrow-good" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#1f7a3f"/></marker>
+                            </defs>
+                            <text class="dec-title" x="145" y="20" text-anchor="middle">One critic</text>
+                            <text class="dec-title" x="475" y="20" text-anchor="middle">Q-OIL: two critics</text>
+                            <image href="assets/figures/heat_one_critic.png" x="15" y="32" width="260" height="260"/>
+                            <image href="assets/figures/heat_two_critics.png" x="345" y="32" width="260" height="260"/>
+                            <rect class="dec-note bad" x="34" y="160" width="190" height="58" rx="8"/>
+                            <text class="dec-note-t" x="129" y="183" text-anchor="middle">Bonus leaks back: states</text>
+                            <text class="dec-note-t" x="129" y="203" text-anchor="middle">before takeovers look best</text>
+                            <path class="dec-arrow bad" d="M110,160 C100,120 90,95 72,70" marker-end="url(#dec-arrow)"/>
+                            <rect class="dec-note good" x="362" y="200" width="150" height="58" rx="8"/>
+                            <text class="dec-note-t" x="437" y="223" text-anchor="middle">Value rises</text>
+                            <text class="dec-note-t" x="437" y="243" text-anchor="middle">toward the goal</text>
+                            <path class="dec-arrow good" d="M512,229 C540,229 560,245 572,262" marker-end="url(#dec-arrow-good)"/>
+                            <rect x="15" y="318" width="590" height="10" rx="5" fill="url(#viridis)"/>
+                            <text class="dec-tick" x="15" y="346">low value</text>
+                            <text class="dec-tick" x="605" y="346" text-anchor="end">high value</text>
+                            <text class="dec-tick" x="310" y="346" text-anchor="middle">green dot: start · red dot: goal</text>
+                        </svg>
+                    </figure>
+                    <figure class="dec-flow">
+                        <img src="assets/figures/qoil_flow.png" alt="Q-OIL training: the task critic Q_TD learns from the task reward and bootstraps from itself; the optimistic critic Q_opt adds the bonus but bootstraps from Q_TD, and the policy improves on Q_opt.">
+                        <figcaption>Q<sub>opt</sub> gets the bonus but bootstraps from the task critic Q<sub>TD</sub>, so the bonus stays on the takeover and never spreads to the states before it.</figcaption>
+                    </figure>
+                </div>
             </div>
 
             <div class="narrow" style="margin-top:3rem">
@@ -209,7 +244,7 @@
                 <video autoplay loop muted playsinline poster="assets/videos/behavior.jpg" style="width:100%; aspect-ratio:16/9; border-radius:10px; background:#0b0d11"><source src="assets/videos/behavior.mp4" type="video/mp4"></video>
                 <div class="compare-labels">
                     <div class="is-ours"><b>Q-OIL</b>The bonus stays on the corrected path, and the policy solves the maze.</div>
-                    <div><b>No decoupling</b>With one critic, the bonus leaks to every state and the policy goes nowhere.</div>
+                    <div><b>No decoupling</b>With one critic, the bonus leaks to even the bad states before the intervention, and the policy collapses.</div>
                     <div><b>HIL</b>Corrections are just more data. The policy does not find the way in time.</div>
                 </div>
             </div>
@@ -229,36 +264,68 @@
             </ul>
 
             <div class="block">
-                <h3 class="sub-title">Simulation, with PAM</h3>
-                <div class="plot-row">
-                    <img src="assets/figures/plots/sim_lift.png" alt="Success rate on Lift with the simulated human." loading="lazy">
-                    <img src="assets/figures/plots/sim_can.png" alt="Success rate on Can with the simulated human." loading="lazy">
-                    <img src="assets/figures/plots/sim_square.png" alt="Success rate on Square with the simulated human." loading="lazy">
+                <h3 class="sub-title">Simulated and real human interventions</h3>
+                <ul class="points">
+                    <li><b>Q-OIL robustly outperforms all methods</b> with both simulated and real human interventions.</li>
+                    <li><b>Our updated simulated intervention model (PAM) keeps the ranking of all algorithms</b> that real people produce, so simulation gives more reliable insights.</li>
+                </ul>
+                <div class="sh">
+                    <div class="sh-row">Simulated interventions <span>(PAM)</span></div>
+                    <div class="sh-plots">
+                        <figure class="sh-cell"><img class="sh-thumb" src="assets/figures/tasks/lift.jpg" alt="Lift task: pick up a cube." loading="lazy"><div class="ax"><span class="ax-y">Success rate</span><img src="assets/figures/plots/sim_lift.png" alt="Success rate on Lift with simulated interventions." loading="lazy"><span class="ax-x">Environment steps</span></div></figure>
+                        <figure class="sh-cell"><img class="sh-thumb" src="assets/figures/tasks/can.jpg" alt="Can task: move a can into a bin." loading="lazy"><div class="ax"><span class="ax-y">Success rate</span><img src="assets/figures/plots/sim_can.png" alt="Success rate on Can with simulated interventions." loading="lazy"><span class="ax-x">Environment steps</span></div></figure>
+                        <figure class="sh-cell"><img class="sh-thumb" src="assets/figures/tasks/square.jpg" alt="Square task: fit a square nut onto a peg." loading="lazy"><div class="ax"><span class="ax-y">Success rate</span><img src="assets/figures/plots/sim_square.png" alt="Success rate on Square with simulated interventions." loading="lazy"><span class="ax-x">Environment steps</span></div></figure>
+                    </div>
+                    <div class="sh-row">Real human interventions</div>
+                    <div class="sh-plots is-two">
+                        <figure class="sh-cell"><div class="ax"><span class="ax-y">Success rate (%)</span><img src="assets/figures/plots/human_lift.png" alt="Success rate on Lift with real human interventions." loading="lazy"><span class="ax-x">Environment steps</span></div></figure>
+                        <figure class="sh-cell"><div class="ax"><span class="ax-y">Success rate (%)</span><img src="assets/figures/plots/human_can.png" alt="Success rate on Can with real human interventions." loading="lazy"><span class="ax-x">Environment steps</span></div></figure>
+                    </div>
                 </div>
                 <img class="legend" src="assets/figures/plots/sim_legend.png" alt="Legend: Q-OIL, Q-OIL without BC, HG-DAgger, HIL, BC+RL, SIRIUS, PVP, RLIF.">
             </div>
 
             <div class="block">
-                <h3 class="sub-title">Real people, simulated robots</h3>
-                <div class="plot-row two">
-                    <img src="assets/figures/plots/human_lift.png" alt="Success rate on Lift with real human supervisors." loading="lazy">
-                    <img src="assets/figures/plots/human_can.png" alt="Success rate on Can with real human supervisors." loading="lazy">
-                </div>
-                <img class="legend" style="max-width:min(30rem,100%)" src="assets/figures/plots/human_legend.png" alt="Legend: Q-OIL, Q-OIL without BC, HG-DAgger, HIL, RLIF, BC+RL.">
-            </div>
-
-            <div class="block">
                 <h3 class="sub-title">Real robots: Franka</h3>
-                <div class="plot-row compact">
-                    <img src="assets/figures/plots/real_pen_in_bowl.png" alt="Success rate on pen in bowl." loading="lazy">
-                    <img src="assets/figures/plots/real_peg_insertion.png" alt="Success rate on peg insertion." loading="lazy">
-                    <img src="assets/figures/plots/real_unbutton_shirt.png" alt="Success rate on unbuttoning a shirt." loading="lazy">
+                <ul class="points">
+                    <li><b>Q-OIL reaches 10–50% higher success</b> on real Franka tasks, with about 30% less human effort.</li>
+                </ul>
+                <div class="real-grid">
+                    <figure class="task-col">
+                        <video autoplay loop muted playsinline poster="assets/videos/task_pen.jpg" aria-label="Q-OIL putting a pen in a bowl"><source src="assets/videos/task_pen.mp4" type="video/mp4"></video>
+                        <figcaption>Pen in bowl</figcaption>
+                        <div class="ax"><span class="ax-y">Success rate</span><img src="assets/figures/plots/real_pen_in_bowl.png" alt="Success rate on pen in bowl." loading="lazy"><span class="ax-x">Environment steps</span></div>
+                    </figure>
+                    <figure class="task-col">
+                        <video autoplay loop muted playsinline poster="assets/videos/task_peg.jpg" aria-label="Q-OIL inserting a peg"><source src="assets/videos/task_peg.mp4" type="video/mp4"></video>
+                        <figcaption>Peg insertion</figcaption>
+                        <div class="ax"><span class="ax-y">Success rate</span><img src="assets/figures/plots/real_peg_insertion.png" alt="Success rate on peg insertion." loading="lazy"><span class="ax-x">Environment steps</span></div>
+                    </figure>
+                    <figure class="task-col">
+                        <img class="task-media" src="assets/figures/tasks/unbutton_shirt.jpg" alt="Unbutton shirt task setup." loading="lazy">
+                        <figcaption>Unbutton shirt</figcaption>
+                        <div class="ax"><span class="ax-y">Success rate</span><img src="assets/figures/plots/real_unbutton_shirt.png" alt="Success rate on unbuttoning a shirt." loading="lazy"><span class="ax-x">Environment steps</span></div>
+                    </figure>
                 </div>
                 <img class="legend sm" src="assets/figures/plots/real_legend.png" alt="Legend: Q-OIL, HG-DAgger, HIL, BC+RL.">
             </div>
 
             <div class="block">
                 <h3 class="sub-title">Pretrained VLAs, bimanual robot</h3>
+                <ul class="points">
+                    <li><b>Q-OIL drops straight into a VLA post-training pipeline.</b> We fine-tune a pretrained VLA on 25 demonstrations, freeze it, and train a small residual policy online with Q-OIL from the operator's interventions.</li>
+                    <li><b>It improves full-task success on both tasks</b> over BC+RL: 50% vs. 0% on bag assembly and 70% vs. 30% on coffee pouring.</li>
+                </ul>
+                <div class="yam-media">
+                    <figure>
+                        <video autoplay loop muted playsinline poster="assets/videos/yam_setup.jpg" aria-label="An operator intervening on the bimanual robot through leader arms"><source src="assets/videos/yam_setup.mp4" type="video/mp4"></video>
+                        <figcaption>The operator steps in through leader arms that mirror the robot.</figcaption>
+                    </figure>
+                    <figure>
+                        <video autoplay loop muted playsinline poster="assets/videos/yam_bottle_eval.jpg" aria-label="Bag assembly evaluation on three reset sets: BC+RL left, Q-OIL right"><source src="assets/videos/yam_bottle_eval.mp4" type="video/mp4"></video>
+                        <figcaption>Bag assembly evaluation: BC+RL (left) vs. Q-OIL (right).</figcaption>
+                    </figure>
+                </div>
                 <div class="card">
                     <div class="chart" data-chart="yam">
                         <div class="bar-key">
@@ -279,12 +346,7 @@
                         <figcaption>Success vs. bonus size, averaged over the Robomimic tasks.</figcaption>
                     </figure>
                     <div class="abl-side">
-                        <div class="heat-pair">
-                            <figure><figcaption>One critic</figcaption><img src="assets/figures/heat_one_critic.png" alt="Learned value with a single critic: high values hug the start in the top-left corner."></figure>
-                            <figure><figcaption><span class="grad"><b>Q-OIL</b></span>, two critics</figcaption><img src="assets/figures/heat_two_critics.png" alt="Learned value with decoupled critics: values increase toward the goal in the bottom-right corner."></figure>
-                        </div>
-                        <p class="heat-cap">Learned value on a grid world after 50k steps, from the start (top left) to the goal (bottom right).</p>
-                        <p><b>Q-OIL is stable across a 50× range</b> of bonus values. With one critic, the bonus leaks backward: value piles up near the start instead of the goal, and <b>performance collapses as the bonus grows</b>.</p>
+                        <p><b>Q-OIL is stable across a 50× range</b> of bonus values. With one critic, the bonus leaks backward (see <a href="#how">Why two critics?</a>), and <b>performance collapses as the bonus grows</b>.</p>
                     </div>
                 </div>
             </div>
@@ -313,7 +375,7 @@
 
 <footer>University of Washington and Toyota Research Institute. Contact: <a href="mailto:pranavnt@cs.washington.edu">pranavnt@cs.washington.edu</a></footer>
 
-<script src="demo/maze-core.js"></script>
-<script src="demo/maze-demo.js"></script>
+<script src="demo/maze-core.js?v=5"></script>
+<script src="demo/maze-demo.js?v=5"></script>
 </body>
 </html>

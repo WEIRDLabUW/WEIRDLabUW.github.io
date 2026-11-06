@@ -17,11 +17,11 @@
 
     // ------------------------------------------------------------------ bimanual VLA bars
     function yam(root) {
-        const groups = ["Bag: pickup", "Bag: full task", "Coffee: handover", "Coffee: full task"];
+        const groups = ["Bag: pickup", "Bag: full task", "Coffee: full task"];
         const methods = [
-            { name: "Base VLA", color: C.base3, vals: [16.7, 0, 10, 10] },
-            { name: "BC+RL", color: C.base2, vals: [86.7, 0, 100, 30] },
-            { name: "Q-OIL", color: C.ours, vals: [86.7, 50, 90, 70] },
+            { name: "Base VLA", color: C.base3, vals: [16.7, 0, 10] },
+            { name: "BC+RL", color: C.base2, vals: [86.7, 0, 30] },
+            { name: "Q-OIL", color: C.ours, vals: [86.7, 50, 70] },
         ];
         const svgWrap = root.querySelector(".chart-plot");
         const tip = root.querySelector(".chart-tip");
@@ -34,7 +34,7 @@
             const y = v => pad.t + (1 - v / 100) * (H - pad.t - pad.b);
             svgWrap.innerHTML = "";
             const svg = el("svg", { width: W, height: H, viewBox: `0 0 ${W} ${H}`, role: "img",
-                "aria-label": "Success rates of the base VLA, BC+RL and Q-OIL on four bimanual measurements" }, svgWrap);
+                "aria-label": "Success rates of the base VLA, BC+RL and Q-OIL on three bimanual measurements" }, svgWrap);
             [0, 25, 50, 75, 100].forEach(t => {
                 el("line", { x1: pad.l, x2: W - pad.r, y1: y(t), y2: y(t), stroke: C.grid }, svg);
                 el("text", { x: pad.l - 8, y: y(t), "text-anchor": "end", "dominant-baseline": "middle", class: "tick" }, svg).textContent = `${t}%`;

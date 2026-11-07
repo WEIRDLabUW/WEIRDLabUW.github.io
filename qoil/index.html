@@ -297,22 +297,26 @@
                 <h3 class="sub-title">Real robots: Franka</h3>
                 <ul class="points">
                     <li><b>Q-OIL reaches 10–50% higher success</b> on real Franka tasks, with about 30% less human effort.</li>
+                    <li>Q-OIL is the most efficient in terms of interventions across tasks, i.e., it makes maximal use of each human correction to adapt its behavior.</li>
                 </ul>
                 <div class="real-grid">
                     <figure class="task-col">
                         <video autoplay loop muted playsinline poster="assets/videos/task_pen.jpg" aria-label="Q-OIL putting a pen in a bowl"><source src="assets/videos/task_pen.mp4" type="video/mp4"></video>
                         <figcaption>Pen in bowl</figcaption>
                         <div class="ax"><span class="ax-y">Success rate</span><img src="assets/figures/plots/real_pen_in_bowl.png" alt="Success rate on pen in bowl." loading="lazy"><span class="ax-x">Environment steps</span></div>
+                        <div class="ax"><span class="ax-y">Intervention steps (×10²)</span><img src="assets/figures/plots/real_effort_pen_in_bowl.png" alt="Human effort (intervention steps) on pen in bowl." loading="lazy"><span class="ax-x">Environment steps</span></div>
                     </figure>
                     <figure class="task-col">
                         <video autoplay loop muted playsinline poster="assets/videos/task_peg.jpg" aria-label="Q-OIL inserting a peg"><source src="assets/videos/task_peg.mp4" type="video/mp4"></video>
                         <figcaption>Peg insertion</figcaption>
                         <div class="ax"><span class="ax-y">Success rate</span><img src="assets/figures/plots/real_peg_insertion.png" alt="Success rate on peg insertion." loading="lazy"><span class="ax-x">Environment steps</span></div>
+                        <div class="ax"><span class="ax-y">Intervention steps (×10²)</span><img src="assets/figures/plots/real_effort_peg_insertion.png" alt="Human effort (intervention steps) on peg insertion." loading="lazy"><span class="ax-x">Environment steps</span></div>
                     </figure>
                     <figure class="task-col">
                         <video autoplay loop muted playsinline poster="assets/videos/task_shirt.jpg" aria-label="Q-OIL unbuttoning a shirt"><source src="assets/videos/task_shirt.mp4" type="video/mp4"></video>
                         <figcaption>Unbutton shirt</figcaption>
                         <div class="ax"><span class="ax-y">Success rate</span><img src="assets/figures/plots/real_unbutton_shirt.png" alt="Success rate on unbuttoning a shirt." loading="lazy"><span class="ax-x">Environment steps</span></div>
+                        <div class="ax"><span class="ax-y">Intervention steps (×10²)</span><img src="assets/figures/plots/real_effort_unbutton_shirt.png" alt="Human effort (intervention steps) on unbuttoning a shirt." loading="lazy"><span class="ax-x">Environment steps</span></div>
                     </figure>
                 </div>
                 <img class="legend sm" src="assets/figures/plots/real_legend.png" alt="Legend: Q-OIL, HG-DAgger, HIL, BC+RL.">

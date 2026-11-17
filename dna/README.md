@@ -2,6 +2,8 @@
 
 This is the repository that contains source code for the [D&A: Decoupling Description and Assessment Enables VLMs as Zero-Shot Robotic Reward Models](https://weirdlabuw.github.io/dna/) project page.
 
+Quick overview: [Cheatsheet](https://x.com/memmelma/status/2122744817667219927).
+
 If you find D&A useful for your work please cite:
 ```
 @misc{memmel2026dna,
